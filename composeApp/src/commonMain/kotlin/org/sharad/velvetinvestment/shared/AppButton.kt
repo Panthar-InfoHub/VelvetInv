@@ -27,8 +27,8 @@ fun AppButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = Primary,
             contentColor = Color.White,
-            disabledContentColor = Primary.copy(alpha = 0.5f),
-            disabledContainerColor = Color.White
+            disabledContentColor = Color.White ,
+            disabledContainerColor = Primary.copy(alpha = 0.5f)
         )
     ){
         Text(

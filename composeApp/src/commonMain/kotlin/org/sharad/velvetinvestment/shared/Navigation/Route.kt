@@ -11,6 +11,9 @@ object Route {
     data object MainAppFlow
 
     @Serializable
+    data class OnBoardingFlow(val index: Int)
+
+    @Serializable
     data object SplashScreen
 
     @Serializable

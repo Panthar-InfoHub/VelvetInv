@@ -74,11 +74,11 @@ val Typography @Composable get() = Typography(
         fontSize = 14.sp
     ),
 
+    ////////////////////////
     displayLarge = TextStyle(
         fontFamily = Poppins,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        color = Color(0xFF909090)
     ),
 
     displayMedium = TextStyle(
