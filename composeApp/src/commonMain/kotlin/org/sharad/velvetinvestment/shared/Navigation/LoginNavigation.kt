@@ -8,8 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import org.sharad.velvetinvestment.presentation.LoginScreen.LoginScreen
 import org.sharad.velvetinvestment.presentation.SplashScreen.SplashScreen
+import org.sharad.velvetinvestment.presentation.onboarding.compose.OnboardingScreenRoot
 import org.sharad.velvetinvestment.utils.WindowSize
 
 @Composable
@@ -22,7 +24,7 @@ fun LoginNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = Route.SplashScreen,
+        startDestination = Route.OnBoardingFlow(1),
         // Forward navigation animation
         enterTransition = {
             slideInHorizontally(
@@ -78,6 +80,10 @@ fun LoginNavigation(
                 windowSize=windowSize,
                 onLoginSuccessNavigation=onLoginSuccessNavigation
             )
+        }
+        composable<Route.OnBoardingFlow> {
+            val index=it.toRoute<Route.OnBoardingFlow>().index
+            OnboardingScreenRoot(index)
         }
     }
 

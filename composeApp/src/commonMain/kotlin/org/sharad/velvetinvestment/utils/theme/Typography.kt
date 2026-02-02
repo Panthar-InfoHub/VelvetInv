@@ -50,21 +50,21 @@ val Typography @Composable get() = Typography(
 
     headlineMedium = TextStyle(
         fontFamily = Poppins,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 18.sp
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
     ),
 
     headlineSmall = TextStyle(
         fontFamily = Poppins,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp
     ),
 
 
     bodyMedium = TextStyle(
         fontFamily = Poppins,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp
     ),
 
     //////////////////////////////////////////
@@ -83,16 +83,25 @@ val Typography @Composable get() = Typography(
 
     displayMedium = TextStyle(
         fontFamily = Poppins,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        color = Color(0xFF909090)
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp,
     ),
 
     displaySmall = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
-        color = Color(0xFF909090)
+    ),
+
+    labelSmall = TextStyle(
+        fontFamily = Poppins,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+    ),
+    labelLarge = TextStyle(
+        fontFamily = Poppins,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp,
     ),
 
 )
@@ -101,4 +110,25 @@ val buttonTextStyle @Composable get() = TextStyle(
     fontFamily = Poppins,
     fontWeight = FontWeight.Medium,
     fontSize = 18.sp,
+)
+
+val largeTextStyle @Composable get() = TextStyle(
+    fontFamily = Poppins,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 40.sp
+)
+val titlesStyle @Composable get() = TextStyle(
+    fontFamily = Poppins,
+    fontWeight = FontWeight.Normal,
+    fontSize = 14.sp
+)
+val subHeadingMedium @Composable get() = TextStyle(
+    fontFamily = Poppins,
+    fontWeight = FontWeight.Medium,
+    fontSize = 20.sp
+)
+val subHeading @Composable get() = TextStyle(
+    fontFamily = Poppins,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 16.sp
 )
