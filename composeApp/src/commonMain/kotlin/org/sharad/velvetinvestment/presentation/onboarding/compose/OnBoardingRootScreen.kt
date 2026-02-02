@@ -38,7 +38,7 @@ fun OnboardingScreenRoot(
                 currentStep = currentStep,
                 onSkip = {},
                 showSkip = true,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             Box(
