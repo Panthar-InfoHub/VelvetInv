@@ -5,9 +5,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.sharad.velvetinvestment.presentation.onboarding.models.PersonalDetails
-import org.sharad.velvetinvestment.presentation.onboarding.models.RetirementInfo
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 
-class OnBoardingScreenViewModel(
+class PersonalDetailsScreenViewModel(
    private val step:Int
 ): ViewModel() {
 
@@ -16,10 +16,6 @@ class OnBoardingScreenViewModel(
 
     private val _personalDetails=MutableStateFlow(PersonalDetails())
     val personalDetails=_personalDetails.asStateFlow()
-
-    private val _retirementInfo= MutableStateFlow<RetirementInfo>(RetirementInfo())
-    val retirementInfo=_retirementInfo.asStateFlow()
-
 
     fun onNameChange(name:String){
         _personalDetails.update { it.copy(fullName = name) }
@@ -49,5 +45,15 @@ class OnBoardingScreenViewModel(
     fun previousStep(){
         _currentStep.value--
 
+    }
+
+    fun onSliderChange(year:Int){
+        _personalDetails.update {
+            it.copy(
+                retirementYear = year,
+                retirementAge = it.dob?.let {dobYear-> year -  DateTimeUtils.getYear(dobYear) },
+                savingYears = year - DateTimeUtils.getCurrentYear()
+            )
+        }
     }
 }

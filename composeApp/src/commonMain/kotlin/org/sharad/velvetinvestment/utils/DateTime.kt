@@ -25,6 +25,9 @@ object DateTimeUtils {
         return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
     }
 
+    fun getYear(epochMillis: Long):Int{
+        return Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(TimeZone.currentSystemDefault()).year
+    }
     /**
      * Get current time in epoch milliseconds
      * @return Current time as epoch millis

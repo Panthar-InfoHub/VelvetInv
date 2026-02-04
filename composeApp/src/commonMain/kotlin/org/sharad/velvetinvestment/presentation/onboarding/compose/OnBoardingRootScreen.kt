@@ -14,14 +14,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.OnBoardingScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.PersonalDetailScreen
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
 
 @Composable
 fun OnboardingScreenRoot(
     onBoardingStep:Int=1,
 ) {
 
-    val viewModel: OnBoardingScreenViewModel= koinViewModel { parametersOf(onBoardingStep) }
+
+
+    val viewModel: PersonalDetailsScreenViewModel= koinViewModel { parametersOf(onBoardingStep) }
     val currentStep by viewModel.currentStep.collectAsStateWithLifecycle()
     val personalDetails by viewModel.personalDetails.collectAsStateWithLifecycle()
 
@@ -49,14 +52,15 @@ fun OnboardingScreenRoot(
                 when (currentStep) {
                     1 -> {
                         PersonalDetailScreen(
-                            onNameChange = {},
-                            onEmailChange = {},
-                            onPhoneChange = {},
-                            onCityChange = {},
-                            onDobChange = {},
-                            onNext = {},
+                            onNameChange = { viewModel.onNameChange(it) },
+                            onEmailChange = { viewModel.onEmailChange(it) },
+                            onPhoneChange = { viewModel.onPhoneChange(it) },
+                            onCityChange = { viewModel.onCityChange(it) },
+                            onDobChange = { viewModel.onDobChange(it) },
+                            onNext = { viewModel.nextStep() },
+                            onSliderChange = { viewModel.onSliderChange(it) },
                             details = personalDetails,
-                            pv=pv
+                            pv = pv
                         )
                     }
                 }
