@@ -17,14 +17,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Secondary
-import org.sharad.emify.core.ui.theme.bgColor1
+import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.bgColor2
 import org.sharad.emify.core.ui.theme.bgSecondaryColor
-import org.sharad.emify.core.ui.theme.color1
+import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
 import org.sharad.velvetinvestment.presentation.onboarding.models.PersonalDetails
-import org.sharad.velvetinvestment.shared.AppButton
+import org.sharad.velvetinvestment.shared.compose.AppButton
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_callender
 import velvet.composeapp.generated.resources.icon_clock
@@ -108,7 +108,7 @@ fun PersonalDetailScreen(
                     label = "Retirement Year",
                     value = details.retirementYear.toString(),
                     icon = Res.drawable.icon_callender,
-                    backgroundColor = bgColor1,
+                    backgroundColor = bgColor3,
                     labelColor = Secondary
                 )
             }
@@ -127,7 +127,7 @@ fun PersonalDetailScreen(
                     value = details.savingYears.toString(),
                     icon = Res.drawable.icon_clock,
                     backgroundColor = bgColor2,
-                    labelColor = color1
+                    labelColor = bgColor1
                 )
             }
 
@@ -155,7 +155,7 @@ fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues) {
         contentAlignment = Alignment.Center
     ){
         AppButton(
-            modifier = Modifier.fillMaxWidth().padding(start = 28.dp, end = 28.dp, top = 20.dp, bottom = 16.dp+pv.calculateBottomPadding()),
+            modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 16.dp+pv.calculateBottomPadding()),
             onClick = onClick,
             text = "Next"
         )

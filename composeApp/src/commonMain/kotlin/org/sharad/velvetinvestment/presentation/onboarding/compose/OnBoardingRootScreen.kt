@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CurrentAssetScreen
+import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.FinancialFlowScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.PersonalDetailScreen
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
 
@@ -61,6 +63,20 @@ fun OnboardingScreenRoot(
                             onSliderChange = { viewModel.onSliderChange(it) },
                             details = personalDetails,
                             pv = pv
+                        )
+                    }
+                    2->{
+                        FinancialFlowScreen(
+                            pv = pv,
+                            onNext = {viewModel.nextStep()},
+                            onPrev = {viewModel.previousStep()},
+                        )
+                    }
+                    3->{
+                        CurrentAssetScreen(
+                            pv = pv,
+                            onNext = {viewModel.nextStep()},
+                            onPrev = {viewModel.previousStep()},
                         )
                     }
                 }

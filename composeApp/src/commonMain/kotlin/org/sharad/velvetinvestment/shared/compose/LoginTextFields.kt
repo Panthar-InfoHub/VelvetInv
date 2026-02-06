@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.shared
+package org.sharad.velvetinvestment.shared.compose
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box

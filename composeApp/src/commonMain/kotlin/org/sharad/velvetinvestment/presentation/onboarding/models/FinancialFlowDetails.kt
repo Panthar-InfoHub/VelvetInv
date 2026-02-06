@@ -1,15 +1,23 @@
 package org.sharad.velvetinvestment.presentation.onboarding.models
 
 data class FinancialFlowDetails(
-    val annualIncome:Int,
-    val houseExpense:Int,
-    val foodExpense:Int,
-    val transportExpense:Int,
-    val otherExpense:Int
+    val annualIncome:Long?=null,
+    val houseExpense:Long?=null,
+    val foodExpense:Long?=null,
+    val transportExpense:Long?=null,
+    val otherExpense:Long?=null
 )
 
 data class FinancialSummary(
-    val totalExpense:Int,
-    val monthlySurplus:Int,
-    val savingsRate: Double
+    val totalExpense: String,
+    val monthlySurplus:String,
+    val savingsRate: String
+)
+
+data class ExpensePercentages(
+    val housePercent: Float = 0f,
+    val foodPercent: Float = 0f,
+    val transportPercent: Float = 0f,
+    val otherPercent: Float = 0f,
+    val totalExpense: Long = 0L
 )
