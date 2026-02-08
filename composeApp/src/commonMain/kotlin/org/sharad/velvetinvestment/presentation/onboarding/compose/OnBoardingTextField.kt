@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
@@ -31,7 +33,8 @@ fun OnBoardingTextField(
     placeHolder:String,
     label:String,
     mandatory: Boolean=false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType= KeyboardType.Text
 ){
 
     Column(
@@ -60,6 +63,7 @@ fun OnBoardingTextField(
             onValueChange = {it-> onValueChange(it) },
             singleLine = true,
             textStyle = MaterialTheme.typography.bodySmall,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             modifier = modifier.fillMaxWidth()
                 .height(54.dp)
                 .shadow(elevation = 8.dp,RoundedCornerShape(15.dp), spotColor = Color.Black.copy(alpha = 0.4f))
@@ -73,14 +77,15 @@ fun OnBoardingTextField(
         ) {
 
             Box(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 if (value.isEmpty()) {
                     Text(
                         text = placeHolder,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xffC5C5C5)
+                        color = Color(0xffC5C5C5),
+                        maxLines = 1
                     )
                 }
                 it()

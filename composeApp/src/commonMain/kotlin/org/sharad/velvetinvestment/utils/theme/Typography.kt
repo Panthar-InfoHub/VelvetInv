@@ -44,7 +44,7 @@ val Typography @Composable get() = Typography(
     headlineLarge = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 24.sp
+        fontSize = 22.sp
     ),
 
 
@@ -125,7 +125,7 @@ val titlesStyle @Composable get() = TextStyle(
 val subHeadingMedium @Composable get() = TextStyle(
     fontFamily = Poppins,
     fontWeight = FontWeight.Medium,
-    fontSize = 20.sp
+    fontSize = 18.sp
 )
 val subHeading @Composable get() = TextStyle(
     fontFamily = Poppins,

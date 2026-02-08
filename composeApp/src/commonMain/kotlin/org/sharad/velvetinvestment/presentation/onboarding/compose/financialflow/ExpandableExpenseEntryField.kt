@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.presentation.onboarding.compose.financialflo
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,12 +31,11 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.utils.formatMoneyWithK
+import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 import velvet.composeapp.generated.resources.circle_arrow
-import kotlin.math.exp
 
 @Composable
 fun ExpandableExpenseEntryField(
@@ -72,12 +72,12 @@ fun ExpandableExpenseEntryField(
             UnExtendedPart(
                 heading = heading,
                 subHeading = subHeading,
-                amount = amount?:0,
+                amount = amount,
                 percentage = percentage,
-                expended=expended,
-                accentColor=accentColor,
-                onIconClick={expended=!expended},
-                icon=icon
+                expended =expended,
+                accentColor =accentColor,
+                onIconClick ={expended=!expended},
+                icon =icon
             )
 
             if (expended){
@@ -136,7 +136,7 @@ fun ExtendedPart(
 fun UnExtendedPart(
     heading: String,
     subHeading: String,
-    amount: Long,
+    amount: Long?,
     percentage: Int?,
     expended: Boolean,
     onIconClick: () -> Unit,
@@ -145,7 +145,12 @@ fun UnExtendedPart(
 ) {
     Row(
         modifier=Modifier.fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .clickable(
+                onClick = {onIconClick()},
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -181,12 +186,12 @@ fun UnExtendedPart(
             )
         }
 
-        if (expended){
+        if (expended || amount!=null){
             Column(
                 horizontalAlignment = Alignment.End,
             ) {
                 Text(
-                    text = "₹ ${formatMoneyWithK(amount)}",
+                    text = "₹ ${formatMoneyWithUnits(amount)}",
                     style = org.sharad.velvetinvestment.utils.theme.subHeading,
                 )
                 percentage?.let{

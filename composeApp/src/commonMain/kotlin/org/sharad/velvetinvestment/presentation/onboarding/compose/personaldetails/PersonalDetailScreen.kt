@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.bgColor2
@@ -23,7 +25,7 @@ import org.sharad.emify.core.ui.theme.bgSecondaryColor
 import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
-import org.sharad.velvetinvestment.presentation.onboarding.models.PersonalDetails
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_callender
@@ -32,17 +34,14 @@ import velvet.composeapp.generated.resources.icon_user
 
 @Composable
 fun PersonalDetailScreen(
-    onNameChange: (String) -> Unit,
-    onEmailChange: (String) -> Unit,
-    onPhoneChange: (String) -> Unit,
-    onCityChange: (String) -> Unit,
-    onDobChange: (Long) -> Unit,
-    onSliderChange:(Int)->Unit,
-    onNext: () -> Unit,
-    details: PersonalDetails,
     modifier: Modifier = Modifier,
-    pv: PaddingValues
+    pv: PaddingValues,
+    viewModel: PersonalDetailsScreenViewModel,
+    onNext: () -> Unit
 ){
+
+    val details by viewModel.personalDetails.collectAsStateWithLifecycle()
+
     Box(modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter){
 
@@ -53,7 +52,7 @@ fun PersonalDetailScreen(
             item(key="name") {
                 OnBoardingTextField(
                     value = details.fullName,
-                    onValueChange = onNameChange,
+                    onValueChange = viewModel::onNameChange,
                     placeHolder = "Enter your full Name",
                     label = "Full Name",
                     mandatory = true
@@ -62,7 +61,7 @@ fun PersonalDetailScreen(
             item (key="city"){
                 OnBoardingTextField(
                     value = details.city,
-                    onValueChange = onCityChange,
+                    onValueChange = viewModel::onCityChange,
                     placeHolder = "Enter the city",
                     label = "City",
                     mandatory = true
@@ -71,7 +70,7 @@ fun PersonalDetailScreen(
             item(key="mobile") {
                 OnBoardingTextField(
                     value = details.phoneNumber,
-                    onValueChange = onPhoneChange,
+                    onValueChange = viewModel::onPhoneChange,
                     placeHolder = "10-digit mobile number",
                     label = "Mobile Number ",
                     mandatory = true
@@ -80,7 +79,7 @@ fun PersonalDetailScreen(
             item(key="email") {
                 OnBoardingTextField(
                     value = details.email,
-                    onValueChange = onEmailChange,
+                    onValueChange = viewModel::onEmailChange,
                     placeHolder = "your.email@gmail.com",
                     label = "Email Address ",
                     mandatory = true
@@ -89,7 +88,7 @@ fun PersonalDetailScreen(
             item(key="dob") {
                 OnBoardingTextField(
                     value = "",
-                    onValueChange = onNameChange,
+                    onValueChange = viewModel::onNameChange,
                     placeHolder = "dd/mm/yy",
                     label = "DOB ",
                     mandatory = true
@@ -98,7 +97,7 @@ fun PersonalDetailScreen(
 
             item(key="slider") {
                 RetirementYearSlider(
-                    onSliderUpdate = onSliderChange,
+                    onSliderUpdate = viewModel::onSliderChange,
                     selectedYear = details.retirementYear
                 )
             }
@@ -147,7 +146,7 @@ fun PersonalDetailScreen(
 }
 
 @Composable
-fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues) {
+fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues, value: String = "Next") {
     Box(
         modifier = Modifier.fillMaxWidth()
             .shadow(elevation = 28.dp)
@@ -157,7 +156,7 @@ fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues) {
         AppButton(
             modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 16.dp+pv.calculateBottomPadding()),
             onClick = onClick,
-            text = "Next"
+            text = value
         )
     }
 }

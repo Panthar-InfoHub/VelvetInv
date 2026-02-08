@@ -77,7 +77,10 @@ fun FinancialFlowScreen(
         {
 
             item {
-                InfoHeader()
+                GenericInfoHeader(
+                    heading = "Your Financial Flow",
+                    subHeading = "Understanding your income and expenses helps us create a personalized investment plan"
+                )
             }
 
             item {
@@ -310,18 +313,21 @@ fun IncomeEntry(annualIncome: Long?, onAnnualIncomeUpdate: (String) -> Unit) {
 }
 
 @Composable
-fun InfoHeader() {
+fun GenericInfoHeader(
+    heading:String,
+    subHeading:String
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text="Your Financial Flow",
+            text=heading,
             style = MaterialTheme.typography.headlineLarge,
             color = Primary,
         )
         Text(
-            text="Understanding your income and expenses helps us create a personalized investment plan",
+            text=subHeading,
             style = titlesStyle,
             color = titleColor
         )

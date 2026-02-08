@@ -81,22 +81,22 @@ fun MoneyTextField(
                     color = Color(0xFFC5A572)
                 ),
         ) {
-            Box(
+            Row(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
-                contentAlignment = Alignment.Center
+               horizontalArrangement  = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "₹",
                     fontFamily = Poppins,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    modifier=Modifier.align(Alignment.CenterStart).padding(start = 8.dp)
+                    modifier=Modifier.padding(start = 8.dp)
                 )
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 36.dp, end = 12.dp),
-                    contentAlignment = Alignment.Center
+                        .padding(end = 12.dp)
                 ) {
                     if (value.isEmpty()) {
                         Text(

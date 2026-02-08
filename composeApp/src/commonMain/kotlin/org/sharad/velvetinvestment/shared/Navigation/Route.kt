@@ -5,6 +5,12 @@ import kotlinx.serialization.Serializable
 object Route {
 
     @Serializable
+    data object SplashScreen
+
+    @Serializable
+    data object LoginScreen
+
+    @Serializable
     data object LoginFlow
 
     @Serializable
@@ -12,11 +18,22 @@ object Route {
 
     @Serializable
     data class OnBoardingFlow(val index: Int)
-
     @Serializable
-    data object SplashScreen
-
+    data object OnBoardingPersonalDetails
     @Serializable
-    data object LoginScreen
+    data object OnBoardingFinancialFlow
+    @Serializable
+    data object OnBoardingCurrentAssets
+    @Serializable
+    data object OnBoardingLoan
+    @Serializable
+    data object OnBoardingAddLoan
+    @Serializable
+    data object OnBoardingInsuranceCoverage
+    @Serializable
+    data object OnBoardingGoal
+    @Serializable
+    data object OnBoardingGoalAdd
+
 
 }

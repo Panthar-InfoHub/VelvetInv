@@ -1,17 +1,26 @@
 package org.sharad.velvetinvestment.utils
 
+import kotlin.math.abs
+import kotlin.math.round
 
-fun formatMoneyWithK(amount: Long?): String {
-    if (amount == null) return "0"
 
-    if (amount < 1_000) return amount.toString()
+fun formatMoneyWithUnits(amount: Long?): String {
+    if (amount == null || amount == 0L) return "0"
 
-    val value = amount / 1_000.0
-    val text = value.toString()
+    val absAmount = abs(amount)
 
-    return if (text.endsWith(".0")) {
-        "${text.dropLast(2)}K"
-    } else {
-        "${text}K"
+    val (value, suffix) = when {
+        absAmount >= 10_000_000 -> amount / 10_000_000.0 to "Cr"
+        absAmount >= 100_000 -> amount / 100_000.0 to "L"
+        absAmount >= 1_000 -> amount / 1_000.0 to "K"
+        else -> return amount.toString()
     }
+
+    val rounded = round(value * 100) / 100
+
+    val text = rounded.toString()
+        .removeSuffix(".0")
+        .removeSuffix(".00")
+
+    return "$text$suffix"
 }

@@ -16,6 +16,10 @@ class CurrentAssetViewModel: ViewModel() {
     private val _assetInfo = MutableStateFlow(AssetFlowDetails())
     val assetInfo = _assetInfo.asStateFlow()
 
+    private val _showCASDialog= MutableStateFlow(false)
+    val showCASDialog= _showCASDialog.asStateFlow()
+
+
     val totalAssets: StateFlow<Long> =
         assetInfo
             .map { assets ->
@@ -81,6 +85,14 @@ class CurrentAssetViewModel: ViewModel() {
                 cash = parseSafeLong(value, current.cash)
             )
         }
+    }
+
+    fun showCASDialog(){
+        _showCASDialog.value=true
+    }
+
+    fun hideCASDialog(){
+        _showCASDialog.value=false
     }
 
 }

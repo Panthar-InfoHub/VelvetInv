@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import org.sharad.velvetinvestment.presentation.onboarding.models.ExpensePercentages
 import org.sharad.velvetinvestment.presentation.onboarding.models.FinancialFlowDetails
 import org.sharad.velvetinvestment.presentation.onboarding.models.FinancialSummary
-import org.sharad.velvetinvestment.utils.formatMoneyWithK
+import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.parseSafeLong
 
 class FinancialFlowScreenViewModel: ViewModel() {
@@ -65,7 +65,7 @@ class FinancialFlowScreenViewModel: ViewModel() {
         }
 
         FinancialSummary(
-            totalExpense = "₹${formatMoneyWithK(totalExpense)}",
+            totalExpense = "₹${formatMoneyWithUnits(totalExpense)}",
             monthlySurplus = "₹$surplus",
             savingsRate = "$savingsRate%"
         )
