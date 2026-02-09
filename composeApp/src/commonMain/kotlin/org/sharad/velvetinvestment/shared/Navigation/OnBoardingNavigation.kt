@@ -5,10 +5,15 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingConfirmationScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CurrentAssetScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.FinancialFlowScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.AddGoalScreen
@@ -18,6 +23,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.loan.AddLoanS
 import org.sharad.velvetinvestment.presentation.onboarding.compose.loan.OnBoardingLoanScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.PersonalDetailScreen
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
@@ -26,6 +32,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDet
 @Composable
 fun OnBoardingNavigation(
     personalDetailsViewModel: PersonalDetailsScreenViewModel,
+    financialFlowScreenViewModel: FinancialFlowScreenViewModel,
     assetViewModel: CurrentAssetViewModel,
     pv: PaddingValues,
     loanScreenViewModel: LoanScreenViewModel,
@@ -33,9 +40,31 @@ fun OnBoardingNavigation(
     goalViewModel: GoalScreenViewModel
 ) {
 
+    val personalData by personalDetailsViewModel.personalDetails.collectAsStateWithLifecycle()
+    val financialData by financialFlowScreenViewModel.financialInfo.collectAsStateWithLifecycle()
+    val monthlyEMI by loanScreenViewModel.monthlyEMIBurden.collectAsStateWithLifecycle()
+    val loans by loanScreenViewModel.loanList.collectAsStateWithLifecycle()
+    val goals by goalViewModel.goalList.collectAsStateWithLifecycle()
+    val healthInsurance by insuranceCoverageViewModel.healthInsuranceAmount.collectAsStateWithLifecycle()
+    val lifeInsurance by insuranceCoverageViewModel.lifeInsuranceAmount.collectAsStateWithLifecycle()
+    val totalAsset by assetViewModel.totalAssets.collectAsStateWithLifecycle()
+
+
+
+
+    val monthlyIncome = financialData.annualIncome?.div(12) ?: 0
+    val housingExpense = financialData.houseExpense ?: 0
+    val otherExpenses = (financialData.otherExpense ?: 0) + (financialData.transportExpense ?: 0) + (financialData.foodExpense ?: 0)
+    val emiExpense = monthlyEMI
+    val netSurplus = monthlyIncome - housingExpense - otherExpenses - emiExpense
+    val totalLiabilities= loans.sumOf { it.outstandingAmount?:0L }
+
+
+
     val navController = rememberNavController()
 
     NavHost(
+        modifier = Modifier.fillMaxSize(),
         navController = navController,
         startDestination = Route.OnBoardingPersonalDetails,
         enterTransition = {
@@ -103,6 +132,7 @@ fun OnBoardingNavigation(
                     navController.popBackStack()
                     personalDetailsViewModel.previousStep()
                 },
+                viewModel = financialFlowScreenViewModel,
             )
         }
 
@@ -167,10 +197,14 @@ fun OnBoardingNavigation(
                     navController.popBackStack()
                     personalDetailsViewModel.previousStep()
                 },
-                onNext = {},
+                onNext = {
+                    personalDetailsViewModel.nextStep()
+                    navController.navigate(Route.OnBoardingSummary)
+                },
                 onAddGoalClick = {
                     goalViewModel.clearGoal()
-                    navController.navigate(Route.OnBoardingGoalAdd) }
+                    navController.navigate(Route.OnBoardingGoalAdd)
+                }
             )
         }
 
@@ -179,6 +213,39 @@ fun OnBoardingNavigation(
                 pv = pv,
                 viewModel = goalViewModel,
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable<Route.OnBoardingSummary> {
+            OnBoardingConfirmationScreen(
+                // Personal Details
+                name = personalData.fullName,
+                city = personalData.city,
+                annualIncome = financialData.annualIncome?: 0,
+                retirementYear = personalData.retirementYear,
+
+                // Monthly Cash Flow
+                monthlyIncome = monthlyIncome,
+                housingExpense = housingExpense,
+                otherExpenses = otherExpenses,
+                emiExpense = emiExpense,
+                netSurplus = netSurplus,
+
+                // Financial Overview
+                totalAssets = totalAsset,
+                totalLiabilities = totalLiabilities,
+                netWorth = totalAsset-totalLiabilities,
+
+                // Loans
+                additionalLoans = loans,
+
+                // Insurance
+                termLifeCover = lifeInsurance,
+                totalInsuranceLiabilities = lifeInsurance+healthInsurance,
+
+                // Goals
+                goals = goals,
+
+                pv=pv
             )
         }
 

@@ -34,7 +34,7 @@ import org.sharad.velvetinvestment.utils.theme.secondaryLight
 @Composable
 fun OnBoardingHeader(
     currentStep:Int,
-    totalStep:Int=8,
+    totalStep:Int=7,
     showSkip:Boolean=true,
     onSkip:()->Unit={},
     modifier: Modifier=Modifier

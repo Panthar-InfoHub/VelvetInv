@@ -34,6 +34,8 @@ object Route {
     data object OnBoardingGoal
     @Serializable
     data object OnBoardingGoalAdd
+    @Serializable
+    data object OnBoardingSummary
 
 
 }

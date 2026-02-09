@@ -16,6 +16,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CASUploadScreenDialog
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
@@ -32,6 +33,9 @@ fun OnboardingScreenRoot(
     val viewModel: PersonalDetailsScreenViewModel= koinViewModel { parametersOf(onBoardingStep) }
     val currentStep by viewModel.currentStep.collectAsStateWithLifecycle()
     val personalDetails by viewModel.personalDetails.collectAsStateWithLifecycle()
+
+    val financialFlowScreenViewModel: FinancialFlowScreenViewModel= koinViewModel()
+
 
     val assetViewModel: CurrentAssetViewModel= koinViewModel()
     val shoeCASScreen by assetViewModel.showCASDialog.collectAsStateWithLifecycle()
@@ -62,8 +66,8 @@ fun OnboardingScreenRoot(
 
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
                         .weight(1f)
+                        .fillMaxSize()
                 ) {
                     OnBoardingNavigation(
                         personalDetailsViewModel = viewModel,
@@ -71,7 +75,8 @@ fun OnboardingScreenRoot(
                         pv = pv,
                         loanScreenViewModel=loanScreenViewModel,
                         insuranceCoverageViewModel=insuranceCoverageViewModel,
-                        goalViewModel=goalViewModel
+                        goalViewModel=goalViewModel,
+                        financialFlowScreenViewModel = financialFlowScreenViewModel
                     )
                 }
             }

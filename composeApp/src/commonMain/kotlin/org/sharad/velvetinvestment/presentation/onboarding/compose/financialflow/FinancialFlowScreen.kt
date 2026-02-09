@@ -54,14 +54,14 @@ fun FinancialFlowScreen(
     modifier: Modifier = Modifier,
     pv: PaddingValues,
     onNext: () -> Unit,
-    onPrev: () -> Unit
+    onPrev: () -> Unit,
+    viewModel: FinancialFlowScreenViewModel
 ) {
 
     AppBackHandler(true){
         onPrev()
     }
 
-    val viewModel: FinancialFlowScreenViewModel= koinViewModel()
     val financialInfo by viewModel.financialInfo.collectAsStateWithLifecycle()
     val expensePercent by viewModel.expensePercentages.collectAsStateWithLifecycle()
     val financialSummary by viewModel.financialSummary.collectAsStateWithLifecycle()
