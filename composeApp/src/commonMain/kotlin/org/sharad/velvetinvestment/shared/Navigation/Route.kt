@@ -37,5 +37,18 @@ object Route {
     @Serializable
     data object OnBoardingSummary
 
+    @Serializable
+    data object ApplicationFLow
+    @Serializable
+    data object BottomNav
+    @Serializable
+    data object Home
+    @Serializable
+    data object FundScreener
+    @Serializable
+    data object PortFolio
+    @Serializable
+    data object Profile
+
 
 }

@@ -244,7 +244,6 @@ fun OnBoardingNavigation(
 
                 // Goals
                 goals = goals,
-
                 pv=pv
             )
         }
