@@ -14,52 +14,76 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.OnBoardingScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CASUploadScreenDialog
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
+import org.sharad.velvetinvestment.shared.Navigation.OnBoardingNavigation
 
 @Composable
 fun OnboardingScreenRoot(
     onBoardingStep:Int=1,
 ) {
 
-    val viewModel: OnBoardingScreenViewModel= koinViewModel { parametersOf(onBoardingStep) }
+
+
+    val viewModel: PersonalDetailsScreenViewModel= koinViewModel { parametersOf(onBoardingStep) }
     val currentStep by viewModel.currentStep.collectAsStateWithLifecycle()
     val personalDetails by viewModel.personalDetails.collectAsStateWithLifecycle()
+
+    val financialFlowScreenViewModel: FinancialFlowScreenViewModel= koinViewModel()
+
+
+    val assetViewModel: CurrentAssetViewModel= koinViewModel()
+    val shoeCASScreen by assetViewModel.showCASDialog.collectAsStateWithLifecycle()
+
+    val loanScreenViewModel: LoanScreenViewModel=koinViewModel()
+    val insuranceCoverageViewModel: InsuranceCoverageViewModel=koinViewModel()
+    val goalViewModel: GoalScreenViewModel=koinViewModel()
+
+
 
 
     Scaffold(
         containerColor = Color.White
     ){pv->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(top = pv.calculateTopPadding()+16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-
-            OnBoardingHeader(
-                currentStep = currentStep,
-                onSkip = {},
-                showSkip = true,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
+        Box(modifier=Modifier.fillMaxSize())
+        {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(top = pv.calculateTopPadding() + 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                when (currentStep) {
-                    1 -> {
-                        PersonalDetailScreen(
-                            onNameChange = {},
-                            onEmailChange = {},
-                            onPhoneChange = {},
-                            onCityChange = {},
-                            onDobChange = {},
-                            onNext = {},
-                            details = personalDetails,
-                            pv=pv
-                        )
-                    }
+
+                OnBoardingHeader(
+                    currentStep = currentStep,
+                    onSkip = {},
+                    showSkip = true,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                ) {
+                    OnBoardingNavigation(
+                        personalDetailsViewModel = viewModel,
+                        assetViewModel = assetViewModel,
+                        pv = pv,
+                        loanScreenViewModel=loanScreenViewModel,
+                        insuranceCoverageViewModel=insuranceCoverageViewModel,
+                        goalViewModel=goalViewModel,
+                        financialFlowScreenViewModel = financialFlowScreenViewModel
+                    )
                 }
+            }
+            if (shoeCASScreen){
+                CASUploadScreenDialog(
+                    hideDialog = { assetViewModel.hideCASDialog() }
+                )
             }
         }
     }

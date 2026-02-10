@@ -14,7 +14,7 @@ fun BaseNavigation(windowSize: WindowSize) {
 
     NavHost(
         navController = navController,
-        startDestination = Route.LoginFlow
+        startDestination = Route.MainAppFlow
     ){
         composable<Route.LoginFlow>{
             LoginNavigation(
@@ -24,7 +24,7 @@ fun BaseNavigation(windowSize: WindowSize) {
         }
 
         composable<Route.MainAppFlow> {
-
+            AppNavigation()
         }
     }
 

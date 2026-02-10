@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Secondary
-import org.sharad.velvetinvestment.shared.AppButton
+import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.utils.WindowSize
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.background_mesh
