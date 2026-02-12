@@ -16,10 +16,15 @@ val bgColor4=Color(0xff4881FF)
 val bgColor5=Color(0xff8A38F5)
 val bgColor7=Color(0xffFFD900)
 
+val appRed=Color(0xffFF0600)
+val appYellow=Color(0xffFF9D00)
+val appGreen=Color(0xff008E23)
+val appOrange=Color(0xffFF0600)
 
 
 
-val shadowColor=Color(0xffDEE2F6).copy(alpha = 0.85f)
+
+val shadowColor=Color(0xffDEE2F6).copy(alpha = 0.65f)
 
 val homeGoalColor=Color(0xffFF9D00)
 val foodExpenseColor=Color(0xff4881FF)

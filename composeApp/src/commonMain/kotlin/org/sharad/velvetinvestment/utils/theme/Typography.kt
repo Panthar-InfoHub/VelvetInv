@@ -130,5 +130,5 @@ val subHeadingMedium @Composable get() = TextStyle(
 val subHeading @Composable get() = TextStyle(
     fontFamily = Poppins,
     fontWeight = FontWeight.SemiBold,
-    fontSize = 16.sp
+    fontSize = 15.sp
 )

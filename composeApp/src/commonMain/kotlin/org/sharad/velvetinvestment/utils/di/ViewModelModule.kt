@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.utils.di
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScreenViewModel
+import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
@@ -19,6 +20,8 @@ val viewModelModule= module {
     viewModel { LoanScreenViewModel() }
     viewModel { InsuranceCoverageViewModel() }
     viewModel { GoalScreenViewModel() }
+
+    viewModel { HomeScreenViewModel(get()) }
 
 
 }

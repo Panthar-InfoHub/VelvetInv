@@ -7,7 +7,7 @@ import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.homeGoalColor
 
-enum class GoalTypes(val displayName: String,color: Color) {
+enum class GoalTypes(val displayName: String,val color: Color) {
     WEALTH_BUILDING("Wealth Building", homeGoalColor),
     RETIREMENT("Retirement", bgColor4),
     EDUCATION("Education", bgColor1),

@@ -32,6 +32,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
+import org.sharad.velvetinvestment.utils.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
@@ -53,13 +54,7 @@ fun ExpandableExpenseEntryField(
     Box(
         modifier=Modifier
             .fillMaxWidth()
-            .dropShadow(
-                shadow = Shadow(
-                    radius = 24.dp,
-                    color = shadowColor,
-                ),
-                shape = RoundedCornerShape(10.dp)
-            )
+            .genericDropShadow(RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
             .background(Color.White, RoundedCornerShape(10.dp))
             .animateContentSize()

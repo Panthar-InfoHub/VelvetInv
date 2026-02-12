@@ -4,21 +4,27 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
 import org.sharad.velvetinvestment.shared.BottomNavBar
-import org.sharad.velvetinvestment.shared.compose.BarHeader
 
 @Composable
 fun BottomNavigation() {
 
     val navController= rememberNavController()
+    val homeViewModel: HomeScreenViewModel= koinViewModel()
+
+
     Scaffold(
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { BottomNavBar(navController) },
+        containerColor = Color.White
     ) {
         val pv=it
         NavHost(
@@ -68,7 +74,10 @@ fun BottomNavigation() {
         ){
 
             composable<Route.Home> {
-
+                HomeScreenMain(
+                    pv=pv,
+                    viewModel = homeViewModel
+                )
             }
             composable<Route.FundScreener> {  }
             composable<Route.PortFolio> {  }
