@@ -63,7 +63,6 @@ import velvet.composeapp.generated.resources.settings_icon
 
 @Composable
 fun HomeScreenMain(
-    pv: PaddingValues,
     viewModel: HomeScreenViewModel
 ){
 
@@ -85,7 +84,6 @@ fun HomeScreenMain(
             UIState.Loading -> {}
             UIState.Success -> {
                 HomeScreen(
-                    pv=pv,
                     name=name,
                     netWorth=netWorth,
                     kyc=kyc,
@@ -102,7 +100,6 @@ fun HomeScreenMain(
 
 @Composable
 fun HomeScreen(
-    pv: PaddingValues,
     name: String,
     netWorth: UserWorthCardDomain?,
     kyc: KYCCompletion?,
@@ -117,7 +114,7 @@ fun HomeScreen(
             .padding( start = 16.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        item { Spacer(modifier=Modifier.height(pv.calculateTopPadding()+20.dp,)) }
+        item { Spacer(modifier=Modifier.height(16.dp,)) }
         item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick) }
         item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick={})}
         item{ BarHeader(heading = "Finish Setting Up Account") }
@@ -143,8 +140,6 @@ fun HomeScreen(
                 AddCustomGoalCard(onClick={})
             }
         }
-
-        item { Spacer(modifier = Modifier.height(pv.calculateBottomPadding())) }
     }
 
 }

@@ -10,6 +10,9 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenV
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDDetailsViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
 
 val viewModelModule= module {
     viewModel { LoginScreenViewModel() }
@@ -23,5 +26,15 @@ val viewModelModule= module {
 
     viewModel { HomeScreenViewModel(get()) }
 
+    viewModel {
+        PortfolioScreenViewModel(
+            get(), // GetMutualFundsUseCase
+            get(), // GetMutualFundDashboardUseCase
+            get()  // GetFDListUseCase
+        )
+    }
+
+    viewModel { SIPDetailsViewModel() }
+    viewModel {(id:String)-> FDDetailsViewModel(get(), fdId = id) }
 
 }

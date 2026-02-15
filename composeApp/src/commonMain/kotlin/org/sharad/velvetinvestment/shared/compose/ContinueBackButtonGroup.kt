@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ContinueBackButtonFooter(
+    continueText: String = "Continue",
+    backText: String = "Back",
     onContinue: () -> Unit,
     onBack: () -> Unit,
     pv: PaddingValues,
@@ -38,12 +40,12 @@ fun ContinueBackButtonFooter(
             InvertedAppButton(
                 modifier = Modifier.weight(1f),
                 onClick = onBack,
-                text = "Back"
+                text = backText
             )
             AppButton(
                 modifier = Modifier.weight(1f),
                 onClick = onContinue,
-                text = "Continue"
+                text = continueText
             )
         }
 

@@ -16,9 +16,9 @@ fun App() {
     Log("size",size.toString())
     VelvetTheme {
         Scaffold(
-            containerColor = Color.White
+            containerColor = Color.White,
         ) {
-            BaseNavigation(windowSize=size)
+            BaseNavigation(windowSize=size,pv=it)
         }
     }
 }

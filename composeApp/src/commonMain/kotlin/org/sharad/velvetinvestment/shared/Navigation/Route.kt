@@ -45,8 +45,20 @@ object Route {
     data object Home
     @Serializable
     data object FundScreener
+
     @Serializable
     data object PortFolio
+
+    @Serializable
+    data class SIPDetails(val id:String)
+    @Serializable
+    data class SIPCancellationScreen(val id:String)
+    @Serializable
+    data class CancelSIPReason(val id:String)
+    @Serializable
+    data class FDDetailsScreen(val id:String)
+
+
     @Serializable
     data object Profile
 

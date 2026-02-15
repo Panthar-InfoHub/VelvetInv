@@ -1,6 +1,10 @@
 package org.sharad.velvetinvestment.utils.di
 
 import org.koin.dsl.module
+import org.sharad.velvetinvestment.domain.usecases.fdusecases.GetFDDetailsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fdusecases.GetFDListUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDashboardUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetFireReportSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetGoalsSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
@@ -24,4 +28,18 @@ val useCaseModule= module {
             getKycStatus = get()
         )
     }
+
+
+    factory {
+        GetMutualFundsUseCase(get())
+    }
+
+    factory {
+        GetMutualFundDashboardUseCase(get())
+    }
+
+    factory {
+        GetFDListUseCase(get())
+    }
+    factory { GetFDDetailsUseCase(get()) }
 }
