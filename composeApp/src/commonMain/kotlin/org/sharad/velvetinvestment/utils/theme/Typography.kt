@@ -109,7 +109,7 @@ val Typography @Composable get() = Typography(
 val buttonTextStyle @Composable get() = TextStyle(
     fontFamily = Poppins,
     fontWeight = FontWeight.Medium,
-    fontSize = 18.sp,
+    fontSize = 16.sp,
 )
 
 val largeTextStyle @Composable get() = TextStyle(
@@ -130,5 +130,5 @@ val subHeadingMedium @Composable get() = TextStyle(
 val subHeading @Composable get() = TextStyle(
     fontFamily = Poppins,
     fontWeight = FontWeight.SemiBold,
-    fontSize = 16.sp
+    fontSize = 15.sp
 )

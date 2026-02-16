@@ -6,14 +6,22 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import org.sharad.velvetinvestment.presentation.portfolio.compose.CancelSIPConfirmationScreen
+import org.sharad.velvetinvestment.presentation.portfolio.compose.FDDetailsScreen
+import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
+import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
 
 @Composable
 fun AppNavigation(){
 
-    Scaffold {
+    Scaffold(
+        containerColor = Color.White
+    ) {
         val pv=it
         val navController= rememberNavController()
         NavHost(
@@ -63,7 +71,46 @@ fun AppNavigation(){
         ){
 
             composable<Route.BottomNav> {
-                BottomNavigation()
+                BottomNavigation(
+                    navigateToSIPDetailsScreen = {id->navController.navigate(Route.SIPDetails(id))},
+                    navigateToFDDetailsScreen = {id->navController.navigate(Route.FDDetailsScreen(id))}
+                )
+            }
+
+            composable<Route.SIPDetails> {
+                val id= it.toRoute<Route.SIPDetails>().id
+                SIPDetailsScreen(
+                    onBackClick = {navController.popBackStack()},
+                    onCancelClick={navController.navigate(Route.SIPCancellationScreen(it))},
+                    id=id
+                )
+            }
+            composable<Route.SIPCancellationScreen> {
+                val id= it.toRoute<Route.SIPCancellationScreen>().id
+                CancelSIPConfirmationScreen(
+                    id=id,
+                    onConfirmClick = {id->navController.navigate(Route.CancelSIPReason(id))},
+                    onCancelClick = {navController.popBackStack()},
+                    pv=pv
+                )
+            }
+            composable<Route.CancelSIPReason> {
+                val id= it.toRoute<Route.CancelSIPReason>().id
+                SIPCancellationReasonScreen(
+                    id=id,
+                    onConfirmClick = {},
+                    onBackClick = {navController.popBackStack()},
+                    pv=pv
+                )
+            }
+
+            composable<Route.FDDetailsScreen> {
+                val id= it.toRoute<Route.FDDetailsScreen>().id
+                FDDetailsScreen(
+                    id = id,
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv,
+                )
             }
 
         }

@@ -1,0 +1,17 @@
+package org.sharad.velvetinvestment.utils
+
+import kotlin.math.pow
+import kotlin.math.round
+
+fun Double.trimTo(precision: Int): String {
+    if (precision < 0) return this.toString()
+
+    val factor = 10.0.pow(precision)
+    val rounded = round(this * factor) / factor
+
+    return rounded
+        .toString()
+        .removeSuffix(".0")
+        .removeSuffix(".00")
+        .removeSuffix(".000")
+}

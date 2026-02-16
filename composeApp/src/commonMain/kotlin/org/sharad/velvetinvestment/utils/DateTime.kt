@@ -185,3 +185,24 @@ object DateTimeUtils {
         return Clock.System.now().toLocalDateTime(timeZone).date
     }
 }
+
+
+fun String.isoUtcToDisplayDate(): String {
+    return try {
+        val instant = Instant.parse(this)
+        val localDate = instant.toLocalDateTime(TimeZone.UTC).date
+
+        val day = localDate.dayOfMonth.toString().padStart(2, '0')
+        val month = localDate.month.name
+            .lowercase()
+            .replaceFirstChar { it.uppercase() }
+            .take(3)
+        val year = localDate.year
+
+        "$day $month $year"
+
+    } catch (e: Exception) {
+        this
+    }
+}
+

@@ -14,7 +14,9 @@ fun initializeKoin(
         modules(
             listOf(
                 platformModule,
-                viewModelModule
+                viewModelModule,
+                repositoryModule,
+                useCaseModule
             )
         )
     }

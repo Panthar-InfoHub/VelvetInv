@@ -4,25 +4,41 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
+import org.sharad.velvetinvestment.presentation.portfolio.compose.PortfolioScreenMain
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.shared.BottomNavBar
-import org.sharad.velvetinvestment.shared.compose.BarHeader
 
 @Composable
-fun BottomNavigation() {
+fun BottomNavigation(
+    navigateToSIPDetailsScreen: (String) -> Unit,
+    navigateToFDDetailsScreen: (String) -> Unit
+) {
 
     val navController= rememberNavController()
+    val homeViewModel: HomeScreenViewModel= koinViewModel()
+    val portfolioViewModel: PortfolioScreenViewModel=koinViewModel()
+
+
     Scaffold(
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { BottomNavBar(navController) },
+        containerColor = Color.White
     ) {
         val pv=it
         NavHost(
             navController = navController,
+            modifier=Modifier.fillMaxSize().padding(bottom = pv.calculateBottomPadding()),
             startDestination = Route.Home,
             // Forward navigation animation
             enterTransition = {
@@ -68,10 +84,20 @@ fun BottomNavigation() {
         ){
 
             composable<Route.Home> {
-
+                HomeScreenMain(
+                    viewModel = homeViewModel
+                )
             }
             composable<Route.FundScreener> {  }
-            composable<Route.PortFolio> {  }
+            composable<Route.PortFolio> {
+                PortfolioScreenMain(
+                    viewModel = portfolioViewModel,
+                    onSIPClick = {
+                        navigateToSIPDetailsScreen(it)
+                    },
+                    onFDClick = navigateToFDDetailsScreen
+                )
+            }
             composable<Route.Profile> {  }
 
         }
