@@ -15,3 +15,14 @@ fun Double.trimTo(precision: Int): String {
         .removeSuffix(".00")
         .removeSuffix(".000")
 }
+
+fun Double.trimDoubleTo(precision: Int): Double {
+
+    if (precision < 0) return this
+
+    val factor = 10.0.pow(precision)
+    val rounded = round(this * factor) / factor
+
+    return rounded
+
+}

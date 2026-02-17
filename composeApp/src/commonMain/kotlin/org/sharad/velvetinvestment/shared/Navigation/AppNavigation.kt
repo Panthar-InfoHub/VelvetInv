@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
 import org.sharad.velvetinvestment.presentation.portfolio.compose.CancelSIPConfirmationScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.FDDetailsScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
@@ -73,7 +74,8 @@ fun AppNavigation(){
             composable<Route.BottomNav> {
                 BottomNavigation(
                     navigateToSIPDetailsScreen = {id->navController.navigate(Route.SIPDetails(id))},
-                    navigateToFDDetailsScreen = {id->navController.navigate(Route.FDDetailsScreen(id))}
+                    navigateToFDDetailsScreen = {id->navController.navigate(Route.FDDetailsScreen(id))},
+                    navigateToCategoryMutualFundScreen = {navController.navigate(Route.CategoryMutualFund)},
                 )
             }
 
@@ -82,7 +84,8 @@ fun AppNavigation(){
                 SIPDetailsScreen(
                     onBackClick = {navController.popBackStack()},
                     onCancelClick={navController.navigate(Route.SIPCancellationScreen(it))},
-                    id=id
+                    id=id,
+                    pv=pv
                 )
             }
             composable<Route.SIPCancellationScreen> {
@@ -110,6 +113,17 @@ fun AppNavigation(){
                     id = id,
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
+                )
+            }
+
+            composable<Route.CategoryMutualFund> {
+                CategoryMutualFundScreenRoot(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv,
+                    onIconClick = {},
+                    onFundClick = {},
+                    onSearchClick = {},
+                    onCategoryClick = {},
                 )
             }
 

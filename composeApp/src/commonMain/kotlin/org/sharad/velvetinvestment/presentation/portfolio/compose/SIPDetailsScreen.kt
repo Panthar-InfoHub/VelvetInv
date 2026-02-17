@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.presentation.portfolio.compose
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ import org.sharad.velvetinvestment.domain.models.portfolio.BankDetails
 import org.sharad.velvetinvestment.domain.models.portfolio.SIPDetailsDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.TransactionHistoryDomain
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
+import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
@@ -48,6 +50,7 @@ fun SIPDetailsScreen(
     onBackClick: () -> Unit,
     id: String,
     onCancelClick: (String) -> Unit,
+    pv: PaddingValues,
 ){
 
     val viewModel: SIPDetailsViewModel= koinViewModel()
@@ -77,7 +80,7 @@ fun SIPDetailsScreen(
 
                 UIState.Success -> {
                     if (sipData!=null)
-                        SIPDetailsLoadedScreen(sipData!!)
+                        SIPDetailsLoadedScreen(sipData!!, pv=pv)
                     else
                         ErrorScreen("No Data")
                 }
@@ -88,18 +91,31 @@ fun SIPDetailsScreen(
 }
 
 @Composable
-fun SIPDetailsLoadedScreen(sipData: SIPDetailsDomain) {
-    LazyColumn(
-        modifier=Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item { Spacer(modifier = Modifier) }
-        item { SIPDetailsCard(sipData) }
-        item { InstallmentDetailsCard(sipData) }
-        item { BankDetailsCard(sipData.bankDetails) }
-        item { TransactionHistoryCard(history=sipData.transactionHistory) }
+fun SIPDetailsLoadedScreen(sipData: SIPDetailsDomain, pv: PaddingValues) {
+    Column(
+        modifier=Modifier.fillMaxSize()
+    ){
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxSize().padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item { Spacer(modifier = Modifier) }
+            item { SIPDetailsCard(sipData) }
+            item { InstallmentDetailsCard(sipData) }
+            item { BankDetailsCard(sipData.bankDetails) }
+            item { TransactionHistoryCard(history = sipData.transactionHistory) }
 
-        item { Spacer(Modifier.height( 16.dp)) }
+            item { Spacer(Modifier.height(16.dp)) }
+        }
+
+        ContinueBackButtonFooter(
+            continueText = "Edit",
+            backText = "Withdraw",
+            onContinue = {},
+            onBack = {},
+            pv = pv
+        )
+
     }
 }
 

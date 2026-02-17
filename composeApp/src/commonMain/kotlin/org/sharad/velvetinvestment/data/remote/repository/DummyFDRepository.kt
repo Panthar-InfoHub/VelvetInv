@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.data.remote.repository
 
 import com.sharad.surakshakawachneo.utils.Networking.NetworkError
 import com.sharad.surakshakawachneo.utils.Networking.NetworkResponse
+import org.sharad.velvetinvestment.domain.models.explore.FixedDepositTopPicksDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FDBankInfoDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FDDetailsDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FDInvestmentDetailsDomain
@@ -98,6 +99,31 @@ class DummyFDRepository : FDRepository {
         } catch (e: Exception) {
             NetworkResponse.Error(NetworkError.UNKNOWN)
         }
+    }
+
+    override suspend fun getFixedDepositTopPicks():
+            NetworkResponse<List<FixedDepositTopPicksDomain>, NetworkError> {
+
+        val data = listOf(
+            FixedDepositTopPicksDomain(
+                icon = "https://icon-url.com/bank1.png",
+                name = "HDFC Bank FD",
+                metadata = "Senior Citizen • 1Y",
+                returnYears = "1",
+                percentage = 7.25,
+                id="NonNon1"
+            ),
+            FixedDepositTopPicksDomain(
+                icon = "https://icon-url.com/bank2.png",
+                name = "ICICI Bank FD",
+                metadata = "Regular • 2Y",
+                returnYears = "2",
+                percentage = 7.10,
+                id="NonNon2"
+            )
+        )
+
+        return NetworkResponse.Success(data)
     }
 }
 

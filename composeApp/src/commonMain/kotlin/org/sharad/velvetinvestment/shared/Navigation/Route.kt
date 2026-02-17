@@ -58,6 +58,9 @@ object Route {
     @Serializable
     data class FDDetailsScreen(val id:String)
 
+    @Serializable
+    data object CategoryMutualFund
+
 
     @Serializable
     data object Profile

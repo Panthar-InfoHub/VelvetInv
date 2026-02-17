@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.velvetinvestment.presentation.explorefunds.compose.ExploreFundScreen
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
 import org.sharad.velvetinvestment.presentation.portfolio.compose.PortfolioScreenMain
@@ -23,7 +24,8 @@ import org.sharad.velvetinvestment.shared.BottomNavBar
 @Composable
 fun BottomNavigation(
     navigateToSIPDetailsScreen: (String) -> Unit,
-    navigateToFDDetailsScreen: (String) -> Unit
+    navigateToFDDetailsScreen: (String) -> Unit,
+    navigateToCategoryMutualFundScreen: () -> Unit
 ) {
 
     val navController= rememberNavController()
@@ -85,17 +87,27 @@ fun BottomNavigation(
 
             composable<Route.Home> {
                 HomeScreenMain(
-                    viewModel = homeViewModel
+                    viewModel = homeViewModel,
+                    pv = pv
                 )
             }
-            composable<Route.FundScreener> {  }
+            composable<Route.FundScreener> {
+                ExploreFundScreen(
+                    pv=pv,
+                    onMFClick={navigateToCategoryMutualFundScreen()},
+                    onFDClick={},
+                    navigateToSpecificMF = {},
+                    navigateToSpecificFD = {}
+                )
+            }
             composable<Route.PortFolio> {
                 PortfolioScreenMain(
                     viewModel = portfolioViewModel,
                     onSIPClick = {
                         navigateToSIPDetailsScreen(it)
                     },
-                    onFDClick = navigateToFDDetailsScreen
+                    onFDClick = navigateToFDDetailsScreen,
+                    pv=pv
                 )
             }
             composable<Route.Profile> {  }
