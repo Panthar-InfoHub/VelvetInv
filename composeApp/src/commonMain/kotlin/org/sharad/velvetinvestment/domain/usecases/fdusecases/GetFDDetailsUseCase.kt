@@ -1,7 +1,7 @@
 package org.sharad.velvetinvestment.domain.usecases.fdusecases
 
-import com.sharad.surakshakawachneo.utils.Networking.NetworkError
-import com.sharad.surakshakawachneo.utils.Networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.networking.NetworkError
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import org.sharad.velvetinvestment.domain.models.portfolio.FDDetailsDomain
 import org.sharad.velvetinvestment.domain.repository.FDRepository
 

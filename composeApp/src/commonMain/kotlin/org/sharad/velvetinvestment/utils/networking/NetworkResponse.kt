@@ -1,4 +1,4 @@
-package com.sharad.surakshakawachneo.utils.Networking
+package org.sharad.velvetinvestment.utils.networking
 
 sealed class NetworkResponse<out T, out E> {
     data class Success<out T>(val data: T) : NetworkResponse<T, Nothing>()

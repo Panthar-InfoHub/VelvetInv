@@ -5,6 +5,8 @@ import org.koin.dsl.module
 import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScreenViewModel
 import org.sharad.velvetinvestment.presentation.explorefunds.viewmodel.ExploreFundScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
@@ -40,5 +42,13 @@ val viewModelModule= module {
     viewModel {(id:String)-> FDDetailsViewModel(get(), fdId = id) }
     viewModel { ExploreFundScreenViewModel(get(), get()) }
     viewModel { MutualFundViewModel(get()) }
+    viewModel { (id: String) -> MutualFundSearchResultViewModel(id = id, getMutualFundSearchResultUseCase = get()) }
+    viewModel { (id: String) ->
+        MutualFundDetailsScreenViewModel(
+            id = id,
+            getDetailsUseCase = get(),
+            getGraphUseCase = get()
+        )
+    }
 
 }

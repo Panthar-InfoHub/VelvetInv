@@ -64,7 +64,7 @@ fun CategoryMutualFundScreenRoot(
     onFundClick:(String)->Unit,
     pv: PaddingValues,
     onSearchClick:(String)->Unit,
-    onCategoryClick:(String)->Unit
+    onCategoryClick:(String,String)->Unit
 ){
 
     val viewModel: MutualFundViewModel = koinViewModel()
@@ -95,7 +95,7 @@ fun CategoryMutualFundScreenRoot(
                 UIState.Success -> {
                     CategoryMutualFundScreen(
                         mutualFunds,
-                        onCategoryClick = {onCategoryClick(it)},
+                        onCategoryClick = onCategoryClick,
                         onFundClick = {onFundClick(it)},
                         searchText=searchText,
                         onTextChange = { viewModel.onSearchTextChange(it) },
@@ -111,7 +111,7 @@ fun CategoryMutualFundScreenRoot(
 @Composable
 fun CategoryMutualFundScreen(
     categoryList: List<CategoryMutualFundUI>,
-    onCategoryClick: (String) -> Unit,
+    onCategoryClick: (String, String) -> Unit,
     onFundClick: (String) -> Unit,
     searchText: String,
     onTextChange: (String) -> Unit,
@@ -138,7 +138,7 @@ fun CategoryMutualFundScreen(
                 BarHeader(
                     heading = category.categoryName,
                     showArrow = true,
-                    onArrowClick = {onCategoryClick(category.categorySearchReference)}
+                    onArrowClick = {onCategoryClick(category.categorySearchReference, category.categoryName)}
                 )
             }
 
@@ -178,7 +178,8 @@ fun MutualFundGridCard(fund: MutualFundUI, onClick:()-> Unit) {
                     contentDescription = null,
                     placeholder = painterResource(Res.drawable.mf_placeholder),
                     error = painterResource(Res.drawable.mf_placeholder),
-                    fallback = painterResource(Res.drawable.mf_placeholder)
+                    fallback = painterResource(Res.drawable.mf_placeholder),
+                    modifier = Modifier.size(38.dp)
                 )
                 Text(
                     text=fund.name,

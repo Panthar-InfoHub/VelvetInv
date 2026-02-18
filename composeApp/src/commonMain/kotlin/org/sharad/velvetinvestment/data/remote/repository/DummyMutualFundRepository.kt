@@ -1,11 +1,17 @@
 package org.sharad.velvetinvestment.data.remote.repository
 
-import com.sharad.surakshakawachneo.utils.Networking.NetworkError
-import com.sharad.surakshakawachneo.utils.Networking.NetworkResponse
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
+import org.sharad.velvetinvestment.utils.networking.NetworkError
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import kotlinx.coroutines.delay
 import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.AssetsAllocationDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CategoryMutualFundDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
 import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
 import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
@@ -152,8 +158,122 @@ class DummyMutualFundRepository : MutualFundRepository {
             NetworkResponse.Error(NetworkError.UNKNOWN)
         }
     }
+
+    override suspend fun getMutualFundsBySearch(
+        searchId: String
+    ): NetworkResponse<List<MutualFundDomain>, NetworkError> {
+
+        return try {
+
+            delay(1000)
+
+            val fakeList = generateFakeFunds(searchId)
+
+            NetworkResponse.Success(fakeList)
+
+        } catch (e: Exception) {
+            NetworkResponse.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+
+    override suspend fun getMutualFundDetails(
+        id: String
+    ): NetworkResponse<MutualFundDetailsDomain, NetworkError> {
+
+        val details = MutualFundDetailsDomain(
+            id = id,
+            name = "Axis Bluechip Fund",
+            icon = "",
+            category = "Large Cap",
+            amount = "₹25,000",
+            risk = "Moderate",
+            rating = 4,
+            returnYear = 5,
+            type = "Growth",
+            percentage = 12.45,
+            oneDayPercentage = 0.38,
+            today = "2026-02-18T00:00:00Z",
+            todayNav = 45.67,
+            minAmount = 500,
+            fundSize = 1_500_000_000,
+            assets = AssetsAllocationDomain(
+                equity = 76.5,
+                debt = 18.2,
+                cash = 5.3
+            ),
+            topFunds = listOf(
+                MutualFundDomain(
+                    id = "2",
+                    name = "SBI Bluechip Fund",
+                    icon = "",
+                    category = "Large Cap",
+                    amount = "₹20,000",
+                    remark = "Direct Plan",
+                    rating = 5,
+                    returnYear = 5,
+                    type = "Growth",
+                    percentage = 13.4
+                ),
+                MutualFundDomain(
+                    id = "3",
+                    name = "ICICI Prudential Bluechip",
+                    icon = "",
+                    category = "Large Cap",
+                    amount = "₹15,000",
+                    remark = "Regular Plan",
+                    rating = 4,
+                    returnYear = 5,
+                    type = "Growth",
+                    percentage = 12.1
+                )
+            )
+        )
+
+        return NetworkResponse.Success(details)
+    }
+
+    override suspend fun getMutualFundGraph(
+        id: String
+    ): NetworkResponse<MutualFundGraphDomain, NetworkError> {
+
+        val graph = MutualFundGraphDomain(
+            graphPoints = listOf(
+                MutualFundGraphPointsDomain(38.20, "2025-02-01T00:00:00Z"),
+                MutualFundGraphPointsDomain(39.10, "2025-04-01T00:00:00Z"),
+                MutualFundGraphPointsDomain(40.35, "2025-06-01T00:00:00Z"),
+                MutualFundGraphPointsDomain(41.80, "2025-08-01T00:00:00Z"),
+                MutualFundGraphPointsDomain(43.25, "2025-10-01T00:00:00Z"),
+                MutualFundGraphPointsDomain(44.10, "2025-12-01T00:00:00Z"),
+                MutualFundGraphPointsDomain(45.67, "2026-02-01T00:00:00Z")
+            )
+        )
+
+        return NetworkResponse.Success(graph)
+    }
 }
 
+
+private fun generateFakeFunds(
+    searchId: String
+): List<MutualFundDomain> {
+
+    return List(10) { index ->
+
+        MutualFundDomain(
+            id = "${searchId.capitalize(Locale.current)}-$index",
+            name = "$searchId Fund ${index + 1}",
+            icon = "",
+            category = searchId,
+            amount = "₹${(5000..50000).random()}",
+            remark = if (index % 3 == 0) "Top Performer" else null,
+            rating = (3..5).random(),
+            returnYear = (1..5).random(),
+            type = "Equity",
+            percentage = (5..25).random().toDouble()
+        )
+    }
+}
 
 
 

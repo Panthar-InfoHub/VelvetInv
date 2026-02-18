@@ -1,7 +1,5 @@
 package org.sharad.velvetinvestment.utils.networking
 
-import com.sharad.surakshakawachneo.utils.Networking.NetworkError
-
 fun NetworkError.toMessage(): String {
     return when (this) {
 

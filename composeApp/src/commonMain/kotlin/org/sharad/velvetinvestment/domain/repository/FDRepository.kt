@@ -1,8 +1,9 @@
 package org.sharad.velvetinvestment.domain.repository
 
-import com.sharad.surakshakawachneo.utils.Networking.NetworkError
-import com.sharad.surakshakawachneo.utils.Networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.networking.NetworkError
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import org.sharad.velvetinvestment.domain.models.explore.FixedDepositTopPicksDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FDDetailsDomain
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardData
 
@@ -14,4 +15,5 @@ interface FDRepository {
 
     suspend fun getFixedDepositTopPicks():
             NetworkResponse<List<FixedDepositTopPicksDomain>, NetworkError>
+
 }

@@ -33,12 +33,12 @@ fun LoaderScreen(){
         ){
 
             CircularProgressIndicator(
-                modifier = Modifier.size(96.dp).graphicsLayer{scaleX = -1f},
+                modifier = Modifier.size(100.dp).graphicsLayer{scaleX = -1f},
                 color = Secondary,
                 strokeWidth = 4.dp
             )
             CircularProgressIndicator(
-                modifier = Modifier.size(112.dp),
+                modifier = Modifier.size(116.dp),
                 color = Primary,
                 strokeWidth = 4.dp
             )

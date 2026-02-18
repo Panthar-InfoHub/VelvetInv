@@ -2,7 +2,6 @@ package org.sharad.velvetinvestment.presentation.mutualfund.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sharad.surakshakawachneo.utils.Networking.NetworkResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

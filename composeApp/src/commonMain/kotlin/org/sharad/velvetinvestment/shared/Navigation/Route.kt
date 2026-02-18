@@ -60,6 +60,10 @@ object Route {
 
     @Serializable
     data object CategoryMutualFund
+    @Serializable
+    data class MutualFundSearchResult(val heading:String="Mutual Fund",val id:String)
+    @Serializable
+    data class MutualFundDetails(val id:String)
 
 
     @Serializable

@@ -1,4 +1,4 @@
-package com.sharad.surakshakawachneo.utils.Networking
+package org.sharad.velvetinvestment.utils.networking
 
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
