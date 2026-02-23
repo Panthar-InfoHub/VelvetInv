@@ -1,7 +1,5 @@
 package org.sharad.velvetinvestment.utils.networking
 
-import com.sharad.surakshakawachneo.utils.Networking.NetworkResponse
-
 inline fun <T, E> NetworkResponse<T, E>.onSuccess(
     action: (T) -> Unit
 ): NetworkResponse<T, E> {

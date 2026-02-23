@@ -32,8 +32,8 @@ import velvet.composeapp.generated.resources.icon_arrow_right
 
 @Composable
 fun BarHeader(
-    modifier: Modifier=Modifier,
     heading:String,
+    modifier: Modifier=Modifier,
     showArrow:Boolean=false,
     onArrowClick:()->Unit={}
 ){

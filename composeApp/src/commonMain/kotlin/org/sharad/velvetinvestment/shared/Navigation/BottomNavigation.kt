@@ -8,14 +8,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
+import org.sharad.velvetinvestment.presentation.explorefunds.compose.ExploreFundScreen
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentFilterScreen
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.compose.PortfolioScreenMain
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.shared.BottomNavBar
@@ -23,13 +29,13 @@ import org.sharad.velvetinvestment.shared.BottomNavBar
 @Composable
 fun BottomNavigation(
     navigateToSIPDetailsScreen: (String) -> Unit,
-    navigateToFDDetailsScreen: (String) -> Unit
+    navigateToFDDetailsScreen: (String) -> Unit,
+    navigateToCategoryMutualFundScreen: () -> Unit
 ) {
 
     val navController= rememberNavController()
     val homeViewModel: HomeScreenViewModel= koinViewModel()
     val portfolioViewModel: PortfolioScreenViewModel=koinViewModel()
-
 
     Scaffold(
         bottomBar = { BottomNavBar(navController) },
@@ -85,17 +91,27 @@ fun BottomNavigation(
 
             composable<Route.Home> {
                 HomeScreenMain(
-                    viewModel = homeViewModel
+                    viewModel = homeViewModel,
+                    pv = pv
                 )
             }
-            composable<Route.FundScreener> {  }
+            composable<Route.FundScreener> {
+                ExploreFundScreen(
+                    pv=pv,
+                    onMFClick={navigateToCategoryMutualFundScreen()},
+                    onFDClick={},
+                    navigateToSpecificMF = {},
+                    navigateToSpecificFD = {}
+                )
+            }
             composable<Route.PortFolio> {
                 PortfolioScreenMain(
                     viewModel = portfolioViewModel,
                     onSIPClick = {
                         navigateToSIPDetailsScreen(it)
                     },
-                    onFDClick = navigateToFDDetailsScreen
+                    onFDClick = navigateToFDDetailsScreen,
+                    pv=pv
                 )
             }
             composable<Route.Profile> {  }

@@ -58,6 +58,13 @@ object Route {
     @Serializable
     data class FDDetailsScreen(val id:String)
 
+    @Serializable
+    data object CategoryMutualFund
+    @Serializable
+    data class MutualFundSearchResult(val heading:String="Mutual Fund",val id:String)
+    @Serializable
+    data class MutualFundDetails(val id:String)
+
 
     @Serializable
     data object Profile

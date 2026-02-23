@@ -46,8 +46,10 @@ import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.CircleButton
 import org.sharad.velvetinvestment.shared.compose.DotCapCircularProgress
+import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.GoalEntryCard
 import org.sharad.velvetinvestment.shared.compose.GradientBackground
+import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.UIState
 import org.sharad.velvetinvestment.utils.dottedBorder
 import org.sharad.velvetinvestment.utils.genericDropShadow
@@ -63,7 +65,8 @@ import velvet.composeapp.generated.resources.settings_icon
 
 @Composable
 fun HomeScreenMain(
-    viewModel: HomeScreenViewModel
+    viewModel: HomeScreenViewModel,
+    pv: PaddingValues
 ){
 
     val screenState by viewModel.homeUIState.collectAsStateWithLifecycle()
@@ -80,8 +83,12 @@ fun HomeScreenMain(
     ){
         GradientBackground()
         when (screenState) {
-            is UIState.Error -> {}
-            UIState.Loading -> {}
+            is UIState.Error -> {
+                ErrorScreen((screenState as UIState.Error).error)
+            }
+            UIState.Loading -> {
+                LoaderScreen()
+            }
             UIState.Success -> {
                 HomeScreen(
                     name=name,
@@ -90,7 +97,8 @@ fun HomeScreenMain(
                     fireReport=fireReport,
                     goals=goals,
                     onNotificationIconClick={},
-                    onSettingsIconClick = {}
+                    onSettingsIconClick = {},
+                    pv=pv
                 )
             }
         }
@@ -106,7 +114,8 @@ fun HomeScreen(
     fireReport: FireReportSummaryDomain?,
     goals: List<GoalsSummaryDomain>,
     onNotificationIconClick: () -> Unit,
-    onSettingsIconClick: () -> Unit
+    onSettingsIconClick: () -> Unit,
+    pv: PaddingValues
 ) {
 
     LazyColumn(
@@ -139,6 +148,10 @@ fun HomeScreen(
             item{
                 AddCustomGoalCard(onClick={})
             }
+        }
+
+        item {
+            Spacer(modifier=Modifier.height(pv.calculateBottomPadding()))
         }
     }
 

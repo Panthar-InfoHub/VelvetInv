@@ -23,7 +23,7 @@ fun BaseNavigation(windowSize: WindowSize, pv: PaddingValues) {
         composable<Route.LoginFlow>{
             LoginNavigation(
                 windowSize=windowSize,
-                onLoginSuccessNavigation = {}
+                onLoginSuccessNavigation = {navController.navigate(Route.MainAppFlow)}
             )
         }
 

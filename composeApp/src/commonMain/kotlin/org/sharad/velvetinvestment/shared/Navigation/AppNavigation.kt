@@ -11,6 +11,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundDetailsScreenRoot
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundSearchScreenRoot
 import org.sharad.velvetinvestment.presentation.portfolio.compose.CancelSIPConfirmationScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.FDDetailsScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
@@ -73,7 +76,8 @@ fun AppNavigation(){
             composable<Route.BottomNav> {
                 BottomNavigation(
                     navigateToSIPDetailsScreen = {id->navController.navigate(Route.SIPDetails(id))},
-                    navigateToFDDetailsScreen = {id->navController.navigate(Route.FDDetailsScreen(id))}
+                    navigateToFDDetailsScreen = {id->navController.navigate(Route.FDDetailsScreen(id))},
+                    navigateToCategoryMutualFundScreen = {navController.navigate(Route.CategoryMutualFund)},
                 )
             }
 
@@ -82,7 +86,8 @@ fun AppNavigation(){
                 SIPDetailsScreen(
                     onBackClick = {navController.popBackStack()},
                     onCancelClick={navController.navigate(Route.SIPCancellationScreen(it))},
-                    id=id
+                    id=id,
+                    pv=pv
                 )
             }
             composable<Route.SIPCancellationScreen> {
@@ -110,6 +115,52 @@ fun AppNavigation(){
                     id = id,
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
+                )
+            }
+
+            composable<Route.CategoryMutualFund> {
+                CategoryMutualFundScreenRoot(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv,
+                    onIconClick = {},
+                    onFundClick = {id->
+                        navController.navigate(Route.MutualFundDetails(id))
+                    },
+                    onSearchClick = {search->
+                        navController.navigate(Route.MutualFundSearchResult(id = search))
+                    },
+                    onCategoryClick = {id,name->
+                        navController.navigate(Route.MutualFundSearchResult(id = id, heading = name))
+                    },
+                )
+            }
+            composable<Route.MutualFundSearchResult> {
+                val category= it.toRoute<Route.MutualFundSearchResult>().heading
+                val id= it.toRoute<Route.MutualFundSearchResult>().id
+                MutualFundSearchScreenRoot(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv,
+                    heading = category,
+                    searchId = id,
+                    onFundClick = {
+                        navController.navigate(Route.MutualFundDetails(it))
+                    }
+                )
+            }
+            composable<Route.MutualFundDetails> {
+                val id= it.toRoute<Route.MutualFundDetails>().id
+                MutualFundDetailsScreenRoot(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv,
+                    id = id,
+                    onTopFundClick = {
+                        navController.navigate(Route.MutualFundSearchResult(id = it))
+                    },
+                    onFundClick = {
+                        navController.navigate(Route.MutualFundDetails(it))
+                    },
+                    onMonthlySipClick = {},
+                    onOneTimeSipClick = {}
                 )
             }
 
