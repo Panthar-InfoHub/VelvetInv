@@ -34,6 +34,10 @@ class MutualFundDetailsScreenViewModel(
     private val _selectedYear = MutableStateFlow<GraphDurationSelection>(GraphDurationSelection.ThreeYears)
     val selectedYear= _selectedYear.asStateFlow()
 
+    private val _bottomSheetVisibility= MutableStateFlow(false)
+    val bottomSheetVisibility= _bottomSheetVisibility.asStateFlow()
+
+
     val uiState= combine(graphState,detailsState){graphState,detailsState->
 
         MutualFundScreenState(
@@ -85,6 +89,14 @@ class MutualFundDetailsScreenViewModel(
     fun onSelectedYearChange(newDuration: GraphDurationSelection)  {
         _selectedYear.value = newDuration
         loadGraph()
+    }
+
+    fun showBottomSheet(){
+        _bottomSheetVisibility.value=true
+    }
+
+    fun hideBottomSheet(){
+        _bottomSheetVisibility.value=false
     }
 
 }

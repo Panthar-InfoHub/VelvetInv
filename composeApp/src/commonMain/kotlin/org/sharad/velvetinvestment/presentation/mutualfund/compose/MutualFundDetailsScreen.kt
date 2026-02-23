@@ -22,9 +22,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -74,6 +76,7 @@ import velvet.composeapp.generated.resources.icon_share
 import velvet.composeapp.generated.resources.icon_star
 import velvet.composeapp.generated.resources.icon_warning
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MutualFundDetailsScreenRoot(
     id:String,
@@ -88,6 +91,8 @@ fun MutualFundDetailsScreenRoot(
     val viewModel = koinViewModel<MutualFundDetailsScreenViewModel> {parametersOf(id)}
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
+    val bottomSheetVisibility by viewModel.bottomSheetVisibility.collectAsStateWithLifecycle()
+    val sheetState= rememberModalBottomSheetState()
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -125,11 +130,20 @@ fun MutualFundDetailsScreenRoot(
                         onFundTopClick=onTopFundClick,
                         onFundClick = onFundClick,
                         onMonthlySipClick = { onMonthlySipClick(id) },
-                        onOneTimeSipClick = { onOneTimeSipClick(id) }
+                        onOneTimeSipClick = { onOneTimeSipClick(id)
+                        viewModel.showBottomSheet()}
                     )
                 }
             }
         }
+    }
+    if (bottomSheetVisibility){
+        KYCPopup(
+            sheetState = sheetState,
+            onDismiss = {
+                viewModel.hideBottomSheet() },
+            onClick = {}
+        )
     }
 }
 
