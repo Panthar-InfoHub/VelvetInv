@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.utils.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -65,6 +66,7 @@ val unspecified_scheme = ColorFamily(
 fun VelvetTheme(
     content: @Composable() () -> Unit
 ) {
+
   val colorScheme = lightScheme
   MaterialTheme(
     colorScheme = colorScheme,
