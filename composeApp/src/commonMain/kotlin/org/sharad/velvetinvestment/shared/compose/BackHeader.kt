@@ -26,10 +26,11 @@ import velvet.composeapp.generated.resources.back_arrow
 fun BackHeader(
     heading: String,
     showBack: Boolean = false,
+    modifier:Modifier=Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 12.dp),
     onBackClick: () -> Unit={}
 ){
     Box(
-        modifier=Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 12.dp),
+        modifier=modifier,
         contentAlignment = Alignment.Center
     ) {
         Text(

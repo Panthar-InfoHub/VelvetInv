@@ -47,7 +47,7 @@ import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
@@ -91,7 +91,7 @@ fun ExploreFundScreenContent(
     pv: PaddingValues,
     navigateToSpecificFD: (String) -> Unit,
     navigateToSpecificMF: (String) -> Unit,
-    uiState: UIState
+    loadingState: LoadingState
 ) {
     LazyColumn(
         modifier=Modifier.fillMaxSize(),
@@ -102,14 +102,14 @@ fun ExploreFundScreenContent(
 
         item { InvestmentOptions(onMFClick, onFDClick) }
 
-        when(uiState){
-            is UIState.Error -> {
-                item { ErrorScreen(uiState.error, onRetryClick = {}) }
+        when(loadingState){
+            is LoadingState.Error -> {
+                item { ErrorScreen(loadingState.error, onRetryClick = {}) }
             }
-            UIState.Loading -> {
+            LoadingState.Loading -> {
                 item { LoaderScreen() }
             }
-            UIState.Success -> {
+            LoadingState.Success -> {
                 item { BarHeader(heading ="Top Picks Mutual Funds", modifier = Modifier.padding(horizontal = 16.dp)) }
 
                 item { MFTopPicks(topFunds,navigateToSpecificMF) }
@@ -256,7 +256,7 @@ fun TopPicksCardFD(item: FixedTopPicksUiModel, onClick: () -> Unit) {
                 ) {
 
                     Text(
-                        text= item.returnYears.toString()+"Y Returns",
+                        text= item.returnYears+"Y Returns",
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
                         color = Color.Black

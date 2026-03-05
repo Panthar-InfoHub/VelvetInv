@@ -7,7 +7,7 @@ import org.sharad.velvetinvestment.domain.repository.HomeRepository
 class GetUserWorthCardUseCase(
     private val repository: HomeRepository
 ) {
-    suspend operator fun invoke(): UserWorthCardDomain {
-        return repository.getUserWorthCard()
-    }
+    suspend operator fun invoke()=
+         repository.getUserWorthCard()
+
 }

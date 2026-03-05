@@ -192,7 +192,7 @@ fun String.isoUtcToDisplayDate(): String {
         val instant = Instant.parse(this)
         val localDate = instant.toLocalDateTime(TimeZone.UTC).date
 
-        val day = localDate.dayOfMonth.toString().padStart(2, '0')
+        val day = localDate.day.toString().padStart(2, '0')
         val month = localDate.month.name
             .lowercase()
             .replaceFirstChar { it.uppercase() }

@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.appRed
@@ -28,6 +29,7 @@ import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_user
+import velvet.composeapp.generated.resources.kyc_icon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +48,7 @@ fun KYCPopup(
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ){
         Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp, horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp, horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -58,7 +60,7 @@ fun KYCPopup(
                 contentAlignment = Alignment.Center
             ){
                 Icon(
-                    painter = painterResource(Res.drawable.icon_user),
+                    painter = painterResource(Res.drawable.kyc_icon),
                     contentDescription = null,
                     modifier = Modifier.size(36.dp),
                     tint = appRed
@@ -69,12 +71,14 @@ fun KYCPopup(
                 text="Verify Identity (KYC)\n" +
                         "Just Few Steps",
                 style = MaterialTheme.typography.headlineLarge,
+                textAlign = TextAlign.Center,
                 color = Color.Black
             )
 
             Text(
                 text="You’re a few steps away from starting your investment journey with us.",
                 style = titlesStyle,
+                textAlign = TextAlign.Center,
                 color= titleColor
             )
 

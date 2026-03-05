@@ -27,7 +27,6 @@ fun ShadowCard(
 ) {
     Box(
         modifier = modifier
-            .fillMaxWidth()
             .genericDropShadow(shape)
             .clip(shape)
             .background(backgroundColor)

@@ -1,9 +1,10 @@
 package org.sharad.velvetinvestment.utils.di
 
 import org.koin.dsl.module
-import org.sharad.velvetinvestment.domain.usecases.fdusecases.GetFDDetailsUseCase
-import org.sharad.velvetinvestment.domain.usecases.fdusecases.GetFDListUseCase
-import org.sharad.velvetinvestment.domain.usecases.fdusecases.GetFixedDepositTopPicksUseCase
+import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDDetailsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
+import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFixedDepositTopPicksUseCase
+import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetTopPickFDUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDashboardUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDetailsUseCase
@@ -16,6 +17,7 @@ import org.sharad.velvetinvestment.domain.usecases.home.GetGoalsSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetUserWorthCardUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.HomeScreenUseCases
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
 
 val useCaseModule= module {
     factory { GetUserWorthCardUseCase(get()) }
@@ -57,4 +59,8 @@ val useCaseModule= module {
     factory {
         GetMutualFundGraphUseCase(get())
     }
+    factory {
+        GetFireReportUseCase(get())
+    }
+    factory { GetTopPickFDUseCase(get()) }
 }

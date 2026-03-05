@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.portfolio.FDDetailsDomain
-import org.sharad.velvetinvestment.domain.usecases.fdusecases.GetFDDetailsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDDetailsUseCase
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDDetailsUiModel
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiModel
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -21,8 +21,8 @@ class FDDetailsViewModel(
     private val fdId: String
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UIState>(value = UIState.Loading)
-    val uiState: StateFlow<UIState> = _uiState.asStateFlow()
+    private val _loadingState = MutableStateFlow<LoadingState>(value = LoadingState.Loading)
+    val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
     private val _fdDetails = MutableStateFlow<FDDetailsUiModel?>(null)
     val fdDetails: StateFlow<FDDetailsUiModel?> = _fdDetails
@@ -34,15 +34,15 @@ class FDDetailsViewModel(
     fun loadFDDetails(fdId: String) {
         viewModelScope.launch {
 
-            _uiState.value = UIState.Loading
+            _loadingState.value = LoadingState.Loading
 
             getFDDetailsUseCase(fdId)
                 .onSuccess { domain ->
                     _fdDetails.value = domain.toUiModel()
-                    _uiState.value = UIState.Success
+                    _loadingState.value = LoadingState.Success
                 }
                 .onError { error ->
-                    _uiState.value = UIState.Error(error.name.toString())
+                    _loadingState.value = LoadingState.Error(error.name)
                 }
         }
     }

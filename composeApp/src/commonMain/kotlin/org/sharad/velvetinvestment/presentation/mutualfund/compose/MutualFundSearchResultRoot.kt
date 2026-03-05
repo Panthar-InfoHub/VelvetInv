@@ -52,7 +52,7 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.FilterChip
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.FundFilter
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -69,7 +69,7 @@ fun MutualFundSearchScreenRoot(
 ) {
 
     val viewModel: MutualFundSearchResultViewModel = koinViewModel{parametersOf(searchId)}
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
     val sortedFunds by viewModel.sortedFunds.collectAsStateWithLifecycle()
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
@@ -92,15 +92,15 @@ fun MutualFundSearchScreenRoot(
                     .fillMaxSize()
             ) {
                 when (uiState) {
-                    is UIState.Error -> {
-                        ErrorScreen((uiState as UIState.Error).error, onRetryClick = {})
+                    is LoadingState.Error -> {
+                        ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
                     }
 
-                    UIState.Loading -> {
+                    LoadingState.Loading -> {
                         LoaderScreen()
                     }
 
-                    UIState.Success -> {
+                    LoadingState.Success -> {
                         MutualFundSearchScreen(
                             result = sortedFunds,
                             onFundClick = onFundClick,

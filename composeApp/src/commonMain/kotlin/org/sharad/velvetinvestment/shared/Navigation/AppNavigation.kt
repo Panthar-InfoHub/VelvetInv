@@ -11,6 +11,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import org.sharad.velvetinvestment.presentation.firereport.compose.FireReportScreen
+import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDCategoryScreenRoot
+import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundDetailsScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundSearchScreenRoot
@@ -18,6 +21,9 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.CancelSIPConfi
 import org.sharad.velvetinvestment.presentation.portfolio.compose.FDDetailsScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.KYCScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
 
 @Composable
 fun AppNavigation(){
@@ -78,6 +84,15 @@ fun AppNavigation(){
                     navigateToSIPDetailsScreen = {id->navController.navigate(Route.SIPDetails(id))},
                     navigateToFDDetailsScreen = {id->navController.navigate(Route.FDDetailsScreen(id))},
                     navigateToCategoryMutualFundScreen = {navController.navigate(Route.CategoryMutualFund)},
+                    navigateToCategoryFDScreen = {navController.navigate(Route.FixedDepositCategory)},
+                    navigateToFireReportScreen = {navController.navigate(Route.FireReport)},
+                    navigateToKYCScreen={navController.navigate(Route.KYCScreen)},
+                    navigateToGoalScreen={navController.navigate(Route.GoalsScreen)},
+                    navigateToNotification={navController.navigate(Route.Notifications )},
+                    navigateToPersonalInfo={navController.navigate(Route.PersonalInformation)},
+                    navigateToMutualFundDetailScreen = {
+                        navController.navigate(Route.MutualFundDetails(it))
+                    }
                 )
             }
 
@@ -164,7 +179,50 @@ fun AppNavigation(){
                 )
             }
 
-        }
+            composable<Route.FireReport> {
+                FireReportScreen(
+                    onBack = {navController.popBackStack()}
+                )
+            }
+            composable<Route.KYCScreen> {
+                KYCScreen(
+                    onBackClick = {navController.popBackStack()},
+                    onKYCButtonClick = {},
+                    pv=pv
+                )
+            }
+            composable<Route.GoalsScreen> {
+                GoalScreen(
+                    onBack = {navController.popBackStack()},
+                    onAddClick = {},
+                    pv = pv,
+                    onGoalClick = {}
+                )
+            }
+            composable<Route.Notifications> {
+                NotificationScreen(
+                    onBack = {navController.popBackStack()},
+                    pv = pv,
+                )
+            }
+            composable<Route.PersonalInformation> {
+                PersonalInformationScreen(
+                    onBack = {navController.popBackStack()},
+                    pv = pv,
+                )
+            }
 
+
+            composable<Route.FixedDepositCategory> {
+                FDCategoryScreenRoot(
+                    onBackClick = {navController.popBackStack()},
+                    onIconClick = {},
+                    onFundClick = {},
+                    pv = pv,
+                    onSearchClick = {},
+                    onCategoryClick = {_,_->}
+                )
+            }
+        }
     }
 }

@@ -7,20 +7,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
 import org.sharad.velvetinvestment.domain.TransactionStatus
 import org.sharad.velvetinvestment.domain.models.portfolio.BankDetails
 import org.sharad.velvetinvestment.domain.models.portfolio.SIPDetailsDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.TransactionHistoryDomain
-import org.sharad.velvetinvestment.utils.UIState
-import kotlin.time.Clock
+import org.sharad.velvetinvestment.utils.LoadingState
 
 class SIPDetailsViewModel: ViewModel() {
 
-    private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
-    val uiState: StateFlow<UIState> = _uiState.asStateFlow()
+    private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Loading)
+    val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
     private val _sipDetails = MutableStateFlow<SIPDetailsDomain?>(null)
     val sipDetails: StateFlow<SIPDetailsDomain?> = _sipDetails.asStateFlow()
@@ -31,7 +27,7 @@ class SIPDetailsViewModel: ViewModel() {
 
     fun loadSIPDetails() {
         viewModelScope.launch {
-            _uiState.value = UIState.Loading
+            _loadingState.value = LoadingState.Loading
 
             delay(1500) // simulate API delay
 
@@ -80,10 +76,10 @@ class SIPDetailsViewModel: ViewModel() {
                 )
 
                 _sipDetails.value = fakeData
-                _uiState.value = UIState.Success
+                _loadingState.value = LoadingState.Success
 
             } catch (e: Exception) {
-                _uiState.value = UIState.Error("Failed to load SIP details")
+                _loadingState.value = LoadingState.Error("Failed to load SIP details")
             }
         }
     }

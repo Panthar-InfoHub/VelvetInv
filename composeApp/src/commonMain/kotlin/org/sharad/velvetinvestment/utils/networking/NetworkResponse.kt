@@ -20,3 +20,4 @@ enum class NetworkError: Error {
     INVALID_REQUEST,
     INVALID_OTP
 }
+

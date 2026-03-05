@@ -49,7 +49,7 @@ import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
@@ -66,17 +66,17 @@ fun FDDetailsScreen(
 
     val viewModel: FDDetailsViewModel = koinViewModel{ parametersOf(id) }
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val details by viewModel.fdDetails.collectAsStateWithLifecycle()
 
     when(uiState){
-        is UIState.Error -> {
-            ErrorScreen((uiState as UIState.Error).error)
+        is LoadingState.Error -> {
+            ErrorScreen((uiState as LoadingState.Error).error)
         }
-        UIState.Loading -> {
+        LoadingState.Loading -> {
             LoaderScreen()
         }
-        UIState.Success ->{
+        LoadingState.Success ->{
             if (details != null)
                 FDDetailsMain(
                     details = details!!,
@@ -215,22 +215,22 @@ fun NomineeDetailsCard(nominee: FDNomineeUiModel) {
                     modifier=Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    Text("Full Name", style = subHeading, color = titleColor)
-                    Text(nominee.fullName, style = MaterialTheme.typography.headlineSmall, color = Secondary)
+                    Text("Full Name", style = titlesStyle, color = titleColor)
+                    Text(nominee.fullName, style = subHeading, color = Secondary)
                 }
                 Column(
                     modifier=Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    Text("Relationship", style = subHeading, color = titleColor)
-                    Text(nominee.relationship, style = MaterialTheme.typography.headlineSmall, color = Secondary)
+                    Text("Relationship", style = titlesStyle, color = titleColor)
+                    Text(nominee.relationship, style =subHeading, color = Secondary)
                 }
             }
             Column(
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Text("DOB", style = subHeading, color = titleColor)
-                Text(nominee.dateOfBirth, style = MaterialTheme.typography.headlineSmall, color = Secondary)
+                Text("DOB", style = titlesStyle, color = titleColor)
+                Text(nominee.dateOfBirth, style =subHeading, color = Secondary)
             }
         }
     }

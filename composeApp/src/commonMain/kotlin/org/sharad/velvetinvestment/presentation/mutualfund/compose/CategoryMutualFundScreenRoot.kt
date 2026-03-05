@@ -48,7 +48,7 @@ import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
@@ -69,7 +69,7 @@ fun CategoryMutualFundScreenRoot(
 
     val viewModel: MutualFundViewModel = koinViewModel()
     val mutualFunds by viewModel.mutualFunds.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
 
 
@@ -85,14 +85,14 @@ fun CategoryMutualFundScreenRoot(
                 .fillMaxSize()
         ){
             when(uiState){
-                is UIState.Error->{
-                    ErrorScreen((uiState as UIState.Error).error, onRetryClick = {})
+                is LoadingState.Error->{
+                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
                 }
-                UIState.Loading -> {
+                LoadingState.Loading -> {
                     LoaderScreen()
                 }
 
-                UIState.Success -> {
+                LoadingState.Success -> {
                     CategoryMutualFundScreen(
                         mutualFunds,
                         onCategoryClick = onCategoryClick,
