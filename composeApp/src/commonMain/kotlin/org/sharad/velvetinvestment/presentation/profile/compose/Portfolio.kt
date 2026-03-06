@@ -49,7 +49,7 @@ import velvet.composeapp.generated.resources.up_stock
 fun PortfolioScreen() {
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
          ScreenHeader( "Portfolio")
-       BarHeader(modifier = Modifier.fillMaxWidth(),"Mutual Funds",true)
+       BarHeader(modifier = Modifier.fillMaxWidth(), heading ="Mutual Funds", showArrow = true)
         Spacer(modifier=Modifier.height(20.dp))
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -139,7 +139,7 @@ Spacer(modifier=Modifier.height(16.dp))
             redColor
         )
 Spacer(modifier = Modifier.height(20.dp))
-        BarHeader(modifier = Modifier.fillMaxWidth(),"Fixed Deposits",true)
+        BarHeader(modifier = Modifier.fillMaxWidth(), heading = "Fixed Deposits", showArrow = true)
         Spacer(modifier = Modifier.height(20.dp))
 
         Box(modifier = Modifier.fillMaxWidth().height(142.dp).genericDropShadow().clip(RoundedCornerShape(20.dp)).background(color = Color.White, shape = RoundedCornerShape(20.dp)).padding(10.dp)) {

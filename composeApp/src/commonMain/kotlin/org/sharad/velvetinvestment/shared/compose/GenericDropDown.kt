@@ -41,12 +41,12 @@ import velvet.composeapp.generated.resources.arrow_down
 @Composable
 fun GenericDropDownField(
     value: String,
-    onValueChange:(String)->Unit,
-    placeHolder:String,
-    mandatory:Boolean=false,
-    label:String,
+    onValueChange: (String) -> Unit,
+    placeHolder: String,
+    mandatory: Boolean =false,
+    label: String,
     modifier: Modifier = Modifier,
-    list:List<String>
+    list: List<String>
 ){
     var extended by remember { mutableStateOf(false) }
     Column(
@@ -99,7 +99,7 @@ fun GenericDropDownField(
 }
 
 @Composable
-fun GenericDropDownContent(onSelected: (String) -> Unit, list: List<String>) {
+private fun GenericDropDownContent(onSelected: (String) -> Unit, list: List<String>) {
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -124,7 +124,7 @@ fun GenericDropDownContent(onSelected: (String) -> Unit, list: List<String>) {
 }
 
 @Composable
-fun GenericDropDownHeader(value:String, placeHolder: String, onClick: () -> Unit, extended: Boolean) {
+private fun GenericDropDownHeader(value:String, placeHolder: String, onClick: () -> Unit, extended: Boolean) {
     val animatedIcon by animateFloatAsState(
         targetValue = if (extended) 180f else 0f,
         label = "arrow")
@@ -139,7 +139,7 @@ fun GenericDropDownHeader(value:String, placeHolder: String, onClick: () -> Unit
 
         Text(
             text= (value.ifEmpty { placeHolder }).capitalize(Locale.current),
-            style = subHeadingMedium,
+            style = subHeadingMedium.copy(fontSize = 14.sp),
             color = if (value.isBlank()) titleColor.copy(alpha = 0.5f) else Primary,
             modifier = Modifier.weight(1f).padding(start = 16.dp)
         )

@@ -17,6 +17,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDet
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
+import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 
 val viewModelModule= module {
     viewModel { LoginScreenViewModel() }
@@ -50,5 +51,7 @@ val viewModelModule= module {
             getGraphUseCase = get()
         )
     }
+
+    viewModel { TradingAccountViewModel() }
 
 }

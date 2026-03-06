@@ -75,7 +75,7 @@ fun ProfileScreen(){
             }
 
             Spacer(modifier=Modifier.height(50.dp))
-            BarHeader(modifier = Modifier.fillMaxWidth(),"Account Setting")
+            BarHeader(modifier = Modifier.fillMaxWidth(), heading = "Account Setting")
             Spacer(modifier = Modifier.height(15.dp))
             Card(colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation( defaultElevation = 2.dp)) {
                 Column(modifier = Modifier.padding(16.dp)){
@@ -116,7 +116,7 @@ fun ProfileScreen(){
 
             }
             Spacer(modifier=Modifier.height(20.dp))
-            BarHeader(modifier = Modifier.fillMaxWidth(),"Preferences")
+            BarHeader(modifier = Modifier.fillMaxWidth(), heading = "Preferences")
             Spacer(modifier=Modifier.height(15.dp))
 
             Card(colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation( defaultElevation = 2.dp)) {
@@ -141,7 +141,7 @@ fun ProfileScreen(){
             }
 
             Spacer(modifier=Modifier.height(20.dp))
-            BarHeader(modifier=Modifier.fillMaxWidth(),"Legal")
+            BarHeader(modifier=Modifier.fillMaxWidth(), heading ="Legal")
             Spacer(modifier=Modifier.height(15.dp))
 
             Card(colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation( defaultElevation = 2.dp)) {

@@ -141,7 +141,7 @@ fun MutualFundsScreen() {
             }
                 item {
                     Spacer(Modifier.height(20.dp))
-                    BarHeader(modifier = Modifier.fillMaxWidth(), "Popular Fund")
+                    BarHeader(modifier = Modifier.fillMaxWidth(), heading = "Popular Fund")
                 }
                 item {
                     Spacer(modifier = Modifier.height(20.dp))
@@ -168,7 +168,7 @@ fun MutualFundsScreen() {
 
            item {
                Spacer(modifier=Modifier.height(20.dp))
-               BarHeader(modifier = Modifier.fillMaxWidth(), "NIFTY 50 Returns")
+               BarHeader(modifier = Modifier.fillMaxWidth(), heading = "NIFTY 50 Returns")
            }
                 item {
                     Spacer(Modifier.height(20.dp))
@@ -194,7 +194,7 @@ fun MutualFundsScreen() {
                 }
             item {
                 Spacer(modifier = Modifier.height(20.dp))
-                BarHeader(modifier = Modifier.fillMaxWidth(), "NIFTY 50 Returns")
+                BarHeader(modifier = Modifier.fillMaxWidth(), heading = "NIFTY 50 Returns")
 
             }
              item {
@@ -221,7 +221,7 @@ fun MutualFundsScreen() {
                  }
                 item {
                     Spacer(modifier = Modifier.height(20.dp))
-                    BarHeader(modifier = Modifier.fillMaxWidth(), "Explore NFOs")
+                    BarHeader(modifier = Modifier.fillMaxWidth(),  heading ="Explore NFOs")
 
                 }
                 item {

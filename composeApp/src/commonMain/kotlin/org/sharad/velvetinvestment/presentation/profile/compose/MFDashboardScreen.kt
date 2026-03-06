@@ -45,7 +45,7 @@ import velvet.composeapp.generated.resources.up_stock
 fun DashboardScreen(){
     Column(modifier=Modifier.fillMaxSize().padding(16.dp)) {
 ScreenHeader("Mutual Funds")
-        BarHeader(modifier = Modifier.fillMaxWidth(),"Dashboard")
+        BarHeader(modifier = Modifier.fillMaxWidth(),heading="Dashboard")
         Spacer(modifier=Modifier.height(20.dp))
     Box(
         modifier = Modifier.fillMaxWidth().height(225.dp).genericDropShadow(RoundedCornerShape(10.dp)).clip(
@@ -89,7 +89,7 @@ ScreenHeader("Mutual Funds")
         }
     }
 Spacer(modifier = Modifier.height(20.dp))
-        BarHeader(modifier = Modifier.fillMaxWidth(),"Your Investments")
+        BarHeader(modifier = Modifier.fillMaxWidth(), heading = "Your Investments")
         Spacer(modifier = Modifier.height(20.dp))
         Box(
             modifier = Modifier.fillMaxWidth()

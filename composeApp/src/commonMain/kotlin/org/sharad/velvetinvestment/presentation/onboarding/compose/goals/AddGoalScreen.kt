@@ -64,7 +64,7 @@ fun AddGoalScreen(
             item {
                 OnBoardingTextField(
                     value = addGoalState.targetAmount?.toString()?:"",
-                    onValueChange = { viewModel.onTargetAmountUpdate(it) },
+                    onValueChange = {it-> viewModel.onTargetAmountUpdate(it) },
                     placeHolder = "Enter Target Amount",
                     label = "Target Amount",
                     keyboardType = KeyboardType.Number
