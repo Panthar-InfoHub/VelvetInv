@@ -17,7 +17,7 @@ fun BaseNavigation(windowSize: WindowSize, pv: PaddingValues) {
 
     NavHost(
         navController = navController,
-        startDestination = Route.MainAppFlow,
+        startDestination = Route.LoginFlow,
         modifier = Modifier.padding(top=pv.calculateTopPadding())
     ){
         composable<Route.LoginFlow>{
