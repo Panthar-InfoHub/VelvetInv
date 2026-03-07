@@ -26,6 +26,7 @@ class FDCategoryViewModel(
     val searchText= _searchText.asStateFlow()
 
 
+
     init {
         loadTopPicks()
     }
@@ -49,13 +50,24 @@ class FDCategoryViewModel(
         }
     }
 
-    fun reorderTenures(sort: FDTenureSort) {
+    fun reorderTenures(
+        fdId: String,
+        sort: FDTenureSort
+    ) {
+
         val current = _uiState.value
         if (current !is UiState.Success) return
+
         val updated = current.data.map { category ->
+
             category.copy(
+
                 fds = category.fds.map { fd ->
+
+                    if (fd.id != fdId) return@map fd
+
                     val sortedTenures = when (sort) {
+
                         FDTenureSort.TENURE_ASC ->
                             fd.tenures.sortedBy { it.minDays }
 
@@ -74,10 +86,15 @@ class FDCategoryViewModel(
                         FDTenureSort.RETURNS_DESC ->
                             fd.tenures.sortedByDescending { it.returnMax }
                     }
-                    fd.copy(tenures = sortedTenures)
+
+                    fd.copy(
+                        tenures = sortedTenures,
+                        currentSort = sort
+                    )
                 }
             )
         }
+
         _uiState.value = UiState.Success(updated)
     }
 

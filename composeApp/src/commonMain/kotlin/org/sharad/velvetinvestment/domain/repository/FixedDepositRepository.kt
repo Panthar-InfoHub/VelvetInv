@@ -10,6 +10,6 @@ interface FixedDepositRepository {
     suspend fun getTopPickFDs():
             NetworkResponse<List<CategoryFixedDepositDomain>, NetworkError>
 
-    suspend fun getAllFDs():
+    suspend fun getFDSearchResult(searchId: String):
             NetworkResponse<List<FixedDepositDomain>, NetworkError>
 }

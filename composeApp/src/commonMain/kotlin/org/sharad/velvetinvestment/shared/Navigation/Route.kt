@@ -81,5 +81,7 @@ object Route {
 
     @Serializable
     data object FixedDepositCategory
+    @Serializable
+    data class FixedDepositSearchResult(val heading:String="Fixed Deposit",val id:String)
 
 }

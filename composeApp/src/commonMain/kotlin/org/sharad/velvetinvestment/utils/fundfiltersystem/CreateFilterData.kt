@@ -62,3 +62,85 @@ fun createInitialInvestmentFilter(): InvestmentFilter {
         )
     )
 }
+
+fun createInitialFDFilters(): InvestmentFilter {
+
+    return InvestmentFilter(
+        groups = listOf(
+
+            FilterGroup(
+                id = "filters",
+                title = "Filters",
+                selectionType = SelectionType.MULTIPLE,
+                options = listOf(
+                    FilterOption(
+                        id = "senior_rates",
+                        title = "Senior citizen rates\nRate for user aged 60 and above"
+                    ),
+                    FilterOption(
+                        id = "insured_rbi",
+                        title = "Insured by RBI\nUp to ₹5L"
+                    ),
+                    FilterOption(
+                        id = "tax_saver",
+                        title = "Tax saver FDs\nFD eligible under 80C for tax saving"
+                    ),
+                    FilterOption(
+                        id = "low_min_investment",
+                        title = "Low min. investment\nCreate FDs with less than ₹2k"
+                    )
+                )
+            ),
+
+            // Tenure
+            FilterGroup(
+                id = "tenure",
+                title = "Tenure",
+                selectionType = SelectionType.SINGLE,
+                options = listOf(
+                    FilterOption("lt_1y", "< 1 year"),
+                    FilterOption("1_3y", "1-3 years"),
+                    FilterOption("3_5y", "3-5 years"),
+                    FilterOption("gt_5y", "> 5 years")
+                )
+            ),
+
+            // Risk Level
+            FilterGroup(
+                id = "risk_level",
+                title = "Risk Level",
+                selectionType = SelectionType.SINGLE,
+                options = listOf(
+                    FilterOption(
+                        "low",
+                        "Low\nCRISIL rating AAA"
+                    ),
+                    FilterOption(
+                        "moderate",
+                        "Moderate\nCRISIL rating AA and AA"
+                    ),
+                    FilterOption(
+                        "high",
+                        "High\nCRISIL category B"
+                    ),
+                    FilterOption(
+                        "very_high",
+                        "Very high\nCRISIL category C and D"
+                    )
+                )
+            ),
+
+            FilterGroup(
+                id = "issuer_type",
+                title = "Issuer type",
+                selectionType = SelectionType.SINGLE,
+                options = listOf(
+                    FilterOption("public_bank", "Public banks"),
+                    FilterOption("nbfc", "NBFC"),
+                    FilterOption("private_bank", "Private banks"),
+                    FilterOption("small_finance", "Small finance")
+                )
+            )
+        )
+    )
+}

@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.data.remote.repository
 
+import kotlinx.coroutines.delay
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.CategoryFixedDepositDomain
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositTenureDomain
@@ -9,6 +10,7 @@ import org.sharad.velvetinvestment.domain.models.fixeddeposits.TenureRange
 import org.sharad.velvetinvestment.domain.repository.FixedDepositRepository
 import org.sharad.velvetinvestment.utils.networking.NetworkError
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import kotlin.random.Random
 
 class FakeFixedDepositRepository : FixedDepositRepository {
 
@@ -29,18 +31,23 @@ class FakeFixedDepositRepository : FixedDepositRepository {
         return NetworkResponse.Success(listOf(topPicks))
     }
 
-    override suspend fun getAllFDs():
-            NetworkResponse<List<FixedDepositDomain>, NetworkError> {
+    override suspend fun getFDSearchResult(
+        searchId: String
+    ): NetworkResponse<List<FixedDepositDomain>, NetworkError> {
 
-        val fds = listOf(
-            hdfcFD(),
-            iciciFD(),
-            sbiFD(),
-            kotakFD(),
-            axisFD(),
-        )
+        return try {
 
-        return NetworkResponse.Success(fds)
+            delay(1000)
+
+            val fakeList = generateFakeFDs(searchId)
+
+            NetworkResponse.Success(fakeList)
+
+        } catch (e: Exception) {
+
+            NetworkResponse.Error(NetworkError.UNKNOWN)
+
+        }
     }
 }
 
@@ -48,6 +55,7 @@ class FakeFixedDepositRepository : FixedDepositRepository {
 private fun hdfcFD() = FixedDepositDomain(
     bankName = "HDFC Bank",
     bankLogoUrl = "",
+    bankTag = "Private Bank",
     riskLevel = RiskLevel.LOW,
     baseInterest = 7.5,
     id="1",
@@ -93,6 +101,7 @@ private fun hdfcFD() = FixedDepositDomain(
 private fun iciciFD() = FixedDepositDomain(
     bankName = "ICICI Bank",
     bankLogoUrl = "",
+    bankTag = "Private Bank",
     id="2",
     riskLevel = RiskLevel.LOW,
     baseInterest = 7.25,
@@ -140,6 +149,7 @@ private fun sbiFD() = FixedDepositDomain(
     id="3",
     riskLevel = RiskLevel.LOW,
     baseInterest = 7.1,
+    bankTag = "Private Bank",
     tenures = listOf(
 
         FixedDepositTenureDomain(
@@ -182,6 +192,7 @@ private fun kotakFD() = FixedDepositDomain(
     bankName = "Kotak Bank",
     bankLogoUrl = "",
     id="4",
+    bankTag = "Private Bank",
     riskLevel = RiskLevel.LOW,
     baseInterest = 7.4,
     tenures = listOf(
@@ -224,6 +235,7 @@ private fun kotakFD() = FixedDepositDomain(
 )
 private fun axisFD() = FixedDepositDomain(
     bankName = "Axis Bank",
+    bankTag = "Private Bank",
     bankLogoUrl = "",
     riskLevel = RiskLevel.LOW,
     id="5",
@@ -266,3 +278,66 @@ private fun axisFD() = FixedDepositDomain(
         )
     )
 )
+
+private fun generateFakeFDs(
+    searchId: String
+): List<FixedDepositDomain> {
+
+    val banks = listOf(
+        "HDFC Bank",
+        "ICICI Bank",
+        "SBI Bank",
+        "Kotak Bank",
+        "Axis Bank",
+        "IDFC First Bank",
+        "AU Small Finance Bank",
+        "Bandhan Bank",
+        "Yes Bank",
+        "IndusInd Bank"
+    )
+
+    return List(15) { index ->
+
+        val bank = banks[index % banks.size]
+
+        FixedDepositDomain(
+            id = "${searchId.replace(" ", "_")}_$index",
+            bankName = bank,
+            bankLogoUrl = "",
+            riskLevel = RiskLevel.entries.random(),
+            baseInterest = (6.0..8.5).random().let { (it * 100).toInt() / 100.0 },
+            tenures = generateFakeTenures(),
+            bankTag = "Private Bank"
+        )
+    }
+}
+
+private fun generateFakeTenures(): List<FixedDepositTenureDomain> {
+
+    val slabs = listOf(
+        TenureRange(TenureDuration(0, 0, 7), TenureDuration(0, 0, 30)),
+        TenureRange(TenureDuration(0, 1, 0), TenureDuration(0, 5, 29)),
+        TenureRange(TenureDuration(0, 6, 0), TenureDuration(0, 11, 29)),
+        TenureRange(TenureDuration(1, 0, 0), TenureDuration(2, 0, 0)),
+        TenureRange(TenureDuration(3, 0, 0), TenureDuration(5, 0, 0))
+    )
+
+    return slabs.map {
+
+        val interest = (5.5..8.5).random().let { (it * 100).toInt() / 100.0 }
+
+        val receive = (10500..15000).random().toLong()
+
+        FixedDepositTenureDomain(
+            tenure = it,
+            interestRate = interest,
+            receiveMin = receive,
+            receiveMax = receive + (200..1000).random()
+        )
+    }
+}
+
+
+fun ClosedFloatingPointRange<Double>.random(): Double {
+    return Random.nextDouble(start, endInclusive)
+}

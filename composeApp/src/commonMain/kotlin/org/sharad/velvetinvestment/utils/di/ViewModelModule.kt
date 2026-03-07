@@ -6,6 +6,7 @@ import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScree
 import org.sharad.velvetinvestment.presentation.explorefunds.viewmodel.ExploreFundScreenViewModel
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.FireReportViewModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDCategoryViewModel
+import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalInfoScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
@@ -57,5 +58,6 @@ val viewModelModule= module {
     viewModel { FireReportViewModel(get()) }
     viewModel { GoalInfoScreenViewModel(get()) }
     viewModel { FDCategoryViewModel(get()) }
+    viewModel {(id:String)-> FDSearchResultViewModel(id,get()) }
 
 }

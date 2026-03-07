@@ -25,9 +25,10 @@ fun FixedDepositDomain.toUI(): FixedDepositUIModel {
     return FixedDepositUIModel(
         bankName = bankName,
         bankLogoUrl = bankLogoUrl,
-        riskText = riskLevel,
+        riskLevel = riskLevel,
         interest = "$baseInterest% p.a.",
         tenures = tenuresUI,
-        id=id
+        id=id,
+        bankTag = bankTag
     )
 }

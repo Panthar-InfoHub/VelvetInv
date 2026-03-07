@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -38,12 +37,12 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.CategoryFixedDepositUIModel
+import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FDTenureSort
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDCategoryViewModel
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.genericDropShadow
 import velvet.composeapp.generated.resources.Res
@@ -78,7 +77,7 @@ fun FDCategoryScreenRoot(
         ){
             when(uiState){
                 is UiState.Error->{
-                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
+                    ErrorScreen((uiState as UiState.Error).message, onRetryClick = {})
                 }
                 UiState.Loading -> {
                     LoaderScreen()
@@ -93,7 +92,10 @@ fun FDCategoryScreenRoot(
                         searchText =searchText,
                         onTextChange = { viewModel.onSearchTextChange(it) },
                         pv =pv,
-                        onSearchClick = {onSearchClick(searchText)}
+                        onSearchClick = {onSearchClick(searchText)},
+                        onSortClick={id,sort->
+                            viewModel.reorderTenures(id,sort)
+                        }
                     )
                 }
             }
@@ -109,7 +111,8 @@ fun CategoryFDScreen(
     searchText: String,
     onTextChange: (String) -> Unit,
     pv: PaddingValues,
-    onSearchClick: (String) -> Unit
+    onSearchClick: (String) -> Unit,
+    onSortClick: (String, FDTenureSort) -> Unit
 ) {
 
     LazyColumn(
@@ -151,10 +154,11 @@ fun CategoryFDScreen(
                                 .width(348.dp)
                                 .height(IntrinsicSize.Max)
                         ) {
-                            FDCard(
+                            FDDetailCard(
                                 fd = fund,
                                 onClick = { onFundClick(fund.id) },
-                                modifier = Modifier.fillMaxHeight()
+                                modifier = Modifier.fillMaxHeight(),
+                                onSortClick = onSortClick
                             )
                         }
                     }

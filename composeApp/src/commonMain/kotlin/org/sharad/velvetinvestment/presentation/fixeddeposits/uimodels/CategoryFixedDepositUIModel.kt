@@ -12,9 +12,11 @@ data class FixedDepositUIModel(
     val id:String,
     val bankName: String,
     val bankLogoUrl: String,
-    val riskText: RiskLevel,
+    val riskLevel: RiskLevel,
     val interest: String,
-    val tenures: List<FixedDepositTenureUIModel>
+    val tenures: List<FixedDepositTenureUIModel>,
+    val bankTag:String="",
+    val currentSort: FDTenureSort = FDTenureSort.TENURE_ASC
 )
 data class FixedDepositTenureUIModel(
     val tenureText: String,

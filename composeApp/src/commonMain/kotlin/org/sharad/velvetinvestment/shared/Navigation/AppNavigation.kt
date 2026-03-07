@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import org.sharad.velvetinvestment.presentation.firereport.compose.FireReportScreen
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDCategoryScreenRoot
+import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDSearchScreenRoot
 import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundDetailsScreenRoot
@@ -219,8 +220,25 @@ fun AppNavigation(){
                     onIconClick = {},
                     onFundClick = {},
                     pv = pv,
-                    onSearchClick = {},
-                    onCategoryClick = {_,_->}
+                    onSearchClick = {
+                        navController.navigate(Route.FixedDepositSearchResult(id = it))
+                    },
+                    onCategoryClick = {id,name->
+                        navController.navigate(Route.FixedDepositSearchResult(id = id))
+                    }
+                )
+            }
+            composable<Route.FixedDepositSearchResult> {
+                val category= it.toRoute<Route.FixedDepositSearchResult>().heading
+                val id= it.toRoute<Route.FixedDepositSearchResult>().id
+                FDSearchScreenRoot(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv,
+                    heading = category,
+                    searchId = id,
+                    onFDClick = {
+
+                    }
                 )
             }
         }

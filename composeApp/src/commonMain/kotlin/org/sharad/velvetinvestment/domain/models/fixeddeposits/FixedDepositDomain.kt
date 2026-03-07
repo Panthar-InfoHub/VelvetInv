@@ -6,6 +6,7 @@ data class FixedDepositDomain(
     val bankLogoUrl: String,
     val riskLevel: RiskLevel,
     val baseInterest: Double,
-    val tenures: List<FixedDepositTenureDomain>
+    val tenures: List<FixedDepositTenureDomain>,
+    val bankTag:String
 )
 
