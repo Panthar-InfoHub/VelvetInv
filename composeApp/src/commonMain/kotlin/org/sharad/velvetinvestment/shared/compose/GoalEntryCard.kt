@@ -28,6 +28,7 @@ import org.sharad.velvetinvestment.domain.GoalTypes
 import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.progressPercent
 import org.sharad.velvetinvestment.shared.CustomProgressFillBar
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
@@ -103,7 +104,7 @@ fun GoalEntryCard(goal: GoalsSummaryDomain, onClick: () -> Unit) {
                            color = tintColor
                        )
                        Text(
-                           text="₹${goal.amount}/${formatMoneyWithUnits(goal.targetAmount)}",
+                           text="₹${formatMoneyAfterL(goal.amount)}/${formatMoneyWithUnits(goal.targetAmount)}",
                            style = MaterialTheme.typography.labelSmall,
                            color = Color.Black
                        )

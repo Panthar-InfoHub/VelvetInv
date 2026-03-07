@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardData
+import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardPortfolioData
 import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
 import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
@@ -39,7 +39,7 @@ import org.sharad.velvetinvestment.shared.compose.FixedDepositCard
 import org.sharad.velvetinvestment.shared.compose.GenericTabSwitcher
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
@@ -71,17 +71,17 @@ fun PortfolioScreenMain(
             BackHeader("Portfolio" )
             Box(modifier=Modifier.weight(1f).fillMaxWidth()){
                 when (screenState) {
-                    is UIState.Error -> {
+                    is LoadingState.Error -> {
                         ErrorScreen(
                             "Error"
                         )
                     }
 
-                    UIState.Loading -> {
+                    LoadingState.Loading -> {
                         LoaderScreen()
                     }
 
-                    UIState.Success -> {
+                    LoadingState.Success -> {
                         PortfolioScreen(
                             selectedTab = selectedTab,
                             mutualFunds = mutualFunds,
@@ -104,7 +104,7 @@ fun PortfolioScreen(
     selectedTab: SelectedPortfolio,
     mutualFunds: List<FundListCardData>,
     dashBoardData: MutualFundDashBoardData?,
-    fixedDeposits: List<FDCardData>,
+    fixedDeposits: List<FDCardPortfolioData>,
     changeTab: (SelectedPortfolio) -> Unit,
     onSIPClick: (String) -> Unit,
     onFDClick: (String) -> Unit
@@ -207,7 +207,7 @@ fun DashBoardCard(dashBoardData: MutualFundDashBoardData?) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("₹" + formatMoneyAfterL(dashBoardData?.currentValue), style = subHeading, color = Color.Black)
-                    Text("+₹" + formatMoneyAfterL(dashBoardData?.totalReturns) + " (" + (dashBoardData?.totalReturnsPercentage?.trimTo(1)?.toString()?:"0")+"%)", style = subHeading, color = appGreen)
+                    Text("+₹" + formatMoneyAfterL(dashBoardData?.totalReturns) + " (" + (dashBoardData?.totalReturnsPercentage?.trimTo(1)?:"0")+"%)", style = subHeading, color = appGreen)
                 }
             }
             Column(
@@ -227,7 +227,7 @@ fun DashBoardCard(dashBoardData: MutualFundDashBoardData?) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("₹" + formatMoneyAfterL(dashBoardData?.investedAmount), style = subHeading, color = Color.Black)
-                    Text("+₹" + formatMoneyAfterL(dashBoardData?.oneDayReturns) + " (" + (dashBoardData?.oneDayReturnsPercentage?.trimTo(1)?.toString()?:"0")+"%)", style = subHeading, color = appGreen)
+                    Text("+₹" + formatMoneyAfterL(dashBoardData?.oneDayReturns) + " (" + (dashBoardData?.oneDayReturnsPercentage?.trimTo(1)?:"0")+"%)", style = subHeading, color = appGreen)
                 }
             }
 
@@ -238,7 +238,7 @@ fun DashBoardCard(dashBoardData: MutualFundDashBoardData?) {
 
 
 @Composable
-fun FixedDepositPortFolio(fixedDeposits: List<FDCardData>, onFDClick: (String) -> Unit) {
+fun FixedDepositPortFolio(fixedDeposits: List<FDCardPortfolioData>, onFDClick: (String) -> Unit) {
     if (fixedDeposits.isEmpty()){
         EmptyFundScreen(onBrowseClick = {}, text = "Invest a little each month and watch your wealth grow with SIP!", buttonText = "Browse FD")
     }else {

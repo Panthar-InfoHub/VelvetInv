@@ -51,8 +51,9 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.FilterChip
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.utils.FundFilter
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LabelFilter
+import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.MutualFundLabel
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -69,7 +70,7 @@ fun MutualFundSearchScreenRoot(
 ) {
 
     val viewModel: MutualFundSearchResultViewModel = koinViewModel{parametersOf(searchId)}
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
     val sortedFunds by viewModel.sortedFunds.collectAsStateWithLifecycle()
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
@@ -92,15 +93,15 @@ fun MutualFundSearchScreenRoot(
                     .fillMaxSize()
             ) {
                 when (uiState) {
-                    is UIState.Error -> {
-                        ErrorScreen((uiState as UIState.Error).error, onRetryClick = {})
+                    is LoadingState.Error -> {
+                        ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
                     }
 
-                    UIState.Loading -> {
+                    LoadingState.Loading -> {
                         LoaderScreen()
                     }
 
-                    UIState.Success -> {
+                    LoadingState.Success -> {
                         MutualFundSearchScreen(
                             result = sortedFunds,
                             onFundClick = onFundClick,
@@ -163,8 +164,8 @@ fun MutualFundSearchScreen(
     selectedYear: Int,
     incrementYear: () -> Unit,
     decrementYear: () -> Unit,
-    selectedFilter: FundFilter?,
-    onFilterSelected: (FundFilter) -> Unit,
+    selectedFilter: LabelFilter?,
+    onFilterSelected: (LabelFilter) -> Unit,
     toggleFilterScreen: () -> Unit
 ) {
 
@@ -328,9 +329,9 @@ fun YearRow(
 
 @Composable
 fun FundFilterRow(
-    filters: List<FundFilter>,
-    selectedFilter: FundFilter?,
-    onFilterSelected: (FundFilter) -> Unit,
+    filters: List<LabelFilter>,
+    selectedFilter: LabelFilter?,
+    onFilterSelected: (LabelFilter) -> Unit,
     toggleFilterScreen: () -> Unit
 ) {
     LazyRow(
@@ -338,7 +339,7 @@ fun FundFilterRow(
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         item {
-            if (selectedFilter is FundFilter.Custom){
+            if (selectedFilter is MutualFundLabel.CustomLabel){
                 FilterChip(
                     title=selectedFilter.title,
                     isSelected = true,

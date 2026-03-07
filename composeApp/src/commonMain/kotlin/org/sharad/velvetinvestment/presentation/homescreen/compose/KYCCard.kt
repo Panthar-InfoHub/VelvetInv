@@ -79,11 +79,6 @@ fun KYCCard(kyc: KYCCompletion?, onClick: () -> Unit) {
             modifier = Modifier.weight(1f)
         )
 
-        DotCapCircularProgress(
-            modifier = Modifier.size(44.dp),
-            percentage = 10f,
-        )
-
         Icon(
             painter = painterResource(Res.drawable.arrow_right),
             contentDescription = null,

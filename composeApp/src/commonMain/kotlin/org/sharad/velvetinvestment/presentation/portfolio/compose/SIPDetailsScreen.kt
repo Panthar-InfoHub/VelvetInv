@@ -38,7 +38,7 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.SidedBackHeader
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -54,7 +54,7 @@ fun SIPDetailsScreen(
 ){
 
     val viewModel: SIPDetailsViewModel= koinViewModel()
-    val screenState by viewModel.uiState.collectAsStateWithLifecycle()
+    val screenState by viewModel.loadingState.collectAsStateWithLifecycle()
     val sipData by viewModel.sipDetails.collectAsStateWithLifecycle()
 
     Column(
@@ -70,15 +70,15 @@ fun SIPDetailsScreen(
         )
         Box(modifier = Modifier.weight(1f)){
             when (screenState) {
-                is UIState.Error -> {
+                is LoadingState.Error -> {
                     ErrorScreen("")
                 }
 
-                UIState.Loading -> {
+                LoadingState.Loading -> {
                     LoaderScreen()
                 }
 
-                UIState.Success -> {
+                LoadingState.Success -> {
                     if (sipData!=null)
                         SIPDetailsLoadedScreen(sipData!!, pv=pv)
                     else

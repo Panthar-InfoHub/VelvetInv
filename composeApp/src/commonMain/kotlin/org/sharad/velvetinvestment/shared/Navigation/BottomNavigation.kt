@@ -8,29 +8,32 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import org.sharad.velvetinvestment.presentation.explorefunds.compose.ExploreFundScreen
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentFilterScreen
-import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.compose.PortfolioScreenMain
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileScreen
 import org.sharad.velvetinvestment.shared.BottomNavBar
 
 @Composable
 fun BottomNavigation(
     navigateToSIPDetailsScreen: (String) -> Unit,
     navigateToFDDetailsScreen: (String) -> Unit,
-    navigateToCategoryMutualFundScreen: () -> Unit
+    navigateToCategoryMutualFundScreen: () -> Unit,
+    navigateToFireReportScreen: () -> Unit,
+    navigateToKYCScreen: () -> Unit,
+    navigateToGoalScreen: () -> Unit,
+    navigateToNotification: () -> Unit,
+    navigateToPersonalInfo: () -> Unit,
+    navigateToCategoryFDScreen: () -> Unit,
+    navigateToMutualFundDetailScreen: (String) -> Unit
 ) {
 
     val navController= rememberNavController()
@@ -92,15 +95,19 @@ fun BottomNavigation(
             composable<Route.Home> {
                 HomeScreenMain(
                     viewModel = homeViewModel,
-                    pv = pv
+                    pv = pv,
+                    navigateToFireReportScreen=navigateToFireReportScreen,
+                    navigateToKYCScreen=navigateToKYCScreen,
+                    navigateToGoalScreen=navigateToGoalScreen,
+                    navigateToNotification=navigateToNotification
                 )
             }
             composable<Route.FundScreener> {
                 ExploreFundScreen(
                     pv=pv,
                     onMFClick={navigateToCategoryMutualFundScreen()},
-                    onFDClick={},
-                    navigateToSpecificMF = {},
+                    onFDClick=navigateToCategoryFDScreen,
+                    navigateToSpecificMF = {mf->navigateToMutualFundDetailScreen(mf)},
                     navigateToSpecificFD = {}
                 )
             }
@@ -114,7 +121,12 @@ fun BottomNavigation(
                     pv=pv
                 )
             }
-            composable<Route.Profile> {  }
+            composable<Route.Profile> {
+                ProfileScreen(
+                    navigateToNotification=navigateToNotification,
+                    navigateToPersonalInfo=navigateToPersonalInfo
+                )
+            }
 
         }
 

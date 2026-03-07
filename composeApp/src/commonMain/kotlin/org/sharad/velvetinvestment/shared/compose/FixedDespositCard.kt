@@ -23,7 +23,7 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardData
+import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardPortfolioData
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
@@ -31,10 +31,9 @@ import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.fd_placeholder
-import velvet.composeapp.generated.resources.rectangle_19
 
 @Composable
-fun FixedDepositCard(fdData: FDCardData, onClick: () -> Unit){
+fun FixedDepositCard(fdData: FDCardPortfolioData, onClick: () -> Unit){
     Box(
         modifier = Modifier.fillMaxWidth()
             .genericDropShadow(RoundedCornerShape(15.dp))
@@ -106,7 +105,7 @@ fun FixedDepositCard(fdData: FDCardData, onClick: () -> Unit){
                         color = titleColor
                     )
                     Text(
-                        text = fdData.rate.trimTo(1).toString()+"%",
+                        text = fdData.rate.trimTo(1)+"%",
                         style = subHeading,
                         color = Secondary
                     )

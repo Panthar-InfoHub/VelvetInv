@@ -12,12 +12,11 @@ import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundSearchResultUseCase
 import org.sharad.velvetinvestment.presentation.mutualfund.MutualFundUI
 import org.sharad.velvetinvestment.presentation.mutualfund.toUI
-import org.sharad.velvetinvestment.utils.FundFilter
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LabelFilter
+import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.MutualFundLabel
 import org.sharad.velvetinvestment.utils.fundfiltersystem.InvestmentFilter
-import org.sharad.velvetinvestment.utils.fundfiltersystem.clearFilters
 import org.sharad.velvetinvestment.utils.fundfiltersystem.createInitialInvestmentFilter
-import org.sharad.velvetinvestment.utils.fundfiltersystem.onFilterOptionSelected
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.networking.toMessage
@@ -27,8 +26,8 @@ class MutualFundSearchResultViewModel(
     private val getMutualFundSearchResultUseCase: GetMutualFundSearchResultUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
-    val uiState: StateFlow<UIState> = _uiState.asStateFlow()
+    private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Loading)
+    val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
     private val _mutualFunds = MutableStateFlow<List<MutualFundUI>>(emptyList())
     val mutualFunds: StateFlow<List<MutualFundUI>> = _mutualFunds.asStateFlow()
@@ -39,12 +38,8 @@ class MutualFundSearchResultViewModel(
     val sortedFunds: StateFlow<List<MutualFundUI>> =
         combine(_mutualFunds, _selectedYear) { funds, year ->
 
-            if (year == null) {
-                funds
-            } else {
-                funds.sortedByDescending {
-                    it.returnYear == year
-                }
+            funds.sortedByDescending {
+                it.returnYear == year
             }
 
         }.stateIn(
@@ -53,8 +48,8 @@ class MutualFundSearchResultViewModel(
             emptyList()
         )
 
-    private val _selectedFilter = MutableStateFlow<FundFilter?>(null)
-    val selectedFilter: StateFlow<FundFilter?> = _selectedFilter
+    private val _selectedFilter = MutableStateFlow<LabelFilter?>(null)
+    val selectedFilter: StateFlow<LabelFilter?> = _selectedFilter
 
     private val _showFilterScreen = MutableStateFlow(false)
     val showFilterScreen: StateFlow<Boolean> = _showFilterScreen
@@ -71,21 +66,21 @@ class MutualFundSearchResultViewModel(
 
     private fun loadFunds() {
         viewModelScope.launch {
-            _uiState.value = UIState.Loading
+            _loadingState.value = LoadingState.Loading
             getMutualFundSearchResultUseCase(id)
                 .onSuccess { data ->
                     _mutualFunds.value =
                         data.map { it.toUI() }
-                    _uiState.value = UIState.Success
+                    _loadingState.value = LoadingState.Success
                 }
                 .onError { error ->
-                    _uiState.value =
-                        UIState.Error(error.toMessage())
+                    _loadingState.value =
+                        LoadingState.Error(error.toMessage())
                 }
         }
     }
 
-    fun onFilterSelected(filter: FundFilter) {
+    fun onFilterSelected(filter: LabelFilter) {
         _selectedFilter.value =
             if (_selectedFilter.value == filter) null
             else filter
@@ -116,9 +111,9 @@ class MutualFundSearchResultViewModel(
 }
 
 
-val defaultFilters = listOf(
-    FundFilter.IndexOnly,
-    FundFilter.FlexiCap,
-    FundFilter.Sectoral,
-    FundFilter.LargeCap
+val defaultFilters: List<LabelFilter> = listOf(
+    MutualFundLabel.IndexOnly,
+    MutualFundLabel.FlexiCap,
+    MutualFundLabel.Sectoral,
+    MutualFundLabel.LargeCap
 )

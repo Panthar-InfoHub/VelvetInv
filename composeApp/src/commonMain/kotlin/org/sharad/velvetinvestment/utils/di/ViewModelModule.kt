@@ -4,6 +4,10 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScreenViewModel
 import org.sharad.velvetinvestment.presentation.explorefunds.viewmodel.ExploreFundScreenViewModel
+import org.sharad.velvetinvestment.presentation.firereport.viewmodel.FireReportViewModel
+import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDCategoryViewModel
+import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
+import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalInfoScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
@@ -17,7 +21,6 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDet
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
-import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 
 val viewModelModule= module {
     viewModel { LoginScreenViewModel() }
@@ -52,6 +55,9 @@ val viewModelModule= module {
         )
     }
 
-    viewModel { TradingAccountViewModel() }
+    viewModel { FireReportViewModel(get()) }
+    viewModel { GoalInfoScreenViewModel(get()) }
+    viewModel { FDCategoryViewModel(get()) }
+    viewModel {(id:String)-> FDSearchResultViewModel(id,get()) }
 
 }

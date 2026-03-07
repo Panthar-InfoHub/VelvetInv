@@ -50,7 +50,7 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.GoalEntryCard
 import org.sharad.velvetinvestment.shared.compose.GradientBackground
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.dottedBorder
 import org.sharad.velvetinvestment.utils.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
@@ -66,39 +66,45 @@ import velvet.composeapp.generated.resources.settings_icon
 @Composable
 fun HomeScreenMain(
     viewModel: HomeScreenViewModel,
-    pv: PaddingValues
+    pv: PaddingValues,
+    navigateToFireReportScreen: () -> Unit,
+    navigateToKYCScreen: () -> Unit,
+    navigateToGoalScreen: () -> Unit,
+    navigateToNotification: () -> Unit
 ){
 
-    val screenState by viewModel.homeUIState.collectAsStateWithLifecycle()
-    val name by viewModel.name.collectAsStateWithLifecycle()
-    val netWorth by viewModel.netWorthInfo.collectAsStateWithLifecycle()
-    val kyc by viewModel.kycProcess.collectAsStateWithLifecycle()
-    val fireReport by viewModel.fireReport.collectAsStateWithLifecycle()
-    val goals by viewModel.goalsInfo.collectAsStateWithLifecycle()
-
+    val homeState by viewModel.homeState.collectAsStateWithLifecycle()
 
     Box(
-        modifier=Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         GradientBackground()
-        when (screenState) {
-            is UIState.Error -> {
-                ErrorScreen((screenState as UIState.Error).error)
-            }
-            UIState.Loading -> {
+
+        when (val state = homeState) {
+
+            UiState.Loading -> {
                 LoaderScreen()
             }
-            UIState.Success -> {
+
+            is UiState.Error -> {
+                ErrorScreen(state.message)
+            }
+
+            is UiState.Success -> {
+                val data = state.data
                 HomeScreen(
-                    name=name,
-                    netWorth=netWorth,
-                    kyc=kyc,
-                    fireReport=fireReport,
-                    goals=goals,
-                    onNotificationIconClick={},
+                    name = data.name,
+                    netWorth = data.userWorth,
+                    kyc = data.kyc,
+                    fireReport = data.fireReport,
+                    goals = data.goals,
+                    onNotificationIconClick = {},
                     onSettingsIconClick = {},
-                    pv=pv
+                    pv = pv,
+                    onFireReportClick = navigateToFireReportScreen,
+                    navigateToKYCScreen = navigateToKYCScreen,
+                    navigateToGoalScreen=navigateToGoalScreen
                 )
             }
         }
@@ -115,22 +121,25 @@ fun HomeScreen(
     goals: List<GoalsSummaryDomain>,
     onNotificationIconClick: () -> Unit,
     onSettingsIconClick: () -> Unit,
-    pv: PaddingValues
+    pv: PaddingValues,
+    onFireReportClick: () -> Unit,
+    navigateToKYCScreen: () -> Unit,
+    navigateToGoalScreen: () -> Unit
 ) {
 
     LazyColumn(
         modifier=Modifier.fillMaxSize()
             .padding( start = 16.dp, end = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item { Spacer(modifier=Modifier.height(16.dp,)) }
         item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick) }
         item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick={})}
         item{ BarHeader(heading = "Finish Setting Up Account") }
-        item{ KYCCard(kyc=kyc, onClick={}) }
+        item{ KYCCard(kyc=kyc, onClick={navigateToKYCScreen()}) }
         if (goals.isEmpty()){ item { FirstGoalCard(onClick={}) } }
         item { FireReportHeader(fireReport?.setupStep?:0,fireReport?.totalStep?:8) }
-        item { FireReportCard(fireReport, onClick={}) }
+        item { FireReportCard(fireReport, onClick={onFireReportClick()}) }
         item { BarHeader(heading = "Why Invest with Velvet?") }
         item {
             FeatureNavigationCards(
@@ -141,7 +150,7 @@ fun HomeScreen(
             )
         }
         if (goals.isNotEmpty()) {
-            item { BarHeader(heading = "Your Goals", showArrow = true, onArrowClick = {}) }
+            item { BarHeader(heading = "Your Goals", showArrow = true, onArrowClick = navigateToGoalScreen) }
             homeGoalsInfo(goals = goals) { id ->
 
             }

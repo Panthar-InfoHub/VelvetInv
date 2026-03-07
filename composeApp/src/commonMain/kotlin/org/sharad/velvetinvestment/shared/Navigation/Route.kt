@@ -64,10 +64,24 @@ object Route {
     data class MutualFundSearchResult(val heading:String="Mutual Fund",val id:String)
     @Serializable
     data class MutualFundDetails(val id:String)
+    @Serializable
+    data object FireReport
+    @Serializable
+    data object KYCScreen
 
+    @Serializable
+    data object GoalsScreen
 
     @Serializable
     data object Profile
+    @Serializable
+    data object Notifications
+    @Serializable
+    data object PersonalInformation
 
+    @Serializable
+    data object FixedDepositCategory
+    @Serializable
+    data class FixedDepositSearchResult(val heading:String="Fixed Deposit",val id:String)
 
 }

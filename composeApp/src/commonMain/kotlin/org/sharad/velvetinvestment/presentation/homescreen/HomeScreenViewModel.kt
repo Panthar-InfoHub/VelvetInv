@@ -11,67 +11,74 @@ import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.KYCCompletion
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.domain.usecases.home.HomeScreenUseCases
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
+import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.networking.onError
+import org.sharad.velvetinvestment.utils.networking.toMessage
 
 class HomeScreenViewModel(
     private val useCases: HomeScreenUseCases
 ) : ViewModel() {
 
-    private val _name = MutableStateFlow<String>("Pooja")
-    val name = _name.asStateFlow()
-
-    private val _netWorthInfo = MutableStateFlow<UserWorthCardDomain?>(null)
-    val netWorthInfo = _netWorthInfo.asStateFlow()
-
-    private val _kycProcess = MutableStateFlow<KYCCompletion?>(null)
-    val kycProcess = _kycProcess.asStateFlow()
-
-    private val _fireReportInfo = MutableStateFlow<FireReportSummaryDomain?>(null)
-    val fireReport = _fireReportInfo.asStateFlow()
-
-    private val _goalsInfo = MutableStateFlow<List<GoalsSummaryDomain>>(emptyList())
-    val goalsInfo = _goalsInfo.asStateFlow()
-
-    private val _homeUIState=MutableStateFlow<UIState>(UIState.Loading)
-    val homeUIState=_homeUIState.asStateFlow()
-
+    private val _homeState =
+        MutableStateFlow<UiState<HomeScreenUiData>>(UiState.Loading)
+    val homeState = _homeState.asStateFlow()
 
     init {
         loadHome()
     }
 
-    private fun loadHome() {
-
+    fun loadHome() {
         viewModelScope.launch {
-            _homeUIState.value= UIState.Loading
-            val netWorth = async {loadUserWorth() }
-            val fire = async { loadFireReport() }
-            val goals = async { loadGoals() }
-            val kyc = async { loadKyc() }
 
-            netWorth.await()
-            fire.await()
-            goals.await()
-            kyc.await()
+            _homeState.value = UiState.Loading
 
-            _homeUIState.value= UIState.Success
+            // Run in parallel
+            val userWorthDeferred = async { useCases.getUserWorthCard() }
+            val fireDeferred = async { useCases.getFireReport() }
+            val goalsDeferred = async { useCases.getGoalsSummary() }
+            val kycDeferred = async { useCases.getKycStatus() }
+
+            val userWorthResult = userWorthDeferred.await()
+            val fireResult = fireDeferred.await()
+            val goalsResult = goalsDeferred.await()
+            val kycResult = kycDeferred.await()
+
+            userWorthResult
+                .onError {
+                    _homeState.value = UiState.Error(it.toMessage())
+                    return@launch
+                }
+
+            fireResult
+                .onError {
+                    _homeState.value = UiState.Error(it.toMessage())
+                    return@launch
+                }
+
+            goalsResult
+                .onError {
+                    _homeState.value = UiState.Error(it.toMessage())
+                    return@launch
+                }
+
+            kycResult
+                .onError {
+                    _homeState.value = UiState.Error(it.toMessage())
+                    return@launch
+                }
+
+            val uiData = HomeScreenUiData(
+                userWorth = (userWorthResult as NetworkResponse.Success).data,
+                fireReport = (fireResult as NetworkResponse.Success).data,
+                goals = (goalsResult as NetworkResponse.Success).data,
+                kyc = (kycResult as NetworkResponse.Success).data
+            )
+
+            _homeState.value = UiState.Success(uiData)
         }
-    }
-
-    private suspend fun loadUserWorth() {
-        _netWorthInfo.value = useCases.getUserWorthCard()
-    }
-
-    private suspend fun loadFireReport() {
-        _fireReportInfo.value = useCases.getFireReport()
-    }
-
-    private suspend fun loadGoals() {
-        _goalsInfo.value = useCases.getGoalsSummary()
-    }
-
-    private suspend fun loadKyc() {
-        _kycProcess.value = useCases.getKycStatus()
     }
 }
 

@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundUI
 import org.sharad.velvetinvestment.presentation.mutualfund.toUI
-import org.sharad.velvetinvestment.utils.UIState
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.networking.toMessage
@@ -18,8 +18,8 @@ class MutualFundViewModel(
     private val getCategoryMutualFundsUseCase: GetCategoryMutualFundsUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
-    val uiState: StateFlow<UIState> = _uiState.asStateFlow()
+    private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Loading)
+    val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
     private val _mutualFunds =
         MutableStateFlow<List<CategoryMutualFundUI>>(emptyList())
@@ -36,16 +36,16 @@ class MutualFundViewModel(
 
     fun loadMutualFunds() {
         viewModelScope.launch {
-            _uiState.value = UIState.Loading
+            _loadingState.value = LoadingState.Loading
             getCategoryMutualFundsUseCase()
                 .onSuccess { data ->
                     _mutualFunds.value =
                         data.map { it.toUI() }
-                    _uiState.value = UIState.Success
+                    _loadingState.value = LoadingState.Success
                 }
                 .onError { error ->
-                    _uiState.value =
-                        UIState.Error(error.toMessage())
+                    _loadingState.value =
+                        LoadingState.Error(error.toMessage())
                 }
         }
     }

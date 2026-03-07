@@ -53,7 +53,6 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
             implementation(libs.navigation.compose)
-
             implementation(libs.androidx.room.runtime)
 
             implementation(libs.kotlinx.serialization.json)

@@ -4,15 +4,16 @@ import org.sharad.velvetinvestment.domain.models.home.FireReportSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.KYCCompletion
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
+import org.sharad.velvetinvestment.utils.networking.NetworkError
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 
 interface HomeRepository {
 
-    suspend fun getUserWorthCard(): UserWorthCardDomain
+    suspend fun getUserWorthCard(): NetworkResponse<UserWorthCardDomain, NetworkError>
 
-    suspend fun getFireReportSummary(): FireReportSummaryDomain
+    suspend fun getFireReportSummary(): NetworkResponse<FireReportSummaryDomain, NetworkError>
 
-    suspend fun getGoalsSummary(): List<GoalsSummaryDomain>
+    suspend fun getGoalsSummary(): NetworkResponse<List<GoalsSummaryDomain>, NetworkError>
 
-    suspend fun getKycStatus(): KYCCompletion
-
+    suspend fun getKycStatus(): NetworkResponse<KYCCompletion, NetworkError>
 }
