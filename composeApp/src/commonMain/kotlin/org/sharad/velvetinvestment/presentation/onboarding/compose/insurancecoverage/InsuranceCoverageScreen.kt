@@ -27,6 +27,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.GenericInfoHeader
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
+import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_insurance
@@ -40,6 +41,9 @@ fun InsuranceCoverageScreen(
     pv: PaddingValues
 ){
 
+    AppBackHandler(true){
+        onPrev()
+    }
     val lifeInsurance by viewModel.lifeInsuranceAmount.collectAsStateWithLifecycle()
     val healthInsurance by viewModel.healthInsuranceAmount.collectAsStateWithLifecycle()
     val totalInsurance by viewModel.totalInsuranceAmount.collectAsStateWithLifecycle()

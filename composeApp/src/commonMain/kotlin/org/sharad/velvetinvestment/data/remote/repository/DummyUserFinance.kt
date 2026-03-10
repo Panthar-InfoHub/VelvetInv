@@ -27,11 +27,19 @@ class DummyUserFinance : UserFinance {
                 "Debt allocation slightly high."
             ),
             trend = listOf(
-                QuarterlyTrendDomain("Q1 2024", 1_40_00_000, 25.0),
-                QuarterlyTrendDomain("Q2 2024", 1_55_00_000, 28.0),
-                QuarterlyTrendDomain("Q3 2024", 1_75_00_000, 33.0),
-                QuarterlyTrendDomain("Q4 2024", 2_10_00_000, 38.0)
-            ),
+                QuarterlyTrendDomain("Q2 2023", 2770919, 16.700076805455254),
+                QuarterlyTrendDomain("Q3 2023", 2882607, 13.380289799825706),
+                QuarterlyTrendDomain("Q4 2023", 2978832, 16.56402794388689),
+                QuarterlyTrendDomain("Q1 2024", 2814122, 16.269757305885882),
+                QuarterlyTrendDomain("Q2 2024", 2903859, 18.814630124032085),
+                QuarterlyTrendDomain("Q3 2024", 2971924, 19.08251011206801),
+                QuarterlyTrendDomain("Q4 2024", 3034007, 18.052916935079637),
+                QuarterlyTrendDomain("Q1 2025", 3349518, 20.006480281700288),
+                QuarterlyTrendDomain("Q2 2025", 3285858, 19.367234778337238),
+                QuarterlyTrendDomain("Q3 2025", 3467581, 18.972747091182807),
+                QuarterlyTrendDomain("Q4 2025", 3320494, 16.790593291200473),
+                QuarterlyTrendDomain("Q1 2026", 3522656, 19.612508000812884)
+        ),
             netWorthGrowth = 14.2,
             progressIncrement = 2.8,
             projectionList = listOf(
@@ -75,10 +83,18 @@ class DummyUserFinance : UserFinance {
                 "Equity allocation is optimal."
             ),
             trend = listOf(
-                QuarterlyTrendDomain("Q1 2024", 1_50_00_000, 30.0),
-                QuarterlyTrendDomain("Q2 2024", 1_70_00_000, 34.0),
-                QuarterlyTrendDomain("Q3 2024", 1_95_00_000, 39.0),
-                QuarterlyTrendDomain("Q4 2024", 2_10_00_000, 44.0)
+                QuarterlyTrendDomain("Q2 2023", 2770919, 16.700076805455254),
+                QuarterlyTrendDomain("Q3 2023", 2882607, 13.380289799825706),
+                QuarterlyTrendDomain("Q4 2023", 2978832, 16.56402794388689),
+                QuarterlyTrendDomain("Q1 2024", 2814122, 16.269757305885882),
+                QuarterlyTrendDomain("Q2 2024", 2903859, 18.814630124032085),
+                QuarterlyTrendDomain("Q3 2024", 2971924, 19.08251011206801),
+                QuarterlyTrendDomain("Q4 2024", 3034007, 18.052916935079637),
+                QuarterlyTrendDomain("Q1 2025", 3349518, 20.006480281700288),
+                QuarterlyTrendDomain("Q2 2025", 3285858, 19.367234778337238),
+                QuarterlyTrendDomain("Q3 2025", 3467581, 18.972747091182807),
+                QuarterlyTrendDomain("Q4 2025", 3320494, 16.790593291200473),
+                QuarterlyTrendDomain("Q1 2026", 3522656, 19.612508000812884)
             ),
             netWorthGrowth = 16.0,
             progressIncrement = 3.6,

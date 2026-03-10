@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.presentation.onboarding.compose.personaldeta
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +27,10 @@ import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
+import org.sharad.velvetinvestment.shared.DatePickerSelector
 import org.sharad.velvetinvestment.shared.compose.AppButton
+import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_callender
 import velvet.composeapp.generated.resources.icon_clock
@@ -41,112 +45,133 @@ fun PersonalDetailScreen(
 ){
 
     val details by viewModel.personalDetails.collectAsStateWithLifecycle()
+    val showDateSelector by viewModel.showDateSelector.collectAsStateWithLifecycle()
+    val buttonEnabled by viewModel.buttonEnabled.collectAsStateWithLifecycle()
+
+
 
     Box(modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter){
 
-        LazyColumn(
-            modifier=Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            item(key="name") {
-                OnBoardingTextField(
-                    value = details.fullName,
-                    onValueChange = viewModel::onNameChange,
-                    placeHolder = "Enter your full Name",
-                    label = "Full Name",
-                    mandatory = true
-                )
-            }
-            item (key="city"){
-                OnBoardingTextField(
-                    value = details.city,
-                    onValueChange = viewModel::onCityChange,
-                    placeHolder = "Enter the city",
-                    label = "City",
-                    mandatory = true
-                )
-            }
-            item(key="mobile") {
-                OnBoardingTextField(
-                    value = details.phoneNumber,
-                    onValueChange = viewModel::onPhoneChange,
-                    placeHolder = "10-digit mobile number",
-                    label = "Mobile Number ",
-                    mandatory = true
-                )
-            }
-            item(key="email") {
-                OnBoardingTextField(
-                    value = details.email,
-                    onValueChange = viewModel::onEmailChange,
-                    placeHolder = "your.email@gmail.com",
-                    label = "Email Address ",
-                    mandatory = true
-                )
-            }
-            item(key="dob") {
-                OnBoardingTextField(
-                    value = "",
-                    onValueChange = viewModel::onNameChange,
-                    placeHolder = "dd/mm/yy",
-                    label = "DOB ",
-                    mandatory = true
-                )
-            }
+        Column(
+            modifier=Modifier.fillMaxSize()
+        ){
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().weight(1f).padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                item(key = "name") {
+                    OnBoardingTextField(
+                        value = details.fullName,
+                        onValueChange = viewModel::onNameChange,
+                        placeHolder = "Enter your full Name",
+                        label = "Full Name",
+                        mandatory = true
+                    )
+                }
+                item(key = "city") {
+                    OnBoardingTextField(
+                        value = details.city,
+                        onValueChange = viewModel::onCityChange,
+                        placeHolder = "Enter the city",
+                        label = "City",
+                        mandatory = true
+                    )
+                }
+                item(key = "mobile") {
+                    OnBoardingTextField(
+                        value = details.phoneNumber,
+                        onValueChange = viewModel::onPhoneChange,
+                        placeHolder = "10-digit mobile number",
+                        label = "Mobile Number ",
+                        mandatory = true
+                    )
+                }
+                item(key = "email") {
+                    OnBoardingTextField(
+                        value = details.email,
+                        onValueChange = viewModel::onEmailChange,
+                        placeHolder = "your.email@gmail.com",
+                        label = "Email Address ",
+                        mandatory = true
+                    )
+                }
+                item(key = "dob") {
+                    OnBoardingDateField(
+                        value = DateTimeUtils.epochMillisToDate(details.dob),
+                        placeHolder = "dd/mm/yy",
+                        label = "DOB ",
+                        mandatory = true,
+                        onClick = {
+                            viewModel.showDateSelector()
+                        }
+                    )
+                }
 
-            item(key="slider") {
-                RetirementYearSlider(
-                    onSliderUpdate = viewModel::onSliderChange,
-                    selectedYear = details.retirementYear
-                )
-            }
+                item(key = "slider") {
+                    RetirementYearSlider(
+                        onSliderUpdate = viewModel::onSliderChange,
+                        selectedYear = details.retirementYear
+                    )
+                }
 
-            item(key="card1") {
-                PersonalDetailsFinancialBox(
-                    label = "Retirement Year",
-                    value = details.retirementYear.toString(),
-                    icon = Res.drawable.icon_callender,
-                    backgroundColor = bgColor3,
-                    labelColor = Secondary
-                )
-            }
-            item(key="card2") {
-                PersonalDetailsFinancialBox(
-                    label = "Retirement Age",
-                    value = details.retirementAge.toString(),
-                    icon = Res.drawable.icon_user,
-                    backgroundColor = bgSecondaryColor,
-                    labelColor = titleColor
-                )
-            }
-            item(key="card3") {
-                PersonalDetailsFinancialBox(
-                    label = "Years to Save",
-                    value = details.savingYears.toString(),
-                    icon = Res.drawable.icon_clock,
-                    backgroundColor = bgColor2,
-                    labelColor = bgColor1
-                )
-            }
+                item(key = "card1") {
+                    PersonalDetailsFinancialBox(
+                        label = "Retirement Year",
+                        value = details.retirementYear.toString(),
+                        icon = Res.drawable.icon_callender,
+                        backgroundColor = bgColor3,
+                        labelColor = Secondary
+                    )
+                }
+                item(key = "card2") {
+                    PersonalDetailsFinancialBox(
+                        label = "Retirement Age",
+                        value = details.retirementAge?.toString()?:"Unavailable",
+                        icon = Res.drawable.icon_user,
+                        backgroundColor = bgSecondaryColor,
+                        labelColor = titleColor
+                    )
+                }
+                item(key = "card3") {
+                    PersonalDetailsFinancialBox(
+                        label = "Years to Save",
+                        value = details.savingYears.toString(),
+                        icon = Res.drawable.icon_clock,
+                        backgroundColor = bgColor2,
+                        labelColor = bgColor1
+                    )
+                }
 
-            item {
-                Spacer(
-                    modifier = Modifier.height(80.dp+pv.calculateBottomPadding())
-                )
+                item {
+                    Spacer(
+                        modifier = Modifier.height(80.dp + pv.calculateBottomPadding())
+                    )
+                }
             }
+            NextButtonFooter(
+                onClick={onNext()},
+                pv=pv,
+                enabled = buttonEnabled
+            )
         }
-
-        NextButtonFooter(
-            onClick={onNext()},
-            pv=pv
-        )
+        
+        if (showDateSelector){
+            DatePickerSelector(
+                show = showDateSelector,
+                selectedDate = details.dob,
+                onDismiss = {viewModel.hideDateSelector()},
+                onDateSelected = {
+                    viewModel.onDobChange(it)
+                }
+            )
+        }
 
     }
 }
 
 @Composable
-fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues, value: String = "Next") {
+fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues, value: String = "Next", enabled: Boolean=true) {
     Box(
         modifier = Modifier.fillMaxWidth()
             .shadow(elevation = 28.dp)
@@ -156,6 +181,7 @@ fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues, value: String = "Ne
         AppButton(
             modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 16.dp+pv.calculateBottomPadding()),
             onClick = onClick,
+            enabled = enabled,
             text = value
         )
     }

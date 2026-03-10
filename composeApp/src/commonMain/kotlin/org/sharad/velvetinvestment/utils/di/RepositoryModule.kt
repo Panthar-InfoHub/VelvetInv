@@ -13,6 +13,7 @@ import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 
 val repositoryModule = module {
+
     single<HomeRepository> { HomeRepositoryMock() }
     single<MutualFundRepository> {
         DummyMutualFundRepository()

@@ -12,7 +12,7 @@ import org.sharad.velvetinvestment.utils.isValidEmail
 
 class LoginScreenViewModel: ViewModel() {
 
-    private val _authState= MutableStateFlow<AuthMode>(AuthMode.Login)
+    private val _authState= MutableStateFlow<AuthMode>(AuthMode.Login.OTP)
     val authState= _authState.asStateFlow()
 
     private val _email=MutableStateFlow("")
@@ -21,24 +21,45 @@ class LoginScreenViewModel: ViewModel() {
     private val _password=MutableStateFlow("")
     val password=_password.asStateFlow()
 
+    private val _phoneNumber=MutableStateFlow("")
+    val phoneNumber=_phoneNumber.asStateFlow()
+
+
     private val _loading= MutableStateFlow(false)
     val loading=_loading.asStateFlow()
 
-    val buttonEnabled= combine(_email,_password){ email, password->
-        val isEmailValid= email.isNotBlank() && isValidEmail(email)
-        val isPasswordValid= password.length >=8
-        isEmailValid && isPasswordValid
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
+    val buttonEnabled =
+        combine(_email, _password, _phoneNumber, _authState) { email, password, phone, authState ->
 
-    fun onLoginClick(){
-        _authState.value=AuthMode.Login
+            when(authState){
+                AuthMode.Login.OTP -> {
+                    phone.length == 10
+                }
+                AuthMode.Login.Password -> {
+                    val isEmailValid= email.isNotBlank() && isValidEmail(email)
+                    val isPasswordValid= password.length >=8
+                    isEmailValid && isPasswordValid
+                }
+                AuthMode.SignUp -> {
+                    phone.length==10
+                }
+            }
+
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
+    fun onLoginTabClick(){
+        _authState.value=AuthMode.Login.OTP
     }
 
-    fun onSignUpClick(){
+    fun onLoginPasswordTabClick(){
+        _authState.value=AuthMode.Login.Password
+    }
+
+    fun onSignUpTabClick(){
         _authState.value=AuthMode.SignUp
     }
 
@@ -49,6 +70,13 @@ class LoginScreenViewModel: ViewModel() {
     fun onPasswordChange(password: String){
         _password.value=password
     }
+
+    fun onPhoneNumberChange(phoneNumber: String) {
+        if (phoneNumber.all { it.isDigit() } && phoneNumber.length <= 10) {
+            _phoneNumber.value = phoneNumber
+        }
+    }
+
 
     fun onButtonClick(
         onSuccess: () -> Unit,

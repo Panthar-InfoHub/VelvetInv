@@ -6,6 +6,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
@@ -183,6 +184,19 @@ object DateTimeUtils {
      */
     fun today(timeZone: TimeZone = TimeZone.currentSystemDefault()): LocalDate {
         return Clock.System.now().toLocalDateTime(timeZone).date
+    }
+
+    fun epochMillisToDate(epochMillis: Long?): String {
+        if (epochMillis==null) return ""
+        val instant = Instant.fromEpochMilliseconds(epochMillis)
+
+        val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+
+        val day = dateTime.date.day.toString().padStart(2, '0')
+        val month = dateTime.date.month.number.toString().padStart(2, '0')
+        val year = dateTime.date.year
+
+        return "$day/$month/$year"
     }
 }
 

@@ -21,3 +21,10 @@ enum class NetworkError: Error {
     INVALID_OTP
 }
 
+
+
+data class ErrorDomain(
+    val code:Int,
+    val message:String,
+    val type:String,
+):Error

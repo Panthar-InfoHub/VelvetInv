@@ -4,39 +4,92 @@ import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 
 import kotlinx.serialization.SerializationException
+import org.sharad.velvetinvestment.data.remote.data.ServerError.ServerError
 
-suspend inline fun <reified T> handleResponse(
-    response: HttpResponse
-): NetworkResponse<T, NetworkError> {
-    return when (response.status.value) {
-        in 200..299 -> {
-            try {
-                NetworkResponse.Success(response.body())
-            } catch (e: SerializationException) {
-                NetworkResponse.Error(NetworkError.SERIALIZATION)
-            }
+suspend inline fun <reified T> safeRequest(
+    execute: () -> HttpResponse
+): NetworkResponse<T, Error> {
+
+    val response = try {
+        execute()
+    } catch (e: Exception) {
+        return NetworkResponse.Error(
+            ErrorDomain(
+                code = -1,
+                message = "Network error",
+                type = "NETWORK"
+            )
+        )
+    }
+
+    return if (response.status.value in 200..299) {
+
+        try {
+            NetworkResponse.Success(response.body())
+        } catch (e: SerializationException) {
+            NetworkResponse.Error(
+                ErrorDomain(
+                    code = response.status.value,
+                    message = "Serialization error",
+                    type = "SERIALIZATION"
+                )
+            )
         }
-        401 -> NetworkResponse.Error(NetworkError.UNAUTHORIZED)
-        408 -> NetworkResponse.Error(NetworkError.REQUEST_TIMEOUT)
-        409 -> NetworkResponse.Error(NetworkError.CONFLICT)
-        413 -> NetworkResponse.Error(NetworkError.PAYLOAD_TOO_LARGE)
-        429 -> NetworkResponse.Error(NetworkError.TOO_MANY_REQUESTS)
-        in 500..599 -> NetworkResponse.Error(NetworkError.SERVER_ERROR)
-        else -> NetworkResponse.Error(NetworkError.UNKNOWN)
+
+    } else {
+
+        parseServerError(response)
+
     }
 }
 
-suspend inline fun handleUnitResponse(
+suspend inline fun safeUnitRequest(
+    execute: () -> HttpResponse
+): NetworkResponse<Unit, Error> {
+
+    val response = try {
+        execute()
+    } catch (e: Exception) {
+        return NetworkResponse.Error(
+            ErrorDomain(
+                code = -1,
+                message = "Network error",
+                type = "NETWORK"
+            )
+        )
+    }
+
+    return if (response.status.value in 200..299) {
+        NetworkResponse.Success(Unit)
+    } else {
+        parseServerError(response)
+    }
+}
+
+suspend fun parseServerError(
     response: HttpResponse
-): NetworkResponse<Unit, NetworkError> {
-    return when (response.status.value) {
-        in 200..299 -> NetworkResponse.Success(Unit)
-        401 -> NetworkResponse.Error(NetworkError.UNAUTHORIZED)
-        408 -> NetworkResponse.Error(NetworkError.REQUEST_TIMEOUT)
-        409 -> NetworkResponse.Error(NetworkError.CONFLICT)
-        413 -> NetworkResponse.Error(NetworkError.PAYLOAD_TOO_LARGE)
-        429 -> NetworkResponse.Error(NetworkError.TOO_MANY_REQUESTS)
-        in 500..599 -> NetworkResponse.Error(NetworkError.SERVER_ERROR)
-        else -> NetworkResponse.Error(NetworkError.UNKNOWN)
+): NetworkResponse.Error<Error> {
+
+    return try {
+
+        val serverError = response.body<ServerError>()
+
+        NetworkResponse.Error(
+            ErrorDomain(
+                code = response.status.value,
+                message = serverError.error.message,
+                type = serverError.error.type
+            )
+        )
+
+    } catch (e: Exception) {
+
+        NetworkResponse.Error(
+            ErrorDomain(
+                code = response.status.value,
+                message = "Unknown error",
+                type = "UNKNOWN"
+            )
+        )
     }
 }

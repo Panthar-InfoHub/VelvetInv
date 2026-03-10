@@ -33,6 +33,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.models.LoanInfo
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
+import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
@@ -46,6 +47,9 @@ fun OnBoardingLoanScreen(
     onPrev: () -> Unit,
     onAddLoanClick: () -> Unit
 ){
+    AppBackHandler(true){
+        onPrev()
+    }
 
     val loans by viewModel.loanList.collectAsStateWithLifecycle()
     val outstandingAmount by viewModel.totalOutstandingDebt.collectAsStateWithLifecycle()

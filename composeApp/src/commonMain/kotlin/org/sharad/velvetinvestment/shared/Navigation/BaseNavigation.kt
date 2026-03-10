@@ -7,6 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.koin.compose.koinInject
+import org.sharad.velvetinvestment.data.remote.repository.HomeRepositoryMock
+import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
 import org.sharad.velvetinvestment.utils.WindowSize
 
 
@@ -17,7 +20,7 @@ fun BaseNavigation(windowSize: WindowSize, pv: PaddingValues) {
 
     NavHost(
         navController = navController,
-        startDestination = Route.LoginFlow,
+        startDestination = Route.MainAppFlow,
         modifier = Modifier.padding(top=pv.calculateTopPadding())
     ){
         composable<Route.LoginFlow>{
