@@ -1,7 +1,9 @@
 package org.sharad.velvetinvestment.shared.compose
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,11 +20,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LoginTextField(
+fun PhoneNumberTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String? = null,
-    placeHolder: String,
     modifier: Modifier = Modifier,
 ) {
 
@@ -41,18 +41,25 @@ fun LoginTextField(
             ),
     ) {
 
-        Box(
+        Row(
             modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
-            contentAlignment = Alignment.CenterStart
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (value.isEmpty()) {
-                Text(
-                    text = placeHolder,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xffC5C5C5)
-                )
+            Text("IND +91", style = MaterialTheme.typography.labelSmall)
+            Box(
+                modifier = Modifier.fillMaxSize().weight(1f),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (value.isEmpty()) {
+                    Text(
+                        text = "(000) 000-0000",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xffC5C5C5)
+                    )
+                }
+                it()
             }
-            it()
         }
 
     }

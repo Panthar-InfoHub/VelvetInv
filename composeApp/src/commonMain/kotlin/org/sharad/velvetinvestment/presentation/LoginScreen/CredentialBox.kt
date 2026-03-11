@@ -1,6 +1,9 @@
 package org.sharad.velvetinvestment.presentation.LoginScreen
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,7 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,9 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.LoginTextField
+import org.sharad.velvetinvestment.shared.compose.PhoneNumberTextField
 import org.sharad.velvetinvestment.utils.AuthMode
+import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
 
 
 @Composable
@@ -32,28 +42,24 @@ fun CredentialBox(
     onButtonClick: () -> Unit,
     authMode: AuthMode,
     onSignUpClick: () -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onLoginPasswordTabClick: () -> Unit,
+    onPhoneNumberChange: (String) -> Unit,
+    number: String
 ){
     Box(
         modifier = Modifier.width(320.dp)
-            .dropShadow(
-                shape = RoundedCornerShape(20.dp),
-                shadow = Shadow(
-                    radius = 8.dp,
-                    spread = 4.dp,
-                    color = Color.Black.copy(0.25f),
-                    offset = DpOffset(x = 0.dp, 4.dp)
-                )
-            )
+            .genericDropShadow(RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
             .background(Color.White)
     ){
 
         Column(
             modifier = Modifier
+                .animateContentSize()
                 .fillMaxWidth()
-                .padding(vertical = 24.dp, horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(28.dp),
+                .padding(vertical = 20.dp, horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AuthSwitch(
@@ -66,22 +72,64 @@ fun CredentialBox(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                LoginTextField(
-                    value = email,
-                    onValueChange = { onEmailChange(it) },
-                    placeHolder = "Email"
-                )
-                LoginTextField(
-                    value = password,
-                    onValueChange = { onPasswordChange(it) },
-                    placeHolder = "Password"
-                )
+                when(authMode){
+                    AuthMode.Login.OTP -> {
+                        PhoneNumberTextField(
+                            value = number,
+                            onValueChange = { onPhoneNumberChange(it) },
+                        )
+                    }
+                    AuthMode.Login.Password -> {
+                        LoginTextField(
+                            value = email,
+                            onValueChange = { onEmailChange(it) },
+                            placeHolder = "Username"
+                        )
+                        LoginTextField(
+                            value = password,
+                            onValueChange = { onPasswordChange(it) },
+                            placeHolder = "Password"
+                        )
+                    }
+                    AuthMode.SignUp -> {
+                        PhoneNumberTextField(
+                            value = number,
+                            onValueChange = { onPhoneNumberChange(it) },
+                        )
+                    }
+                }
             }
             AppButton(
                 text = "Continue",
                 enabled = buttonEnabled,
                 onClick = {onButtonClick}
             )
+
+            if (authMode is AuthMode.Login){
+                Text(
+                    text= when(authMode){
+                        AuthMode.Login.OTP -> "Continue with password"
+                        AuthMode.Login.Password -> "Continue with number"
+                    },
+                    style = buttonTextStyle,
+                    color = Primary,
+                    modifier = Modifier.clickable(
+                        onClick = {
+                            when(authMode) {
+                                AuthMode.Login.OTP -> {
+                                    onLoginPasswordTabClick()
+                                }
+                                AuthMode.Login.Password -> {
+                                    onLoginClick()
+                                }
+                            }
+                        },
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
+                )
+            }
+
         }
     }
 }

@@ -98,18 +98,3 @@ fun OnBoardingTextField(
     }
 
 }
-
-@Preview(showBackground = true)
-@Composable
-fun Preview2(){
-    VelvetTheme(){
-        OnBoardingTextField(
-            value = "",
-            onValueChange = {},
-            placeHolder = "",
-            label = "hello",
-            mandatory = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}

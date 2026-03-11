@@ -47,6 +47,7 @@ import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.emify.core.ui.theme.foodExpenseColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.firereport.uimodels.FireCombinedUIState
+import org.sharad.velvetinvestment.presentation.firereport.uimodels.QuarterlyTrendUI
 import org.sharad.velvetinvestment.presentation.firereport.uimodels.TargetProjectionUi
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.FireReportViewModel
 import org.sharad.velvetinvestment.shared.compose.BackHeader
@@ -63,7 +64,6 @@ import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.largeTextStyle
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
-import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.dollar_icon
 import velvet.composeapp.generated.resources.fire_icon
@@ -161,6 +161,9 @@ fun FireReportContent(
             )
         }
         item {
+            FireQuarterlyChartCard(trends=activeState.trend)
+        }
+        item {
             BarHeader(
                 heading = "30 Years Projections"
             )
@@ -178,6 +181,25 @@ fun FireReportContent(
         }
     }
 
+}
+
+@Composable
+fun FireQuarterlyChartCard(trends: List<QuarterlyTrendUI>) {
+    ShadowCard{
+        Column(
+            modifier=Modifier.fillMaxWidth().padding(vertical = 44.dp, horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Quarterly Wealth Trend",
+                style = MaterialTheme.typography.headlineSmall,
+                color = titleColor,
+                modifier=Modifier.fillMaxWidth()
+            )
+            QuarterlyTrendChart(data = trends)
+        }
+    }
 }
 
 @Composable

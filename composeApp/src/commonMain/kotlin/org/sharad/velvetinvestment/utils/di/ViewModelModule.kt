@@ -24,6 +24,7 @@ import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsVi
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.CheckKYCViewModel
 import org.sharad.velvetinvestment.presentation.settingscreens.viewmodels.SettingViewModel
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.NotificationCentreViewModel
+import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 
 val viewModelModule= module {
     viewModel { LoginScreenViewModel() }
@@ -65,5 +66,6 @@ val viewModelModule= module {
     viewModel { NotificationCentreViewModel() }
     viewModel { CheckKYCViewModel() }
     viewModel { SettingViewModel() }
+    viewModel{ TradingAccountViewModel() }
 
 }

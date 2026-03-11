@@ -29,6 +29,7 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.onboarding.models.GoalInfo
 import org.sharad.velvetinvestment.presentation.onboarding.models.LoanInfo
+import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
@@ -56,8 +57,14 @@ fun OnBoardingConfirmationScreen(
     totalInsuranceLiabilities: Long,
 
     goals: List<GoalInfo>,
-    pv: PaddingValues
+    pv: PaddingValues,
+    onPrev: () -> Boolean
 ) {
+
+    AppBackHandler(true){
+        onPrev()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Primary
@@ -38,12 +39,12 @@ fun AuthSwitch(
 ) {
 
     val animatedOffset by animateDpAsState(
-        targetValue = if (authMode==AuthMode.Login) 0.dp else 140.dp,
+        targetValue = if (authMode==AuthMode.Login.OTP || authMode==AuthMode.Login.Password) 0.dp else 140.dp,
         label = "Sliding Window"
     )
 
     val animatedLoginColor by animateColorAsState(
-        targetValue = if (authMode==AuthMode.Login) Primary else Primary.copy(0.6f),
+        targetValue = if (authMode==AuthMode.Login.OTP || authMode==AuthMode.Login.Password) Primary else Primary.copy(0.6f),
     )
 
     val animatedSignUpColor by animateColorAsState(
@@ -83,7 +84,8 @@ fun AuthSwitch(
             ){
                 Text(
                     text="Log In",
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
                     color = animatedLoginColor,
                     textAlign = TextAlign.Center
                 )
@@ -99,8 +101,9 @@ fun AuthSwitch(
             ){
                 Text(
                     text="Sign Up",
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.labelSmall,
                     textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
                     color = animatedSignUpColor
                 )
             }

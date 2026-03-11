@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CASUploadScreenDialog
@@ -22,6 +23,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCo
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
 import org.sharad.velvetinvestment.shared.Navigation.OnBoardingNavigation
+import org.sharad.velvetinvestment.shared.Navigation.Route
 
 @Composable
 fun OnboardingScreenRoot(
@@ -32,17 +34,15 @@ fun OnboardingScreenRoot(
 
     val viewModel: PersonalDetailsScreenViewModel= koinViewModel { parametersOf(onBoardingStep) }
     val currentStep by viewModel.currentStep.collectAsStateWithLifecycle()
-    val personalDetails by viewModel.personalDetails.collectAsStateWithLifecycle()
-
     val financialFlowScreenViewModel: FinancialFlowScreenViewModel= koinViewModel()
-
-
     val assetViewModel: CurrentAssetViewModel= koinViewModel()
     val shoeCASScreen by assetViewModel.showCASDialog.collectAsStateWithLifecycle()
-
     val loanScreenViewModel: LoanScreenViewModel=koinViewModel()
     val insuranceCoverageViewModel: InsuranceCoverageViewModel=koinViewModel()
     val goalViewModel: GoalScreenViewModel=koinViewModel()
+
+    val navController = rememberNavController()
+
 
 
 
@@ -59,8 +59,37 @@ fun OnboardingScreenRoot(
 
                 OnBoardingHeader(
                     currentStep = currentStep,
-                    onSkip = {},
-                    showSkip = true,
+                    showSkip = if (currentStep in listOf(1,7)) false else true,
+                    onSkip = {
+                        when (currentStep) {
+                            1 -> {
+                                viewModel.nextStep()
+                                navController.navigate(Route.OnBoardingFinancialFlow)
+                            }
+                            2 -> {
+                                viewModel.nextStep()
+                                navController.navigate(Route.OnBoardingCurrentAssets)
+                            }
+                            3 -> {
+                                viewModel.nextStep()
+                                navController.navigate(Route.OnBoardingLoan)
+                            }
+                            4 -> {
+                                viewModel.nextStep()
+                                navController.navigate(Route.OnBoardingInsuranceCoverage)
+                            }
+                            5 -> {
+                                viewModel.nextStep()
+                                navController.navigate(Route.OnBoardingGoal)
+                            }
+                            6 -> {
+                                viewModel.nextStep()
+                                navController.navigate(Route.OnBoardingSummary)
+                            }
+                            7 -> {
+                            }
+                        }
+                    },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
@@ -76,7 +105,8 @@ fun OnboardingScreenRoot(
                         loanScreenViewModel=loanScreenViewModel,
                         insuranceCoverageViewModel=insuranceCoverageViewModel,
                         goalViewModel=goalViewModel,
-                        financialFlowScreenViewModel = financialFlowScreenViewModel
+                        financialFlowScreenViewModel = financialFlowScreenViewModel,
+                        navController = navController
                     )
                 }
             }

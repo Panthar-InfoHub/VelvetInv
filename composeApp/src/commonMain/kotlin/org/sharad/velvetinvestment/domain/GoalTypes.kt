@@ -7,10 +7,10 @@ import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.homeGoalColor
 
-enum class GoalTypes(val displayName: String,val color: Color) {
-    WEALTH_BUILDING("Wealth Building", homeGoalColor),
-    RETIREMENT("Retirement", bgColor4),
-    EDUCATION("Education", bgColor1),
-    MARRIAGE("Marriage", Secondary),
-    CUSTOM_GOAL("Custom Goal", Primary)
+enum class GoalTypes(val displayName: String,val color: Color, val id:Int) {
+    WEALTH_BUILDING("Wealth Building", homeGoalColor,4),
+    RETIREMENT("Retirement", bgColor4,3),
+    EDUCATION("Education", bgColor1,1),
+    MARRIAGE("Marriage", Secondary,2),
+    CUSTOM_GOAL("Custom Goal", Primary,4)
 }

@@ -10,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingConfirmationScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CurrentAssetScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.FinancialFlowScreen
@@ -37,7 +37,8 @@ fun OnBoardingNavigation(
     pv: PaddingValues,
     loanScreenViewModel: LoanScreenViewModel,
     insuranceCoverageViewModel: InsuranceCoverageViewModel,
-    goalViewModel: GoalScreenViewModel
+    goalViewModel: GoalScreenViewModel,
+    navController: NavHostController
 ) {
 
     val personalData by personalDetailsViewModel.personalDetails.collectAsStateWithLifecycle()
@@ -58,10 +59,6 @@ fun OnBoardingNavigation(
     val emiExpense = monthlyEMI
     val netSurplus = monthlyIncome - housingExpense - otherExpenses - emiExpense
     val totalLiabilities= loans.sumOf { it.outstandingAmount?:0L }
-
-
-
-    val navController = rememberNavController()
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
@@ -114,8 +111,8 @@ fun OnBoardingNavigation(
                 pv = pv,
                 viewModel = personalDetailsViewModel,
                 onNext = {
-                    navController.navigate(Route.OnBoardingFinancialFlow)
                     personalDetailsViewModel.nextStep()
+                    navController.navigate(Route.OnBoardingFinancialFlow)
                 }
             )
         }
@@ -129,8 +126,8 @@ fun OnBoardingNavigation(
                     navController.navigate(Route.OnBoardingCurrentAssets)
                 },
                 onPrev = {
-                    navController.popBackStack()
                     personalDetailsViewModel.previousStep()
+                    navController.popBackStack()
                 },
                 viewModel = financialFlowScreenViewModel,
             )
@@ -145,8 +142,8 @@ fun OnBoardingNavigation(
                     navController.navigate(Route.OnBoardingLoan)
                 },
                 onPrev = {
-                    navController.popBackStack()
                     personalDetailsViewModel.previousStep()
+                    navController.popBackStack()
                 },
             )
         }
@@ -159,8 +156,8 @@ fun OnBoardingNavigation(
                     navController.navigate(Route.OnBoardingInsuranceCoverage)
                 },
                 onPrev = {
-                    navController.popBackStack()
                     personalDetailsViewModel.previousStep()
+                    navController.popBackStack()
                 },
                 viewModel = loanScreenViewModel,
                 onAddLoanClick = {
@@ -180,8 +177,8 @@ fun OnBoardingNavigation(
                 pv = pv,
                 viewModel = insuranceCoverageViewModel,
                 onPrev = {
-                    navController.popBackStack()
                     personalDetailsViewModel.previousStep()
+                    navController.popBackStack()
                 },
                 onNext = {
                     navController.navigate(Route.OnBoardingGoal)
@@ -194,8 +191,8 @@ fun OnBoardingNavigation(
                 pv = pv,
                 viewModel = goalViewModel,
                 onPrev = {
-                    navController.popBackStack()
                     personalDetailsViewModel.previousStep()
+                    navController.popBackStack()
                 },
                 onNext = {
                     personalDetailsViewModel.nextStep()
@@ -244,7 +241,11 @@ fun OnBoardingNavigation(
 
                 // Goals
                 goals = goals,
-                pv=pv
+                pv=pv,
+                onPrev = {
+                    personalDetailsViewModel.previousStep()
+                    navController.popBackStack()
+                },
             )
         }
 

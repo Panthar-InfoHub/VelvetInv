@@ -1,11 +1,16 @@
 package org.sharad.velvetinvestment.presentation.onboarding.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.sharad.velvetinvestment.presentation.onboarding.models.PersonalDetails
-import org.sharad.velvetinvestment.utils.DateTimeUtils
+import org.sharad.velvetinvestment.utils.isValidEmail
+import org.sharad.velvetinvestment.utils.isValidPhoneNumberInput
 
 class PersonalDetailsScreenViewModel(
    private val step:Int
@@ -17,6 +22,23 @@ class PersonalDetailsScreenViewModel(
     private val _personalDetails=MutableStateFlow(PersonalDetails())
     val personalDetails=_personalDetails.asStateFlow()
 
+    private val _showDateSelector=MutableStateFlow(false)
+    val showDateSelector=_showDateSelector.asStateFlow()
+
+    val buttonEnabled = combine(personalDetails) { detailsArray ->
+        val details = detailsArray[0]
+        details.fullName.isNotBlank() &&
+                (details.email.isNotBlank() && isValidEmail(details.email)) &&
+                (details.phoneNumber.isNotBlank() && details.phoneNumber.length==10) &&
+                details.city.isNotBlank() &&
+                details.dob != null
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
+
     fun onNameChange(name:String){
         _personalDetails.update { it.copy(fullName = name) }
     }
@@ -26,14 +48,17 @@ class PersonalDetailsScreenViewModel(
     }
 
     fun onPhoneChange(phone:String) {
-        _personalDetails.update { it.copy(phoneNumber = phone) }
+        if(phone.isValidPhoneNumberInput()){
+            _personalDetails.update { it.copy(phoneNumber = phone) }
+        }
     }
 
     fun onCityChange(city:String) {
         _personalDetails.update { it.copy(city = city) }
     }
 
-    fun onDobChange(dob:Long) {
+    fun onDobChange(dob: Long?) {
+        if (dob==null) return
         _personalDetails.update { it.copy(dob = dob) }
     }
 
@@ -50,10 +75,17 @@ class PersonalDetailsScreenViewModel(
     fun onSliderChange(year:Int){
         _personalDetails.update {
             it.copy(
-                retirementYear = year,
-                retirementAge = it.dob?.let {dobYear-> year -  DateTimeUtils.getYear(dobYear) },
-                savingYears = year - DateTimeUtils.getCurrentYear()
+                retirementYear = year
             )
         }
     }
+
+    fun showDateSelector(){
+        _showDateSelector.value=true
+    }
+
+    fun hideDateSelector(){
+        _showDateSelector.value=false
+    }
+
 }

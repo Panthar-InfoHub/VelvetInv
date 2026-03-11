@@ -40,6 +40,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.models.GoalInfo
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
+import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.genericDropShadow
@@ -59,7 +60,9 @@ fun OnBoardingGoalScreen(
     onPrev: () -> Unit,
     onAddGoalClick: () -> Unit
 ){
-
+    AppBackHandler(true){
+        onPrev()
+    }
     val goals by viewModel.goalList.collectAsStateWithLifecycle()
     val totalGoalAmount by viewModel.totalTargetAmount.collectAsStateWithLifecycle()
 

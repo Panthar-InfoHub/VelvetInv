@@ -46,6 +46,7 @@ fun LoginScreen(
     val viewModel: LoginScreenViewModel = koinViewModel()
     val authMode by viewModel.authState.collectAsStateWithLifecycle()
     val email by viewModel.email.collectAsStateWithLifecycle()
+    val number by viewModel.phoneNumber.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
     val buttonEnabled by viewModel.buttonEnabled.collectAsStateWithLifecycle()
     val loading by viewModel.loading.collectAsStateWithLifecycle()
@@ -57,13 +58,26 @@ fun LoginScreen(
                 authMode = authMode,
                 email = email,
                 password = password,
+                number=number,
                 buttonEnabled = buttonEnabled,
                 loading = loading,
-                onLoginClick = { viewModel.onLoginClick() },
-                onSignUpClick = { viewModel.onSignUpClick() },
+                onLoginTabClick = { viewModel.onLoginTabClick() },
+                onSignUpTabClick = { viewModel.onSignUpTabClick() },
+                onLoginPasswordTabClick = { viewModel.onLoginPasswordTabClick() },
                 onEmailChange = { viewModel.onUserNameChange(it) },
                 onPasswordChange = { viewModel.onPasswordChange(it) },
-                onButtonClick = {})
+                onPhoneNumberChange = viewModel::onPhoneNumberChange,
+                onButtonClick = {
+                    viewModel.onButtonClick(
+                        onSuccess = {
+                            onLoginSuccessNavigation()
+                        },
+                        onFailure = {
+
+                        }
+                    )
+                }
+            )
         }
 
         else -> {
@@ -71,12 +85,15 @@ fun LoginScreen(
                 authMode = authMode,
                 email = email,
                 password = password,
+                number=number,
                 buttonEnabled = buttonEnabled,
                 loading = loading,
-                onLoginClick = { viewModel.onLoginClick() },
-                onSignUpClick = { viewModel.onSignUpClick() },
+                onLoginTabClick = { viewModel.onLoginTabClick() },
+                onSignUpTabClick = { viewModel.onSignUpTabClick() },
+                onLoginPasswordTabClick = { viewModel.onLoginPasswordTabClick() },
                 onEmailChange = { viewModel.onUserNameChange(it) },
                 onPasswordChange = { viewModel.onPasswordChange(it) },
+                onPhoneNumberChange = viewModel::onPhoneNumberChange,
                 onButtonClick = {
                     viewModel.onButtonClick(
                         onSuccess = {
@@ -99,11 +116,14 @@ fun LoginScreenPortrait(
     email: String,
     authMode: AuthMode,
     loading: Boolean,
-    onLoginClick: () -> Unit,
-    onSignUpClick: () -> Unit,
+    onLoginTabClick: () -> Unit,
+    onSignUpTabClick: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onButtonClick: () -> Unit,
+    onLoginPasswordTabClick: () -> Unit,
+    onPhoneNumberChange: (String) -> Unit,
+    number: String,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -127,15 +147,18 @@ fun LoginScreenPortrait(
             LogoInfo()
             Spacer(modifier = Modifier.height(40.dp))
             CredentialBox(
-                authMode = authMode,
-                onLoginClick = onLoginClick,
-                onSignUpClick = onSignUpClick,
                 email = email,
                 password = password,
+                number=number,
                 onEmailChange = { onEmailChange(it) },
                 onPasswordChange = { onPasswordChange(it) },
                 buttonEnabled = buttonEnabled,
-                onButtonClick = onButtonClick
+                onButtonClick = onButtonClick,
+                authMode = authMode,
+                onSignUpClick = onSignUpTabClick,
+                onLoginClick = onLoginTabClick,
+                onLoginPasswordTabClick=onLoginPasswordTabClick,
+                onPhoneNumberChange=onPhoneNumberChange
             )
             Spacer(modifier = Modifier.height(32.dp))
             MIIText()
@@ -150,11 +173,14 @@ fun LoginScreenLandscape(
     password: String,
     email: String,
     authMode: AuthMode,
-    loading: Boolean, onLoginClick: () -> Unit,
-    onSignUpClick: () -> Unit,
+    loading: Boolean, onLoginTabClick: () -> Unit,
+    onSignUpTabClick: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onButtonClick: () -> Unit,
+    onLoginPasswordTabClick: () -> Unit,
+    onPhoneNumberChange: (String) -> Unit,
+    number: String,
 
     ) {
     Box(
@@ -178,15 +204,18 @@ fun LoginScreenLandscape(
                 modifier = Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 CredentialBox(
-                    authMode = authMode,
-                    onLoginClick = onLoginClick,
-                    onSignUpClick = onSignUpClick,
                     email = email,
                     password = password,
+                    number=number,
                     onEmailChange = { onEmailChange(it) },
                     onPasswordChange = { onPasswordChange(it) },
                     buttonEnabled = buttonEnabled,
                     onButtonClick = onButtonClick,
+                    authMode = authMode,
+                    onSignUpClick = onSignUpTabClick,
+                    onLoginClick = onLoginTabClick,
+                    onLoginPasswordTabClick = onLoginPasswordTabClick,
+                    onPhoneNumberChange=onPhoneNumberChange,
                 )
             }
         }
