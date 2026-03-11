@@ -12,6 +12,5 @@ data class NotificationModel(
     val heading: String="",
     val body: String="",
     val time: String="",
-    val additionalInfo:Boolean=false,
-    val extraText:String=""
+    val extraText:String?=null
 )

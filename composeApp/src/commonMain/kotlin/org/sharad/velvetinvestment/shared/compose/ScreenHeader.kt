@@ -45,5 +45,4 @@ fun ScreenHeader(heading:String){
 
         }
     }
-    Spacer(modifier = Modifier.height(24.dp))
-}
+  }

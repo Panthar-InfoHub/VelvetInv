@@ -12,45 +12,11 @@ class NotificationCentreViewModel: ViewModel() {
    private val _notificationModel = MutableStateFlow( NotificationModel())
     val notificationModel = _notificationModel.asStateFlow()
 
-    fun onColorChange(value: Color){
-        _notificationModel.update {
-            it.copy(color = value)
-        }
+    init {
+        loadData()
     }
 
-    fun onIconChange(value: DrawableResource){
-        _notificationModel.update {
-            it.copy(icon = value)
-        }
-    }
-
-    fun onHeadingChange(value: String){
-        _notificationModel.update {
-            it.copy(heading = value)
-        }
-    }
-    fun onBodyChange(value: String) {
-        _notificationModel.update {
-            it.copy(body = value)
-        }
-    }
-
-    fun onTimeChange(value: String) {
-        _notificationModel.update {
-            it.copy(time = value)
-        }
-    }
-
-    fun onAdditionalInfoChange(value: Boolean) {
-        _notificationModel.update {
-            it.copy(additionalInfo = value)
-        }
-    }
-
-    fun onExtraInfoChange(value: String){
-        _notificationModel.update {
-            it.copy(extraText = value)
-        }
+    private fun loadData() {
 
     }
 }

@@ -21,6 +21,9 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDet
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.CheckKYCViewModel
+import org.sharad.velvetinvestment.presentation.settingscreens.viewmodels.SettingViewModel
+import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.NotificationCentreViewModel
 
 val viewModelModule= module {
     viewModel { LoginScreenViewModel() }
@@ -59,5 +62,8 @@ val viewModelModule= module {
     viewModel { GoalInfoScreenViewModel(get()) }
     viewModel { FDCategoryViewModel(get()) }
     viewModel {(id:String)-> FDSearchResultViewModel(id,get()) }
+    viewModel { NotificationCentreViewModel() }
+    viewModel { CheckKYCViewModel() }
+    viewModel { SettingViewModel() }
 
 }

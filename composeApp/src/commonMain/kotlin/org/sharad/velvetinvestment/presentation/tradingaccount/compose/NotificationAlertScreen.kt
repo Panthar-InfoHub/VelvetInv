@@ -46,7 +46,6 @@ fun NotificationAlertScreen() {
             heading = state.heading,
             body = state.body,
             time = state.time,
-            additionalInfo = state.additionalInfo,
             extraText = state.extraText
         )
 
@@ -61,8 +60,7 @@ fun AlertComposable(
     heading: String,
     body: String,
     time: String,
-    additionalInfo: Boolean,
-    extraText: String
+    extraText: String?
 ) {
     Box(
         Modifier.fillMaxWidth().drawBehind {
@@ -107,9 +105,9 @@ fun AlertComposable(
                         fontSize = 14.sp,
                         color = grayColor
                     )
-                    if (additionalInfo) {
+                    extraText?.let {it->
                         Text(
-                            extraText,
+                            it,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             fontFamily = Poppins,
