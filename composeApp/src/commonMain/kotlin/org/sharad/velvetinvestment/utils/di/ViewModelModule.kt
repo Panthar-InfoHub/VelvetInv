@@ -17,6 +17,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFl
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.OnBoardingConfirmationViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
@@ -27,7 +28,7 @@ import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.Notific
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 
 val viewModelModule= module {
-    viewModel { LoginScreenViewModel() }
+    viewModel { LoginScreenViewModel(get()) }
 
     viewModel {(idx:Int)-> PersonalDetailsScreenViewModel(idx) }
     viewModel { FinancialFlowScreenViewModel() }
@@ -59,7 +60,7 @@ val viewModelModule= module {
         )
     }
 
-    viewModel { FireReportViewModel(get()) }
+    viewModel { FireReportViewModel(get(),get()) }
     viewModel { GoalInfoScreenViewModel(get()) }
     viewModel { FDCategoryViewModel(get()) }
     viewModel {(id:String)-> FDSearchResultViewModel(id,get()) }
@@ -67,5 +68,6 @@ val viewModelModule= module {
     viewModel { CheckKYCViewModel() }
     viewModel { SettingViewModel() }
     viewModel{ TradingAccountViewModel() }
+    viewModel { OnBoardingConfirmationViewModel(get()) }
 
 }

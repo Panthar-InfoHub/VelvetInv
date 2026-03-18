@@ -18,6 +18,7 @@ import org.sharad.velvetinvestment.domain.usecases.home.GetGoalsSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetUserWorthCardUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.HomeScreenUseCases
+import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
 
 val useCaseModule= module {
@@ -63,6 +64,8 @@ val useCaseModule= module {
     factory {
         GetFireReportUseCase(get())
     }
+    factory { DownloadFirePdfUseCase(get(),get()) }
+
     factory { GetTopPickFDUseCase(get()) }
     factory { GetFixedDepositsSearchResultUseCase(get()) }
 }

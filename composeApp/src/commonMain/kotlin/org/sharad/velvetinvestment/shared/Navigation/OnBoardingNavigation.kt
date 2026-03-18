@@ -28,6 +28,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenV
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 
 @Composable
 fun OnBoardingNavigation(
@@ -38,7 +39,8 @@ fun OnBoardingNavigation(
     loanScreenViewModel: LoanScreenViewModel,
     insuranceCoverageViewModel: InsuranceCoverageViewModel,
     goalViewModel: GoalScreenViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    onLoginSuccessNavigation: () -> Unit
 ) {
 
     val personalData by personalDetailsViewModel.personalDetails.collectAsStateWithLifecycle()
@@ -49,6 +51,7 @@ fun OnBoardingNavigation(
     val healthInsurance by insuranceCoverageViewModel.healthInsuranceAmount.collectAsStateWithLifecycle()
     val lifeInsurance by insuranceCoverageViewModel.lifeInsuranceAmount.collectAsStateWithLifecycle()
     val totalAsset by assetViewModel.totalAssets.collectAsStateWithLifecycle()
+    val assetsInfo by assetViewModel.assetInfo.collectAsStateWithLifecycle()
 
 
 
@@ -58,7 +61,7 @@ fun OnBoardingNavigation(
     val otherExpenses = (financialData.otherExpense ?: 0) + (financialData.transportExpense ?: 0) + (financialData.foodExpense ?: 0)
     val emiExpense = monthlyEMI
     val netSurplus = monthlyIncome - housingExpense - otherExpenses - emiExpense
-    val totalLiabilities= loans.sumOf { it.outstandingAmount?:0L }
+    val totalLiabilities= loans.sumOf { it.outstandingAmount }
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
@@ -199,7 +202,6 @@ fun OnBoardingNavigation(
                     navController.navigate(Route.OnBoardingSummary)
                 },
                 onAddGoalClick = {
-                    goalViewModel.clearGoal()
                     navController.navigate(Route.OnBoardingGoalAdd)
                 }
             )
@@ -215,11 +217,13 @@ fun OnBoardingNavigation(
         composable<Route.OnBoardingSummary> {
             OnBoardingConfirmationScreen(
                 // Personal Details
+                personalDetails =personalData,
                 name = personalData.fullName,
                 city = personalData.city,
                 annualIncome = financialData.annualIncome?: 0,
-                retirementYear = personalData.retirementYear,
+                retirementYear = personalData.retirementYear?: DateTimeUtils.getCurrentYear(),
 
+                financiaData =financialData,
                 // Monthly Cash Flow
                 monthlyIncome = monthlyIncome,
                 housingExpense = housingExpense,
@@ -237,15 +241,18 @@ fun OnBoardingNavigation(
 
                 // Insurance
                 termLifeCover = lifeInsurance,
+                healthInsurance =healthInsurance,
                 totalInsuranceLiabilities = lifeInsurance+healthInsurance,
 
                 // Goals
                 goals = goals,
-                pv=pv,
+                assetsInfo =assetsInfo,
+                pv =pv,
                 onPrev = {
                     personalDetailsViewModel.previousStep()
                     navController.popBackStack()
                 },
+                onNext =onLoginSuccessNavigation
             )
         }
 

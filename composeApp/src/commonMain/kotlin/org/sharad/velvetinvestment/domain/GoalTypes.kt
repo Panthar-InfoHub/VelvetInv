@@ -7,10 +7,11 @@ import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.homeGoalColor
 
-enum class GoalTypes(val displayName: String,val color: Color, val id:Int) {
-    WEALTH_BUILDING("Wealth Building", homeGoalColor,4),
-    RETIREMENT("Retirement", bgColor4,3),
-    EDUCATION("Education", bgColor1,1),
-    MARRIAGE("Marriage", Secondary,2),
-    CUSTOM_GOAL("Custom Goal", Primary,4)
+sealed interface GoalType {
+    val id: Int
+
+    data object ChildEducation : GoalType { override val id = 1 }
+    data object ChildMarriage : GoalType { override val id = 2 }
+    data object Retirement : GoalType { override val id = 3 }
+    data object WealthBuilding : GoalType { override val id = 4 }
 }

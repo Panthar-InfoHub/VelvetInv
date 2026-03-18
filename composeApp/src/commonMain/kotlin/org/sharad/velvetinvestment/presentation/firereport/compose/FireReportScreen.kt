@@ -1,5 +1,9 @@
 package org.sharad.velvetinvestment.presentation.firereport.compose
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,68 +13,55 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
-import org.sharad.emify.core.ui.theme.appGreen
-import org.sharad.emify.core.ui.theme.appRed
-import org.sharad.emify.core.ui.theme.bgColor1
-import org.sharad.emify.core.ui.theme.bgColor3
-import org.sharad.emify.core.ui.theme.bgColor4
-import org.sharad.emify.core.ui.theme.darkBlue
-import org.sharad.emify.core.ui.theme.foodExpenseColor
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.firereport.uimodels.FireCombinedUIState
-import org.sharad.velvetinvestment.presentation.firereport.uimodels.QuarterlyTrendUI
-import org.sharad.velvetinvestment.presentation.firereport.uimodels.TargetProjectionUi
+import org.sharad.velvetinvestment.presentation.firereport.uimodels.FirePercentagePointUiModel
+import org.sharad.velvetinvestment.presentation.firereport.uimodels.FireReportUiModel
+import org.sharad.velvetinvestment.presentation.firereport.uimodels.PortfolioProjectionPointUiModel
+import org.sharad.velvetinvestment.presentation.firereport.uimodels.toFireMapPoints
+import org.sharad.velvetinvestment.presentation.firereport.uimodels.toMapPoints
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.FireReportViewModel
-import org.sharad.velvetinvestment.shared.compose.BackHeader
+import org.sharad.velvetinvestment.presentation.firereport.viewmodel.SelectedYear
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.shared.compose.PercentageCircle
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.ToggleSwitch
 import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.largeTextStyle
-import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.dollar_icon
-import velvet.composeapp.generated.resources.fire_icon
-import velvet.composeapp.generated.resources.fireprogress
-import velvet.composeapp.generated.resources.hugeicons_date_time
-import velvet.composeapp.generated.resources.icon_filter
-import velvet.composeapp.generated.resources.nav_icon_full_screener
+import velvet.composeapp.generated.resources.back_arrow
+import velvet.composeapp.generated.resources.icon_download
 
 @Composable
 fun FireReportScreen(
@@ -78,15 +69,24 @@ fun FireReportScreen(
 ){
 
     val viewModel: FireReportViewModel = koinViewModel()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.fireReportUiModel.collectAsStateWithLifecycle()
     val emiIncluded by viewModel.emiIncluded.collectAsStateWithLifecycle()
+    val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
+    val downloading by viewModel.downloadingReport.collectAsStateWithLifecycle()
+
 
 
     Column(
         modifier = Modifier.fillMaxSize(),
     ){
 
-        BackHeader(heading = "F.I.R.E Report", showBack = true, onBackClick = onBack,)
+        FireBackHeader(
+            heading = "F.I.R.E Report",
+            showBack = true,
+            onBackClick = onBack,
+            onIconClick = { viewModel.downloadFireReport() },
+            downloading = downloading
+        )
         Box(
             modifier=Modifier.weight(1f).fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -102,10 +102,14 @@ fun FireReportScreen(
                 }
                 is UiState.Success -> {
                     FireReportContent(
-                        uiState =(uiState as UiState.Success<FireCombinedUIState>).data,
+                        fireState = (uiState as UiState.Success<FireReportUiModel>).data,
                         emiIncluded =emiIncluded,
+                        selectedYear =selectedYear,
                         onEmiSwitchClick = {
                             viewModel.toggleEmi()
+                        },
+                        selectedYearChange = {
+                            viewModel.onSelectedYearChange(it)
                         }
                     )
                 }
@@ -117,12 +121,28 @@ fun FireReportScreen(
 
 @Composable
 fun FireReportContent(
-    uiState: FireCombinedUIState,
+    fireState: FireReportUiModel,
     emiIncluded: Boolean,
-    onEmiSwitchClick: () -> Unit,) {
-    val activeState = remember(uiState, emiIncluded) {
-        if (emiIncluded) uiState.emiIncluded else uiState.emiExcluded
+    onEmiSwitchClick: () -> Unit,
+    selectedYear: SelectedYear,
+    selectedYearChange: (SelectedYear) -> Unit
+) {
+
+    val progressAnim = remember { Animatable(0f) }
+
+    LaunchedEffect(selectedYear) {
+        progressAnim.snapTo(0f)
+        progressAnim.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 1400,
+                easing = FastOutSlowInEasing
+            )
+        )
     }
+
+    val progress = progressAnim.value
+
     LazyColumn(
         modifier=Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -131,48 +151,41 @@ fun FireReportContent(
         item{
             FireReportHeadSwitcher(
                 emiIncluded = emiIncluded,
-                onEmiIncludedClick = onEmiSwitchClick
+                selectedYear = selectedYear,
+                onSelectedYearChange=selectedYearChange,
+                onEmiIncludedClick = onEmiSwitchClick,
             )
         }
-        item {
-            FireNumberCard(
-                fireNumber =activeState.fireNumber,
-                annualGrowth =activeState.fireNumberAnnualGrowth
+        item() {
+            PortFolioProjectionChart(
+                data = fireState.portfolioChart,
+                startYear = fireState.startYear,
+                endYear = fireState.endYear,
+                selectedYear=selectedYear,
+                progress=progress
             )
         }
-        item {
-            FireProgressCard(
-                progressPercentage =activeState.fireProgress,
-                annualGrowth =activeState.fireProgressThisYear)
-        }
-        item {
-            FireYearCard(
-                fireYears =activeState.yearsToFire,
-                percentage =activeState.yearsToFirePercentage
+        item() {
+            FireProjectionChart(
+                data = fireState.firePercentageChart,
+                startYear = fireState.startYear,
+                endYear = fireState.endYear,
+                selectedYear=selectedYear,
+                progress=progress
             )
-        }
-        item {
-            FireSummaryCard(
-                fireProgress= activeState.fireProgress,
-                fireNumber=activeState.fireNumber,
-                netWorth=activeState.currentNetWorth,
-                yearsToFire=activeState.yearsToFire,
-                insights=activeState.fireInsights
-            )
-        }
-        item {
-            FireQuarterlyChartCard(trends=activeState.trend)
         }
         item {
             BarHeader(
-                heading = "30 Years Projections"
+                heading = when(selectedYear){
+                    SelectedYear.FIVE_YEARS -> "5"
+                    SelectedYear.TEN_YEARS -> "10"
+                    SelectedYear.TWENTY_YEARS -> "20"
+                }+" Years Projections"
             )
         }
-        items(items = activeState.projectionList, key = {it.year}){
-            ProjectionCard(it)
-        }
-        item {
-            TargetInfo(target=activeState.targetProjection)
+        items(items = fireState.projectionRows, key = {it.year},
+            contentType = { "projection_card" }){
+            ProjectionCard(projection = it)
         }
         item {
             Spacer(
@@ -180,511 +193,296 @@ fun FireReportContent(
             )
         }
     }
-
 }
 
 @Composable
-fun FireQuarterlyChartCard(trends: List<QuarterlyTrendUI>) {
-    ShadowCard{
-        Column(
-            modifier=Modifier.fillMaxWidth().padding(vertical = 44.dp, horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Quarterly Wealth Trend",
-                style = MaterialTheme.typography.headlineSmall,
-                color = titleColor,
-                modifier=Modifier.fillMaxWidth()
-            )
-            QuarterlyTrendChart(data = trends)
-        }
-    }
-}
-
-@Composable
-fun TargetInfo(target: TargetProjectionUi) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-    ){
-        HorizontalDivider(color = titleColor)
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(
-                    text = "Target Year",
-                    style = titlesStyle,
-                    color = Color(0xff6A7282)
-                )
-                Text(
-                    text = target.targetYear.toString(),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Primary
-                )
-            }
-            Column {
-                Text(
-                    text = "Projected Portfolio",
-                    style = titlesStyle,
-                    color = Color(0xff6A7282)
-                )
-                Text(
-                    text = "₹${formatMoneyWithUnits(target.projectedPortfolio)}",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = appGreen
-                )
-            }
-            Column {
-                Text(
-                    text = "FIRE Progress",
-                    style = titlesStyle,
-                    color = Color(0xff6A7282)
-                )
-                Text(
-                    text = target.fireProgress.toInt().toString(),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Primary
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun FireSummaryCard(
-    fireProgress: Double,
-    netWorth: Long,
-    fireNumber: Long,
-    yearsToFire: Int,
-    insights: List<String>
+fun PortFolioProjectionChart(
+    data: List<PortfolioProjectionPointUiModel>,
+    startYear: Int,
+    endYear: Int,
+    selectedYear: SelectedYear,
+    progress: Float
 ) {
+    val chartData = remember(data) { data.toMapPoints() }
     ShadowCard{
         Column(
-            modifier=Modifier.fillMaxWidth().padding(vertical = 44.dp, horizontal = 16.dp),
+            modifier=Modifier.fillMaxWidth().padding(vertical = 28.dp, horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ProgressIndicatorCard(fireProgress=fireProgress)
-            FireInfoSection(fireNumber=fireNumber, netWorth=netWorth, yearsToFire=yearsToFire)
-            InsightSection(insights=insights)
-        }
-    }
-}
-
-@Composable
-fun InsightSection(insights: List<String>) {
-    val colorList=listOf(bgColor1, foodExpenseColor,bgColor3)
-    ShadowCard {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp, horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = "F.I.R.E Insights",
-                style = subHeading,
-                color = titleColor
-            )
-
-            Column {
-                insights.forEachIndexed { idx,insight->
-                    InsightPoint(
-                        text=insight,
-                        pointColor=colorList[idx%3]
+            Column(
+                modifier=Modifier.fillMaxWidth()
+            ){
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        text = "Portfolio Projection "+ when(selectedYear){
+                            SelectedYear.FIVE_YEARS -> "(5 yrs)"
+                            SelectedYear.TEN_YEARS -> "(10 yrs)"
+                            SelectedYear.TWENTY_YEARS -> "(20 yrs)"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Black,
+                    )
+                    Text(
+                        text = "$startYear - $endYear",
+                        style = titlesStyle,
+                        color = titleColor
                     )
                 }
+                Text(
+                    text = "Amount (₹)",
+                    style = titlesStyle,
+                    color = titleColor
+                )
             }
+                LineChart(
+                    data = chartData,
+                    modifier = Modifier.fillMaxWidth().height(140.dp),
+                    progress = progress
+                )
 
         }
     }
-
 }
-
 @Composable
-fun InsightPoint(text: String, pointColor: Color) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Box(
-            modifier = Modifier.padding(8.dp)
-                .size(7.dp)
-                .clip(CircleShape)
-                .background(pointColor)
-        )
-        Text(
-            text=text,
-            fontFamily = Poppins,
-            fontSize = 14.sp,
-            color = Color.Black
-        )
-
-    }
-}
-
-@Composable
-fun FireInfoSection(fireNumber: Long, netWorth: Long, yearsToFire: Int) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        FireInfoCard(
-            icon=Res.drawable.fire_icon,
-            heading="F.I.R.E Number",
-            subHeading="Target Corpus",
-            value= formatMoneyWithUnits(fireNumber),
-            color=appGreen
-        )
-        FireInfoCard(
-            icon = Res.drawable.dollar_icon,
-            heading = "Current Net Worth",
-            subHeading = "Assets – Liabilities",
-            value = formatMoneyWithUnits(netWorth),
-            color = bgColor4
-        )
-
-        FireInfoCard(
-            icon = Res.drawable.hugeicons_date_time,
-            heading = "Years to FIRE",
-            subHeading = "At current rate",
-            value = yearsToFire.toString(),
-            color = bgColor3
-        )
-
-    }
-}
-
-@Composable
-private fun FireInfoCard(
-    icon: DrawableResource,
-    heading: String,
-    subHeading: String,
-    value: String,
-    color: Color
+fun FireProjectionChart(
+    data: List<FirePercentagePointUiModel>,
+    startYear: Int,
+    endYear: Int,
+    selectedYear: SelectedYear,
+    progress: Float
 ) {
-
-    ShadowCard(
-        backgroundColor = color.copy(alpha = 0.1f)
-    ) {
-        Row(
-            modifier=Modifier.fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ){
-
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(36.dp)
-            )
-
+    val chartData = remember(data) { data.toFireMapPoints() }
+    ShadowCard{
+        Column(
+            modifier=Modifier.fillMaxWidth().padding(vertical = 28.dp, horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Column(
-                modifier = Modifier.weight(1f),
-            ) {
+                modifier=Modifier.fillMaxWidth()
+            ){
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        text = "FIRE % "+  when(selectedYear){
+                            SelectedYear.FIVE_YEARS -> "(5 yrs)"
+                            SelectedYear.TEN_YEARS -> "(10 yrs)"
+                            SelectedYear.TWENTY_YEARS -> "(20 yrs)"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Black,
+                    )
+                    Text(
+                        text = "$startYear - $endYear",
+                        style = titlesStyle,
+                        color = titleColor
+                    )
+                }
                 Text(
-                    text = heading,
-                    style = MaterialTheme.typography.labelSmall,
-                    color=Color.Black
-                )
-                Text(
-                    text = subHeading,
+                    text = "%",
                     style = titlesStyle,
-                    color=color
+                    color = titleColor
                 )
             }
-
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineLarge,
-                color=color
-            )
-
-        }
-    }
-
-}
-
-@Composable
-fun ProgressIndicatorCard(fireProgress: Double) {
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        PercentageCircle(fireProgress.toFloat()/100, modifier = Modifier.size(140.dp))
-        Text(
-            text = "F.I.R.E Progress",
-            style = MaterialTheme.typography.headlineSmall
-        )
-    }
-
-}
-
-@Composable
-fun FireNumberCard(fireNumber: Long, annualGrowth: Double) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-            .height(216.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(bgColor4.copy(0.1f))
-    ){
-        Icon(
-            painter = painterResource(Res.drawable.fire_icon),
-            contentDescription = null,
-            tint = Primary.copy(0.1f),
-            modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp).size(148.dp)
-        )
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp, horizontal = 24.dp),
-        ) {
-            Text(
-                text = "Current F.I.R.E Number",
-                style = MaterialTheme.typography.headlineSmall,
-                color = titleColor
-            )
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = "₹ ${formatMoneyAfterL(fireNumber)}",
-                style = largeTextStyle,
-                color = Primary
-            )
-            Spacer(Modifier.height(16.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-               Icon(
-                   painter=painterResource(Res.drawable.nav_icon_full_screener),
-                   contentDescription = null,
-                   tint = appGreen,
-                   modifier = Modifier.height(10.dp)
-               )
-                Text(
-                    text = if (annualGrowth>=0) "  +$annualGrowth%" else "  $annualGrowth%",
-                    style = titlesStyle,
-                    color = if (annualGrowth<=0) appRed else appGreen
-                )
-                Text(
-                    text = " annual growth",
-                    style = titlesStyle,
-                    color = Color.Black
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun FireProgressCard(progressPercentage: Double, annualGrowth: Double) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-            .height(216.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(bgColor1.copy(0.1f))
-    ){
-        Icon(
-            painter = painterResource(Res.drawable.fireprogress),
-            contentDescription = null,
-            tint = bgColor1,
-            modifier = Modifier.align(Alignment.CenterEnd).padding(12.dp).size(148.dp)
-        )
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp, horizontal = 24.dp),
-        ) {
-            Text(
-                text = "F.I.R.E Progress",
-                style = MaterialTheme.typography.headlineSmall,
-                color = titleColor
-            )
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = "$progressPercentage%",
-                style = largeTextStyle,
-                color = appGreen
-            )
-            Spacer(Modifier.height(16.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-               Icon(
-                   painter=painterResource(Res.drawable.nav_icon_full_screener),
-                   contentDescription = null,
-                   tint = appGreen,
-                   modifier = Modifier.height(10.dp)
-               )
-                Text(
-                    text = if (annualGrowth>=0) "  +$annualGrowth%" else "  $annualGrowth%",
-                    style = titlesStyle,
-                    color = if (annualGrowth<=0) appRed else appGreen
-                )
-                Text(
-                    text = " this year",
-                    style = titlesStyle,
-                    color = Color.Black
-                )
-            }
-        }
-    }
-}
-@Composable
-fun FireYearCard(fireYears: Int, percentage: Double) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-            .height(216.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(bgColor3.copy(0.1f))
-    ){
-        Icon(
-            painter = painterResource(Res.drawable.hugeicons_date_time),
-            contentDescription = null,
-            tint = Secondary,
-            modifier = Modifier.align(Alignment.CenterEnd).padding(12.dp).size(148.dp)
-        )
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp, horizontal = 24.dp),
-        ) {
-            Text(
-                text = "Year to F.I.R.E",
-                style = MaterialTheme.typography.headlineSmall,
-                color = titleColor
-            )
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = "$fireYears Years",
-                style = largeTextStyle,
+            LineChart(
+                data =chartData,
+                modifier = Modifier.fillMaxWidth().height(140.dp),
+                progress = progress,
                 color = Secondary
             )
-            Spacer(Modifier.height(16.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-               Icon(
-                   painter=painterResource(Res.drawable.nav_icon_full_screener),
-                   contentDescription = null,
-                   tint = if (percentage>=0) appGreen else appRed,
-                   modifier = Modifier.height(10.dp)
-               )
-                Text(
-                    text = if (percentage>=0) "  +$percentage%" else "  $percentage%",
-                    style = titlesStyle,
-                    color = if (percentage<=0) appRed else appGreen
-                )
-                Text(
-                    text = " accelerated",
-                    style = titlesStyle,
-                    color = Color.Black
-                )
-            }
         }
     }
 }
 
 
 @Composable
-fun FireReportHeadSwitcher(onEmiIncludedClick: () -> Unit, emiIncluded: Boolean) {
+fun FireReportHeadSwitcher(
+    onEmiIncludedClick: () -> Unit,
+    emiIncluded: Boolean,
+    selectedYear: SelectedYear,
+    onSelectedYearChange: (SelectedYear) -> Unit
+) {
     ShadowCard {
         Column(
-            modifier=Modifier.fillMaxWidth()
+            modifier=Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            TopHalf()
-            BottomHalf(emiIncluded,onEmiIncludedClick)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "FIRE Report",
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = Color.Black
+                )
+                Text(
+                    text = "Projected Financial Independence",
+                    color = titleColor,
+                    style = titlesStyle
+                )
+            }
+            YearSelector(selectedYear,onSelectedYearChange)
+            IncludeEmi(emiIncluded,onEmiIncludedClick)
+        }
+    }
+}
+
+@Composable
+fun YearSelector(
+    selectedYear: SelectedYear,
+    onSelectedYearChange: (SelectedYear) -> Unit
+) {
+
+    val animatedOffset by animateDpAsState(
+        targetValue = when (selectedYear) {
+            SelectedYear.FIVE_YEARS -> 0.dp
+            SelectedYear.TEN_YEARS -> 58.dp
+            SelectedYear.TWENTY_YEARS -> 58.dp *2
+        }
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+
+        Text(
+            text = "Projection Horizon",
+            style = titlesStyle.copy(fontWeight = FontWeight.SemiBold),
+            color = Color(0xff314158)
+        )
+
+        Box(
+            modifier = Modifier
+                .height(34.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xffF1F5F9))
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(58.dp)
+                    .padding(5.dp)
+                    .offset(x = animatedOffset)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Secondary)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                SelectedYear.entries.forEach { year ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(58.dp)
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) {
+                                onSelectedYearChange(year)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = year.value,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (selectedYear == year) Color.White else Color(0xff45556C)
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun BottomHalf(emiIncluded: Boolean, onEmiIncludedClick: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-            .background(Secondary.copy(0.1f))
-    ){
-        Row(
-            modifier=Modifier.fillMaxWidth().padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Include EMI in Outflow:",
-                style = titlesStyle,
-                color = Primary
+fun IncludeEmi(emiIncluded: Boolean, onEmiIncludedClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Include EMI",
+            style = titlesStyle.copy(fontWeight = FontWeight.SemiBold),
+            color = Color(0xff314158)
 
-            )
-            ToggleSwitch(
-                checked = emiIncluded,
-                onCheckedChange = { onEmiIncludedClick() },
-                width = 64.dp,
-                height = 28.dp,
-                thumbSize = 22.dp,
-                checkedTrackColor = Primary,
-                uncheckedTrackColor = Color.White,
-                checkedThumbColor = Color.White,
-                uncheckedThumbColor = Primary
-            )
-        }
+        )
+
+        ToggleSwitch(
+            checked = emiIncluded,
+            onCheckedChange = { onEmiIncludedClick() },
+            width = 48.dp,
+            height = 24.dp,
+            thumbSize = 20.dp,
+            checkedTrackColor = Color(0xff10B981),
+            uncheckedTrackColor = Color.White,
+            checkedThumbColor = Color.White,
+            uncheckedThumbColor =Color(0xff10B981)
+        )
     }
 }
 
 @Composable
-fun TopHalf() {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+fun FireBackHeader(
+    heading: String,
+    showBack: Boolean = false,
+    modifier: Modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 12.dp),
+    onBackClick: () -> Unit = {},
+    onIconClick: () -> Unit,
+    downloading: Boolean
+){
+    Box(
+        modifier=modifier,
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier.size(44.dp).clip(RoundedCornerShape(15.dp))
-                .background(darkBlue.copy(alpha = 0.1f)),
-            contentAlignment = Alignment.Center
-        ) {
+        Text(
+            text = heading,
+            style = MaterialTheme.typography.headlineLarge,
+            color = Primary
+        )
+
+        if (showBack){
             Icon(
-                painter = painterResource(Res.drawable.fire_icon),
+                painter = painterResource(Res.drawable.back_arrow),
                 contentDescription = null,
-                tint = darkBlue,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(22.dp).clickable(
+                    onClick = onBackClick,
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ).align(Alignment.CenterStart)
             )
         }
 
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-
-            Text(
-                text = "F.I.R.E Report",
-                style = subHeading,
-                color = Primary
+        if (downloading){
+            CircularProgressIndicator(
+                modifier = Modifier.padding(end = 4.dp).size(22.dp)
+                    .align(Alignment.CenterEnd),
+                color = Secondary
             )
-
-            Text(
-                text="Financial Independence Retire Early",
-                style = titlesStyle,
-                color = Primary
-            )
-
         }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable(
-                onClick = {},
-                indication = null,
-                interactionSource = remember{ MutableInteractionSource() }
-            )
-        ) {
+        else{
             Icon(
-                painter = painterResource(Res.drawable.icon_filter),
+                painter = painterResource(Res.drawable.icon_download),
                 contentDescription = null,
                 tint = Secondary,
-                modifier = Modifier.size(19.dp)
-            )
-            Text(
-                text="Filter",
-                fontFamily = Poppins,
-                fontSize = 14.sp,
-                color = Secondary
+                modifier = Modifier.padding(end = 4.dp).size(22.dp).clickable(
+                    onClick = { onIconClick() },
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ).align(Alignment.CenterEnd)
             )
         }
     }

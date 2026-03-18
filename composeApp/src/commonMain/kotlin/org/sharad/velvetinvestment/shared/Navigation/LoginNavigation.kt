@@ -8,23 +8,30 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.presentation.LoginScreen.LoginScreen
+import org.sharad.velvetinvestment.presentation.LoginScreen.OtpScreen
+import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScreenViewModel
 import org.sharad.velvetinvestment.presentation.SplashScreen.SplashScreen
-import org.sharad.velvetinvestment.presentation.onboarding.compose.OnboardingScreenRoot
 import org.sharad.velvetinvestment.utils.WindowSize
+import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
 @Composable
 fun LoginNavigation(
     onLoginSuccessNavigation: () -> Unit,
-    windowSize: WindowSize
+    windowSize: WindowSize,
+    navigateToOnboarding: (Int) -> Unit
 ){
 
     val navController= rememberNavController()
+    val loginViewModel: LoginScreenViewModel = koinViewModel()
+
+
 
     NavHost(
         navController = navController,
-        startDestination = Route.OnBoardingFlow(1),
+        startDestination = Route.SplashScreen,
         // Forward navigation animation
         enterTransition = {
             slideInHorizontally(
@@ -78,12 +85,21 @@ fun LoginNavigation(
         composable<Route.LoginScreen> {
             LoginScreen(
                 windowSize=windowSize,
-                onLoginSuccessNavigation=onLoginSuccessNavigation
+                onLoginSuccessNavigation=onLoginSuccessNavigation,
+                onOtpSend={
+                    navController.navigate(Route.OtpScreen)
+                },
+                viewModel=loginViewModel
             )
         }
-        composable<Route.OnBoardingFlow> {
-            val index=it.toRoute<Route.OnBoardingFlow>().index
-            OnboardingScreenRoot(index)
+        composable<Route.OtpScreen> {
+            OtpScreen(
+                viewModel = loginViewModel,
+                navigateToMainApp= onLoginSuccessNavigation,
+                navigateToOnboarding={
+                    navigateToOnboarding(it)
+                }
+            )
         }
     }
 

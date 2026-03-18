@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 object SnackBarController {
 
-    private val _snackBars = MutableSharedFlow<SnackBarType>()
+    private val _snackBars = MutableSharedFlow<SnackBarType>(extraBufferCapacity = 1)
     val snackBars = _snackBars.asSharedFlow()
 
     suspend fun showSnackBar(snackBarType: SnackBarType) {

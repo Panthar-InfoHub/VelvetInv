@@ -1,36 +1,48 @@
 package org.sharad.velvetinvestment.presentation.firereport.compose
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.sharad.velvetinvestment.presentation.firereport.uimodels.QuarterlyTrendUI
-import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.presentation.firereport.viewmodel.SelectedYear
+import kotlin.math.max
 
 @Composable
-fun QuarterlyTrendChart(
-    data: List<QuarterlyTrendUI>,
-    modifier: Modifier = Modifier.height(280.dp)
+fun LineChart(
+    data: List<LineChartData>,
+    color: Color = Color(0xff10B981),
+    modifier: Modifier = Modifier.height(140.dp),
+    progress: Float=1f
 ) {
 
     val textMeasurer = rememberTextMeasurer()
-    val textStyle= MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp)
+    val textStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp)
+    val pathMeasureLine = remember { PathMeasure() }
+
+
 
     Canvas(
         modifier = modifier
@@ -38,15 +50,16 @@ fun QuarterlyTrendChart(
             .fillMaxHeight()
     ) {
 
+
         if (data.size < 2) return@Canvas
 
         val width = size.width
         val height = size.height
 
-        val leftAxisWidth = 112f
-        val rightAxisWidth = 112f
-        val bottomAxisHeight = 40f
-        val topPadding = 20f
+        val leftAxisWidth = 12f
+        val rightAxisWidth = 12f
+        val bottomAxisHeight = 20f
+        val topPadding = 24f
 
         val chartStartX = leftAxisWidth
         val chartEndX = width - rightAxisWidth
@@ -56,153 +69,172 @@ fun QuarterlyTrendChart(
         val chartWidth = chartEndX - chartStartX
         val chartHeight = chartBottom - chartTop
 
-        val maxNet = data.maxOf { it.netWorth }
-        val maxFire = data.maxOf { it.fireProgress }
+        val maxNet = data.maxOf { it.value }
 
-        val stepX = chartWidth / ((data.size - 1)/2)
+        val stepX = chartWidth / (data.size - 1)
 
-        val netPoints = data.mapIndexed { index, item ->
+        val points = data.mapIndexed { index, item ->
             val x = chartStartX + index * stepX
-            val y = chartBottom -
-                    (item.netWorth / maxNet).toFloat() * chartHeight
+            val y = chartBottom - (item.value / maxNet).toFloat() * chartHeight
             Offset(x, y)
         }
 
-        val firePoints = data.mapIndexed { index, item ->
-            val x = chartStartX + index * stepX
-            val y = chartBottom -
-                    (item.fireProgress / maxFire).toFloat() * chartHeight
-            Offset(x, y)
-        }
 
-        // AXIS
-        drawLine(
-            Color.Gray,
-            Offset(chartStartX, chartTop),
-            Offset(chartStartX, chartBottom),
-            2f
-        )
 
-        drawLine(
-            Color.Gray,
-            Offset(chartEndX, chartTop),
-            Offset(chartEndX, chartBottom),
-            2f
-        )
+        /* ---------- STRAIGHT LINE PATH ---------- */
 
-        drawLine(
-            Color.Gray,
-            Offset(chartStartX, chartBottom),
-            Offset(chartEndX, chartBottom),
-            2f
-        )
-
-        // SMOOTH PATH
-        fun smoothPath(points: List<Offset>): Path {
-
-            val path = Path()
-
-            path.moveTo(points.first().x, points.first().y)
-
+        val linePath = Path().apply {
+            moveTo(points.first().x, points.first().y)
             for (i in 1 until points.size) {
-
-                val prev = points[i - 1]
-                val cur = points[i]
-
-                val controlX = (prev.x + cur.x) / 2
-
-                path.cubicTo(
-                    controlX, prev.y,
-                    controlX, cur.y,
-                    cur.x, cur.y
-                )
+                lineTo(points[i].x, points[i].y)
             }
-
-            return path
         }
 
-        val netPath = smoothPath(netPoints)
-        val firePath = smoothPath(firePoints)
+        pathMeasureLine.setPath(linePath, false)
 
-        drawPath(
-            netPath,
-            Color(0xFF243A6B),
-            style = Stroke(4f)
+        val animatedPath = Path()
+        pathMeasureLine.getSegment(
+            0f,
+            pathMeasureLine.length * progress,
+            animatedPath,
+            true
         )
 
-        drawPath(
-            firePath,
-            Color(0xFFD6B585),
-            style = Stroke(4f)
+        /* ---------- AREA PATH  ---------- */
+
+//        val areaPath = Path().apply {
+//            moveTo(points.first().x, chartBottom)
+//
+//            points.forEachIndexed { index, point ->
+//                if (index == 0) lineTo(point.x, point.y)
+//                else lineTo(point.x, point.y)
+//            }
+//
+//            lineTo(points.last().x, chartBottom)
+//            close()
+//        }
+
+        val areaAnimated = Path()
+
+        pathMeasureLine.getSegment(
+            0f,
+            pathMeasureLine.length * progress,
+            areaAnimated,
+            true
         )
 
-        // DOTS
-        netPoints.forEach {
-            drawCircle(Color(0xFF243A6B), 6f, it)
-        }
+        /* ---------- GRADIENT FILL ---------- */
 
-        firePoints.forEach {
-            drawCircle(Color(0xFFD6B585), 6f, it)
-        }
+        val visibleX = chartStartX + chartWidth * progress
 
-        // Y AXIS TICKS (5)
-        val ticks = 5
+        areaAnimated.lineTo(visibleX, chartBottom)
+        areaAnimated.lineTo(points.first().x, chartBottom)
+        areaAnimated.close()
+        drawPath(
+            path = areaAnimated,
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    color.copy(alpha = 0.35f),
+                    color.copy(alpha = 0.05f),
+                    Color.Transparent
+                ),
+                startY = chartTop,
+                endY = chartBottom
+            )
+        )
 
-        repeat(ticks) { i ->
+        /* ---------- LINE ---------- */
 
-            val fraction = i / (ticks - 1f)
+        drawPath(
+            animatedPath,
+            color,
+            style = Stroke(
+                width = 3f,
+                cap = StrokeCap.Round
+            )
+        )
 
-            val y = chartBottom - fraction * chartHeight
+        /* ---------- DOTS ---------- */
 
-            val netValue = maxNet * fraction
-            val fireValue = maxFire * fraction
+        val highlightStep = max(1, data.size / 5)
 
-            val netLabel = formatMoneyWithUnits(netValue.toLong())
-            val fireLabel = "${fireValue.toInt()}%"
 
-            val netText = textMeasurer.measure(
-                AnnotatedString(netLabel+"-"),
+        points.forEachIndexed { index, point ->
+
+            val isHighlight = index % highlightStep == 0
+            val radius = if (point.x <= visibleX) {
+                if (isHighlight) 10f else 5f
+            } else 0f
+
+            if (point.x <= visibleX){
+                drawCircle(
+                    color = color,
+                    radius = radius,
+                    center = point
+                )
+
+                if (isHighlight) {
+
+                    val label = textMeasurer.measure(
+                        AnnotatedString(data[index].floatingLabel),
                         style = textStyle
-            )
+                    )
 
-            val fireText = textMeasurer.measure(
-                AnnotatedString("-"+fireLabel),
-                style = textStyle
-            )
+                    val labelX = (point.x - label.size.width / 2)
+                        .coerceIn(0f, size.width - label.size.width)
 
-            drawText(
-                netText,
-                topLeft = Offset(
-                    chartStartX - netText.size.width - 8,
-                    y - netText.size.height / 2
-                )
-            )
-
-            drawText(
-                fireText,
-                topLeft = Offset(
-                    chartEndX + 8,
-                    y - fireText.size.height / 2
-                )
-            )
+                    drawText(
+                        label,
+                        topLeft = Offset(
+                            labelX,
+                            point.y - label.size.height - 12f
+                        )
+                    )
+                }
+            }
         }
 
-        // X AXIS LABELS
-        data.forEachIndexed { index, item ->
+        //BottomLine
 
-            val x = chartStartX + index * stepX
+        drawLine(
+            color = Color.Black.copy(alpha = 0.2f),
+            strokeWidth = 2f,
+            start = Offset(chartStartX, chartBottom),
+            end = Offset(chartEndX, chartBottom)
+        )
 
-            val text = textMeasurer.measure(
-                AnnotatedString(item.quarter),
+        /* ---------- START + END Bottom LABEL ---------- */
+
+        val firstLabel = textMeasurer.measure(
+            AnnotatedString(data.first().axisLabel),
+            style = textStyle
+        )
+
+        drawText(
+            firstLabel,
+            topLeft = Offset(
+                chartStartX,
+                chartBottom + 6f
             )
+        )
 
-            drawText(
-                text,
-                topLeft = Offset(
-                    x - text.size.width / 2,
-                    chartBottom + 10
-                )
+        val lastLabel = textMeasurer.measure(
+            AnnotatedString(data.last().axisLabel),
+            style = textStyle
+        )
+
+        drawText(
+            lastLabel,
+            topLeft = Offset(
+                chartEndX - lastLabel.size.width,
+                chartBottom + 6f
             )
-        }
+        )
     }
 }
+
+data class LineChartData(
+    val floatingLabel: String = "",
+    val value: Double,
+    val axisLabel: String
+)

@@ -27,7 +27,8 @@ import org.sharad.velvetinvestment.shared.Navigation.Route
 
 @Composable
 fun OnboardingScreenRoot(
-    onBoardingStep:Int=1,
+    onBoardingStep: Int = 1,
+    onLoginSuccessNavigation: () -> Unit,
 ) {
 
 
@@ -106,7 +107,8 @@ fun OnboardingScreenRoot(
                         insuranceCoverageViewModel=insuranceCoverageViewModel,
                         goalViewModel=goalViewModel,
                         financialFlowScreenViewModel = financialFlowScreenViewModel,
-                        navController = navController
+                        navController = navController,
+                        onLoginSuccessNavigation=onLoginSuccessNavigation
                     )
                 }
             }

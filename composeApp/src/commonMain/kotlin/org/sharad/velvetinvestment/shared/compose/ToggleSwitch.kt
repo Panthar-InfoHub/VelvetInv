@@ -47,7 +47,7 @@ fun ToggleSwitch(
             .genericDropShadow(shape = CircleShape)
             .clip(CircleShape)
             .background(if (checked) checkedTrackColor else uncheckedTrackColor)
-            .border(0.5.dp, Primary, CircleShape)
+            .border(0.5.dp, uncheckedThumbColor, CircleShape)
             .clickable { onCheckedChange(!checked) },
         contentAlignment = Alignment.CenterStart
     ) {

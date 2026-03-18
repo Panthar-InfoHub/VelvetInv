@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
-import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScreenViewModel
 import org.sharad.velvetinvestment.presentation.SplashScreen.LightGradient
 import org.sharad.velvetinvestment.utils.AuthMode
@@ -41,9 +40,10 @@ import velvet.composeapp.generated.resources.logo_app
 fun LoginScreen(
     windowSize: WindowSize,
     onLoginSuccessNavigation: () -> Unit,
+    viewModel: LoginScreenViewModel,
+    onOtpSend: () -> Unit,
 ) {
 
-    val viewModel: LoginScreenViewModel = koinViewModel()
     val authMode by viewModel.authState.collectAsStateWithLifecycle()
     val email by viewModel.email.collectAsStateWithLifecycle()
     val number by viewModel.phoneNumber.collectAsStateWithLifecycle()
@@ -68,14 +68,31 @@ fun LoginScreen(
                 onPasswordChange = { viewModel.onPasswordChange(it) },
                 onPhoneNumberChange = viewModel::onPhoneNumberChange,
                 onButtonClick = {
-                    viewModel.onButtonClick(
-                        onSuccess = {
-                            onLoginSuccessNavigation()
-                        },
-                        onFailure = {
+                    when(authMode){
+                        AuthMode.Login.OTP -> {
+                            viewModel.onSendOtpClick(
+                                onSuccess = {
+                                    onOtpSend()
+                                },
+                                onFailure = {
+
+                                }
+                            )
+                        }
+                        AuthMode.Login.Password ->{
 
                         }
-                    )
+                        AuthMode.SignUp -> {
+                            viewModel.onSendOtpClick(
+                                onSuccess = {
+                                    onOtpSend()
+                                },
+                                onFailure = {
+
+                                }
+                            )
+                        }
+                    }
                 }
             )
         }
@@ -95,14 +112,29 @@ fun LoginScreen(
                 onPasswordChange = { viewModel.onPasswordChange(it) },
                 onPhoneNumberChange = viewModel::onPhoneNumberChange,
                 onButtonClick = {
-                    viewModel.onButtonClick(
-                        onSuccess = {
-                            onLoginSuccessNavigation()
-                        },
-                        onFailure = {
+                    when(authMode){
+                        AuthMode.Login.OTP -> {
+                            viewModel.onSendOtpClick(
+                                onSuccess = {
+                                    onOtpSend()
+                                },
+                                onFailure = {}
+                            )
+                        }
+                        AuthMode.Login.Password ->{
 
                         }
-                    )
+                        AuthMode.SignUp -> {
+                            viewModel.onSendOtpClick(
+                                onSuccess = {
+                                    onOtpSend()
+                                },
+                                onFailure = {
+
+                                }
+                            )
+                        }
+                    }
                 }
             )
         }
@@ -158,7 +190,8 @@ fun LoginScreenPortrait(
                 onSignUpClick = onSignUpTabClick,
                 onLoginClick = onLoginTabClick,
                 onLoginPasswordTabClick=onLoginPasswordTabClick,
-                onPhoneNumberChange=onPhoneNumberChange
+                onPhoneNumberChange=onPhoneNumberChange,
+                loading = loading
             )
             Spacer(modifier = Modifier.height(32.dp))
             MIIText()
@@ -206,7 +239,6 @@ fun LoginScreenLandscape(
                 CredentialBox(
                     email = email,
                     password = password,
-                    number=number,
                     onEmailChange = { onEmailChange(it) },
                     onPasswordChange = { onPasswordChange(it) },
                     buttonEnabled = buttonEnabled,
@@ -216,6 +248,8 @@ fun LoginScreenLandscape(
                     onLoginClick = onLoginTabClick,
                     onLoginPasswordTabClick = onLoginPasswordTabClick,
                     onPhoneNumberChange=onPhoneNumberChange,
+                    number=number,
+                    loading = loading
                 )
             }
         }

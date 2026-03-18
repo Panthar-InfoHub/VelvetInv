@@ -1,9 +1,9 @@
 package org.sharad.velvetinvestment.domain.models.home
 
-import org.sharad.velvetinvestment.domain.GoalTypes
+import org.sharad.velvetinvestment.presentation.goals.uimodels.GoalOption
 
 data class GoalsSummaryDomain(
-    val goalTypes: GoalTypes,
+    val goalTypes: GoalOption,
     val amount:Long,
     val targetAmount: Long,
     val goalId: String

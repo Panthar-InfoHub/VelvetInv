@@ -26,8 +26,11 @@ fun AddLoanScreen(
     onBack: () -> Unit,
     pv: PaddingValues
 ){
-    
-    val addLoanState by viewModel.addLoanDetails.collectAsStateWithLifecycle()
+
+    val loanType by viewModel.loanType.collectAsStateWithLifecycle()
+    val outstandingAmount by viewModel.outstandingAmount.collectAsStateWithLifecycle()
+    val monthlyEmi by viewModel.monthlyEmi.collectAsStateWithLifecycle()
+    val tenure by viewModel.tenure.collectAsStateWithLifecycle()
 
     Column(
         modifier=modifier.fillMaxSize()
@@ -43,7 +46,7 @@ fun AddLoanScreen(
 
             item {
                 LoanSelectionDropDown(
-                    value = addLoanState.loanType,
+                    value = loanType,
                     onValueChange = {it->viewModel.onLoanTypeUpdate(it)},
                     placeHolder = "Choose Type",
                     label = "Loan Type"
@@ -52,7 +55,7 @@ fun AddLoanScreen(
 
             item {
                 MoneyTextField(
-                    value = addLoanState.outstandingAmount?.toString()?:"",
+                    value =outstandingAmount?.toString()?:"",
                     onValueChange = {
                         viewModel.onOutstandingAmountUpdate(it)
                     },
@@ -62,7 +65,7 @@ fun AddLoanScreen(
             }
             item {
                 MoneyTextField(
-                    value = addLoanState.monthlyEmi?.toString()?:"",
+                    value = monthlyEmi?.toString()?:"",
                     onValueChange = {
                         viewModel.onMonthlyEmiUpdate(it)
                     },
@@ -72,7 +75,7 @@ fun AddLoanScreen(
             }
             item {
                 OnBoardingTextField(
-                    value = addLoanState.tenure?.toString()?:"",
+                    value = tenure?.toString()?:"",
                     onValueChange = {
                         viewModel.onTenureUpdate(it)
                     },

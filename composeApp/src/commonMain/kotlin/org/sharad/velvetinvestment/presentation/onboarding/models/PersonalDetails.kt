@@ -8,12 +8,22 @@ data class PersonalDetails(
     val phoneNumber: String = "",
     val city: String = "",
     val dob: Long? = null,
-    val retirementYear: Int = DateTimeUtils.getCurrentYear()
+    val retirementYear: Int? = null
 ) {
 
-    val retirementAge: Int?
-        get() = dob?.let { retirementYear - DateTimeUtils.getYear(it) }
+    private val birthYear: Int?
+        get() = dob?.let { DateTimeUtils.getYear(it) }
 
-    val savingYears: Int
-        get() = retirementYear - DateTimeUtils.getCurrentYear()
+    val effectiveRetirementYear: Int?
+        get() = retirementYear ?: birthYear?.plus(60)
+
+    val retirementAge: Int?
+        get() = birthYear?.let { by ->
+            effectiveRetirementYear?.minus(by)
+        }
+
+    val savingYears: Int?
+        get() = effectiveRetirementYear?.let {
+            it - DateTimeUtils.getCurrentYear()
+        }
 }

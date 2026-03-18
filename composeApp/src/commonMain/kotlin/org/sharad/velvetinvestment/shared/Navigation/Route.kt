@@ -9,6 +9,8 @@ object Route {
 
     @Serializable
     data object LoginScreen
+    @Serializable
+    data object OtpScreen
 
     @Serializable
     data object LoginFlow

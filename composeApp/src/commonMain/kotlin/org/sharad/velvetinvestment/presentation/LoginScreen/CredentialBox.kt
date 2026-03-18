@@ -11,17 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.velvetinvestment.shared.compose.AppButton
@@ -45,7 +41,8 @@ fun CredentialBox(
     onLoginClick: () -> Unit,
     onLoginPasswordTabClick: () -> Unit,
     onPhoneNumberChange: (String) -> Unit,
-    number: String
+    number: String,
+    loading: Boolean
 ){
     Box(
         modifier = Modifier.width(320.dp)
@@ -102,7 +99,8 @@ fun CredentialBox(
             AppButton(
                 text = "Continue",
                 enabled = buttonEnabled,
-                onClick = {onButtonClick}
+                onClick = {onButtonClick()},
+                loading = loading
             )
 
             if (authMode is AuthMode.Login){

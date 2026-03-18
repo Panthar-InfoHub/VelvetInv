@@ -111,14 +111,14 @@ fun PersonalDetailScreen(
                 item(key = "slider") {
                     RetirementYearSlider(
                         onSliderUpdate = viewModel::onSliderChange,
-                        selectedYear = details.retirementYear
+                        selectedYear = details.effectiveRetirementYear
                     )
                 }
 
                 item(key = "card1") {
                     PersonalDetailsFinancialBox(
                         label = "Retirement Year",
-                        value = details.retirementYear.toString(),
+                        value = details.effectiveRetirementYear?.toString()?:"Unavailable",
                         icon = Res.drawable.icon_callender,
                         backgroundColor = bgColor3,
                         labelColor = Secondary
@@ -136,7 +136,7 @@ fun PersonalDetailScreen(
                 item(key = "card3") {
                     PersonalDetailsFinancialBox(
                         label = "Years to Save",
-                        value = details.savingYears.toString(),
+                        value = details.savingYears?.toString()?:"Unavailable",
                         icon = Res.drawable.icon_clock,
                         backgroundColor = bgColor2,
                         labelColor = bgColor1

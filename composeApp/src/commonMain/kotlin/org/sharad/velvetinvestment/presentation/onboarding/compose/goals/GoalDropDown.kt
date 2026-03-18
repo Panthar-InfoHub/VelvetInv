@@ -31,8 +31,7 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.domain.GoalTypes
-import org.sharad.velvetinvestment.domain.LoanTypes
+import org.sharad.velvetinvestment.presentation.goals.uimodels.GoalOption
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
 import velvet.composeapp.generated.resources.Res
@@ -40,11 +39,12 @@ import velvet.composeapp.generated.resources.arrow_down
 
 @Composable
 fun GoalSelectionDropDown(
-    value: GoalTypes?,
-    onValueChange:(GoalTypes)->Unit,
-    placeHolder:String,
-    label:String,
-    modifier: Modifier = Modifier
+    value: GoalOption?,
+    onValueChange: (GoalOption) -> Unit,
+    placeHolder: String,
+    label: String,
+    modifier: Modifier = Modifier,
+    options: List<GoalOption>
 ){
     var extended by remember { mutableStateOf(false) }
     Column(
@@ -76,6 +76,7 @@ fun GoalSelectionDropDown(
             )
             if (extended){
                 GoalDropDownContent(
+                    options=options,
                     onSelected={it->
                         onValueChange(it)
                         extended=false
@@ -87,16 +88,16 @@ fun GoalSelectionDropDown(
 }
 
 @Composable
-fun GoalDropDownContent(onSelected: (GoalTypes) -> Unit) {
+fun GoalDropDownContent(onSelected: (GoalOption) -> Unit, options: List<GoalOption>) {
 
     Column(
         modifier = Modifier.fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
     ) {
 
-        GoalTypes.entries.forEach { it->
+        options.forEach { it->
             Text(
-                text = it.displayName,
+                text = it.title,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 fontFamily = Poppins,
@@ -112,7 +113,7 @@ fun GoalDropDownContent(onSelected: (GoalTypes) -> Unit) {
 }
 
 @Composable
-fun GoalDropDownHeader(value: GoalTypes?, placeHolder: String, onClick: () -> Unit, extended: Boolean) {
+fun GoalDropDownHeader(value: GoalOption?, placeHolder: String, onClick: () -> Unit, extended: Boolean) {
     val animatedIcon by animateFloatAsState(
         targetValue = if (extended) 180f else 0f,
         label = "arrow")
@@ -126,7 +127,7 @@ fun GoalDropDownHeader(value: GoalTypes?, placeHolder: String, onClick: () -> Un
     ) {
 
         Text(
-            text= value?.displayName ?: placeHolder,
+            text= value?.title ?: placeHolder,
             style = subHeadingMedium,
             color = if (value==null) titleColor.copy(alpha = 0.5f) else Primary,
             modifier = Modifier.weight(1f).padding(start = 16.dp)

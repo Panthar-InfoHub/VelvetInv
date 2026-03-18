@@ -32,17 +32,19 @@ import org.sharad.velvetinvestment.utils.theme.titlesStyle
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RetirementYearSlider(
-    modifier:Modifier= Modifier,
-    onSliderUpdate:(Int)-> Unit,
-    selectedYear:Int
+    modifier: Modifier = Modifier,
+    onSliderUpdate: (Int) -> Unit,
+    selectedYear: Int?
 ){
 
-    var sliderPosition by remember{ mutableStateOf(0f) }
     val currentYear= DateTimeUtils.getCurrentYear()
-    val finalYear= currentYear+50
+    val sliderPosition = selectedYear
+        ?.let { (it - currentYear).coerceIn(0, 60).toFloat() }
+        ?: 0f
+    val finalYear= currentYear+60
     val sliderState= rememberSliderState(
         value = sliderPosition,
-        valueRange = 0f..50f,
+        valueRange = 0f..60f,
         onValueChangeFinished = {
             onSliderUpdate(sliderPosition.toInt()+ currentYear)
         }
@@ -68,8 +70,9 @@ fun RetirementYearSlider(
             state = sliderState,
             modifier = Modifier.fillMaxWidth(),
 
+
             thumb = {it->
-                onSliderUpdate(currentYear+it.value.toInt())
+                selectedYear?.let{_-> onSliderUpdate(currentYear + it.value.toInt()) }
                 Box(
                     modifier = Modifier
                         .size(24.dp)

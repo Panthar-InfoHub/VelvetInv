@@ -2,22 +2,39 @@ package org.sharad.velvetinvestment.utils.networking
 
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
+import io.ktor.util.network.UnresolvedAddressException
 
 import kotlinx.serialization.SerializationException
-import org.sharad.velvetinvestment.data.remote.data.ServerError.ServerError
+import org.sharad.velvetinvestment.data.remote.model.ServerError.ServerError
 
 suspend inline fun <reified T> safeRequest(
     execute: () -> HttpResponse
-): NetworkResponse<T, Error> {
+): NetworkResponse<T, ErrorDomain> {
 
     val response = try {
         execute()
+    } catch (e: UnresolvedAddressException) {
+        return NetworkResponse.Error(
+            ErrorDomain(
+                code = -1,
+                message = "No internet connection",
+                type = "NO_INTERNET"
+            )
+        )
+    } catch (e: SerializationException) {
+        return NetworkResponse.Error(
+            ErrorDomain(
+                code = -1,
+                message = "Serialization error",
+                type = "SERIALIZATION"
+            )
+        )
     } catch (e: Exception) {
         return NetworkResponse.Error(
             ErrorDomain(
                 code = -1,
-                message = "Network error",
-                type = "NETWORK"
+                message = "Unknown network error",
+                type = "UNKNOWN"
             )
         )
     }
@@ -37,24 +54,38 @@ suspend inline fun <reified T> safeRequest(
         }
 
     } else {
-
         parseServerError(response)
-
     }
 }
 
 suspend inline fun safeUnitRequest(
     execute: () -> HttpResponse
-): NetworkResponse<Unit, Error> {
+): NetworkResponse<Unit, ErrorDomain> {
 
     val response = try {
         execute()
+    } catch (e: UnresolvedAddressException) {
+        return NetworkResponse.Error(
+            ErrorDomain(
+                code = -1,
+                message = "No internet connection",
+                type = "NO_INTERNET"
+            )
+        )
+    } catch (e: SerializationException) {
+        return NetworkResponse.Error(
+            ErrorDomain(
+                code = -1,
+                message = "Serialization error",
+                type = "SERIALIZATION"
+            )
+        )
     } catch (e: Exception) {
         return NetworkResponse.Error(
             ErrorDomain(
                 code = -1,
-                message = "Network error",
-                type = "NETWORK"
+                message = "Unknown network error",
+                type = "UNKNOWN"
             )
         )
     }
@@ -68,7 +99,7 @@ suspend inline fun safeUnitRequest(
 
 suspend fun parseServerError(
     response: HttpResponse
-): NetworkResponse.Error<Error> {
+): NetworkResponse.Error<ErrorDomain> {
 
     return try {
 

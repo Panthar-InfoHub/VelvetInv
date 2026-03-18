@@ -1,54 +1,93 @@
 package org.sharad.velvetinvestment.presentation.firereport.uimodels
 
-import org.sharad.velvetinvestment.domain.models.fire.FireCombinedDomainModel
-import org.sharad.velvetinvestment.domain.models.fire.FireReportDomainModel
-import org.sharad.velvetinvestment.domain.models.fire.TargetProjection
+import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
+import org.sharad.velvetinvestment.presentation.firereport.compose.LineChartData
+import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
+import org.sharad.velvetinvestment.utils.trimTo
 
-fun FireReportDomainModel.toUI(): FireReportUIModel {
-    return FireReportUIModel(
-        fireNumber = fireNumber,
-        fireNumberAnnualGrowth = fireNumberAnnualGrowth,
-        fireProgress = fireProgress,
-        fireProgressThisYear = fireProgressThisYear,
-        yearsToFire = yearsToFire,
-        yearsToFirePercentage = yearsToFirePercentage,
-        currentNetWorth = currentNetWorth,
-        fireInsights = fireInsights,
-        trend = trend.map {
-            QuarterlyTrendUI(
-                quarter = it.quarter,
-                netWorth = it.netWorth,
-                fireProgress = it.fireProgress
-            )
-        },
-        netWorthGrowth = netWorthGrowth,
-        progressIncrement = progressIncrement,
-        projectionList = projectionList.map {
-            FireProjectionUI(
-                year = it.year,
-                age = it.age,
-                firePercent = it.firePercent,
-                currentPortfolio = it.currentPortFolio,
-                netOutflow = it.netOutflow,
-                goals = it.goals,
-                fireNumber = it.fireNumber
-            )
-        },
-        targetProjection = targetProjection.toUI()
+fun FireReportDomain.toUiModel(
+    includeEmi: Boolean,
+    yearLimit: Int
+): FireReportUiModel {
+
+    return FireReportUiModel(
+        startYear = startYear,
+        endYear = endYear,
+
+        portfolioChart = portfolioChart
+            .take(yearLimit)
+            .map {
+                PortfolioProjectionPointUiModel(
+                    year = it.year,
+                    portfolioValue =
+                        if (includeEmi) it.portfolioValue.includeEmi
+                        else it.portfolioValue.excludeEmi
+                )
+            },
+
+        firePercentageChart = firePercentageChart
+            .take(yearLimit)
+            .map {
+                FirePercentagePointUiModel(
+                    year = it.year,
+                    percentage =
+                        if (includeEmi) it.percentage.includeEmi
+                        else it.percentage.excludeEmi
+                )
+            },
+
+        projectionRows = projectionRows
+            .take(yearLimit)
+            .map { row ->
+
+                FireProjectionRowUiModel(
+                    year = row.year,
+                    income = row.income,
+
+                    expenses =
+                        if (includeEmi) row.expenses.includeEmi
+                        else row.expenses.excludeEmi,
+
+                    yearlyGoalSip = row.yearlyGoalSip,
+
+                    surplusMoney =
+                        if (includeEmi) row.surplusMoney.includeEmi
+                        else row.surplusMoney.excludeEmi,
+
+                    goalsFutureValue = row.goalsFutureValue,
+
+                    portfolioValue =
+                        if (includeEmi) row.portfolioValue.includeEmi
+                        else row.portfolioValue.excludeEmi,
+
+                    fireNumber =
+                        if (includeEmi) row.fireNumber.includeEmi
+                        else row.fireNumber.excludeEmi,
+
+                    firePercentage =
+                        if (includeEmi) row.firePercentage.includeEmi
+                        else row.firePercentage.excludeEmi,
+                )
+            }
     )
 }
 
-fun FireCombinedDomainModel.toUI(): FireCombinedUIState {
-    return FireCombinedUIState(
-        emiIncluded = emiIncluded.toUI(),
-        emiExcluded = emiExcluded.toUI()
-    )
+fun List<PortfolioProjectionPointUiModel>.toMapPoints():List<LineChartData>{
+    return this.map {
+        LineChartData(
+            floatingLabel = "₹ ${formatMoneyWithUnits(it.portfolioValue)}",
+            value = it.portfolioValue.toDouble(),
+            axisLabel = it.year.toString()
+        )
+    }
 }
 
-fun TargetProjection.toUI(): TargetProjectionUi {
-    return TargetProjectionUi(
-        targetYear = targetYear,
-        projectedPortfolio = projectedPortfolio,
-        fireProgress = fireProgress
-    )
+fun List<FirePercentagePointUiModel>.toFireMapPoints():List<LineChartData>{
+    return this.map {
+        LineChartData(
+            floatingLabel = "${ it.percentage.trimTo(1) }%",
+            value = it.percentage,
+            axisLabel = it.year.toString()
+        )
+    }
 }

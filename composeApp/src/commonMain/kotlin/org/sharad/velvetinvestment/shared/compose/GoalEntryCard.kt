@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,11 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
-import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.velvetinvestment.domain.GoalTypes
 import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.progressPercent
 import org.sharad.velvetinvestment.shared.CustomProgressFillBar
@@ -44,15 +40,16 @@ import velvet.composeapp.generated.resources.ruppee_circle
 fun GoalEntryCard(goal: GoalsSummaryDomain, onClick: () -> Unit) {
 
     val tintColor=goal.goalTypes.color
-    val icon=when(goal.goalTypes){
-        GoalTypes.WEALTH_BUILDING -> {
-            Res.drawable.ruppee_circle
-        }
-        GoalTypes.RETIREMENT -> {Res.drawable.icon_callender}
-        GoalTypes.EDUCATION -> {Res.drawable.education_icon}
-        GoalTypes.MARRIAGE -> { Res.drawable.ring_icon }
-        GoalTypes.CUSTOM_GOAL -> { Res.drawable.plus_icon }
-    }
+//    val icon=when(goal.goalTypes){
+//        GoalTypes.WEALTH_BUILDING -> {
+//            Res.drawable.ruppee_circle
+//        }
+//        GoalTypes.RETIREMENT -> {Res.drawable.icon_callender}
+//        GoalTypes.EDUCATION -> {Res.drawable.education_icon}
+//        GoalTypes.MARRIAGE -> { Res.drawable.ring_icon }
+//        GoalTypes.CUSTOM_GOAL -> { Res.drawable.plus_icon }
+//    }
+    val icon= Res.drawable.icon_callender
 
 
     Box(
@@ -99,7 +96,7 @@ fun GoalEntryCard(goal: GoalsSummaryDomain, onClick: () -> Unit) {
                        modifier = Modifier.weight(1f).fillMaxWidth()
                    ) {
                        Text(
-                           text=goal.goalTypes.displayName,
+                           text=goal.goalTypes.title,
                            style = subHeading,
                            color = tintColor
                        )

@@ -17,19 +17,33 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.data.remote.model.onboarding.Assets
+import org.sharad.velvetinvestment.data.remote.model.onboarding.Finance
+import org.sharad.velvetinvestment.data.remote.model.onboarding.Insurance
+import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
+import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
+import org.sharad.velvetinvestment.data.remote.model.onboarding.Profile
+import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
-import org.sharad.velvetinvestment.presentation.onboarding.models.GoalInfo
+import org.sharad.velvetinvestment.presentation.onboarding.models.AssetFlowDetails
+import org.sharad.velvetinvestment.presentation.onboarding.models.FinancialFlowDetails
 import org.sharad.velvetinvestment.presentation.onboarding.models.LoanInfo
+import org.sharad.velvetinvestment.presentation.onboarding.models.PersonalDetails
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.OnBoardingConfirmationViewModel
 import org.sharad.velvetinvestment.utils.AppBackHandler
+import org.sharad.velvetinvestment.utils.DateTimeUtils.epochToYYYYMMdd
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
@@ -56,10 +70,18 @@ fun OnBoardingConfirmationScreen(
     termLifeCover: Long,
     totalInsuranceLiabilities: Long,
 
-    goals: List<GoalInfo>,
+    goals: List<GoalRequest>,
     pv: PaddingValues,
-    onPrev: () -> Boolean
+    onPrev: () -> Boolean,
+    onNext: () -> Unit,
+    personalDetails: PersonalDetails,
+    healthInsurance: Long,
+    financiaData: FinancialFlowDetails,
+    assetsInfo: AssetFlowDetails
 ) {
+
+    val viewModel: OnBoardingConfirmationViewModel= koinViewModel()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
 
     AppBackHandler(true){
         onPrev()
@@ -140,9 +162,9 @@ fun OnBoardingConfirmationScreen(
                     SectionCard(title = "Additional Loans (${additionalLoans.size})") {
                         additionalLoans.forEach {
                             KeyValueRowWithContext(
-                                label = it.loanType?.displayName ?: "Loan",
-                                value = "₹${formatMoneyWithUnits(it.outstandingAmount ?: 0L)}",
-                                context = "EMI: ₹${formatMoneyWithUnits(it.monthlyEmi ?: 0L)}"
+                                label = it.loanType.displayName,
+                                value = "₹${formatMoneyWithUnits(it.outstandingAmount)}",
+                                context = "EMI: ₹${formatMoneyWithUnits(it.monthlyEmi)}"
                             )
                         }
                     }
@@ -166,11 +188,11 @@ fun OnBoardingConfirmationScreen(
                 item {
                     SectionCard(title = "Goals (${goals.size})") {
                         goals.forEach {
-                            KeyValueRow(
-                                label = it.name,
-                                value = it.targetYear?.toString() ?: "-",
-                                valueColor = Secondary
-                            )
+//                            KeyValueRow(
+//                                label = it.,
+//                                value = it.?.toString() ?: "-",
+//                                valueColor = Secondary
+//                            )
                         }
                     }
                 }
@@ -183,7 +205,46 @@ fun OnBoardingConfirmationScreen(
         }
 
         NextButtonFooter(
-            onClick = {},
+            onClick = {
+                viewModel.onboardUser(
+                    OnBoardingBodyDto(assets = Assets(
+                        cash_saving = assetsInfo.cash?:0L,
+                        fd =  assetsInfo.fixedDeposits?:0L,
+                        gold = assetsInfo.goldAndCommodities?:0L,
+                        mutual_funds =  assetsInfo.mutualFunds?:0L,
+                        real_estate =  assetsInfo.realEstate?:0L,
+                        stocks =  assetsInfo.stocksAndShares?:0L
+                    ),
+                    finance = Finance(
+                        annual_income = financiaData.annualIncome?:0L,
+                        expense_food = financiaData.foodExpense?:0L,
+                        expense_house = financiaData.houseExpense?:0L,
+                        expense_others = financiaData.otherExpense?:0L,
+                        expense_transportation = financiaData.transportExpense?:0L
+                    ),
+                    goals = emptyList(),
+                    insurance = Insurance(
+                        health_insurance = healthInsurance,
+                        life_insurance = termLifeCover
+                    ),
+                    loans = additionalLoans.map {it->
+                        Loan(
+                            loan_name = it.loanType.code,
+                            loan_type = it.loanType.name,
+                            monthly_emi = it.monthlyEmi,
+                            outstanding_amount = it.outstandingAmount,
+                            tenure_months = it.tenure
+                        )
+                    },
+                    profile = Profile(
+                        city = personalDetails.city,
+                        dob = epochToYYYYMMdd(personalDetails.dob),
+                        full_name = personalDetails.fullName
+                    ))
+                ){
+                    onNext()
+                }
+            },
             pv=pv,
             value = "Confirm"
         )

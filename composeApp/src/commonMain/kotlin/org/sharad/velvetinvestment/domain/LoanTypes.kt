@@ -1,10 +1,10 @@
 package org.sharad.velvetinvestment.domain
 
-enum class LoanTypes(val displayName: String) {
-    HOME_LOAN("Home Loan"),
-    VEHICLE_LOAN("Vehicle Loan"),
-    EDUCATION_LOAN("Education Loan"),
-    PERSONAL_LOAN("Personal Loan"),
-    FAMILY_LOAN("Family Loan"),
-    OTHER("Other")
+enum class LoanTypes(val displayName: String, val code:String) {
+    HOME_LOAN("Home Loan", "home"),
+    VEHICLE_LOAN("Vehicle Loan","car"),
+    EDUCATION_LOAN("Education Loan","education"),
+    PERSONAL_LOAN("Personal Loan", "personal"),
+    FAMILY_LOAN("Family Loan", "family"),
+    OTHER("Other", "other")
 }

@@ -59,7 +59,7 @@ fun ExpandableLoanEntry(
         ) {
 
             StablePart(
-                title=loanInfo.loanType?.displayName?:"",
+                title= loanInfo.loanType.displayName,
                 extended=extended,
                 onClick={extended=!extended},
                 onDeleteClick={ onDeleteClick()}
@@ -131,7 +131,7 @@ fun ExtendingPart(loanInfo: LoanInfo) {
                 fontFamily = Poppins
             )
             Text(
-                text="${loanInfo.tenure?:0} months",
+                text="${loanInfo.tenure} months",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 fontFamily = Poppins,

@@ -198,6 +198,17 @@ object DateTimeUtils {
 
         return "$day/$month/$year"
     }
+
+    fun epochToYYYYMMdd(epochMillis: Long?): String {
+        if (epochMillis == null) return ""
+        val instant = Instant.fromEpochMilliseconds(epochMillis)
+
+        val localDate = instant
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
+
+        return localDate.toString()
+    }
 }
 
 
