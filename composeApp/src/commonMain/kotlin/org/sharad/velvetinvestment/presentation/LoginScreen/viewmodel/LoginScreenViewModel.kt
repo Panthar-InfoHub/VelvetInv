@@ -113,6 +113,8 @@ class LoginScreenViewModel(
             repo.loginWithNumber(_phoneNumber.value)
                 .onSuccess {
                     _loadingLogin.value=false
+                    _otp.value=""
+                    startOtpTimer()
                     onSuccess()
                 }
                 .onError {
@@ -141,12 +143,6 @@ class LoginScreenViewModel(
     }
 
 
-    fun onButtonClick(
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    ){
-        onSuccess()
-    }
 
     fun startOtpTimer() {
         timerJob?.cancel()

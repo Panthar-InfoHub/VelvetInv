@@ -67,12 +67,15 @@ fun RetirementYearSlider(
             )
         }
         Slider(
-            state = sliderState,
+            value = sliderPosition,
+            onValueChange = {
+                onSliderUpdate(it.toInt() + currentYear)
+            },
             modifier = Modifier.fillMaxWidth(),
+            valueRange = 0f..60f,
 
 
             thumb = {it->
-                selectedYear?.let{_-> onSliderUpdate(currentYear + it.value.toInt()) }
                 Box(
                     modifier = Modifier
                         .size(24.dp)
@@ -84,8 +87,8 @@ fun RetirementYearSlider(
             track = { sliderScope ->
 
                 val progressFraction =
-                    (sliderState.value - sliderState.valueRange.start) /
-                            (sliderState.valueRange.endInclusive - sliderState.valueRange.start)
+                    (sliderScope.value - sliderScope.valueRange.start) /
+                            (sliderScope.valueRange.endInclusive - sliderScope.valueRange.start)
 
                 Box(
                     modifier = Modifier
@@ -130,7 +133,5 @@ fun RetirementYearSlider(
             )
 
         }
-
     }
-
 }

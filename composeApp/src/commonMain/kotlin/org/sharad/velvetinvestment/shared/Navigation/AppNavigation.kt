@@ -27,7 +27,7 @@ import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScre
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
 
 @Composable
-fun AppNavigation(){
+fun AppNavigation(onSignOut: () -> Unit) {
 
     Scaffold(
         containerColor = Color.White
@@ -93,7 +93,8 @@ fun AppNavigation(){
                     navigateToPersonalInfo={navController.navigate(Route.PersonalInformation)},
                     navigateToMutualFundDetailScreen = {
                         navController.navigate(Route.MutualFundDetails(it))
-                    }
+                    },
+                    onSignOut=onSignOut
                 )
             }
 

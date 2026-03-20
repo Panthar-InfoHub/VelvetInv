@@ -114,7 +114,12 @@ fun OnboardingScreenRoot(
             }
             if (shoeCASScreen){
                 CASUploadScreenDialog(
-                    hideDialog = { assetViewModel.hideCASDialog() }
+                    hideDialog = { assetViewModel.hideCASDialog() },
+                    onSuccess = {data->
+                        assetViewModel.onStocksAndSharesUpdate(data.summary.accounts.demat.total_value.toLong().toString())
+                        insuranceCoverageViewModel.onLifeInsuranceAmountChange(data.summary.accounts.insurance.total_value.toLong().toString())
+                        assetViewModel.onMutualFundsUpdate(data.summary.accounts.mutual_funds.total_value.toLong().toString())
+                    }
                 )
             }
         }

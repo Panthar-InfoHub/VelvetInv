@@ -4,6 +4,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,6 +12,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import org.sharad.velvetinvestment.shared.Navigation.BaseNavigation
 import org.sharad.velvetinvestment.shared.rememberWindowSize
 import org.sharad.velvetinvestment.utils.Log
@@ -44,7 +47,8 @@ fun App() {
             snackbarHost = {
                 SnackbarHost(
                     hostState = snackbarHostState
-                ) { data ->
+                )
+                { data ->
                     val containerColor = when (currentSnackBar) {
                         is SnackBarType.Success -> Color(0xFF2E7D32)
                         is SnackBarType.Error -> Color(0xFFC62828)
@@ -53,10 +57,17 @@ fun App() {
                         is SnackBarType.Neutral, null -> Color.DarkGray
                     }
                     Snackbar(
-                        snackbarData = data,
                         containerColor = containerColor,
-                        contentColor = Color.White
-                    )
+                        contentColor = Color.White,
+                    ){
+                        Text(
+                            text = data.visuals.message,
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 0.3.sp
+                        )
+                    }
                 }
             }
         ) { paddingValues ->

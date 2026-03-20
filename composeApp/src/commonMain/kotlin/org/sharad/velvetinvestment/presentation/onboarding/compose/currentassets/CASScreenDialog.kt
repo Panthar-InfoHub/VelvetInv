@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +17,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -26,14 +30,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.data.remote.model.casreport.CASResponseDto
+import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CASParserViewModel
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.utils.AppBackHandler
+import org.sharad.velvetinvestment.utils.rememberDocumentManager
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -44,11 +54,22 @@ import velvet.composeapp.generated.resources.icon_cross
 @Composable
 fun CASUploadScreenDialog(
     hideDialog: () -> Unit,
+    onSuccess:(CASResponseDto)->Unit
 ) {
 
     AppBackHandler(true) {
         hideDialog()
     }
+
+
+    val viewModel: CASParserViewModel= koinViewModel()
+    val file by viewModel.casFile.collectAsStateWithLifecycle()
+    val password by viewModel.password.collectAsStateWithLifecycle()
+    val loading by viewModel.casLoadingState.collectAsStateWithLifecycle()
+    val pdfPicker = rememberDocumentManager {
+        viewModel.onFileChange(it)
+    }
+
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -121,6 +142,11 @@ fun CASUploadScreenDialog(
                         )
                         .clip(RoundedCornerShape(10.dp))
                         .background(Color.White, RoundedCornerShape(10.dp))
+                        .clickable(
+                            onClick = {
+                                pdfPicker.launch()
+                            }
+                        )
                         .animateContentSize()
                 )
                 {
@@ -164,7 +190,7 @@ fun CASUploadScreenDialog(
                                     color = Primary
                                 )
                                 Text(
-                                    text = "Upload your existing CAS file",
+                                    text = if (file==null) "Upload your existing CAS file" else "CAS Uploaded",
                                     style = titlesStyle,
                                     color = titleColor,
                                     maxLines = 1
@@ -181,6 +207,17 @@ fun CASUploadScreenDialog(
                             )
                         }
                     }
+                }
+
+                AnimatedVisibility(file!=null){
+                    OnBoardingTextField(
+                        value = password,
+                        onValueChange = viewModel::onPasswordChange,
+                        placeHolder = "Enter File Password",
+                        label = "Password",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
 
                 Box(
@@ -217,8 +254,14 @@ fun CASUploadScreenDialog(
 
                 AppButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = {},
-                    text = "Proceed"
+                    onClick = {
+                        viewModel.uploadPdfFile {
+                            onSuccess(it)
+                            hideDialog()
+                        }
+                    },
+                    text = "Proceed",
+                    loading = loading
                 )
 
             }

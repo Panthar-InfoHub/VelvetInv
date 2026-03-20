@@ -60,7 +60,9 @@ fun BaseNavigation(windowSize: WindowSize, pv: PaddingValues) {
         }
 
         composable<Route.MainAppFlow> {
-            AppNavigation()
+            AppNavigation(
+                onSignOut={navController.navigate(Route.LoginFlow){popUpTo(0) { inclusive=true }} }
+            )
         }
     }
 

@@ -118,8 +118,8 @@ class GoalScreenViewModel : ViewModel() {
                 val cost = (values[7] as String).toLongOrNull()
 
                 name.isNotBlank() &&
-                        age != null &&
-                        year != null &&
+                        age != null && age > 0 && age<100
+                        year != null && year >= DateTimeUtils.getCurrentYear()
                         cost != null
             }
 
@@ -136,7 +136,8 @@ class GoalScreenViewModel : ViewModel() {
                         lifeExpectancy != null &&
                         expense != null &&
                         postReturn != null &&
-                        retirementAge > currentAge
+                        retirementAge > currentAge &&
+                        lifeExpectancy > retirementAge
             }
 
             GoalType.WealthBuilding -> {
@@ -144,7 +145,8 @@ class GoalScreenViewModel : ViewModel() {
                 val years = (values[6] as String).toIntOrNull()
                 val cost = (values[7] as String).toLongOrNull()
 
-                years != null && cost != null
+                years != null && cost != null && years >= DateTimeUtils.getCurrentYear()
+
             }
         }
     }.stateIn(

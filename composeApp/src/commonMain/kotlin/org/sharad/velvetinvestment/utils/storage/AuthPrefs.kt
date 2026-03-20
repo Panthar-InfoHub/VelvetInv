@@ -13,7 +13,6 @@ class AuthPrefs(
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
         private const val KEY_ONBOARDING_STEP = "onboarding_step"
 
-        private const val KEY_AUTHCOMPLETE= "auth_complete"
     }
 
     fun setBearerToken(token: String) {
@@ -64,13 +63,6 @@ class AuthPrefs(
         return prefs.getInt(KEY_ONBOARDING_STEP) ?: 0
     }
 
-    fun setAuthComplete(completed: Boolean) {
-        prefs.setBoolean(KEY_AUTHCOMPLETE, completed)
-    }
-
-    fun isAuthComplete(): Boolean {
-        return prefs.getBoolean(KEY_AUTHCOMPLETE) ?: false
-    }
 
 
     fun clearAuth() {
@@ -80,6 +72,5 @@ class AuthPrefs(
         prefs.remove(KEY_LOGIN_STATUS)
         prefs.remove(KEY_ONBOARDING_COMPLETED)
         prefs.remove(KEY_ONBOARDING_STEP)
-        prefs.remove(KEY_AUTHCOMPLETE)
     }
 }

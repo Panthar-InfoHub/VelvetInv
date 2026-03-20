@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.presentation.LoginScreen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -22,11 +24,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScreenViewModel
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.OtpGrid
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 
 @Composable
@@ -41,12 +46,8 @@ fun OtpScreen(
     val number by viewModel.phoneNumber.collectAsStateWithLifecycle()
     val resendTime by viewModel.timer.collectAsStateWithLifecycle()
     val loading by viewModel.loadingOtp.collectAsStateWithLifecycle()
+    val scope= rememberCoroutineScope()
 
-    LaunchedEffect(resendTime){
-        if (resendTime==30){
-            viewModel.startOtpTimer()
-        }
-    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -68,14 +69,14 @@ fun OtpScreen(
             item {
                 Text(
                     buildAnnotatedString {
-                        append("A verification code has been sent to ")
+                        append("A verification code has been sent to\n")
 
                         withStyle(
                             SpanStyle(
                                 color = Color.Black,
                             )
                         ) {
-                            append(number)
+                            append("+91 $number")
                         }
                     },
                     style = titlesStyle,
@@ -104,10 +105,24 @@ fun OtpScreen(
                 }else
                 {
                     Text(
-                        text = "Resend Otp",
+                        text = "Resend OTP",
                         style = MaterialTheme.typography.displayLarge,
                         color = Primary,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable(
+                            onClick = {
+                                viewModel.onSendOtpClick(
+                                    onSuccess = {
+                                        scope.launch{
+                                            SnackBarController.showSnackBar(SnackBarType.Success("OTP sent successfully"))
+                                        }
+                                                },
+                                    onFailure = {
+                                        scope.launch{ SnackBarController.showSnackBar(SnackBarType.Error(it)) }
+                                    }
+                                )
+                            }
+                        )
                     )
                 }
             }
@@ -115,7 +130,7 @@ fun OtpScreen(
             item {
                 AppButton(
                     modifier= Modifier.fillMaxWidth(),
-                    text = "Verify Otp",
+                    text = "Verify OTP",
                     onClick = {
                         viewModel.onVerifyOtpClickClick(
                             onFailure = {}

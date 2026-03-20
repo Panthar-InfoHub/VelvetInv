@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Savings(
-    val emi_exclude: Int,
-    val emi_include: Int
+    val emi_exclude: Long,
+    val emi_include: Long
 )

@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 // -----------------------------
 // Base Goal Interface
 // -----------------------------
-@Serializable
-sealed interface GoalRequestDto {
+
+interface GoalRequestDto {
     val goal_type_id: Int
     val inflation_rate: Int
     val return_rate: Int
@@ -29,6 +29,18 @@ data class ChildEducationGoalRequest(
     val current_goal_cost: Long
 ) : GoalRequestDto
 
+@Serializable
+data class ChildMarriageGoalRequest(
+    override val goal_type_id: Int = 2,
+    override val inflation_rate: Int,
+    override val return_rate: Int,
+    override val current_saved_amount: Long,
+
+    val child_name: String,
+    val child_age: Int,
+    val years_left: Int,
+    val current_goal_cost: Long
+) : GoalRequestDto
 
 // -----------------------------
 // Goal Type 3 - Retirement

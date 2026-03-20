@@ -23,6 +23,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,12 +32,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.data.remote.repository.UserAuthenticationRepo
+import org.sharad.velvetinvestment.domain.repository.UserAuth
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.SnackBarType
+import org.sharad.velvetinvestment.utils.networking.onError
+import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
@@ -48,7 +58,13 @@ import velvet.composeapp.generated.resources.signupelement
 import velvet.composeapp.generated.resources.termcondition
 
 @Composable
-fun ProfileScreen(navigateToNotification: () -> Unit, navigateToPersonalInfo: () -> Unit) {
+fun ProfileScreen(
+    navigateToNotification: () -> Unit,
+    navigateToPersonalInfo: () -> Unit,
+    onSignOut: () -> Unit
+) {
+    val authRepo = koinInject<UserAuth>()
+    val scope= rememberCoroutineScope()
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -110,7 +126,19 @@ fun ProfileScreen(navigateToNotification: () -> Unit, navigateToPersonalInfo: ()
         }
 
         item {
-            SignOutButton()
+            SignOutButton(
+                onClick={
+                    scope.launch {
+                        authRepo.signOut()
+                            .onSuccess {
+                                onSignOut()
+                            }
+                            .onError {
+                                SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                            }
+                    }
+                }
+            )
         }
     }
   }
@@ -317,14 +345,14 @@ fun RowItem(
 }
 
 @Composable
-fun SignOutButton() {
+fun SignOutButton(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 35.dp)
     ) {
         Button(
-            onClick = {},
+            onClick = onClick,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFF0600).copy(0.1f),
                 contentColor = Color(0xFFFF0600)

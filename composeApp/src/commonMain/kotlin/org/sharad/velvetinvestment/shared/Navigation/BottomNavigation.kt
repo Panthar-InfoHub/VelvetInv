@@ -33,7 +33,8 @@ fun BottomNavigation(
     navigateToNotification: () -> Unit,
     navigateToPersonalInfo: () -> Unit,
     navigateToCategoryFDScreen: () -> Unit,
-    navigateToMutualFundDetailScreen: (String) -> Unit
+    navigateToMutualFundDetailScreen: (String) -> Unit,
+    onSignOut: () -> Unit
 ) {
 
     val navController= rememberNavController()
@@ -124,7 +125,8 @@ fun BottomNavigation(
             composable<Route.Profile> {
                 ProfileScreen(
                     navigateToNotification=navigateToNotification,
-                    navigateToPersonalInfo=navigateToPersonalInfo
+                    navigateToPersonalInfo=navigateToPersonalInfo,
+                    onSignOut=onSignOut
                 )
             }
 

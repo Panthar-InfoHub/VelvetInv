@@ -8,16 +8,26 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.data.remote.model.casreport.CASResponseDto
+import org.sharad.velvetinvestment.data.remote.repository.CASRepo
 import org.sharad.velvetinvestment.presentation.onboarding.models.AssetFlowDetails
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.SnackBarType
+import org.sharad.velvetinvestment.utils.networking.onError
+import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.parseSafeLong
 
-class CurrentAssetViewModel: ViewModel() {
+class CurrentAssetViewModel(
+): ViewModel() {
 
     private val _assetInfo = MutableStateFlow(AssetFlowDetails())
     val assetInfo = _assetInfo.asStateFlow()
 
     private val _showCASDialog= MutableStateFlow(false)
     val showCASDialog= _showCASDialog.asStateFlow()
+
+
 
 
     val totalAssets: StateFlow<Long> =
@@ -94,5 +104,6 @@ class CurrentAssetViewModel: ViewModel() {
     fun hideCASDialog(){
         _showCASDialog.value=false
     }
+
 
 }

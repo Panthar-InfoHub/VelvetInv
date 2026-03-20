@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GoalHit(
-    val amount: Int,
+    val amount: Long,
     val label: String
 )

@@ -31,6 +31,7 @@ import org.sharad.velvetinvestment.shared.DatePickerSelector
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
 import org.sharad.velvetinvestment.utils.DateTimeUtils
+import org.sharad.velvetinvestment.utils.Log
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_callender
 import velvet.composeapp.generated.resources.icon_clock
@@ -47,6 +48,9 @@ fun PersonalDetailScreen(
     val details by viewModel.personalDetails.collectAsStateWithLifecycle()
     val showDateSelector by viewModel.showDateSelector.collectAsStateWithLifecycle()
     val buttonEnabled by viewModel.buttonEnabled.collectAsStateWithLifecycle()
+
+    Log("PersonalDetailScreen", "${details.effectiveRetirementYear}")
+
 
 
 
@@ -171,7 +175,7 @@ fun PersonalDetailScreen(
 }
 
 @Composable
-fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues, value: String = "Next", enabled: Boolean=true) {
+fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues, value: String = "Next", enabled: Boolean=true, loading: Boolean=false) {
     Box(
         modifier = Modifier.fillMaxWidth()
             .shadow(elevation = 28.dp)
@@ -182,7 +186,8 @@ fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues, value: String = "Ne
             modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 16.dp+pv.calculateBottomPadding()),
             onClick = onClick,
             enabled = enabled,
-            text = value
+            text = value,
+            loading = loading
         )
     }
 }

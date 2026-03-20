@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.utils.di
 
 import io.ktor.client.HttpClient
 import org.koin.dsl.module
+import org.sharad.velvetinvestment.data.remote.repository.CASRepo
 import org.sharad.velvetinvestment.data.remote.repository.UserAuthenticationRepo
 import org.sharad.velvetinvestment.data.remote.repository.UserFinanceRepo
 import org.sharad.velvetinvestment.data.remote.repository.dummy.DummyFDRepositoryPortFolio
@@ -25,6 +26,7 @@ val repositoryModule = module {
     single<MutualFundRepository> {
         DummyMutualFundRepository()
     }
+    single { CASRepo(get()) }
 
     single<FDRepositoryPortFolio> {
         DummyFDRepositoryPortFolio()

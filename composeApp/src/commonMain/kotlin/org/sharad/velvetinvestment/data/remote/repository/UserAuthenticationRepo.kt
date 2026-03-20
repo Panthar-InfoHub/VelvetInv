@@ -8,7 +8,6 @@ import org.sharad.velvetinvestment.data.remote.mapper.toLoginDto
 import org.sharad.velvetinvestment.data.remote.model.auth.sendotp.SendOtpDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpBodyDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpDto
-import org.sharad.velvetinvestment.data.remote.model.firereport.FireReportDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
 import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
 import org.sharad.velvetinvestment.domain.repository.UserAuth
@@ -82,7 +81,7 @@ class UserAuthenticationRepo(
                 authPrefs.setBearerToken(dto.token)
                 authPrefs.setRefreshToken(dto.refresh_token)
                 authPrefs.setUserId(dto.user.user_id)
-                authPrefs.setOnboardingCompleted(dto.user.metadata.is_onboarding_complete)
+                authPrefs.setOnboardingCompleted(dto.user.metadata.is_onboarding_completed)
                 authPrefs.setOnboardingStep(dto.user.metadata.onboarding_stage)
                 authPrefs.setLoggedIn(true)
                 NetworkResponse.Success(
@@ -103,7 +102,8 @@ class UserAuthenticationRepo(
     }
 
     override suspend fun signOut(): NetworkResponse<Unit, ErrorDomain> {
-        TODO("Not yet implemented")
+        authPrefs.clearAuth()
+        return NetworkResponse.Success(Unit)
     }
 
     override suspend fun onBoardUser(data: OnBoardingBodyDto): NetworkResponse<Unit, ErrorDomain> {

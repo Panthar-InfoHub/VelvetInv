@@ -5,7 +5,7 @@ import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
 
 fun VerifyOtpDto.toLoginDto(): LoginDomain {
     return LoginDomain(
-        onboarded = this.data.user.metadata.is_onboarding_complete,
+        onboarded = this.data.user.metadata.is_onboarding_completed,
         onboardingStep = this.data.user.metadata.onboarding_stage,
         userId = this.data.user.user_id
     )

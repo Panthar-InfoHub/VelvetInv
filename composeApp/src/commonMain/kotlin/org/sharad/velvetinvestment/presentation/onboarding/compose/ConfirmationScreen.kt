@@ -29,6 +29,8 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.data.remote.mapper.toDto
+import org.sharad.velvetinvestment.data.remote.mapper.toJsonElement
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Assets
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Finance
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Insurance
@@ -188,11 +190,16 @@ fun OnBoardingConfirmationScreen(
                 item {
                     SectionCard(title = "Goals (${goals.size})") {
                         goals.forEach {
-//                            KeyValueRow(
-//                                label = it.,
-//                                value = it.?.toString() ?: "-",
-//                                valueColor = Secondary
-//                            )
+                            KeyValueRow(
+                                label = it.title,
+                                value = when(it){
+                                    is GoalRequest.ChildEducation -> formatMoneyWithUnits(it.currentGoalCost)
+                                    is GoalRequest.ChildMarriage -> formatMoneyWithUnits(it.currentGoalCost)
+                                    is GoalRequest.Retirement -> formatMoneyWithUnits(it.currentMonthlyExpense)
+                                    is GoalRequest.WealthBuildingGoal -> formatMoneyWithUnits(it.currentGoalCost)
+                                },
+                                valueColor = Secondary
+                            )
                         }
                     }
                 }
@@ -222,7 +229,7 @@ fun OnBoardingConfirmationScreen(
                         expense_others = financiaData.otherExpense?:0L,
                         expense_transportation = financiaData.transportExpense?:0L
                     ),
-                    goals = emptyList(),
+                    goals = goals.map { it.toDto() }.map { it.toJsonElement() },
                     insurance = Insurance(
                         health_insurance = healthInsurance,
                         life_insurance = termLifeCover
@@ -246,7 +253,8 @@ fun OnBoardingConfirmationScreen(
                 }
             },
             pv=pv,
-            value = "Confirm"
+            value = "Confirm",
+            loading=loading
         )
 
     }
