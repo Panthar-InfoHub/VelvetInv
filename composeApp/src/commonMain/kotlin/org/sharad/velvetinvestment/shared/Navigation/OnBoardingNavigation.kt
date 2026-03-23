@@ -191,27 +191,30 @@ fun OnBoardingNavigation(
         }
         composable<Route.OnBoardingGoal> {
             OnBoardingGoalScreen(
-                pv = pv,
                 viewModel = goalViewModel,
-                onPrev = {
-                    personalDetailsViewModel.previousStep()
-                    navController.popBackStack()
-                },
+                pv = pv,
                 onNext = {
                     personalDetailsViewModel.nextStep()
                     navController.navigate(Route.OnBoardingSummary)
                 },
+                onPrev = {
+                    personalDetailsViewModel.previousStep()
+                    navController.popBackStack()
+                },
                 onAddGoalClick = {
+                    goalViewModel.clearInputs()
                     navController.navigate(Route.OnBoardingGoalAdd)
-                }
+                },
+                dob = personalData.dob
             )
         }
 
         composable<Route.OnBoardingGoalAdd> {
             AddGoalScreen(
-                pv = pv,
                 viewModel = goalViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                retirementAgeMain = personalData.retirementAge,
+                pv = pv,
             )
         }
         composable<Route.OnBoardingSummary> {

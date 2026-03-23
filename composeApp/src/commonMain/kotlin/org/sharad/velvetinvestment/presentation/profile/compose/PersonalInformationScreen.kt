@@ -1,10 +1,8 @@
 package org.sharad.velvetinvestment.presentation.profile.compose
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -34,10 +31,9 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.arrowback_elements
 import velvet.composeapp.generated.resources.penvector
 
 @Composable

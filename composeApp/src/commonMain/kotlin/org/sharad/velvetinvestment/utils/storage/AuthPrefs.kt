@@ -13,6 +13,9 @@ class AuthPrefs(
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
         private const val KEY_ONBOARDING_STEP = "onboarding_step"
 
+        private const val KEY_USER_PHONE_NUMBER = "user_phone_number"
+        private const val KEY_FIRST_LAUNCH = "first_launch"
+
     }
 
     fun setBearerToken(token: String) {
@@ -63,7 +66,21 @@ class AuthPrefs(
         return prefs.getInt(KEY_ONBOARDING_STEP) ?: 0
     }
 
+    fun setPhoneNumber(phoneNumber: String) {
+        prefs.setString(KEY_USER_PHONE_NUMBER, phoneNumber)
+    }
 
+    fun getPhoneNumber(): String? {
+        return prefs.getString(KEY_USER_PHONE_NUMBER)
+    }
+
+    fun setFirstLaunch(firstLaunch: Boolean) {
+        prefs.setBoolean(KEY_FIRST_LAUNCH, firstLaunch)
+    }
+
+    fun isFirstLaunch(): Boolean {
+        return prefs.getBoolean(KEY_FIRST_LAUNCH) ?: true
+    }
 
     fun clearAuth() {
         prefs.remove(KEY_BEARER_TOKEN)
@@ -72,5 +89,6 @@ class AuthPrefs(
         prefs.remove(KEY_LOGIN_STATUS)
         prefs.remove(KEY_ONBOARDING_COMPLETED)
         prefs.remove(KEY_ONBOARDING_STEP)
+        prefs.remove(KEY_USER_PHONE_NUMBER)
     }
 }

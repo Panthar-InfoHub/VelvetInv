@@ -6,13 +6,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CASUploadScreenDialog
@@ -24,14 +27,25 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenV
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
 import org.sharad.velvetinvestment.shared.Navigation.OnBoardingNavigation
 import org.sharad.velvetinvestment.shared.Navigation.Route
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.SnackBarType
+import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
 @Composable
 fun OnboardingScreenRoot(
     onBoardingStep: Int = 1,
     onLoginSuccessNavigation: () -> Unit,
+    onSignOut: () -> Unit
 ) {
 
-
+    val authPrefs: AuthPrefs = koinInject()
+    LaunchedEffect(Unit){
+       if (authPrefs.getPhoneNumber()==null){
+           SnackBarController.showSnackBar(SnackBarType.Warning("Data Expired. Login Again."))
+           authPrefs.clearAuth()
+           onSignOut()
+       }
+    }
 
     val viewModel: PersonalDetailsScreenViewModel= koinViewModel { parametersOf(onBoardingStep) }
     val currentStep by viewModel.currentStep.collectAsStateWithLifecycle()

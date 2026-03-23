@@ -1,6 +1,5 @@
-package org.sharad.velvetinvestment.utils
+package org.sharad.velvetinvestment.shared
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.RectangleShape

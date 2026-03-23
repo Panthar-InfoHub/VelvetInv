@@ -41,7 +41,7 @@ import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium

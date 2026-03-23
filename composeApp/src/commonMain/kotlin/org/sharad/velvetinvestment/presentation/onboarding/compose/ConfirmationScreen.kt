@@ -47,7 +47,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.OnBoardingC
 import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.DateTimeUtils.epochToYYYYMMdd
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 
 @Composable
@@ -134,7 +134,7 @@ fun OnBoardingConfirmationScreen(
                     KeyValueRow(
                         "Net Surplus",
                         "₹${formatMoneyWithUnits(netSurplus)}",
-                        Secondary
+                        if (netSurplus > 0) Secondary else Color.Red
                     )
                 }
             }
@@ -150,12 +150,12 @@ fun OnBoardingConfirmationScreen(
                         "₹${formatMoneyWithUnits(totalLiabilities)}",
                         Color.Red
                     )
-                    HorizontalDivider()
-                    KeyValueRow(
-                        "Net Worth",
-                        "₹${formatMoneyWithUnits(netWorth)}",
-                        Secondary
-                    )
+//                    HorizontalDivider()
+//                    KeyValueRow(
+//                        "Net Worth",
+//                        "₹${formatMoneyWithUnits(netWorth)}",
+//                        Secondary
+//                    )
                 }
             }
 
@@ -180,7 +180,7 @@ fun OnBoardingConfirmationScreen(
                         "₹${formatMoneyWithUnits(termLifeCover)}"
                     )
                     KeyValueRow(
-                        "Total Liabilities",
+                        "Total Coverage",
                         "₹${formatMoneyWithUnits(totalInsuranceLiabilities)}"
                     )
                 }
@@ -246,7 +246,8 @@ fun OnBoardingConfirmationScreen(
                     profile = Profile(
                         city = personalDetails.city,
                         dob = epochToYYYYMMdd(personalDetails.dob),
-                        full_name = personalDetails.fullName
+                        full_name = personalDetails.fullName,
+                        email=personalDetails.email
                     ))
                 ){
                     onNext()

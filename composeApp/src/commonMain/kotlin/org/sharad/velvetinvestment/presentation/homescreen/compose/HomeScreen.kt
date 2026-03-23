@@ -51,8 +51,8 @@ import org.sharad.velvetinvestment.shared.compose.GoalEntryCard
 import org.sharad.velvetinvestment.shared.compose.GradientBackground
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.dottedBorder
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.dottedBorder
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res

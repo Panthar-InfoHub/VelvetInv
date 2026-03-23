@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,7 +24,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.appYellow
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -90,8 +89,8 @@ fun FeatureNavigationCards(
         ) {
             FeatureNavigationCard(
                 onClick = onBeatInflationClick,
-                title = "Start Small",
-                description = "Begin your journey with just ₹5000. ",
+                title = "Track F.I.R.E report",
+                description = "Begin your journey to financial freedom!",
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.thunder_icon),
@@ -105,8 +104,8 @@ fun FeatureNavigationCards(
             )
             FeatureNavigationCard(
                 onClick = onExpertPickedClick,
-                title = "Diversified",
-                description = "Balance risk with smart allocation",
+                title = "Insurance Planning",
+                description = "Allocate your budget wisely to manage risks.",
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.circe_chart_icon),

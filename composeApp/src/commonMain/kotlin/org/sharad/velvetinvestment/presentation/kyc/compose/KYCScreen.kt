@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.profile.compose
+package org.sharad.velvetinvestment.presentation.kyc.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +19,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,10 +31,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
@@ -41,9 +52,32 @@ import velvet.composeapp.generated.resources.plain_credit_card_rafiki_1
 @Composable
 fun KYCScreen(
     onBackClick: () -> Unit,
-    onKYCButtonClick: () -> Unit,
+    onKYCInitSuccess: () -> Unit,
     pv: PaddingValues
 ) {
+
+    val viewModel: KYCScreenViewModel= koinViewModel()
+    val loading by viewModel.isLoading.collectAsStateWithLifecycle()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    var hasLaunchedBrowser by remember { mutableStateOf(false) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START && hasLaunchedBrowser) {
+                onKYCInitSuccess()
+                hasLaunchedBrowser = false
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         BackHeader(heading = "KYC", onBackClick = onBackClick, showBack = true)
         LazyColumn(
@@ -94,9 +128,12 @@ fun KYCScreen(
         NextButtonFooter(
             value = "Complete your KYC",
             onClick = {
-                onKYCButtonClick()
+                viewModel.startKyc(){
+                    hasLaunchedBrowser=true
+                }
             },
-            pv= pv
+            pv= pv,
+            loading = loading
         )
 
     }

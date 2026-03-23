@@ -19,7 +19,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -29,9 +32,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.shared.compose.AppButton
+import org.sharad.velvetinvestment.utils.PermissionCallback
+import org.sharad.velvetinvestment.utils.PermissionStatus
+import org.sharad.velvetinvestment.utils.PermissionType
 import org.sharad.velvetinvestment.utils.WindowSize
+import org.sharad.velvetinvestment.utils.createPermissionsManager
+import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.background_mesh
 import velvet.composeapp.generated.resources.logo_app
@@ -39,6 +48,39 @@ import velvet.composeapp.generated.resources.splash_cover_1
 
 @Composable
 fun SplashScreen(windowSize: WindowSize, onGetStarted: () -> Unit) {
+
+    val prefs: AuthPrefs = koinInject()
+    var shouldAskPermission by remember {
+        mutableStateOf(prefs.isFirstLaunch())
+    }
+
+    val permissionManager = createPermissionsManager(
+        callback = object : PermissionCallback {
+            override fun onPermissionStatus(
+                permissionType: PermissionType,
+                status: PermissionStatus
+            ) {
+                when (status) {
+                    PermissionStatus.GRANTED -> {
+                        prefs.setFirstLaunch(true)
+                        shouldAskPermission = false
+                    }
+                    PermissionStatus.DENIED -> {
+                        prefs.setFirstLaunch(true)
+                        shouldAskPermission = false
+                    }
+                    PermissionStatus.SHOW_RATIONALE -> {
+                    }
+                }
+            }
+        }
+    )
+
+    if (shouldAskPermission) {
+        permissionManager.askPermission(PermissionType.NOTIFICATION)
+    }
+
+
 
     Box(
         modifier=Modifier.fillMaxSize(),

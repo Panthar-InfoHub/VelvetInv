@@ -22,7 +22,6 @@ class UserFinanceRepo(
     override suspend fun getFireReport(): NetworkResponse<FireReportDomain, ErrorDomain> {
         val response= safeRequest<FireReportDto> {
             client.get(getUrl("/fire-report")) {
-                bearerAuth(bearer)
                 parameter("include_emi", true)
                 parameter("projection_years",20)
             }

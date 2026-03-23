@@ -37,7 +37,7 @@ class GoalScreenViewModel : ViewModel() {
 
     private val _currentAge = MutableStateFlow("")
     private val _retirementAge = MutableStateFlow("")
-    private val _lifeExpectancy = MutableStateFlow("")
+    private val _lifeExpectancy = MutableStateFlow("75")
     private val _currentMonthlyExpense = MutableStateFlow("")
     private val _postRetirementReturn = MutableStateFlow("")
 
@@ -53,7 +53,6 @@ class GoalScreenViewModel : ViewModel() {
     val targetYear = _targetYear.asStateFlow()
     val currentGoalCost = _currentGoalCost.asStateFlow()
 
-    val currentAge = _currentAge.asStateFlow()
     val retirementAge = _retirementAge.asStateFlow()
     val lifeExpectancy = _lifeExpectancy.asStateFlow()
     val currentMonthlyExpense = _currentMonthlyExpense.asStateFlow()
@@ -112,24 +111,24 @@ class GoalScreenViewModel : ViewModel() {
             GoalType.ChildEducation,
             GoalType.ChildMarriage -> {
 
-                val name = values[4] as String
+                val name = values[4] as? String ?: ""
                 val age = (values[5] as String).toIntOrNull()
                 val year = (values[6] as String).toIntOrNull()
                 val cost = (values[7] as String).toLongOrNull()
 
                 name.isNotBlank() &&
-                        age != null && age > 0 && age<100
-                        year != null && year >= DateTimeUtils.getCurrentYear()
+                        age != null && age > 0 && age < 100 &&
+                        year != null && year >= DateTimeUtils.getCurrentYear() &&
                         cost != null
             }
 
             GoalType.Retirement -> {
 
-                val currentAge = (values[8] as String).toIntOrNull()
-                val retirementAge = (values[9] as String).toIntOrNull()
-                val lifeExpectancy = (values[10] as String).toIntOrNull()
-                val expense = (values[11] as String).toLongOrNull()
-                val postReturn = (values[12] as String).toIntOrNull()
+                val currentAge = (values[8] as? String)?.toIntOrNull()
+                val retirementAge = (values[9] as? String)?.toIntOrNull()
+                val lifeExpectancy = (values[10] as? String)?.toIntOrNull()
+                val expense = (values[11] as? String)?.toLongOrNull()
+                val postReturn = (values[12] as? String)?.toIntOrNull()
 
                 currentAge != null &&
                         retirementAge != null &&
@@ -142,8 +141,8 @@ class GoalScreenViewModel : ViewModel() {
 
             GoalType.WealthBuilding -> {
 
-                val years = (values[6] as String).toIntOrNull()
-                val cost = (values[7] as String).toLongOrNull()
+                val years = (values[6] as? String)?.toIntOrNull()
+                val cost = (values[7] as? String)?.toLongOrNull()
 
                 years != null && cost != null && years >= DateTimeUtils.getCurrentYear()
 
@@ -175,8 +174,8 @@ class GoalScreenViewModel : ViewModel() {
         } ?: return
 
         _goalList.value = _goalList.value + goal
-        onSuccess()
         clearInputs()
+        onSuccess()
     }
 
     fun deleteGoal(goal: GoalRequest) {
@@ -252,12 +251,13 @@ class GoalScreenViewModel : ViewModel() {
     }
 
     fun clearInputs() {
+        _selectedGoalOption.value=null
         _childName.value = ""
         _childAge.value = ""
         _targetYear.value = ""
         _currentGoalCost.value = ""
 
-        _currentAge.value = ""
+//        _currentAge.value = ""
         _retirementAge.value = ""
         _lifeExpectancy.value = ""
         _currentMonthlyExpense.value = ""

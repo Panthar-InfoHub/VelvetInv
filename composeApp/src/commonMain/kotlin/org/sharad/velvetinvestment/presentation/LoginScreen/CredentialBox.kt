@@ -24,7 +24,7 @@ import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.LoginTextField
 import org.sharad.velvetinvestment.shared.compose.PhoneNumberTextField
 import org.sharad.velvetinvestment.utils.AuthMode
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
 
 

@@ -1,7 +1,6 @@
 package org.sharad.velvetinvestment.presentation.settingscreens.compose
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +27,7 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.AddMoreNominiee
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon__2_

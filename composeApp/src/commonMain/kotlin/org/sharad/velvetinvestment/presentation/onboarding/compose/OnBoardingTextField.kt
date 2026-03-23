@@ -36,7 +36,8 @@ fun OnBoardingTextField(
     label:String,
     mandatory: Boolean=false,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType= KeyboardType.Text
+    keyboardType: KeyboardType= KeyboardType.Text,
+    enabled:Boolean=true
 ){
 
     Column(
@@ -61,6 +62,7 @@ fun OnBoardingTextField(
         }
 
         BasicTextField(
+            enabled=enabled,
             value = value,
             onValueChange = {it-> onValueChange(it) },
             singleLine = true,

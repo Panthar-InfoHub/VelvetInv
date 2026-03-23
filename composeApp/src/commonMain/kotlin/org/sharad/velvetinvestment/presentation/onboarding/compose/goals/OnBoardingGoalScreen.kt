@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +33,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenV
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.utils.AppBackHandler
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.theme.largeTextStyle
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
@@ -43,13 +45,22 @@ fun OnBoardingGoalScreen(
     pv: PaddingValues,
     onNext: () -> Unit,
     onPrev: () -> Unit,
-    onAddGoalClick: () -> Unit
+    onAddGoalClick: () -> Unit,
+    dob: Long?
 ){
     AppBackHandler(true){
         onPrev()
     }
     val goals by viewModel.goalList.collectAsStateWithLifecycle()
     val totalGoalAmount by viewModel.totalTargetAmount.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit){
+        viewModel.onCurrentAgeChange(
+            dob?.let{
+                (DateTimeUtils.getCurrentYear()-DateTimeUtils.getYear(it)).toString()
+            }?:""
+        )
+    }
 
 
     Box(
@@ -72,7 +83,8 @@ fun OnBoardingGoalScreen(
                     modifier = Modifier.weight(1f),
                     goals =goals,
                     onLoanDeleteClick ={ viewModel.deleteGoal(it)  },
-                    totalGoalAmount =totalGoalAmount
+                    totalGoalAmount =totalGoalAmount,
+                    dob = dob
                 )
             }
 
@@ -92,6 +104,7 @@ fun GoalScreenMain(
     goals: List<GoalRequest>,
     onLoanDeleteClick: (GoalRequest) -> Unit,
     totalGoalAmount: Long,
+    dob: Long?,
 ) {
     Box(
         modifier=modifier.fillMaxSize(),
@@ -114,14 +127,8 @@ fun GoalScreenMain(
             items(goals) {
                 GoalEntry(
                     goalInfo = it,
-                    onDeleteClick = { goal-> onLoanDeleteClick(goal) }
-                )
-            }
-
-            item {
-                GoalSummary(
-                    totalGoals = goals.size,
-                    totalAmount=totalGoalAmount
+                    dob = dob,
+                    onDeleteClick = { goal-> onLoanDeleteClick(goal) },
                 )
             }
 
@@ -134,7 +141,7 @@ fun GoalScreenMain(
 
         AppButton(
             modifier=Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
-            text = "Add Loan",
+            text = "Add Goal",
             onClick = {onAddClick()}
         )
 

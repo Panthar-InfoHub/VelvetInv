@@ -21,12 +21,11 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.rectangle_19
-import velvet.composeapp.generated.resources.splash_cover_1
 
 @Composable
 fun MutualFundsCard(fundItem: FundListCardData, onClick: () -> Unit) {

@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.utils.di
 
 import org.koin.dsl.module
+import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFixedDepositTopPicksUseCase
@@ -18,6 +19,10 @@ import org.sharad.velvetinvestment.domain.usecases.home.GetGoalsSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetUserWorthCardUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.HomeScreenUseCases
+import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetDigiLockerDetailsUseCase
+import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.InitiateKycUseCase
+import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.SubmitKycFormUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
 import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
 
@@ -68,4 +73,14 @@ val useCaseModule= module {
 
     factory { GetTopPickFDUseCase(get()) }
     factory { GetFixedDepositsSearchResultUseCase(get()) }
+
+    // KYC
+    factory { InitiateKycUseCase(get()) }
+    factory { GetDigiLockerDetailsUseCase(get()) }
+    factory { SubmitKycFormUseCase(get()) }
+
+    // Browser
+    factory { LaunchBrowserUseCase(get()) }
+
+    factory { GetUserPersonalInfo(get()) }
 }

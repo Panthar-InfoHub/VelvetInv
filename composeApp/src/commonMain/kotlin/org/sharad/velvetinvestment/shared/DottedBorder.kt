@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.utils
+package org.sharad.velvetinvestment.shared
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind

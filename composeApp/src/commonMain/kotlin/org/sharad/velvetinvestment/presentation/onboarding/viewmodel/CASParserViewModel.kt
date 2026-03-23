@@ -48,7 +48,7 @@ class CASParserViewModel(
         if (_password.value.isEmpty()) return
         viewModelScope.launch {
             _casLoading.value=true
-            casRepo.uploadPdfFile(byteArray, _password.value)
+            casRepo.uploadPdfFile(byteArray, _password.value.trim())
                 .onSuccess {
                     _casLoading.value=false
                     _casFile.value=null

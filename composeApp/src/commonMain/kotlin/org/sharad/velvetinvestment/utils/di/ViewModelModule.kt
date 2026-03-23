@@ -9,6 +9,8 @@ import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDCatego
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalInfoScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCFormScreenViewModel
+import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundViewModel
@@ -31,7 +33,7 @@ import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.Trading
 val viewModelModule= module {
     viewModel { LoginScreenViewModel(get()) }
 
-    viewModel {(idx:Int)-> PersonalDetailsScreenViewModel(idx) }
+    viewModel {(idx:Int)-> PersonalDetailsScreenViewModel(idx,get()) }
     viewModel { FinancialFlowScreenViewModel() }
     viewModel { CurrentAssetViewModel() }
     viewModel { CASParserViewModel(get()) }
@@ -71,5 +73,6 @@ val viewModelModule= module {
     viewModel { SettingViewModel() }
     viewModel{ TradingAccountViewModel() }
     viewModel { OnBoardingConfirmationViewModel(get()) }
-
+    viewModel{ KYCScreenViewModel(get(), get()) }
+    viewModel{ KYCFormScreenViewModel(get(),get(),get()) }
 }

@@ -33,7 +33,8 @@ interface PermissionHandler {
 
 enum class PermissionType {
     GALLERY,
-    DOCUMENT
+    DOCUMENT,
+    NOTIFICATION
 }
 
 enum class PermissionStatus {

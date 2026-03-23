@@ -80,7 +80,7 @@ fun AddLoanScreen(
                         viewModel.onTenureUpdate(it)
                     },
                     placeHolder = "0",
-                    label = "Tenure",
+                    label = "Tenure(months)",
                     keyboardType = KeyboardType.Number
                 )
             }

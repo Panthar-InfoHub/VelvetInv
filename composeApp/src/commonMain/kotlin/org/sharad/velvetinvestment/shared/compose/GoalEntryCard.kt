@@ -26,15 +26,11 @@ import org.sharad.velvetinvestment.domain.models.home.progressPercent
 import org.sharad.velvetinvestment.shared.CustomProgressFillBar
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
-import velvet.composeapp.generated.resources.education_icon
 import velvet.composeapp.generated.resources.icon_callender
-import velvet.composeapp.generated.resources.plus_icon
-import velvet.composeapp.generated.resources.ring_icon
-import velvet.composeapp.generated.resources.ruppee_circle
 
 @Composable
 fun GoalEntryCard(goal: GoalsSummaryDomain, onClick: () -> Unit) {

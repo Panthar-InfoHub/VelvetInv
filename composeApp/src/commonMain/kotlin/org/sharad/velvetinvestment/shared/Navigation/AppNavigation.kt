@@ -15,6 +15,7 @@ import org.sharad.velvetinvestment.presentation.firereport.compose.FireReportScr
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDCategoryScreenRoot
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDSearchScreenRoot
 import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
+import org.sharad.velvetinvestment.presentation.kyc.compose.KYCFormScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundDetailsScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundSearchScreenRoot
@@ -22,7 +23,7 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.CancelSIPConfi
 import org.sharad.velvetinvestment.presentation.portfolio.compose.FDDetailsScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.KYCScreen
+import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
 
@@ -189,7 +190,16 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.KYCScreen> {
                 KYCScreen(
                     onBackClick = {navController.popBackStack()},
-                    onKYCButtonClick = {},
+                    onKYCInitSuccess = {navController.navigate(Route.KYCFormScreen)},
+                    pv=pv
+                )
+            }
+            composable<Route.KYCFormScreen> {
+                KYCFormScreen(
+                    onBack = {navController.popBackStack()},
+                    onNext = {
+
+                    },
                     pv=pv
                 )
             }

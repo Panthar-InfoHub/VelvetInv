@@ -11,9 +11,11 @@ import kotlinx.coroutines.flow.update
 import org.sharad.velvetinvestment.presentation.onboarding.models.PersonalDetails
 import org.sharad.velvetinvestment.utils.isValidEmail
 import org.sharad.velvetinvestment.utils.isValidPhoneNumberInput
+import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
 class PersonalDetailsScreenViewModel(
-   private val step:Int
+   private val step:Int,
+    private val authPrefs: AuthPrefs
 ): ViewModel() {
 
     private val _currentStep = MutableStateFlow(step)
@@ -38,6 +40,12 @@ class PersonalDetailsScreenViewModel(
         initialValue = false
     )
 
+    init {
+        val phone=authPrefs.getPhoneNumber()
+        if (phone!=null){
+            _personalDetails.update { it.copy(phoneNumber = phone) }
+        }
+    }
 
     fun onNameChange(name:String){
         _personalDetails.update { it.copy(fullName = name) }

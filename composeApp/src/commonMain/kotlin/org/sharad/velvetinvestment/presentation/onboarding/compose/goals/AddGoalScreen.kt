@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,7 +27,8 @@ fun AddGoalScreen(
     modifier: Modifier = Modifier,
     viewModel: GoalScreenViewModel,
     onBack: () -> Unit,
-    pv: PaddingValues
+    pv: PaddingValues,
+    retirementAgeMain: Int?
 ) {
 
     val selectedOption by viewModel.selectedGoalOption.collectAsStateWithLifecycle()
@@ -42,7 +44,7 @@ fun AddGoalScreen(
     val targetYear by viewModel.targetYear.collectAsStateWithLifecycle()
     val goalCost by viewModel.currentGoalCost.collectAsStateWithLifecycle()
 
-    val currentAge by viewModel.currentAge.collectAsStateWithLifecycle()
+//    val currentAge by viewModel.currentAge.collectAsStateWithLifecycle()
     val retirementAge by viewModel.retirementAge.collectAsStateWithLifecycle()
     val lifeExpectancy by viewModel.lifeExpectancy.collectAsStateWithLifecycle()
     val monthlyExpense by viewModel.currentMonthlyExpense.collectAsStateWithLifecycle()
@@ -51,6 +53,11 @@ fun AddGoalScreen(
     val goalItemName by viewModel.goalItemNameInput.collectAsStateWithLifecycle()
     val buttonEnabled by viewModel.isFormValid.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit){
+        if (retirementAge.isEmpty()){
+            retirementAgeMain?.let{ viewModel.onRetirementAgeChange(it.toString()) }
+        }
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
 
@@ -125,7 +132,7 @@ fun AddGoalScreen(
                                 value = inflation,
                                 onValueChange = viewModel::onInflationChange,
                                 placeHolder = "Inflation %",
-                                label = "Inflation Rate",
+                                label = "Inflation Rate(%)",
                                 keyboardType = KeyboardType.Number
                             )
                         }
@@ -153,15 +160,15 @@ fun AddGoalScreen(
 
                     GoalType.Retirement -> {
 
-                        item {
-                            OnBoardingTextField(
-                                value = currentAge,
-                                onValueChange = viewModel::onCurrentAgeChange,
-                                placeHolder = "Current Age",
-                                label = "Current Age",
-                                keyboardType = KeyboardType.Number
-                            )
-                        }
+//                        item {
+//                            OnBoardingTextField(
+//                                value = currentAge,
+//                                onValueChange = viewModel::onCurrentAgeChange,
+//                                placeHolder = "Current Age",
+//                                label = "Current Age",
+//                                keyboardType = KeyboardType.Number
+//                            )
+//                        }
 
                         item {
                             MoneyTextField(
@@ -177,7 +184,7 @@ fun AddGoalScreen(
                                 value = inflation,
                                 onValueChange = viewModel::onInflationChange,
                                 placeHolder = "Inflation %",
-                                label = "Inflation Rate",
+                                label = "Inflation Rate(%)",
                                 keyboardType = KeyboardType.Number
                             )
                         }
@@ -216,7 +223,7 @@ fun AddGoalScreen(
                                 value = postReturn,
                                 onValueChange = viewModel::onPostReturnChange,
                                 placeHolder = "Post Retirement Return %",
-                                label = "Post Retirement Return",
+                                label = "Post Retirement Return(%)",
                                 keyboardType = KeyboardType.Number
                             )
                         }
@@ -256,7 +263,7 @@ fun AddGoalScreen(
                                 value = inflation,
                                 onValueChange = viewModel::onInflationChange,
                                 placeHolder = "Inflation %",
-                                label = "Inflation Rate",
+                                label = "Inflation Rate(%)",
                                 keyboardType = KeyboardType.Number
                             )
                         }

@@ -76,6 +76,7 @@ fun FireReportScreen(
 
 
 
+
     Column(
         modifier = Modifier.fillMaxSize(),
     ){

@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class Profile(
     val city: String,
     val dob: String,
-    val full_name: String
+    val full_name: String,
+    val email: String
 )

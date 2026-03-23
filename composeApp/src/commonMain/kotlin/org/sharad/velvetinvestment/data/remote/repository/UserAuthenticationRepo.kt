@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.data.remote.repository
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -9,6 +10,7 @@ import org.sharad.velvetinvestment.data.remote.model.auth.sendotp.SendOtpDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpBodyDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
+import org.sharad.velvetinvestment.data.remote.model.useedata.UserDataDto
 import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
 import org.sharad.velvetinvestment.domain.repository.UserAuth
 import org.sharad.velvetinvestment.utils.deviceinfoprovider.DeviceInfoRetriever
@@ -84,6 +86,8 @@ class UserAuthenticationRepo(
                 authPrefs.setOnboardingCompleted(dto.user.metadata.is_onboarding_completed)
                 authPrefs.setOnboardingStep(dto.user.metadata.onboarding_stage)
                 authPrefs.setLoggedIn(true)
+                authPrefs.setPhoneNumber(dto.user.phone_no)
+
                 NetworkResponse.Success(
                     response.data.toLoginDto()
                 )
@@ -125,5 +129,14 @@ class UserAuthenticationRepo(
                return response
             }
         }
+    }
+
+    override suspend fun getUserData(): NetworkResponse<UserDataDto, ErrorDomain> {
+        val response= safeRequest<UserDataDto> {
+            client.get(
+                getUrl("/user")
+            )
+        }
+        return  response
     }
 }

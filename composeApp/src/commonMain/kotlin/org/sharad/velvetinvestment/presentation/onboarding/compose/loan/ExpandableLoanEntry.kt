@@ -31,11 +31,11 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.presentation.onboarding.models.LoanInfo
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
-import velvet.composeapp.generated.resources.icon_download
+import velvet.composeapp.generated.resources.delete_box
 
 @Composable
 fun ExpandableLoanEntry(
@@ -165,12 +165,12 @@ fun StablePart(title: String, extended: Boolean, onClick: () -> Unit, onDeleteCl
 
         if (extended){
             Icon(
-                painter = painterResource(Res.drawable.icon_download),
+                painter = painterResource(Res.drawable.delete_box),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 20.dp)
                     .size(16.dp)
                     .clickable(
-                        onClick={onDeleteClick}
+                        onClick={onDeleteClick()}
                     ),
                 tint = Primary
             )

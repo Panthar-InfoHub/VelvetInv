@@ -2,7 +2,9 @@ package org.sharad.velvetinvestment.utils.di
 
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sharad.velvetinvestment.utils.AndroidBrowserLauncher
 import org.sharad.velvetinvestment.utils.AndroidSharedPreferences
+import org.sharad.velvetinvestment.utils.BrowserLauncher
 import org.sharad.velvetinvestment.utils.DeviceInfoRetrieverAndroid
 import org.sharad.velvetinvestment.utils.PdfDownloadManager
 import org.sharad.velvetinvestment.utils.PdfDownloader
@@ -14,4 +16,6 @@ actual val platformModule: Module
         single<DeviceInfoRetriever> { DeviceInfoRetrieverAndroid(get()) }
         single <SharedPreference>{ AndroidSharedPreferences(get()) }
         single<PdfDownloadManager> { PdfDownloader(get()) }
+        single<BrowserLauncher> { AndroidBrowserLauncher(get()) }
+
     }

@@ -55,6 +55,11 @@ fun BaseNavigation(windowSize: WindowSize, pv: PaddingValues) {
                     navController.navigate(Route.MainAppFlow) {
                         popUpTo(Route.MainAppFlow) { inclusive = true }
                     }
+                },
+                onSignOut={
+                    navController.navigate(Route.LoginFlow){
+                        popUpTo(Route.LoginFlow){inclusive=true}
+                    }
                 }
             )
         }

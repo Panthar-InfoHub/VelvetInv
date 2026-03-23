@@ -34,7 +34,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTex
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.GenericDropDownField
-import org.sharad.velvetinvestment.utils.genericDropShadow
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
 

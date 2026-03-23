@@ -70,6 +70,8 @@ object Route {
     data object FireReport
     @Serializable
     data object KYCScreen
+    @Serializable
+    data object KYCFormScreen
 
     @Serializable
     data object GoalsScreen
