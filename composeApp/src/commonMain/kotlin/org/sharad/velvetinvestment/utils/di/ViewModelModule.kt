@@ -10,6 +10,7 @@ import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearch
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalInfoScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCFormScreenViewModel
+import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
@@ -75,4 +76,5 @@ val viewModelModule= module {
     viewModel { OnBoardingConfirmationViewModel(get()) }
     viewModel{ KYCScreenViewModel(get(), get()) }
     viewModel{ KYCFormScreenViewModel(get(),get(),get()) }
+    viewModel{ KYCImageUploaderScreenViewModel(get(),get(),get()) }
 }

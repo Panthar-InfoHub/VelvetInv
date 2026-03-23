@@ -71,6 +71,7 @@ kotlin {
 
             implementation(libs.material3.window.size.class1)
             implementation(libs.adaptive)
+            implementation("io.github.ismoy:imagepickerkmp:1.0.35")
         }
 
         nativeMain.dependencies {

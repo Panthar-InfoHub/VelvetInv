@@ -22,6 +22,9 @@ import org.sharad.velvetinvestment.domain.usecases.home.HomeScreenUseCases
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetDigiLockerDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.InitiateKycUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.SubmitKycFormUseCase
+import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageAndSignatureDataUseCase
+import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageUseCase
+import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadSignatureUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
 import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
@@ -78,9 +81,26 @@ val useCaseModule= module {
     factory { InitiateKycUseCase(get()) }
     factory { GetDigiLockerDetailsUseCase(get()) }
     factory { SubmitKycFormUseCase(get()) }
+    factory {
+        UploadImageUseCase(
+            repository = get()
+        )
+    }
+    factory {
+        UploadSignatureUseCase(
+            repository = get()
+        )
+    }
+    factory {
+        UploadImageAndSignatureDataUseCase(
+            repository = get()
+        )
+    }
 
     // Browser
     factory { LaunchBrowserUseCase(get()) }
 
     factory { GetUserPersonalInfo(get()) }
+
+
 }

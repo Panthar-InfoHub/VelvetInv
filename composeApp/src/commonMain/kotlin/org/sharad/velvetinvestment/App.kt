@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
 import org.sharad.velvetinvestment.shared.Navigation.BaseNavigation
 import org.sharad.velvetinvestment.shared.rememberWindowSize
 import org.sharad.velvetinvestment.utils.Log
@@ -76,9 +77,17 @@ fun App() {
                 }
             }
         ) { paddingValues ->
-            BaseNavigation(
-                windowSize = size,
-                pv = paddingValues
+//            BaseNavigation(
+//                windowSize = size,
+//                pv = paddingValues
+//            )
+            FileUploadScreen(
+                onBack = {
+
+                },
+                onSuccessfulUpload = {
+
+                }
             )
         }
     }
