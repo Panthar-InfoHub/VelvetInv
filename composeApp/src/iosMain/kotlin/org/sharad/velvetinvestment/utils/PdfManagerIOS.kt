@@ -5,6 +5,7 @@ import androidx.compose.runtime.remember
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import platform.Foundation.NSData
 import platform.Foundation.NSString
@@ -53,11 +54,13 @@ actual class DocumentManager actual constructor(private val onLaunch: () -> Unit
 actual class SharedDocument(private val data: NSData?) {
     @OptIn(ExperimentalForeignApi::class)
     actual fun toByteArray(): ByteArray? {
-        return data?.let {
-            val bytes = it.bytes?.reinterpret<ByteVar>()
-            val length = it.length.toInt()
-            ByteArray(length) { index -> bytes!![index] }
-        }
+        val d = data ?: return null
+        val ptr = d.bytes ?: return null
+
+        val length = d.length.toInt()
+        if (length <= 0) return ByteArray(0)
+
+        return ptr.readBytes(length)
     }
 
     @OptIn(BetaInteropApi::class)
