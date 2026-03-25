@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.domain.usecases.fundusecases
 
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
+import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkError
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 
@@ -12,7 +13,7 @@ class GetMutualFundGraphUseCase(
     suspend operator fun invoke(
         id: String,
         selectedYear: String
-    ): NetworkResponse<MutualFundGraphDomain, NetworkError> {
-        return repository.getMutualFundGraph(id)
+    ): NetworkResponse<MutualFundGraphDomain, ErrorDomain> {
+        return repository.getMutualFundGraph(id,selectedYear)
     }
 }

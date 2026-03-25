@@ -45,20 +45,6 @@ fun createInitialInvestmentFilter(): InvestmentFilter {
                     FilterOption("very_high", "Very High")
                 )
             ),
-
-            // Rating
-            FilterGroup(
-                id = "rating",
-                title = "Rating",
-                selectionType = SelectionType.SINGLE,
-                options = listOf(
-                    FilterOption("5", "5★"),
-                    FilterOption("4", "4★"),
-                    FilterOption("3", "3★"),
-                    FilterOption("2", "2★"),
-                    FilterOption("1", "1★")
-                )
-            )
         )
     )
 }

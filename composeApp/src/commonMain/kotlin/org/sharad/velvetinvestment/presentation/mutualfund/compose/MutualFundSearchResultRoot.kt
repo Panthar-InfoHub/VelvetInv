@@ -40,13 +40,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.mutualfund.MutualFundUI
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.defaultFilters
+import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.FilterChip
@@ -66,16 +67,16 @@ fun MutualFundSearchScreenRoot(
     onFundClick: (String) -> Unit,
     heading: String,
     pv: PaddingValues,
-    searchId:String
 ) {
 
-    val viewModel: MutualFundSearchResultViewModel = koinViewModel{parametersOf(searchId)}
+    val viewModel: MutualFundSearchResultViewModel = koinViewModel()
     val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
     val sortedFunds by viewModel.sortedFunds.collectAsStateWithLifecycle()
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
     val showFilterScreen by viewModel.showFilterScreen.collectAsStateWithLifecycle()
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
+    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
 
 
 
@@ -106,12 +107,16 @@ fun MutualFundSearchScreenRoot(
                             result = sortedFunds,
                             onFundClick = onFundClick,
                             pv = pv,
-                            incrementYear = viewModel::incrementYear,
-                            decrementYear = viewModel::decrementYear,
+//                            incrementYear = viewModel::incrementYear,
+//                            decrementYear = viewModel::decrementYear,
+                            toggleRateYear =viewModel::cycleReturnRatePeriod,
                             selectedYear = selectedYear,
                             selectedFilter = selectedFilter,
                             onFilterSelected = viewModel::onFilterSelected,
-                            toggleFilterScreen = viewModel::toggleFilterScreen
+                            toggleFilterScreen = viewModel::toggleFilterScreen,
+                            searchText = searchText,
+                            onTextChange = viewModel::onSearchTextChange,
+                            onSearchClick ={}
                         )
                     }
                 }
@@ -158,21 +163,33 @@ fun MutualFundSearchScreenRoot(
 
 @Composable
 fun MutualFundSearchScreen(
-    result: List<MutualFundUI>,
+    result: List<MutualFundDomain>,
     onFundClick: (String) -> Unit,
     pv: PaddingValues,
-    selectedYear: Int,
-    incrementYear: () -> Unit,
-    decrementYear: () -> Unit,
+    selectedYear: SelectedReturnRatePeriod,
+//    incrementYear: () -> Unit,
+//    decrementYear: () -> Unit,
     selectedFilter: LabelFilter?,
     onFilterSelected: (LabelFilter) -> Unit,
-    toggleFilterScreen: () -> Unit
+    toggleFilterScreen: () -> Unit,
+    searchText: String,
+    onTextChange: (String) -> Unit,
+    onSearchClick: () -> Unit,
+    toggleRateYear: () -> Unit
 ) {
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top=4.dp),
     ) {
-
+        item {
+            AppSearchBar(
+                value = searchText,
+                onTextChange = { onTextChange(it) },
+                onSearchClick = { onSearchClick() },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            )
+        }
+        item{Spacer(Modifier.height(20.dp))}
         item {
             FundFilterRow(
                 filters = defaultFilters,
@@ -187,8 +204,9 @@ fun MutualFundSearchScreen(
         item{
             YearRow(
                 selectedYear = selectedYear,
-                incrementYear = incrementYear,
-                decrementYear = decrementYear,
+//                incrementYear = incrementYear,
+//                decrementYear = decrementYear,
+                toggleRateYear =toggleRateYear,
                 totalFunds = result.size
             )
         }
@@ -196,7 +214,7 @@ fun MutualFundSearchScreen(
         item{Spacer(Modifier.height(10.dp))}
 
         itemsIndexed(result, key = { _, item -> item.id }){idx, fund ->
-            MutualFundListCard(fund=fund, onClick = { onFundClick(fund.id) })
+            MutualFundListCard(onClick = { onFundClick(fund.id) }, fund =fund,selectedYear=selectedYear)
             if (idx!=result.size-1){
                 Box(
                     modifier = Modifier.fillMaxWidth()
@@ -216,7 +234,12 @@ fun MutualFundSearchScreen(
 }
 
 @Composable
-fun MutualFundListCard(onClick: () -> Unit, fund: MutualFundUI, modifier: Modifier=Modifier) {
+fun MutualFundListCard(
+    onClick: () -> Unit,
+    fund: MutualFundDomain,
+    modifier: Modifier = Modifier,
+    selectedYear: SelectedReturnRatePeriod
+) {
     Row(
         modifier=modifier.fillMaxWidth().clickable { onClick() }
             .padding(vertical = 14.dp, horizontal = 16.dp),
@@ -243,29 +266,57 @@ fun MutualFundListCard(onClick: () -> Unit, fund: MutualFundUI, modifier: Modifi
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-
-                Text(
-                    text= fund.percentage.toString()+"%",
-                    style = subHeading,
-                    color = if (fund.percentage>0) appGreen else Color.Red
-                )
             }
             Row{
                 Text(
                     text = fund.category +
                             (fund.remark?.let { " • $it" }.orEmpty()) +
-                            (fund.rating?.let { " • $it★" }.orEmpty()),
+                            (fund.riskText?.let { " • $it" }.orEmpty()),
 
                     style = titlesStyle,
                     color = titleColor,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
+
+            }
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            val rate= when(selectedYear){
+                SelectedReturnRatePeriod.SIX_MONTH -> fund.returnYearsRate.month6
+                SelectedReturnRatePeriod.THREE_MONTH -> fund.returnYearsRate.month3
+                SelectedReturnRatePeriod.ONE_YEAR -> fund.returnYearsRate.year1
+                SelectedReturnRatePeriod.THREE_YEAR -> fund.returnYearsRate.year3
+            }
+
+            val text= when(selectedYear){
+                SelectedReturnRatePeriod.SIX_MONTH -> "6M"
+                SelectedReturnRatePeriod.THREE_MONTH -> "3M"
+                SelectedReturnRatePeriod.ONE_YEAR -> "1Y"
+                SelectedReturnRatePeriod.THREE_YEAR -> "3Y"
+            }
+
+            if (rate !=null){
                 Text(
-                    text = fund.returnYear.toString()+"Y",
+                    text= "$rate %",
+                    style = subHeading,
+                    color = if (rate>0) appGreen else Color.Red
+                )
+                Text(
+                    text= text,
                     style = titlesStyle,
-                    color = titleColor
+                    color = titleColor,
+                )
+            }
+            else{
+                Text(
+                    text= "N/A",
+                    style = subHeading,
+                    color = Color.Black
                 )
             }
         }
@@ -274,10 +325,11 @@ fun MutualFundListCard(onClick: () -> Unit, fund: MutualFundUI, modifier: Modifi
 
 @Composable
 fun YearRow(
-    selectedYear: Int,
-    incrementYear: () -> Unit,
-    decrementYear: () -> Unit,
-    totalFunds: Int
+    selectedYear: SelectedReturnRatePeriod,
+//    incrementYear: () -> Unit,
+//    decrementYear: () -> Unit,
+    totalFunds: Int,
+    toggleRateYear: () -> Unit
 ) {
 
     Row(
@@ -301,7 +353,7 @@ fun YearRow(
                     style = titlesStyle.copy(lineHeight = 0.sp),
                     fontSize = 16.sp,
                     color = titleColor,
-                    modifier = Modifier.clickable { decrementYear() }
+//                    modifier = Modifier.clickable { decrementYear() }
                 )
                 Text(
                     text = " ",
@@ -313,14 +365,15 @@ fun YearRow(
                     style = titlesStyle.copy(lineHeight = 0.sp),
                     color = titleColor,
                     fontSize = 16.sp,
-                    modifier = Modifier.clickable { incrementYear() }
+//                    modifier = Modifier.clickable { incrementYear() }
                 )
             }
             Text(
-                text = "${selectedYear}Y Returns",
+                text = "${selectedYear.displayText} Returns",
                 fontWeight = FontWeight.SemiBold,
                 style = titlesStyle,
-                color = titleColor
+                color = titleColor,
+                modifier = Modifier.clickable(onClick = {toggleRateYear()})
             )
         }
     }

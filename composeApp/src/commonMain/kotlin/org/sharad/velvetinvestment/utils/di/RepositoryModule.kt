@@ -4,10 +4,10 @@ import io.ktor.client.HttpClient
 import org.koin.dsl.module
 import org.sharad.velvetinvestment.data.remote.repository.CASRepo
 import org.sharad.velvetinvestment.data.remote.repository.MFKYCRepo
+import org.sharad.velvetinvestment.data.remote.repository.MutualFundRepo
 import org.sharad.velvetinvestment.data.remote.repository.UserAuthenticationRepo
 import org.sharad.velvetinvestment.data.remote.repository.UserFinanceRepo
 import org.sharad.velvetinvestment.data.remote.repository.dummy.DummyFDRepositoryPortFolio
-import org.sharad.velvetinvestment.data.remote.repository.dummy.DummyMutualFundRepository
 import org.sharad.velvetinvestment.data.remote.repository.dummy.FakeFixedDepositRepository
 import org.sharad.velvetinvestment.data.remote.repository.dummy.HomeRepositoryMock
 import org.sharad.velvetinvestment.domain.repository.FDRepositoryPortFolio
@@ -26,7 +26,7 @@ val repositoryModule = module {
     single<HttpClient> { getHttpClient(get()) }
     single<HomeRepository> { HomeRepositoryMock() }
     single<MutualFundRepository> {
-        DummyMutualFundRepository()
+        MutualFundRepo(get())
     }
     single { CASRepo(get()) }
 

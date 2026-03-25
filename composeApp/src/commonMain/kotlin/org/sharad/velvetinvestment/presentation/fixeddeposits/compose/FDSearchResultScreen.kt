@@ -31,6 +31,7 @@ import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearch
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.FundFilterRow
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentFilterScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.YearRow
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
@@ -170,10 +171,11 @@ fun FDSearchScreen(
 
         item{
             YearRow(
-                selectedYear = selectedYear,
-                incrementYear = incrementYear,
-                decrementYear = decrementYear,
-                totalFunds = result.size
+                selectedYear = SelectedReturnRatePeriod.THREE_YEAR,
+//                incrementYear = incrementYear,
+//                decrementYear = decrementYear,
+                totalFunds = result.size,
+                toggleRateYear = {}
             )
         }
 

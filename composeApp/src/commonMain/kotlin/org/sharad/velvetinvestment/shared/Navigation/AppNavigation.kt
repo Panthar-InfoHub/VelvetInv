@@ -15,6 +15,7 @@ import org.sharad.velvetinvestment.presentation.firereport.compose.FireReportScr
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDCategoryScreenRoot
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDSearchScreenRoot
 import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
+import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCFormScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundDetailsScreenRoot
@@ -85,7 +86,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 BottomNavigation(
                     navigateToSIPDetailsScreen = {id->navController.navigate(Route.SIPDetails(id))},
                     navigateToFDDetailsScreen = {id->navController.navigate(Route.FDDetailsScreen(id))},
-                    navigateToCategoryMutualFundScreen = {navController.navigate(Route.CategoryMutualFund)},
+                    navigateToCategoryMutualFundScreen = {navController.navigate(Route.MutualFundSearchResult())},
                     navigateToCategoryFDScreen = {navController.navigate(Route.FixedDepositCategory)},
                     navigateToFireReportScreen = {navController.navigate(Route.FireReport)},
                     navigateToKYCScreen={navController.navigate(Route.KYCScreen)},
@@ -145,21 +146,18 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         navController.navigate(Route.MutualFundDetails(id))
                     },
                     onSearchClick = {search->
-                        navController.navigate(Route.MutualFundSearchResult(id = search))
+                        navController.navigate(Route.MutualFundSearchResult())
                     },
                     onCategoryClick = {id,name->
-                        navController.navigate(Route.MutualFundSearchResult(id = id, heading = name))
+                        navController.navigate(Route.MutualFundSearchResult(heading = name))
                     },
                 )
             }
             composable<Route.MutualFundSearchResult> {
-                val category= it.toRoute<Route.MutualFundSearchResult>().heading
-                val id= it.toRoute<Route.MutualFundSearchResult>().id
                 MutualFundSearchScreenRoot(
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
-                    heading = category,
-                    searchId = id,
+                    heading = "Mutual Funds",
                     onFundClick = {
                         navController.navigate(Route.MutualFundDetails(it))
                     }
@@ -172,7 +170,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     pv = pv,
                     id = id,
                     onTopFundClick = {
-                        navController.navigate(Route.MutualFundSearchResult(id = it))
+                        navController.navigate(Route.MutualFundSearchResult())
                     },
                     onFundClick = {
                         navController.navigate(Route.MutualFundDetails(it))
@@ -198,6 +196,15 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 KYCFormScreen(
                     onBack = {navController.popBackStack()},
                     onNext = {
+                        navController.navigate(Route.KYCImageUplaodScreen)
+                    },
+                    pv=pv
+                )
+            }
+            composable<Route.KYCImageUplaodScreen> {
+                FileUploadScreen(
+                    onBack = {navController.popBackStack()},
+                    onSuccessfulUpload = {
 
                     },
                     pv=pv

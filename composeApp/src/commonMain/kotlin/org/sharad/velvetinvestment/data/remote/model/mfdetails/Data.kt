@@ -1,9 +1,9 @@
-package org.sharad.velvetinvestment.domain.models.mutualfunds
+package org.sharad.velvetinvestment.data.remote.model.mfdetails
 
-import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
-import org.sharad.velvetinvestment.data.remote.model.mfdetails.TransactionRules
+import kotlinx.serialization.Serializable
 
-data class MutualFundDetailsDomain(
+@Serializable
+data class Data(
     val amc_code: String,
     val amc_id: String,
     val amc_name: String,
@@ -32,4 +32,3 @@ data class MutualFundDetailsDomain(
     val transaction_rules: TransactionRules,
     val updatedAt: String
 )
-

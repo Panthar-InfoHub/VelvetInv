@@ -1,14 +1,20 @@
 package org.sharad.velvetinvestment.domain.models.mutualfunds
 
+
 data class MutualFundDomain(
-    val id:String,
-    val name:String,
-    val icon:String,
-    val category:String,
-    val amount:String,
-    val remark:String?=null,
-    val rating:Int?=null,
-    val returnYear:Int,
-    val type:String,
-    val percentage:Double
+    val id: String,
+    val name: String,
+    val icon: String,
+    val category: String,
+    val remark: String?,
+    val riskText: String?,
+    val type: String,
+    val returnYearsRate: ReturnYearsRateDomain
+)
+
+data class ReturnYearsRateDomain(
+    val month3:Double?,
+    val month6:Double?,
+    val year1:Double?,
+    val year3:Double?,
 )

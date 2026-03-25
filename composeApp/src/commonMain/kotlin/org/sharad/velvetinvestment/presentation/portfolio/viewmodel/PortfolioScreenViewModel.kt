@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDashboardUseCase
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetPortfolioMutualFundsUseCase
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardPortfolioData
 import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
 import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
@@ -17,7 +17,7 @@ import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class PortfolioScreenViewModel(
-    private val getMutualFundsUseCase: GetMutualFundsUseCase,
+    private val getPortfolioMutualFundsUseCase: GetPortfolioMutualFundsUseCase,
     private val getMutualFundDashboardUseCase: GetMutualFundDashboardUseCase,
     private val getFDListUseCase: GetFDListUseCase
 ) : ViewModel() {
@@ -55,7 +55,7 @@ class PortfolioScreenViewModel(
 
             _loadingState.value = LoadingState.Loading
 
-            val mfResult = getMutualFundsUseCase()
+            val mfResult = getPortfolioMutualFundsUseCase()
             val dashboardResult = getMutualFundDashboardUseCase()
             val fdResult = getFDListUseCase()
 

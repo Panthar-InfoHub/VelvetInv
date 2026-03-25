@@ -7,5 +7,6 @@ data class MutualFundGraphDomain(
 
 data class MutualFundGraphPointsDomain(
     val navValue: Double,
-    val date: String
+    val date: String,
+    val label:String
 )

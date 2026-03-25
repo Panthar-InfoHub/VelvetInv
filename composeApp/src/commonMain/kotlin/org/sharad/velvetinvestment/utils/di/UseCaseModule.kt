@@ -13,7 +13,7 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDet
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGraphUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundSearchResultUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundTopPicksUseCase
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetPortfolioMutualFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetFireReportSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetGoalsSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
@@ -49,7 +49,7 @@ val useCaseModule= module {
 
 
     factory {
-        GetMutualFundsUseCase(get())
+        GetPortfolioMutualFundsUseCase(get())
     }
 
     factory {

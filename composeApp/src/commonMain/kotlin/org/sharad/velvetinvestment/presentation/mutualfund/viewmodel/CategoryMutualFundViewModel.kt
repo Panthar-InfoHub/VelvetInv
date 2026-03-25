@@ -8,13 +8,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundUI
-import org.sharad.velvetinvestment.presentation.mutualfund.toUI
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.networking.toMessage
 
-class MutualFundViewModel(
+class CategoryMutualFundViewModel(
     private val getCategoryMutualFundsUseCase: GetCategoryMutualFundsUseCase
 ) : ViewModel() {
 
@@ -39,8 +38,8 @@ class MutualFundViewModel(
             _loadingState.value = LoadingState.Loading
             getCategoryMutualFundsUseCase()
                 .onSuccess { data ->
-                    _mutualFunds.value =
-                        data.map { it.toUI() }
+//                    _mutualFunds.value =
+//                        data.map { it.toUI() }
                     _loadingState.value = LoadingState.Success
                 }
                 .onError { error ->

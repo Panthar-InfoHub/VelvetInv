@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.presentation.mutualfund
 
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
 
 data class CategoryMutualFundUI(
     val categoryName: String,
@@ -14,12 +15,17 @@ data class MutualFundUI(
     val name: String,
     val icon: String,
     val category: String,
-    val amount: String,
     val remark: String?,
-    val rating: Int?,
-    val returnYear: Int,
+    val riskText: String?,
     val type: String,
-    val percentage:Double
+    val returnYearsRate: ReturnYearsRateUi
+)
+
+data class ReturnYearsRateUi(
+    val month3:Double?,
+    val month6:Double?,
+    val year1:Double?,
+    val year3:Double?,
 )
 
 
@@ -38,5 +44,11 @@ sealed interface GraphState {
 
 data class MutualFundScreenState(
     val detailsState: DetailsState=DetailsState.Loading,
-    val graphState: GraphState=GraphState.Loading
+    val graphState: GraphState=GraphState.Loading,
+    val chartPoints: List<MutualFundGraphPointsDomain> = emptyList()
+)
+
+data class StableMetricUi(
+    val label: String,
+    val value: Double
 )

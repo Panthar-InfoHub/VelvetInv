@@ -40,9 +40,9 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundUI
-import org.sharad.velvetinvestment.presentation.mutualfund.MutualFundUI
-import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
@@ -67,98 +67,98 @@ fun CategoryMutualFundScreenRoot(
     onCategoryClick:(String,String)->Unit
 ){
 
-    val viewModel: MutualFundViewModel = koinViewModel()
-    val mutualFunds by viewModel.mutualFunds.collectAsStateWithLifecycle()
-    val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
-    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
-
-
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        ScreenHeader(
-            onBackClick = { onBackClick() },
-            onIconClick = { onIconClick() }
-        )
-        Box(
-            modifier = Modifier.weight(1f)
-                .fillMaxSize()
-        ){
-            when(uiState){
-                is LoadingState.Error->{
-                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
-                }
-                LoadingState.Loading -> {
-                    LoaderScreen()
-                }
-
-                LoadingState.Success -> {
-                    CategoryMutualFundScreen(
-                        mutualFunds,
-                        onCategoryClick = onCategoryClick,
-                        onFundClick = {onFundClick(it)},
-                        searchText=searchText,
-                        onTextChange = { viewModel.onSearchTextChange(it) },
-                        pv=pv,
-                        onSearchClick = {onSearchClick(searchText)}
-                    )
-                }
-            }
-        }
-    }
+    val viewModel: CategoryMutualFundViewModel = koinViewModel()
+//    val mutualFunds by viewModel.mutualFunds.collectAsStateWithLifecycle()
+//    val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
+//    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
+//
+//
+//    Column(
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+//        ScreenHeader(
+//            onBackClick = { onBackClick() },
+//            onIconClick = { onIconClick() }
+//        )
+//        Box(
+//            modifier = Modifier.weight(1f)
+//                .fillMaxSize()
+//        ){
+//            when(uiState){
+//                is LoadingState.Error->{
+//                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
+//                }
+//                LoadingState.Loading -> {
+//                    LoaderScreen()
+//                }
+//
+//                LoadingState.Success -> {
+//                    CategoryMutualFundScreen(
+//                        mutualFunds,
+//                        onCategoryClick = onCategoryClick,
+//                        onFundClick = {onFundClick(it)},
+//                        searchText=searchText,
+//                        onTextChange = { viewModel.onSearchTextChange(it) },
+//                        pv=pv,
+//                        onSearchClick = {onSearchClick(searchText)}
+//                    )
+//                }
+//            }
+//        }
+//    }
 }
 
+//@Composable
+//fun CategoryMutualFundScreen(
+//    categoryList: List<CategoryMutualFundUI>,
+//    onCategoryClick: (String, String) -> Unit,
+//    onFundClick: (String) -> Unit,
+//    searchText: String,
+//    onTextChange: (String) -> Unit,
+//    pv: PaddingValues,
+//    onSearchClick: (String) -> Unit
+//) {
+//
+//    LazyVerticalGrid(
+//        columns = GridCells.Adaptive(minSize = 150.dp),
+//        modifier = Modifier.fillMaxSize(),
+//        verticalArrangement = Arrangement.spacedBy(20.dp),
+//        horizontalArrangement = Arrangement.spacedBy(16.dp),
+//        contentPadding = PaddingValues(horizontal = 16.dp)
+//    ) {
+//        item(span = { GridItemSpan(maxLineSpan) }) {
+//            AppSearchBar(
+//                value = searchText,
+//                onTextChange = { onTextChange(it) },
+//                onSearchClick = { onSearchClick(searchText) }
+//            )
+//        }
+//        categoryList.forEach { category ->
+//            item(span = { GridItemSpan(maxLineSpan) }) {
+//                BarHeader(
+//                    heading = category.categoryName,
+//                    showArrow = true,
+//                    onArrowClick = {onCategoryClick(category.categorySearchReference, category.categoryName)}
+//                )
+//            }
+//
+//            items(
+//                items = category.mutualFunds,
+//                key = { it.id }
+//            ) { fund ->
+//
+//                MutualFundGridCard(fund, onClick = { onFundClick(fund.id) })
+//            }
+//        }
+//        item(span = { GridItemSpan(maxLineSpan) }){
+//            Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp))
+//        }
+//    }
+//
+//}
+
 @Composable
-fun CategoryMutualFundScreen(
-    categoryList: List<CategoryMutualFundUI>,
-    onCategoryClick: (String, String) -> Unit,
-    onFundClick: (String) -> Unit,
-    searchText: String,
-    onTextChange: (String) -> Unit,
-    pv: PaddingValues,
-    onSearchClick: (String) -> Unit
-) {
-
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 150.dp),
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            AppSearchBar(
-                value = searchText,
-                onTextChange = { onTextChange(it) },
-                onSearchClick = { onSearchClick(searchText) }
-            )
-        }
-        categoryList.forEach { category ->
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                BarHeader(
-                    heading = category.categoryName,
-                    showArrow = true,
-                    onArrowClick = {onCategoryClick(category.categorySearchReference, category.categoryName)}
-                )
-            }
-
-            items(
-                items = category.mutualFunds,
-                key = { it.id }
-            ) { fund ->
-
-                MutualFundGridCard(fund, onClick = { onFundClick(fund.id) })
-            }
-        }
-        item(span = { GridItemSpan(maxLineSpan) }){
-            Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp))
-        }
-    }
-
-}
-
-@Composable
-fun MutualFundGridCard(fund: MutualFundUI, onClick:()-> Unit) {
+fun MutualFundGridCard(fund: MutualFundDomain, onClick: () -> Unit) {
 
     ShadowCard(
         modifier = Modifier.widthIn(min=160.dp).height(176.dp),
@@ -196,15 +196,17 @@ fun MutualFundGridCard(fund: MutualFundUI, onClick:()-> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = fund.returnYear.toString()+"Y CAGR",
+                    text = fund.returnYearsRate.year3 .toString()+"Y CAGR",
                     style = titlesStyle,
                     color = titleColor
                 )
-                Text(
-                    text = fund.percentage.toString()+"%",
-                    style = subHeading,
-                    color = if (fund.percentage >= 0) appGreen else Color.Red
-                )
+                fund.returnYearsRate.year3?.let {
+                    Text(
+                        text = fund.returnYearsRate.year3.toString()+"%",
+                        style = subHeading,
+                        color = if (it >= 0) appGreen else Color.Red
+                    )
+                }
             }
 
         }

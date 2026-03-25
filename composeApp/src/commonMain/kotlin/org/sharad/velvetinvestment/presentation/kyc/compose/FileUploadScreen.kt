@@ -52,8 +52,9 @@ import velvet.composeapp.generated.resources.sign_icon
 
 @Composable
 fun FileUploadScreen(
-    onBack:()->Unit,
-    onSuccessfulUpload:()->Unit
+    onBack: () -> Unit,
+    onSuccessfulUpload: () -> Unit,
+    pv: PaddingValues
 ){
 
     val scope= rememberCoroutineScope()
@@ -151,7 +152,7 @@ fun FileUploadScreen(
             onClick={viewModel.uploadImages(){
 
             } },
-            pv= PaddingValues(),
+            pv=pv,
             value = "Save and Continue",
             loading=loading,
             enabled = buttonEnabled

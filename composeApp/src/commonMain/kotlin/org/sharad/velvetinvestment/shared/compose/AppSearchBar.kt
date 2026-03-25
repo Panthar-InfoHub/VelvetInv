@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.bgColor4
@@ -34,11 +35,11 @@ fun AppSearchBar(
         onValueChange = {
             onTextChange(it)
         },
-        modifier = modifier.height(52.dp),
+        modifier = modifier.height(48.dp),
         shape = CircleShape,
         singleLine = true,
-        placeholder = { Text(text="Search For Funds....", style = MaterialTheme.typography.labelSmall, color = titleColor) },
-        textStyle = MaterialTheme.typography.labelSmall,
+        placeholder = { Text(text="Search For Funds....", style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp), color = titleColor) },
+        textStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Primary,
             unfocusedBorderColor = Primary,

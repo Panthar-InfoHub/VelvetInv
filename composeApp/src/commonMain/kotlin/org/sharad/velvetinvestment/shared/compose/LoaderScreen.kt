@@ -51,40 +51,12 @@ fun LoaderScreen(){
             ),
         contentAlignment = Alignment.Center
     ) {
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ){
-            Box(
-                contentAlignment = Alignment.Center
-            )
-            {
 
-                CircularProgressIndicator(
-                    modifier = Modifier.size(92.dp).graphicsLayer { scaleX = -1f },
-                    color = Secondary,
-                    strokeWidth = 4.dp
-                )
-                CircularProgressIndicator(
-                    modifier = Modifier.size(108.dp),
-                    color = Primary,
-                    strokeWidth = 4.dp
-                )
-
-                Box(
-                    modifier = Modifier.size(72.dp)
-                        .clip(CircleShape)
-                        .background(Primary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.app_logo_transparent),
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp)
-                    )
-                }
-            }
+            VelvetLoader()
 
             Text(
                 text = quote,
@@ -95,5 +67,38 @@ fun LoaderScreen(){
             )
         }
 
+    }
+}
+
+@Composable
+fun VelvetLoader(){
+    Box(
+        contentAlignment = Alignment.Center
+    )
+    {
+
+        CircularProgressIndicator(
+            modifier = Modifier.size(92.dp).graphicsLayer { scaleX = -1f },
+            color = Secondary,
+            strokeWidth = 4.dp
+        )
+        CircularProgressIndicator(
+            modifier = Modifier.size(108.dp),
+            color = Primary,
+            strokeWidth = 4.dp
+        )
+
+        Box(
+            modifier = Modifier.size(72.dp)
+                .clip(CircleShape)
+                .background(Primary),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(Res.drawable.app_logo_transparent),
+                contentDescription = null,
+                modifier = Modifier.size(64.dp)
+            )
+        }
     }
 }

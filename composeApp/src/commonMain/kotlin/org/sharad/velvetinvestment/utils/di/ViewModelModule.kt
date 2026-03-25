@@ -14,7 +14,7 @@ import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderS
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
-import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CASParserViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
@@ -55,8 +55,8 @@ val viewModelModule= module {
     viewModel { SIPDetailsViewModel() }
     viewModel {(id:String)-> FDDetailsViewModel(get(), fdId = id) }
     viewModel { ExploreFundScreenViewModel(get(), get()) }
-    viewModel { MutualFundViewModel(get()) }
-    viewModel { (id: String) -> MutualFundSearchResultViewModel(id = id, getMutualFundSearchResultUseCase = get()) }
+    viewModel { CategoryMutualFundViewModel(get()) }
+    viewModel { MutualFundSearchResultViewModel(getMutualFundSearchResultUseCase = get()) }
     viewModel { (id: String) ->
         MutualFundDetailsScreenViewModel(
             id = id,
