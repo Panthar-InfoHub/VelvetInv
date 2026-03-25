@@ -296,7 +296,7 @@ fun MIIText(
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = "Made in India \uD83C\uDDEE\uD83C\uDDF3",
+        text = "Made in India",
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium,
         fontFamily = Poppins,

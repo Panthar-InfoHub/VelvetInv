@@ -4,7 +4,7 @@ interface PdfDownloadManager {
     fun downloadPdf(
         pdfBytes: ByteArray,
         fileName: String,
-        onSuccess: () -> Unit,
+        onSuccess: (String?) -> Unit,
         onFailed: (String) -> Unit
     )
 }

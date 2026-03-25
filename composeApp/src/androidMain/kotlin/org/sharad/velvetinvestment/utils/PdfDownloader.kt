@@ -22,7 +22,7 @@ class PdfDownloader(
     override fun downloadPdf(
         pdfBytes: ByteArray,
         fileName: String,
-        onSuccess: () -> Unit,
+        onSuccess: (String?) -> Unit,
         onFailed: (String) -> Unit
     ) {
         try {
@@ -54,7 +54,7 @@ class PdfDownloader(
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                onSuccess()
+                onSuccess(null)
                 val pendingIntent = PendingIntent.getActivity(
                     context,
                     0,
@@ -94,7 +94,7 @@ class PdfDownloader(
                 )
 
                 showNotification(fileName, pendingIntent)
-                onSuccess()
+                onSuccess(null)
             }
         } catch (e: Exception) {
             Log("PDF_ERROR", e.message ?: "Unknown error")

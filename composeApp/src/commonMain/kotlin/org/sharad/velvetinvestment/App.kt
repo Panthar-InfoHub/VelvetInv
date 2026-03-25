@@ -77,18 +77,18 @@ fun App() {
                 }
             }
         ) { paddingValues ->
-//            BaseNavigation(
-//                windowSize = size,
-//                pv = paddingValues
-//            )
-            FileUploadScreen(
-                onBack = {
-
-                },
-                onSuccessfulUpload = {
-
-                }
+            BaseNavigation(
+                windowSize = size,
+                pv = paddingValues
             )
+//            FileUploadScreen(
+//                onBack = {
+//
+//                },
+//                onSuccessfulUpload = {
+
+//                }
+//            )
         }
     }
 }

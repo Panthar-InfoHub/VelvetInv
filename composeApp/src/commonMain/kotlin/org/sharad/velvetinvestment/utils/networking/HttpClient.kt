@@ -12,6 +12,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.sharad.velvetinvestment.utils.Log
@@ -30,10 +31,15 @@ fun getHttpClient(
         }
         install(Logging) {
             level = LogLevel.ALL
+
             logger = object : Logger {
                 override fun log(message: String) {
                     Log("Ktor Response", message)
                 }
+            }
+
+            filter { request ->
+                !request.url.encodedPath.contains("/api/v1/fire-report/pdf")
             }
         }
         install(HttpTimeout) {
