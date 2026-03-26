@@ -98,39 +98,39 @@ fun NavLineChart(
 
         /* ---------- LINE PATH ---------- */
 
-        val linePath = Path().apply {
-            moveTo(points.first().x, points.first().y)
-            for (i in 1 until points.size) {
-                lineTo(points[i].x, points[i].y)
-            }
-        }
-
-
-//        val smoothPath = Path().apply {
+//        val linePath = Path().apply {
 //            moveTo(points.first().x, points.first().y)
-//
-//            for (i in 1 until 20) {
-//                val prev = points[i - 1]
-//                val current = points[i]
-//                val next = points[i + 1]
-//
-//                val controlPoint1 = Offset(
-//                    x = current.x - (next.x - prev.x) ,
-//                    y = current.y - (next.y - prev.y)
-//                )
-//
-//                val controlPoint2 = Offset(
-//                    x = current.x + (next.x - prev.x),
-//                    y = current.y + (next.y - prev.y)
-//                )
-//
-//                cubicTo(
-//                    controlPoint1.x, controlPoint1.y,
-//                    controlPoint2.x, controlPoint2.y,
-//                    next.x, next.y
-//                )
+//            for (i in 1 until points.size) {
+//                lineTo(points[i].x, points[i].y)
 //            }
 //        }
+
+        val linePath = Path().apply {
+            if (points.isEmpty()) return@apply
+
+            moveTo(points.first().x, points.first().y)
+
+            if (points.size == 1) return@apply
+
+            // Catmull-Rom to Cubic Bezier conversion
+            for (i in 0 until points.size - 1) {
+                val p0 = points[(i - 1).coerceAtLeast(0)]
+                val p1 = points[i]
+                val p2 = points[i + 1]
+                val p3 = points[(i + 2).coerceAtMost(points.size - 1)]
+
+                // Control points derived from Catmull-Rom tension (0.3f = subtle smoothing)
+                val tension = 0.3f
+
+                val cp1x = p1.x + (p2.x - p0.x) * tension
+                val cp1y = p1.y + (p2.y - p0.y) * tension
+
+                val cp2x = p2.x - (p3.x - p1.x) * tension
+                val cp2y = p2.y - (p3.y - p1.y) * tension
+
+                cubicTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y)
+            }
+        }
 
         pathMeasureLine.setPath(linePath, false)
 

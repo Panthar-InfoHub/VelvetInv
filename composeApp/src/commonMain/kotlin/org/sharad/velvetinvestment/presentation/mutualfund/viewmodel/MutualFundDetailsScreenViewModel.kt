@@ -14,6 +14,7 @@ import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGraphUseCase
+import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
 import org.sharad.velvetinvestment.presentation.mutualfund.GraphDurationSelection
 import org.sharad.velvetinvestment.presentation.mutualfund.GraphState
@@ -32,6 +33,9 @@ class MutualFundDetailsScreenViewModel(
     val idTemp="771e9ac9-7159-477d-b54f-634a63f9ae75"
     private val _detailsState=MutableStateFlow<DetailsState>(DetailsState.Loading)
     val detailsState = _detailsState.asStateFlow()
+
+    private val _calculatorInput = MutableStateFlow(CalculatorInputState())
+    val calculatorInput = _calculatorInput.asStateFlow()
 
 
     private val _graphState = MutableStateFlow<GraphState>(GraphState.Loading)
@@ -136,6 +140,18 @@ class MutualFundDetailsScreenViewModel(
         _bottomSheetVisibility.value=false
     }
 
+
+    fun onSipToggle(isSip: Boolean) {
+        _calculatorInput.value = _calculatorInput.value.copy(isSip = isSip)
+    }
+
+    fun onInvestmentChange(value: Long) {
+        _calculatorInput.value = _calculatorInput.value.copy(monthlyInvestment = value)
+    }
+
+    fun onTimeChange(value: Int) {
+        _calculatorInput.value = _calculatorInput.value.copy(timeInYears = value)
+    }
 }
 
 fun Metrics.getBestMetric(): StableMetricUi? {
@@ -146,5 +162,17 @@ fun Metrics.getBestMetric(): StableMetricUi? {
         return_90d != null -> StableMetricUi("3M", return_90d)
         return_30d != null -> StableMetricUi("1M", return_30d)
         else -> null
+    }
+}
+
+
+fun Metrics.getPreferredReturn(): Float {
+    return when {
+        return_1y != null -> return_1y.toFloat()
+        return_6m != null -> return_6m.toFloat()
+        return_90d != null -> return_90d.toFloat()
+        return_30d != null -> return_30d.toFloat()
+        return_3y != null -> return_3y.toFloat()
+        else -> 12f
     }
 }

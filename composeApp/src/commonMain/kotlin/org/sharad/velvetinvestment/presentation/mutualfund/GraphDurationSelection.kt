@@ -5,7 +5,7 @@ enum class GraphDurationSelection(
     val label: String
 ) {
 
-    OneMonth("1m", "1M"),
+    OneMonth("3m", "3M"),
     SixMonths("6m", "6M"),
     OneYear("1y", "1Y"),
     ThreeYears("3y", "3Y"),

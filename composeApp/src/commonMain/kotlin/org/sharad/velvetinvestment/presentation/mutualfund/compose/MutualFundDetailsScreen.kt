@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.presentation.mutualfund.compose
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -21,8 +22,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,11 +33,16 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,6 +56,7 @@ import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
+import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
 import org.sharad.velvetinvestment.presentation.mutualfund.GraphDurationSelection
 import org.sharad.velvetinvestment.presentation.mutualfund.GraphState
@@ -60,12 +69,14 @@ import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.NavLineChart
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.VelvetLoader
+import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
+import velvet.composeapp.generated.resources.icon_share
 import velvet.composeapp.generated.resources.icon_warning
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,6 +97,8 @@ fun MutualFundDetailsScreenRoot(
     val bottomSheetVisibility by viewModel.bottomSheetVisibility.collectAsStateWithLifecycle()
     val sheetState= rememberModalBottomSheetState()
     val displayPercent by viewModel.stableMetric.collectAsStateWithLifecycle()
+
+    val calculatorState by viewModel.calculatorInput.collectAsStateWithLifecycle()
 
 
 
@@ -131,7 +144,13 @@ fun MutualFundDetailsScreenRoot(
                         onOneTimeSipClick = {
                             onOneTimeSipClick(id)
                             viewModel.showBottomSheet()
-                        }
+                        },
+
+                        //Calculator
+                        calculatorState=calculatorState,
+                        onCalcInvestmentChange=viewModel::onInvestmentChange,
+                        onCalcSipToggle=viewModel::onSipToggle,
+                        onCalcTimeChange=viewModel::onTimeChange
                     )
                 }
             }
@@ -159,8 +178,20 @@ fun MutualFundDetailsScreen(
     onMonthlySipClick: () -> Unit,
     onOneTimeSipClick: () -> Unit,
     displayPercent: StableMetricUi?,
-    graphPoints: List<MutualFundGraphPointsDomain>
+    graphPoints: List<MutualFundGraphPointsDomain>,
+    calculatorState: CalculatorInputState,
+    onCalcInvestmentChange: (Long) -> Unit,
+    onCalcSipToggle: (Boolean) -> Unit,
+    onCalcTimeChange: (Int) -> Unit
 ) {
+
+    var calculatorExpanded by remember { mutableStateOf(false) }
+    var riskExpanded by remember { mutableStateOf(false) }
+    var returnsExpanded by remember { mutableStateOf(false) }
+    var isShortTerm by remember { mutableStateOf(true) }
+    var overviewsExpanded by remember { mutableStateOf(false) }
+
+
     Column(
         modifier = Modifier.fillMaxSize()
     )
@@ -205,34 +236,70 @@ fun MutualFundDetailsScreen(
                     navChange = detailsState.data.metrics.nav_change_pct
                 )
             }
+
+            item { Spacer(Modifier.height(12.dp)) }
+
             item {
-                BarHeader(
-                    heading = "Asset Allocation",
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                WhatIfCalculator(
+                    modifier =Modifier.padding(horizontal = 16.dp),
+                    expanded =calculatorExpanded,
+                    onExpandToggle = {calculatorExpanded=!calculatorExpanded},
+                    input = calculatorState,
+                    metrics = detailsState.data.metrics,
+                    onModeChange = onCalcSipToggle,
+                    onInvestmentChange = onCalcInvestmentChange,
+                    onTimeChange = onCalcTimeChange
                 )
             }
-            item { Spacer(Modifier.height(20.dp)) }
-
-//            item {
-//                AssetAllocationCard(assets = detailsState.data.assets)
-//            }
-//            item { Spacer(Modifier.height(20.dp)) }
 
             item {
-                BarHeader(
-                    heading = "Other Top Rated Funds",
+                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
+            }
+
+            item {
+                RiskSection(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    showArrow = true,
-                    onArrowClick = { onFundTopClick("topRated") }
+                    expanded = riskExpanded,
+                    onExpandToggle ={ riskExpanded=!riskExpanded},
+                    riskLevel = detailsState.data.risk_level,
+                    riskText = detailsState.data.risk_name
                 )
             }
 
-//            item {
-//                TopRatedFunds(
-//                    topFunds = detailsState.data.topFunds,
-//                    onFundClick = onFundClick
-//                )
-//            }
+            item {
+                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
+            }
+
+            item {
+                ReturnsSection(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    expanded = returnsExpanded,
+                    onExpandToggle = { returnsExpanded=!returnsExpanded},
+                    isShortTerm = isShortTerm,
+                    onShortTermClick = { isShortTerm=true },
+                    onLongTermClick = { isShortTerm=false },
+                    metrics = detailsState.data.metrics
+                )
+            }
+
+            item {
+                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
+            }
+
+            item {
+                OverviewSection(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    expanded =overviewsExpanded,
+                    onExpandToggle = { overviewsExpanded=!overviewsExpanded},
+                    data = detailsState.data
+                )
+            }
+
+            item {
+                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
+            }
+
+            item { Spacer(Modifier.height(20.dp)) }
 
             item {
                 InvestmentRiskCard()
@@ -241,6 +308,37 @@ fun MutualFundDetailsScreen(
             item {
                 Spacer(Modifier.height( 20.dp))
             }
+
+
+//            item {
+//                BarHeader(
+//                    heading = "Asset Allocation",
+//                    modifier = Modifier.padding(horizontal = 16.dp)
+//                )
+//            }
+
+//            item {
+//                AssetAllocationCard(assets = detailsState.data.assets)
+//            }
+//            item { Spacer(Modifier.height(20.dp)) }
+//
+//            item {
+//                BarHeader(
+//                    heading = "Other Top Rated Funds",
+//                    modifier = Modifier.padding(horizontal = 16.dp),
+//                    showArrow = true,
+//                    onArrowClick = { onFundTopClick("topRated") }
+//                )
+//            }
+
+//            item {
+//                TopRatedFunds(
+//                    topFunds = detailsState.data.topFunds,
+//                    onFundClick = onFundClick
+//                )
+//            }
+
+
         }
 
         ContinueBackButtonFooter(
@@ -561,45 +659,50 @@ fun InfoCard(detailsState: DetailsState.Success, displayPercent: StableMetricUi?
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
     ) {
 
-//        Row(
-//            modifier=Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceBetween,
-//            verticalAlignment = Alignment.CenterVertically
-//        )
-//        {
-//
-//            AsyncImage(
-//                model = detailsState.data.icon,
-//                contentDescription = null,
-//                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(15.dp)),
-//                placeholder = painterResource(Res.drawable.fd_placeholder),
-//                error = painterResource(Res.drawable.fd_placeholder),
-//                fallback = painterResource(Res.drawable.fd_placeholder)
-//            )
+        Row(
+            modifier=Modifier.fillMaxWidth().padding(top=8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
 
-//            Box(
-//                modifier = Modifier
-//                    .size(48.dp)
-//                    .genericDropShadow(CircleShape)
-//                    .clip(CircleShape)
-//                    .background(Color.White)
-//                    .clickable(onClick = {}),
-//                contentAlignment = Alignment.Center
-//            ){
-//                Icon(
-//                    painter = painterResource(Res.drawable.icon_share),
-//                    contentDescription = null,
-//                    modifier = Modifier.size(32.dp),
-//                    tint = Secondary
-//                )
-//            }
+            Box(
+                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(15.dp))
+                    .background(Primary),
+                contentAlignment = Alignment.Center
+            ){
+                Text(
+                    text= detailsState.data.scheme_name.take(2).capitalize(Locale.current),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.White
+                )
+            }
 
-//        }
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .genericDropShadow(CircleShape)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .clickable(onClick = {}),
+                contentAlignment = Alignment.Center
+            ){
+                Icon(
+                    painter = painterResource(Res.drawable.icon_share),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = Secondary
+                )
+            }
+
+        }
 
         Text(
             text=detailsState.data.scheme_name,
-            style = MaterialTheme.typography.headlineLarge,
-            color = Color.Black
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black,
+            modifier = Modifier.padding(top=8.dp)
         )
 
         Text(

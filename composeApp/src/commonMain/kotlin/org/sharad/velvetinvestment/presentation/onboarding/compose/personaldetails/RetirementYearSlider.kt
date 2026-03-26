@@ -42,13 +42,7 @@ fun RetirementYearSlider(
         ?.let { (it - currentYear).coerceIn(0, 60).toFloat() }
         ?: 0f
     val finalYear= currentYear+60
-    val sliderState= rememberSliderState(
-        value = sliderPosition,
-        valueRange = 0f..60f,
-        onValueChangeFinished = {
-            onSliderUpdate(sliderPosition.toInt()+ currentYear)
-        }
-    )
+
 
     Column(
         modifier=modifier.fillMaxWidth()

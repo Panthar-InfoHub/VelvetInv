@@ -52,3 +52,9 @@ data class StableMetricUi(
     val label: String,
     val value: Double
 )
+
+data class CalculatorInputState(
+    val isSip: Boolean = true,
+    val monthlyInvestment: Long = 5000,
+    val timeInYears: Int = 5
+)
