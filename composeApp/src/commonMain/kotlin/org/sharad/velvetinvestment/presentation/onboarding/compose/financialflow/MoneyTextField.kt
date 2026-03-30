@@ -35,7 +35,7 @@ fun MoneyTextField(
     value:String,
     onValueChange:(String)->Unit,
     placeHolder:String,
-    label:String,
+    label:String?=null,
     mandatory: Boolean=false,
     modifier: Modifier = Modifier
 ){
@@ -44,20 +44,22 @@ fun MoneyTextField(
         modifier=modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row (
-            verticalAlignment = Alignment.Top
-        ){
-            Text(
-                text=label,
-                style = subHeadingMedium,
-                color = Color.Black
-            )
-            if (mandatory){
+        label?.let{
+            Row(
+                verticalAlignment = Alignment.Top
+            ) {
                 Text(
-                    text = "*",
-                    color = Color.Red,
-                    style = subHeadingMedium
+                    text = label,
+                    style = subHeadingMedium,
+                    color = Color.Black
                 )
+                if (mandatory) {
+                    Text(
+                        text = "*",
+                        color = Color.Red,
+                        style = subHeadingMedium
+                    )
+                }
             }
         }
 

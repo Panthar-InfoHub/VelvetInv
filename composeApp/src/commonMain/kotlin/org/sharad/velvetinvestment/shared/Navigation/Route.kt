@@ -73,7 +73,11 @@ object Route {
     @Serializable
     data object KYCFormScreen
     @Serializable
-    data object KYCImageUplaodScreen
+    data class KYCImageUploadScreen(val name:String)
+    @Serializable
+    data class KYCContractScreen(val name:String)
+    @Serializable
+    data class KYCCompleteScreen(val name:String,val verifiedDate:String)
 
     @Serializable
     data object GoalsScreen
@@ -88,6 +92,10 @@ object Route {
     @Serializable
     data object FixedDepositCategory
     @Serializable
-    data class FixedDepositSearchResult(val heading:String="Fixed Deposit",val id:String)
+    data object FixedDepositSearchResult
+    @Serializable
+    data class FixedDepositDetails(val id:String)
+    @Serializable
+    data class PurchaseFixedDeposit(val id:String)
 
 }

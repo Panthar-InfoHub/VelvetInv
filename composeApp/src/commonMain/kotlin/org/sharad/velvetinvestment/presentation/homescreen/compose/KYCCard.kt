@@ -31,7 +31,7 @@ import velvet.composeapp.generated.resources.arrow_right
 import velvet.composeapp.generated.resources.kyc_icon
 
 @Composable
-fun KYCCard(kyc: KYCCompletion?, onClick: () -> Unit) {
+fun KYCCard(onClick: () -> Unit) {
     Row(
         modifier=Modifier.fillMaxWidth()
             .height(80.dp)

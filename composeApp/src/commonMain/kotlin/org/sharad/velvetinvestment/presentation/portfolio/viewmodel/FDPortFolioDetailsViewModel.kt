@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.portfolio.FDDetailsDomain
-import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDDetailsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDPortFolioDetailsUseCase
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDDetailsUiModel
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiModel
 import org.sharad.velvetinvestment.utils.LoadingState
@@ -16,8 +16,8 @@ import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
-class FDDetailsViewModel(
-    private val getFDDetailsUseCase: GetFDDetailsUseCase,
+class FDPortFolioDetailsViewModel(
+    private val getFDPortFolioDetailsUseCase: GetFDPortFolioDetailsUseCase,
     private val fdId: String
 ) : ViewModel() {
 
@@ -36,7 +36,7 @@ class FDDetailsViewModel(
 
             _loadingState.value = LoadingState.Loading
 
-            getFDDetailsUseCase(fdId)
+            getFDPortFolioDetailsUseCase(fdId)
                 .onSuccess { domain ->
                     _fdDetails.value = domain.toUiModel()
                     _loadingState.value = LoadingState.Success

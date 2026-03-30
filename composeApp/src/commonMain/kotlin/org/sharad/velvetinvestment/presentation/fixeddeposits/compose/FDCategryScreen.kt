@@ -59,48 +59,48 @@ fun FDCategoryScreenRoot(
     onCategoryClick:(String,String)->Unit
 ){
 
-    val viewModel: FDCategoryViewModel = koinViewModel()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
-
-
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        ScreenHeader(
-            onBackClick = { onBackClick() },
-            onIconClick = { onIconClick() }
-        )
-        Box(
-            modifier = Modifier.weight(1f)
-                .fillMaxSize()
-        ){
-            when(uiState){
-                is UiState.Error->{
-                    ErrorScreen((uiState as UiState.Error).message, onRetryClick = {})
-                }
-                UiState.Loading -> {
-                    LoaderScreen()
-                }
-
-                is UiState.Success -> {
-                    val data= (uiState as UiState.Success<List<CategoryFixedDepositUIModel>>).data
-                    CategoryFDScreen(
-                        categoryList = data,
-                        onCategoryClick = onCategoryClick,
-                        onFundClick = {onFundClick(it)},
-                        searchText =searchText,
-                        onTextChange = { viewModel.onSearchTextChange(it) },
-                        pv =pv,
-                        onSearchClick = {onSearchClick(searchText)},
-                        onSortClick={id,sort->
-                            viewModel.reorderTenures(id,sort)
-                        }
-                    )
-                }
-            }
-        }
-    }
+//    val viewModel: FDCategoryViewModel = koinViewModel()
+//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+//    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
+//
+//
+//    Column(
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+//        ScreenHeader(
+//            onBackClick = { onBackClick() },
+//            onIconClick = { onIconClick() }
+//        )
+//        Box(
+//            modifier = Modifier.weight(1f)
+//                .fillMaxSize()
+//        ){
+//            when(uiState){
+//                is UiState.Error->{
+//                    ErrorScreen((uiState as UiState.Error).message, onRetryClick = {})
+//                }
+//                UiState.Loading -> {
+//                    LoaderScreen()
+//                }
+//
+//                is UiState.Success -> {
+//                    val data= (uiState as UiState.Success<List<CategoryFixedDepositUIModel>>).data
+//                    CategoryFDScreen(
+//                        categoryList = data,
+//                        onCategoryClick = onCategoryClick,
+//                        onFundClick = {onFundClick(it)},
+//                        searchText =searchText,
+//                        onTextChange = { viewModel.onSearchTextChange(it) },
+//                        pv =pv,
+//                        onSearchClick = {onSearchClick(searchText)},
+//                        onSortClick={id,sort->
+//                            viewModel.reorderTenures(id,sort)
+//                        }
+//                    )
+//                }
+//            }
+//        }
+//    }
 }
 
 @Composable

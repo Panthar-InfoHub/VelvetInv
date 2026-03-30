@@ -149,12 +149,14 @@ fun FileUploadScreen(
             }
         }
         NextButtonFooter(
-            onClick={viewModel.uploadImages(){
-
-            } },
-            pv=pv,
+            onClick = {
+                viewModel.uploadImages() {
+                    onSuccessfulUpload()
+                }
+            },
+            pv = pv,
             value = "Save and Continue",
-            loading=loading,
+            loading = loading,
             enabled = buttonEnabled
         )
     }

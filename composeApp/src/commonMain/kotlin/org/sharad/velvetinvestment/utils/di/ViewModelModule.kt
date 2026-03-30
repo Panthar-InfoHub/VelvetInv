@@ -6,12 +6,15 @@ import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScree
 import org.sharad.velvetinvestment.presentation.explorefunds.viewmodel.ExploreFundScreenViewModel
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.FireReportViewModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDCategoryViewModel
+import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDDetailsViewModel
+import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDPurchaseViewModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalInfoScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCFormScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
+import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KycContractViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
@@ -23,7 +26,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCo
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.OnBoardingConfirmationViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
-import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDDetailsViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.CheckKYCViewModel
@@ -34,7 +37,7 @@ import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.Trading
 val viewModelModule= module {
     viewModel { LoginScreenViewModel(get()) }
 
-    viewModel {(idx:Int)-> PersonalDetailsScreenViewModel(idx,get()) }
+    viewModel {(idx:Int)-> PersonalDetailsScreenViewModel(idx,get(),get()) }
     viewModel { FinancialFlowScreenViewModel() }
     viewModel { CurrentAssetViewModel() }
     viewModel { CASParserViewModel(get()) }
@@ -53,7 +56,7 @@ val viewModelModule= module {
     }
 
     viewModel { SIPDetailsViewModel() }
-    viewModel {(id:String)-> FDDetailsViewModel(get(), fdId = id) }
+    viewModel {(id:String)-> FDPortFolioDetailsViewModel(get(), fdId = id) }
     viewModel { ExploreFundScreenViewModel(get(), get()) }
     viewModel { CategoryMutualFundViewModel(get()) }
     viewModel { MutualFundSearchResultViewModel(getMutualFundSearchResultUseCase = get()) }
@@ -68,7 +71,7 @@ val viewModelModule= module {
     viewModel { FireReportViewModel(get(),get()) }
     viewModel { GoalInfoScreenViewModel(get()) }
     viewModel { FDCategoryViewModel(get()) }
-    viewModel {(id:String)-> FDSearchResultViewModel(id,get()) }
+    viewModel {FDSearchResultViewModel(get()) }
     viewModel { NotificationCentreViewModel() }
     viewModel { CheckKYCViewModel() }
     viewModel { SettingViewModel() }
@@ -77,4 +80,7 @@ val viewModelModule= module {
     viewModel{ KYCScreenViewModel(get(), get()) }
     viewModel{ KYCFormScreenViewModel(get(),get(),get()) }
     viewModel{ KYCImageUploaderScreenViewModel(get(),get(),get()) }
+    viewModel { KycContractViewModel(get(), get()) }
+    viewModel {(id:String)-> FDDetailsViewModel(id,get()) }
+    viewModel {(id:String)-> FDPurchaseViewModel(id,get(),get(), get()) }
 }

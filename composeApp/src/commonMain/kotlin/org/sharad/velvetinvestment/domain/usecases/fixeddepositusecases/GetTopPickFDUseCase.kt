@@ -12,6 +12,6 @@ class GetTopPickFDUseCase(
     suspend operator fun invoke():
             NetworkResponse<List<CategoryFixedDepositDomain>, NetworkError> {
 
-        return repository.getTopPickFDs()
+        return NetworkResponse.Success(emptyList<CategoryFixedDepositDomain>())
     }
 }

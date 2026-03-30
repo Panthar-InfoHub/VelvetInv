@@ -1,6 +1,8 @@
 package org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +38,9 @@ import org.sharad.emify.core.ui.theme.appOrange
 import org.sharad.emify.core.ui.theme.blueColor
 import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.emify.core.ui.theme.grayColor
+import org.sharad.velvetinvestment.shared.compose.VelvetLoader
 import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.utils.theme.VelvetTheme
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrowback_elements
 import velvet.composeapp.generated.resources.document_kyc_icon
@@ -46,34 +51,50 @@ import velvet.composeapp.generated.resources.tick_inside_circle
 
 @Preview(showSystemUi = true)
 @Composable
-fun KYCCompletedScreen() {
-    Column (modifier = Modifier.fillMaxSize().padding(16.dp).background(color = Color.White).navigationBarsPadding().statusBarsPadding()){
-        Row {
-            Icon(
-                painter = painterResource(Res.drawable.arrowback_elements),
-                contentDescription = "profile icon",
-                tint = Color.Black
-            )
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+fun KYCCompletedScreen(
+    name: String,
+    docType: String = "Aadhaar Card",
+    verifiedDate: String,
+    status: String = "Active & Verified",
+    onStartInvestingClick: () -> Unit = {},
+    onBackClick: () -> Unit = {}
+) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
+                .navigationBarsPadding().statusBarsPadding()
         ) {
-            item {
-                Box(
-                    modifier = Modifier.background(
-                        color = Color(0xff00C950), shape = CircleShape
-                    ).padding(16.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.tick_inside_circle),
-                        contentDescription = "tick icon",
-                        tint = Color.White
+            Row {
+                Icon(
+                    painter = painterResource(Res.drawable.arrowback_elements),
+                    contentDescription = "profile icon",
+                    tint = Color.Black,
+                    modifier=Modifier.clickable(
+                        onClick=onBackClick,
+                        indication = null,
+                        interactionSource = remember{ MutableInteractionSource() }
                     )
-                }
+                )
             }
-                  item {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                item {
+                    Box(
+                        modifier = Modifier.background(
+                            color = Color(0xff00C950), shape = CircleShape
+                        ).padding(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.tick_inside_circle),
+                            contentDescription = "tick icon",
+                            tint = Color.White
+                        )
+                    }
+                }
+                item {
                     Text(
                         "KYC Completed!",
                         fontFamily = Poppins,
@@ -81,138 +102,150 @@ fun KYCCompletedScreen() {
                         fontSize = 24.sp
                     )
 
-            }
+                }
 
-            item {
-                Text(
-                    "Your KYC verification has been successfully completed and approved.",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = grayColor,
-                    fontFamily = Poppins,
-                    textAlign = TextAlign.Center
-                )
-            }
+                item {
+                    Text(
+                        "Your KYC verification has been successfully completed and approved.",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = grayColor,
+                        fontFamily = Poppins,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
-                        .background(
-                            color = Color(0xffF9FAFB),
-                            shape = RoundedCornerShape(16.dp)
-                        ).padding(16.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp)
+                            .background(
+                                color = Color(0xffF9FAFB),
+                                shape = RoundedCornerShape(16.dp)
+                            ).padding(16.dp)
                     ) {
-                        Text(
-                            "Verification Details",
-                            color = grayColor,
-                            fontFamily = Poppins,
-                            fontSize = 14.sp,
-                        )
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(
-                                painter = painterResource(Res.drawable.kyc_person_icon),
-                                contentDescription = "person icon",
-                                tint = Color(0xff155DFC),
-                                modifier = Modifier.background(
-                                    color = Color(0xff155DFC).copy(0.1f),
-                                    shape = RoundedCornerShape(10.dp)
-                                ).padding(8.dp)
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                "Verification Details",
+                                color = grayColor,
+                                fontFamily = Poppins,
+                                fontSize = 14.sp,
                             )
-                            Column {
-                                Text(
-                                    "Full Name",
-                                    color = grayColor,
-                                    fontFamily = Poppins,
-                                    fontSize = 12.sp
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.kyc_person_icon),
+                                    contentDescription = "person icon",
+                                    tint = Color(0xff155DFC),
+                                    modifier = Modifier.background(
+                                        color = Color(0xff155DFC).copy(0.1f),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ).padding(8.dp)
                                 )
-                                Text("Rajesh Kumar", fontSize = 14.sp, fontFamily = Poppins)
+                                Column {
+                                    Text(
+                                        "Full Name",
+                                        color = grayColor,
+                                        fontFamily = Poppins,
+                                        fontSize = 12.sp
+                                    )
+                                    Text(name, fontSize = 14.sp, fontFamily = Poppins)
+                                }
                             }
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(
-                                painter = painterResource(Res.drawable.document_kyc_icon),
-                                contentDescription = "document icon",
-                                tint = Color(0xff9810FA),
-                                modifier = Modifier.background(
-                                    color = Color(0xff9810FA).copy(0.1f),
-                                    shape = RoundedCornerShape(10.dp)
-                                ).padding(8.dp)
-                            )
-                            Column {
-                                Text(
-                                    "Document Type",
-                                    color = grayColor,
-                                    fontFamily = Poppins,
-                                    fontSize = 12.sp
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.document_kyc_icon),
+                                    contentDescription = "document icon",
+                                    tint = Color(0xff9810FA),
+                                    modifier = Modifier.background(
+                                        color = Color(0xff9810FA).copy(0.1f),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ).padding(8.dp)
                                 )
-                                Text("Adhar Card", fontSize = 14.sp, fontFamily = Poppins)
+                                Column {
+                                    Text(
+                                        "Document Type",
+                                        color = grayColor,
+                                        fontFamily = Poppins,
+                                        fontSize = 12.sp
+                                    )
+                                    Text(docType, fontSize = 14.sp, fontFamily = Poppins)
+                                }
                             }
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(
-                                painter = painterResource(Res.drawable.kyc_person_icon),
-                                contentDescription = "person icon",
-                                tint = Color(0xffF54900),
-                                modifier = Modifier.background(
-                                    color = Color(0xffF54900).copy(0.1f),
-                                    shape = RoundedCornerShape(10.dp)
-                                ).padding(8.dp)
-                            )
-                            Column {
-                                Text(
-                                    "Verified On",
-                                    color = grayColor,
-                                    fontFamily = Poppins,
-                                    fontSize = 12.sp
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.kyc_person_icon),
+                                    contentDescription = "person icon",
+                                    tint = Color(0xffF54900),
+                                    modifier = Modifier.background(
+                                        color = Color(0xffF54900).copy(0.1f),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ).padding(8.dp)
                                 )
-                                Text(
-                                    "15 Feb 2026", fontSize = 14.sp, fontFamily = Poppins
-                                )
+                                Column {
+                                    Text(
+                                        "Verified On",
+                                        color = grayColor,
+                                        fontFamily = Poppins,
+                                        fontSize = 12.sp
+                                    )
+                                    Text(
+                                        verifiedDate, fontSize = 14.sp, fontFamily = Poppins
+                                    )
+                                }
                             }
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(
-                                painter = painterResource(Res.drawable.kyc_person_icon),
-                                contentDescription = "person icon",
-                                tint = appGreen,
-                                modifier = Modifier.background(
-                                    color = appGreen.copy(0.1f),
-                                    shape = RoundedCornerShape(10.dp)
-                                ).padding(8.dp)
-                            )
-                            Column {
-                                Text(
-                                    "Status",
-                                    color = grayColor,
-                                    fontFamily = Poppins,
-                                    fontSize = 12.sp
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.kyc_person_icon),
+                                    contentDescription = "person icon",
+                                    tint = appGreen,
+                                    modifier = Modifier.background(
+                                        color = appGreen.copy(0.1f),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ).padding(8.dp)
                                 )
-                                Text(
-                                    "Active & Verified",
-                                    fontSize = 14.sp,
-                                    fontFamily = Poppins,
-                                    color = appGreen
-                                )
-                            }
+                                Column {
+                                    Text(
+                                        "Status",
+                                        color = grayColor,
+                                        fontFamily = Poppins,
+                                        fontSize = 12.sp
+                                    )
+                                    Text(
+                                        status,
+                                        fontSize = 14.sp,
+                                        fontFamily = Poppins,
+                                        color = appGreen
+                                    )
+                                }
 
+                            }
                         }
                     }
                 }
-            }
                 item {
-                    TextButton(onClick = {}, colors = ButtonDefaults.buttonColors(containerColor = darkBlue, contentColor = Color.White), modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth()) {
+                    TextButton(
+                        onClick = {
+                            onStartInvestingClick()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = darkBlue,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth()
+                    ) {
                         Text(
                             "Start Investing",
                             fontSize = 18.sp,
                             fontFamily = Poppins,
-                            color = Color.White, fontWeight = FontWeight.Medium, modifier = Modifier.padding(4.dp)
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(4.dp)
                         )
                     }
                 }
             }
         }
     }
+}

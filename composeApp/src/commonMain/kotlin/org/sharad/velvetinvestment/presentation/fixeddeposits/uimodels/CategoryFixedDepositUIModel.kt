@@ -22,9 +22,4 @@ data class FixedDepositTenureUIModel(
     val tenureText: String,
     val interestText: String,
     val returnText: String,
-    val minDays: Int,
-    val maxDays: Int,
-    val interestRate: Double,
-    val returnMin: Long,
-    val returnMax: Long
 )

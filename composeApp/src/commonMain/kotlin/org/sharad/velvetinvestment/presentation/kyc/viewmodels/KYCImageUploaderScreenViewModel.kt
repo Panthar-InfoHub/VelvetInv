@@ -128,7 +128,7 @@ class KYCImageUploaderScreenViewModel(
             ) {
                 _loading.value = false
                 SnackBarController.showSnackBar(
-                    SnackBarType.Error("Error submitting KYC data")
+                    SnackBarType.Error("Error submitting data")
                 )
                 return@launch
             }
@@ -136,7 +136,7 @@ class KYCImageUploaderScreenViewModel(
             _loading.value = false
 
             SnackBarController.showSnackBar(
-                SnackBarType.Success("KYC uploaded successfully")
+                SnackBarType.Success("KYC data uploaded successfully")
             )
 
             onSuccessfulUpload()

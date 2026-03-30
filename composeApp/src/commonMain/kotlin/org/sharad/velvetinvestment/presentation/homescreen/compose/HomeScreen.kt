@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,9 +39,7 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.domain.models.home.FireReportSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
-import org.sharad.velvetinvestment.domain.models.home.KYCCompletion
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.shared.compose.BarHeader
@@ -53,6 +52,8 @@ import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.utils.AppEvents
+import org.sharad.velvetinvestment.utils.RefreshEvents
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -72,6 +73,16 @@ fun HomeScreenMain(
     navigateToGoalScreen: () -> Unit,
     navigateToNotification: () -> Unit
 ){
+
+    LaunchedEffect(Unit){
+        AppEvents.refreshEvents.collect {
+            when(it){
+                RefreshEvents.HomeEventRefresh -> {
+                    viewModel.loadHome()
+                }
+            }
+        }
+    }
 
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
 
@@ -96,15 +107,15 @@ fun HomeScreenMain(
                 HomeScreen(
                     name = data.name,
                     netWorth = data.userWorth,
-                    kyc = data.kyc,
+                    kyc = data.kycCompletion,
                     fireReport = data.fireReport,
                     goals = data.goals,
-                    onNotificationIconClick = {},
+                    onNotificationIconClick = {navigateToNotification()},
                     onSettingsIconClick = {},
                     pv = pv,
                     onFireReportClick = navigateToFireReportScreen,
                     navigateToKYCScreen = navigateToKYCScreen,
-                    navigateToGoalScreen=navigateToGoalScreen
+                    navigateToGoalScreen =navigateToGoalScreen
                 )
             }
         }
@@ -116,8 +127,8 @@ fun HomeScreenMain(
 fun HomeScreen(
     name: String,
     netWorth: UserWorthCardDomain?,
-    kyc: KYCCompletion?,
-    fireReport: FireReportSummaryDomain?,
+    kyc: Boolean,
+    fireReport: Long,
     goals: List<GoalsSummaryDomain>,
     onNotificationIconClick: () -> Unit,
     onSettingsIconClick: () -> Unit,
@@ -136,10 +147,10 @@ fun HomeScreen(
         item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick) }
         item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick={})}
         item{ BarHeader(heading = "Finish Setting Up Account") }
-        item{ KYCCard(kyc=kyc, onClick={navigateToKYCScreen()}) }
+        if (!kyc){ item { KYCCard(onClick = { navigateToKYCScreen() }) } }
         if (goals.isEmpty()){ item { FirstGoalCard(onClick={}) } }
-        item { FireReportHeader(fireReport?.setupStep?:0,fireReport?.totalStep?:8) }
-        item { FireReportCard(fireReport, onClick={onFireReportClick()}) }
+        item { FireReportHeader()}
+        item { FireReportCard(fireReport, onClick ={onFireReportClick()}) }
         item { BarHeader(heading = "Why Invest with Velvet?") }
         item {
             FeatureNavigationCards(
@@ -227,7 +238,7 @@ fun LazyListScope.homeGoalsInfo(goals: List<GoalsSummaryDomain>, onClick:(String
 
 
 @Composable
-fun FireReportCard(summary: FireReportSummaryDomain?, onClick: () -> Unit) {
+fun FireReportCard(summary: Long, onClick: () -> Unit) {
     Row(
         modifier=Modifier.fillMaxWidth()
             .height(80.dp)
@@ -273,7 +284,7 @@ fun FireReportCard(summary: FireReportSummaryDomain?, onClick: () -> Unit) {
                     modifier = Modifier.padding(end = 4.dp).width(15.dp)
                 )
                 Text(
-                    text="+${summary?.annualGrowth?:0}%",
+                    text="${12.5}%",
                     style = titlesStyle,
                     color = appGreen,
                 )
@@ -286,12 +297,12 @@ fun FireReportCard(summary: FireReportSummaryDomain?, onClick: () -> Unit) {
             }
 
         }
-        DotCapCircularProgress(
-            modifier = Modifier.size(44.dp),
-            percentage = summary?.fireNumber?.toFloat()?:0f,
-            color = Secondary,
-            textColor = Primary
-        )
+//        DotCapCircularProgress(
+//            modifier = Modifier.size(44.dp),
+//            percentage = summary?.fireNumber?.toFloat()?:0f,
+//            color = Secondary,
+//            textColor = Primary
+//        )
 
         Icon(
             painter = painterResource(Res.drawable.arrow_right),
@@ -304,7 +315,7 @@ fun FireReportCard(summary: FireReportSummaryDomain?, onClick: () -> Unit) {
 }
 
 @Composable
-fun FireReportHeader(setupStep: Int, totalStep: Int) {
+fun FireReportHeader() {
     Column(
         modifier=Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -336,12 +347,6 @@ fun FireReportHeader(setupStep: Int, totalStep: Int) {
                     color = Primary,
                 )
             }
-
-            Text(
-                text = "$setupStep/$totalStep Steps",
-                style = titlesStyle,
-                color =Color.Black
-            )
 
         }
     }

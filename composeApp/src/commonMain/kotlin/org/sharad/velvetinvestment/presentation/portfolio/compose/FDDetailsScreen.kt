@@ -44,7 +44,7 @@ import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDDetailsUiModel
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiModel
-import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDDetailsViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioDetailsViewModel
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
@@ -64,7 +64,7 @@ fun FDDetailsScreen(
     pv: PaddingValues
 ){
 
-    val viewModel: FDDetailsViewModel = koinViewModel{ parametersOf(id) }
+    val viewModel: FDPortFolioDetailsViewModel = koinViewModel{ parametersOf(id) }
 
     val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val details by viewModel.fdDetails.collectAsStateWithLifecycle()

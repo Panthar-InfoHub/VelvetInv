@@ -26,7 +26,7 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 
 @Composable
-fun KYCFormScreen(pv: PaddingValues, onNext: () -> Unit, onBack: () -> Unit){
+fun KYCFormScreen(pv: PaddingValues, onNext: (String) -> Unit, onBack: () -> Unit){
     val viewModel: KYCFormScreenViewModel = koinViewModel()
     val loading by viewModel.isLoading.collectAsStateWithLifecycle()
     val isDataLoaded by viewModel.isDataLoaded.collectAsStateWithLifecycle()
@@ -46,14 +46,14 @@ fun KYCFormScreen(pv: PaddingValues, onNext: () -> Unit, onBack: () -> Unit){
         LoaderScreen()
     }
     else{
-        FormContent(pv=pv, onNext=onNext, onBack=onBack, viewModel=viewModel)
+        FormContent(pv=pv, onNext= {it-> onNext(it) }, onBack=onBack, viewModel=viewModel)
     }
 }
 
 @Composable
 fun FormContent(
     pv: PaddingValues,
-    onNext: () -> Unit,
+    onNext: (String) -> Unit,
     onBack: () -> Unit,
     viewModel: KYCFormScreenViewModel
 ) {
@@ -240,7 +240,7 @@ fun FormContent(
         NextButtonFooter(
             onClick = {
                 viewModel.submitForm {
-                    onNext()
+                    onNext(state.name)
                 }
             },
             pv=pv,

@@ -8,7 +8,7 @@ import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 data class HomeScreenUiData(
     val name:String="Pooja",
     val userWorth: UserWorthCardDomain,
-    val fireReport: FireReportSummaryDomain?,
+    val fireReport: Long,
     val goals: List<GoalsSummaryDomain>,
-    val kyc: KYCCompletion?
+    val kycCompletion: Boolean
 )

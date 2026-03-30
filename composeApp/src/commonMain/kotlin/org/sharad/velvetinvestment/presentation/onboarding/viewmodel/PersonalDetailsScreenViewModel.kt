@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.domain.repository.UserAuth
 import org.sharad.velvetinvestment.presentation.onboarding.models.PersonalDetails
 import org.sharad.velvetinvestment.utils.isValidEmail
 import org.sharad.velvetinvestment.utils.isValidPhoneNumberInput
@@ -15,7 +17,8 @@ import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
 class PersonalDetailsScreenViewModel(
    private val step:Int,
-    private val authPrefs: AuthPrefs
+    private val authPrefs: AuthPrefs,
+    private val authRepo: UserAuth
 ): ViewModel() {
 
     private val _currentStep = MutableStateFlow(step)
@@ -94,6 +97,12 @@ class PersonalDetailsScreenViewModel(
 
     fun hideDateSelector(){
         _showDateSelector.value=false
+    }
+
+    fun signOut(){
+        viewModelScope.launch {
+            authRepo.signOut()
+        }
     }
 
 }

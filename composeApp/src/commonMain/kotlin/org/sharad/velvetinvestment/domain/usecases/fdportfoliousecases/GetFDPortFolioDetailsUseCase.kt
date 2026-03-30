@@ -5,7 +5,7 @@ import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import org.sharad.velvetinvestment.domain.models.portfolio.FDDetailsDomain
 import org.sharad.velvetinvestment.domain.repository.FDRepositoryPortFolio
 
-class GetFDDetailsUseCase(
+class GetFDPortFolioDetailsUseCase(
     private val repository: FDRepositoryPortFolio
 ) {
     suspend operator fun invoke(fdId: String): NetworkResponse<FDDetailsDomain, NetworkError> {

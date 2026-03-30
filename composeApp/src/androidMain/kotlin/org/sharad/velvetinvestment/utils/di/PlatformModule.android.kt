@@ -9,6 +9,8 @@ import org.sharad.velvetinvestment.utils.DeviceInfoRetrieverAndroid
 import org.sharad.velvetinvestment.utils.PdfDownloadManager
 import org.sharad.velvetinvestment.utils.PdfDownloader
 import org.sharad.velvetinvestment.utils.deviceinfoprovider.DeviceInfoRetriever
+import org.sharad.velvetinvestment.utils.pdfutils.PdfViewer
+import org.sharad.velvetinvestment.utils.pdfutils.PdfViewerAndroid
 import org.sharad.velvetinvestment.utils.storage.SharedPreference
 
 actual val platformModule: Module
@@ -17,5 +19,6 @@ actual val platformModule: Module
         single <SharedPreference>{ AndroidSharedPreferences(get()) }
         single<PdfDownloadManager> { PdfDownloader(get()) }
         single<BrowserLauncher> { AndroidBrowserLauncher(get()) }
+        single<PdfViewer> { PdfViewerAndroid(get()) }
 
     }

@@ -26,7 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sharad.emify.core.ui.theme.shadowColor
-import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FixedDepositUIModel
+import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.FundFilterRow
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentFilterScreen
@@ -45,14 +45,13 @@ fun FDSearchScreenRoot(
     onFDClick: (String) -> Unit,
     heading: String,
     pv: PaddingValues,
-    searchId:String
 ) {
 
 
-    val viewModel: FDSearchResultViewModel = koinViewModel{parametersOf(searchId)}
+    val viewModel: FDSearchResultViewModel = koinViewModel()
     val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
-    val sortedFD by viewModel.sortedFD.collectAsStateWithLifecycle()
+    val sortedFD by viewModel.fixedDeposits.collectAsStateWithLifecycle()
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
     val showFilterScreen by viewModel.showFilterScreen.collectAsStateWithLifecycle()
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
@@ -130,12 +129,11 @@ fun FDSearchScreenRoot(
         }
 
     }
-
 }
 
 @Composable
 fun FDSearchScreen(
-    result: List<FixedDepositUIModel>,
+    result: List<FixedDepositDomain>,
     onFDClick: (String) -> Unit,
     pv: PaddingValues,
     selectedYear: Int,
@@ -182,7 +180,7 @@ fun FDSearchScreen(
         item{Spacer(Modifier.height(10.dp))}
 
         itemsIndexed(result, key = { _, item -> item.id }){idx, fd ->
-            FDListCard(fd=fd, onClick = { onFDClick(fd.id) }, selectedYear=selectedYear)
+            FDListCard(fd =fd, onClick = { onFDClick(fd.id) }, selectedYear =selectedYear)
             if (idx!=result.size-1){
                 Box(
                     modifier = Modifier.fillMaxWidth()

@@ -67,10 +67,6 @@ fun FDDetailCard(
             HorizontalDivider()
             Text(text="Interest rates", style = MaterialTheme.typography.headlineSmall,color= Primary, modifier=Modifier.padding(vertical = 12.dp))
             FDTableHeader(
-                selected=fd.currentSort,
-                onSortClick={
-                    onSortClick(fd.id,it)
-                }
             )
             Spacer(Modifier.height(16.dp))
             fd.tenures.forEach {
@@ -120,10 +116,7 @@ private fun FDCardHeader(fd: FixedDepositUIModel) {
 }
 
 @Composable
-private fun FDTableHeader(
-    selected: FDTenureSort,
-    onSortClick: (FDTenureSort) -> Unit
-) {
+ fun FDTableHeader() {
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -142,39 +135,6 @@ private fun FDTableHeader(
                 style = subHeading,
                 color = Secondary
             )
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-
-                Icon(
-                    painter = painterResource(Res.drawable.filled_up),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(8.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            onSortClick(FDTenureSort.TENURE_ASC)
-                        },
-                    tint = if (selected == FDTenureSort.TENURE_ASC) Primary else bgShadowColor
-                )
-
-                Icon(
-                    painter = painterResource(Res.drawable.filled_down),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(8.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            onSortClick(FDTenureSort.TENURE_DESC)
-                        },
-                    tint = if (selected == FDTenureSort.TENURE_DESC) Primary else bgShadowColor
-                )
-            }
         }
 
         Row(
@@ -191,43 +151,43 @@ private fun FDTableHeader(
                 color = Secondary
             )
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-
-                Icon(
-                    painter = painterResource(Res.drawable.filled_up),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(8.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            onSortClick(FDTenureSort.INTEREST_ASC)
-                        },
-                    tint = if (selected == FDTenureSort.INTEREST_ASC) Primary else bgShadowColor
-                )
-
-                Icon(
-                    painter = painterResource(Res.drawable.filled_down),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(8.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            onSortClick(FDTenureSort.INTEREST_DESC)
-                        },
-                    tint = if (selected == FDTenureSort.INTEREST_DESC) Primary else bgShadowColor
-                )
-            }
+//            Column(
+//                verticalArrangement = Arrangement.spacedBy(2.dp)
+//            ) {
+//
+//                Icon(
+//                    painter = painterResource(Res.drawable.filled_up),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .width(8.dp)
+//                        .clickable(
+//                            indication = null,
+//                            interactionSource = remember { MutableInteractionSource() }
+//                        ) {
+//                            onSortClick(FDTenureSort.INTEREST_ASC)
+//                        },
+//                    tint = if (selected == FDTenureSort.INTEREST_ASC) Primary else bgShadowColor
+//                )
+//
+//                Icon(
+//                    painter = painterResource(Res.drawable.filled_down),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .width(8.dp)
+//                        .clickable(
+//                            indication = null,
+//                            interactionSource = remember { MutableInteractionSource() }
+//                        ) {
+//                            onSortClick(FDTenureSort.INTEREST_DESC)
+//                        },
+//                    tint = if (selected == FDTenureSort.INTEREST_DESC) Primary else bgShadowColor
+//                )
+//            }
         }
 
         // RETURNS
         Row(
-            modifier = Modifier.weight(1.4f),
+            modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
@@ -240,44 +200,44 @@ private fun FDTableHeader(
 
             Spacer(Modifier.width(4.dp))
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-
-                Icon(
-                    painter = painterResource(Res.drawable.filled_up),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(8.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            onSortClick(FDTenureSort.RETURNS_ASC)
-                        },
-                    tint = if (selected == FDTenureSort.RETURNS_ASC) Primary else bgShadowColor
-                )
-
-                Icon(
-                    painter = painterResource(Res.drawable.filled_down),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(8.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            onSortClick(FDTenureSort.RETURNS_DESC)
-                        },
-                    tint = if (selected == FDTenureSort.RETURNS_DESC) Primary else bgShadowColor
-                )
-            }
+//            Column(
+//                verticalArrangement = Arrangement.spacedBy(2.dp)
+//            ) {
+//
+//                Icon(
+//                    painter = painterResource(Res.drawable.filled_up),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .width(8.dp)
+//                        .clickable(
+//                            indication = null,
+//                            interactionSource = remember { MutableInteractionSource() }
+//                        ) {
+//                            onSortClick(FDTenureSort.RETURNS_ASC)
+//                        },
+//                    tint = if (selected == FDTenureSort.RETURNS_ASC) Primary else bgShadowColor
+//                )
+//
+//                Icon(
+//                    painter = painterResource(Res.drawable.filled_down),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .width(8.dp)
+//                        .clickable(
+//                            indication = null,
+//                            interactionSource = remember { MutableInteractionSource() }
+//                        ) {
+//                            onSortClick(FDTenureSort.RETURNS_DESC)
+//                        },
+//                    tint = if (selected == FDTenureSort.RETURNS_DESC) Primary else bgShadowColor
+//                )
+//            }
         }
     }
 }
 
 @Composable
-private fun FDTenureRow(
+fun FDTenureRow(
     tenure: FixedDepositTenureUIModel
 ) {
 
@@ -303,7 +263,7 @@ private fun FDTenureRow(
             style = titlesStyle,
             color = titleColor,
             textAlign = TextAlign.End,
-            modifier = Modifier.weight(1.4f),
+            modifier = Modifier.weight(1f),
         )
     }
 

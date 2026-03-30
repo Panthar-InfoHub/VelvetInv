@@ -5,6 +5,7 @@ import io.github.ismoy.imagepickerkmp.domain.models.PhotoResult
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -17,6 +18,7 @@ import org.sharad.velvetinvestment.data.remote.model.mfkyc.digilockerdetails.Dig
 import org.sharad.velvetinvestment.data.remote.model.mfkyc.imageupload.UrlUploadBodyDto
 import org.sharad.velvetinvestment.data.remote.model.mfkyc.imageupload.UrlUploadResultDto
 import org.sharad.velvetinvestment.data.remote.model.mfkyc.init.InitiateKycDto
+import org.sharad.velvetinvestment.data.remote.model.mfkyc.mfcontractpdf.ContractPdfDto
 import org.sharad.velvetinvestment.domain.models.mfkyc.DigiLockerDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mfkyc.KYCInitInfo
 import org.sharad.velvetinvestment.domain.models.mfkyc.KycFormDataDomain
@@ -156,6 +158,27 @@ class MFKYCRepo(
             is NetworkResponse.Success->{
                 NetworkResponse.Success(Unit)
             }
+        }
+    }
+
+    override suspend fun getContractPdf(): NetworkResponse<String, ErrorDomain> {
+        val response= safeRequest<ContractPdfDto> {
+            client.post(getUrl("/kyc/mf-contract"))
+        }
+        return when(response){
+            is NetworkResponse.Error ->{
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success->{
+                val url= response.data.data.`object`.result.combinedPdf
+                NetworkResponse.Success(url)
+            }
+        }
+    }
+
+    override suspend fun finalizeKyc(): NetworkResponse<Unit, ErrorDomain> {
+        return safeUnitRequest {
+            client.get(getUrl("/kyc/mf-verify"))
         }
     }
 }

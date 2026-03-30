@@ -12,7 +12,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import org.sharad.velvetinvestment.presentation.firereport.compose.FireReportScreen
-import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDCategoryScreenRoot
+import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDDetailsScreenRoot
+import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDPurchaseScreenRoot
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDSearchScreenRoot
 import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
@@ -25,8 +26,11 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.FDDetailsScree
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
+import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 
 @Composable
 fun AppNavigation(onSignOut: () -> Unit) {
@@ -84,52 +88,98 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             composable<Route.BottomNav> {
                 BottomNavigation(
-                    navigateToSIPDetailsScreen = {id->navController.navigate(Route.SIPDetails(id))},
-                    navigateToFDDetailsScreen = {id->navController.navigate(Route.FDDetailsScreen(id))},
-                    navigateToCategoryMutualFundScreen = {navController.navigate(Route.MutualFundSearchResult())},
-                    navigateToCategoryFDScreen = {navController.navigate(Route.FixedDepositCategory)},
-                    navigateToFireReportScreen = {navController.navigate(Route.FireReport)},
-                    navigateToKYCScreen={navController.navigate(Route.KYCScreen)},
-                    navigateToGoalScreen={navController.navigate(Route.GoalsScreen)},
-                    navigateToNotification={navController.navigate(Route.Notifications )},
-                    navigateToPersonalInfo={navController.navigate(Route.PersonalInformation)},
-                    navigateToMutualFundDetailScreen = {
-                        navController.navigate(Route.MutualFundDetails(it))
+                    navigateToSIPDetailsScreen = { id ->
+                        navController.navigate(Route.SIPDetails(id)) {
+                            launchSingleTop = true
+                        }
                     },
-                    onSignOut=onSignOut
+                    navigateToFDDetailsScreen = { id ->
+                        navController.navigate(Route.FDDetailsScreen(id)) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToCategoryMutualFundScreen = {
+                        navController.navigate(Route.MutualFundSearchResult()) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToCategoryFDScreen = {
+                        navController.navigate(Route.FixedDepositSearchResult) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToFireReportScreen = {
+                        navController.navigate(Route.FireReport) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToKYCScreen = {
+                        navController.navigate(Route.KYCScreen) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToGoalScreen = {
+                        navController.navigate(Route.GoalsScreen) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToNotification = {
+                        navController.navigate(Route.Notifications) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToPersonalInfo = {
+                        navController.navigate(Route.PersonalInformation) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToMutualFundDetailScreen = {
+                        navController.navigate(Route.MutualFundDetails(it)) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onSignOut = onSignOut
                 )
             }
 
             composable<Route.SIPDetails> {
-                val id= it.toRoute<Route.SIPDetails>().id
+                val id = it.toRoute<Route.SIPDetails>().id
                 SIPDetailsScreen(
-                    onBackClick = {navController.popBackStack()},
-                    onCancelClick={navController.navigate(Route.SIPCancellationScreen(it))},
-                    id=id,
-                    pv=pv
+                    onBackClick = { navController.popBackStack() },
+                    onCancelClick = {
+                        navController.navigate(Route.SIPCancellationScreen(it)) {
+                            launchSingleTop = true
+                        }
+                    },
+                    id = id,
+                    pv = pv
                 )
             }
             composable<Route.SIPCancellationScreen> {
-                val id= it.toRoute<Route.SIPCancellationScreen>().id
+                val id = it.toRoute<Route.SIPCancellationScreen>().id
                 CancelSIPConfirmationScreen(
-                    id=id,
-                    onConfirmClick = {id->navController.navigate(Route.CancelSIPReason(id))},
-                    onCancelClick = {navController.popBackStack()},
-                    pv=pv
+                    id = id,
+                    onConfirmClick = { id ->
+                        navController.navigate(Route.CancelSIPReason(id)) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onCancelClick = { navController.popBackStack() },
+                    pv = pv
                 )
             }
             composable<Route.CancelSIPReason> {
-                val id= it.toRoute<Route.CancelSIPReason>().id
+                val id = it.toRoute<Route.CancelSIPReason>().id
                 SIPCancellationReasonScreen(
-                    id=id,
+                    id = id,
                     onConfirmClick = {},
-                    onBackClick = {navController.popBackStack()},
-                    pv=pv
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv
                 )
             }
 
             composable<Route.FDDetailsScreen> {
-                val id= it.toRoute<Route.FDDetailsScreen>().id
+                val id = it.toRoute<Route.FDDetailsScreen>().id
                 FDDetailsScreen(
                     id = id,
                     onBackClick = { navController.popBackStack() },
@@ -142,14 +192,20 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
                     onIconClick = {},
-                    onFundClick = {id->
-                        navController.navigate(Route.MutualFundDetails(id))
+                    onFundClick = { id ->
+                        navController.navigate(Route.MutualFundDetails(id)) {
+                            launchSingleTop = true
+                        }
                     },
-                    onSearchClick = {search->
-                        navController.navigate(Route.MutualFundSearchResult())
+                    onSearchClick = { search ->
+                        navController.navigate(Route.MutualFundSearchResult()) {
+                            launchSingleTop = true
+                        }
                     },
-                    onCategoryClick = {id,name->
-                        navController.navigate(Route.MutualFundSearchResult(heading = name))
+                    onCategoryClick = { id, name ->
+                        navController.navigate(Route.MutualFundSearchResult(heading = name)) {
+                            launchSingleTop = true
+                        }
                     },
                 )
             }
@@ -159,21 +215,29 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     pv = pv,
                     heading = "Mutual Funds",
                     onFundClick = {
-                        navController.navigate(Route.MutualFundDetails(it))
+                        navController.navigate(Route.MutualFundDetails(it)) {
+                            launchSingleTop = true
+                        }
                     }
                 )
             }
             composable<Route.MutualFundDetails> {
-                val id= it.toRoute<Route.MutualFundDetails>().id
+                val id = it.toRoute<Route.MutualFundDetails>().id
                 MutualFundDetailsScreenRoot(
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
                     id = id,
                     onTopFundClick = {
-                        navController.navigate(Route.MutualFundSearchResult())
+                        navController.navigate(Route.MutualFundSearchResult()) {
+                            launchSingleTop = true
+
+                        }
                     },
                     onFundClick = {
-                        navController.navigate(Route.MutualFundDetails(it))
+                        navController.navigate(Route.MutualFundDetails(it)) {
+                            launchSingleTop = true
+
+                        }
                     },
                     onMonthlySipClick = {},
                     onOneTimeSipClick = {}
@@ -182,37 +246,87 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             composable<Route.FireReport> {
                 FireReportScreen(
-                    onBack = {navController.popBackStack()}
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable<Route.KYCScreen> {
                 KYCScreen(
-                    onBackClick = {navController.popBackStack()},
-                    onKYCInitSuccess = {navController.navigate(Route.KYCFormScreen)},
-                    pv=pv
+                    onBackClick = { navController.popBackStack() },
+                    onKYCInitSuccess = {
+                        navController.navigate(Route.KYCFormScreen) {
+                            launchSingleTop = true
+
+                        }
+                    },
+                    pv = pv
                 )
             }
             composable<Route.KYCFormScreen> {
                 KYCFormScreen(
-                    onBack = {navController.popBackStack()},
-                    onNext = {
-                        navController.navigate(Route.KYCImageUplaodScreen)
+                    onBack = { navController.popBackStack() },
+                    onNext = { it ->
+                        navController.navigate(Route.KYCImageUploadScreen(it)) {
+                            launchSingleTop = true
+
+                        }
                     },
-                    pv=pv
+                    pv = pv
                 )
             }
-            composable<Route.KYCImageUplaodScreen> {
+            composable<Route.KYCImageUploadScreen> {
+                val name = it.toRoute<Route.KYCImageUploadScreen>().name
                 FileUploadScreen(
-                    onBack = {navController.popBackStack()},
+                    onBack = { navController.popBackStack() },
                     onSuccessfulUpload = {
+                        navController.navigate(Route.KYCContractScreen(name)) {
+                            launchSingleTop = true
 
+                        }
                     },
-                    pv=pv
+                    pv = pv
+                )
+            }
+            composable<Route.KYCContractScreen> {
+                val name = it.toRoute<Route.KYCContractScreen>().name
+                val date = DateTimeUtils.epochMillisToDate(DateTimeUtils.getCurrentEpochMillis())
+                KycContractScreen(
+                    onBack = { navController.popBackStack() },
+                    onSuccessfulUpload = {
+                        navController.navigate(
+                            Route.KYCCompleteScreen(
+                                name = name,
+                                verifiedDate = date
+                            )
+                        ) {
+                            popUpTo(Route.BottomNav) {
+                                inclusive = false
+                            }
+                            launchSingleTop = true
+                        }
+                    },
+                    pv = pv
+                )
+            }
+
+            composable<Route.KYCCompleteScreen> {
+                val name = it.toRoute<Route.KYCCompleteScreen>().name
+                val date= it.toRoute<Route.KYCCompleteScreen>().verifiedDate
+                KYCCompletedScreen(name=name, verifiedDate = date, onBackClick ={
+                    navController.popBackStack()
+                },
+                    onStartInvestingClick = {
+                        navController.navigate(Route.MutualFundSearchResult) {
+                            popUpTo(Route.MutualFundSearchResult) {
+                                inclusive = false
+                            }
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
             composable<Route.GoalsScreen> {
                 GoalScreen(
-                    onBack = {navController.popBackStack()},
+                    onBack = { navController.popBackStack() },
                     onAddClick = {},
                     pv = pv,
                     onGoalClick = {}
@@ -220,43 +334,59 @@ fun AppNavigation(onSignOut: () -> Unit) {
             }
             composable<Route.Notifications> {
                 NotificationScreen(
-                    onBack = {navController.popBackStack()},
+                    onBack = { navController.popBackStack() },
                     pv = pv,
                 )
             }
             composable<Route.PersonalInformation> {
                 PersonalInformationScreen(
-                    onBack = {navController.popBackStack()},
+                    onBack = { navController.popBackStack() },
                     pv = pv,
                 )
             }
 
 
             composable<Route.FixedDepositCategory> {
-                FDCategoryScreenRoot(
-                    onBackClick = {navController.popBackStack()},
-                    onIconClick = {},
-                    onFundClick = {},
-                    pv = pv,
-                    onSearchClick = {
-                        navController.navigate(Route.FixedDepositSearchResult(id = it))
-                    },
-                    onCategoryClick = {id,name->
-                        navController.navigate(Route.FixedDepositSearchResult(id = id))
-                    }
-                )
+//                FDCategoryScreenRoot(
+//                    onBackClick = {navController.popBackStack()},
+//                    onIconClick = {},
+//                    onFundClick = {},
+//                    pv = pv,
+//                    onSearchClick = {
+//                        navController.navigate(Route.FixedDepositSearchResult(id = it))
+//                    },
+//                    onCategoryClick = {id,name->
+//                        navController.navigate(Route.FixedDepositSearchResult(id = id))
+//                    }
+//                )
             }
             composable<Route.FixedDepositSearchResult> {
-                val category= it.toRoute<Route.FixedDepositSearchResult>().heading
-                val id= it.toRoute<Route.FixedDepositSearchResult>().id
+//                val category= it.toRoute<Route.FixedDepositSearchResult>().heading
+//                val id= it.toRoute<Route.FixedDepositSearchResult>().id
                 FDSearchScreenRoot(
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
-                    heading = category,
-                    searchId = id,
+                    heading = "Fixed Deposit",
                     onFDClick = {
-
+                        navController.navigate(Route.FixedDepositDetails(it))
                     }
+                )
+            }
+            composable<Route.FixedDepositDetails> {
+                val id = it.toRoute<Route.FixedDepositDetails>().id
+                FDDetailsScreenRoot(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv,
+                    id = id,
+                    onPurchaseClick = { navController.navigate(Route.PurchaseFixedDeposit(id)) }
+                )
+            }
+            composable<Route.PurchaseFixedDeposit> {
+                val id = it.toRoute<Route.PurchaseFixedDeposit>().id
+                FDPurchaseScreenRoot(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv,
+                    id = id
                 )
             }
         }

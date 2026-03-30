@@ -1,6 +1,8 @@
 package org.sharad.velvetinvestment.data.remote.repository
 
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.authProviders
+import io.ktor.client.plugins.auth.clearAuthTokens
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -13,6 +15,7 @@ import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDt
 import org.sharad.velvetinvestment.data.remote.model.useedata.UserDataDto
 import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
 import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.deviceinfoprovider.DeviceInfoRetriever
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -106,7 +109,10 @@ class UserAuthenticationRepo(
     }
 
     override suspend fun signOut(): NetworkResponse<Unit, ErrorDomain> {
+        Log("Auth Tokens", client.authProviders.toString())
         authPrefs.clearAuth()
+        client.clearAuthTokens()
+        Log("Auth Tokens", client.authProviders.toString())
         return NetworkResponse.Success(Unit)
     }
 

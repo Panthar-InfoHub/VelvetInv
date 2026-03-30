@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
+import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
 import org.sharad.velvetinvestment.shared.Navigation.BaseNavigation
 import org.sharad.velvetinvestment.shared.rememberWindowSize
 import org.sharad.velvetinvestment.utils.Log
@@ -81,14 +83,7 @@ fun App() {
                 windowSize = size,
                 pv = paddingValues
             )
-//            FileUploadScreen(
-//                onBack = {
-//
-//                },
-//                onSuccessfulUpload = {
 
-//                }
-//            )
         }
     }
 }

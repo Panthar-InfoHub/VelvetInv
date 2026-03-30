@@ -3,12 +3,12 @@ package org.sharad.velvetinvestment.utils.di
 import io.ktor.client.HttpClient
 import org.koin.dsl.module
 import org.sharad.velvetinvestment.data.remote.repository.CASRepo
+import org.sharad.velvetinvestment.data.remote.repository.FixedDepositRepo
 import org.sharad.velvetinvestment.data.remote.repository.MFKYCRepo
 import org.sharad.velvetinvestment.data.remote.repository.MutualFundRepo
 import org.sharad.velvetinvestment.data.remote.repository.UserAuthenticationRepo
 import org.sharad.velvetinvestment.data.remote.repository.UserFinanceRepo
 import org.sharad.velvetinvestment.data.remote.repository.dummy.DummyFDRepositoryPortFolio
-import org.sharad.velvetinvestment.data.remote.repository.dummy.FakeFixedDepositRepository
 import org.sharad.velvetinvestment.data.remote.repository.dummy.HomeRepositoryMock
 import org.sharad.velvetinvestment.domain.repository.FDRepositoryPortFolio
 import org.sharad.velvetinvestment.domain.repository.FixedDepositRepository
@@ -35,7 +35,7 @@ val repositoryModule = module {
     }
 
     single<UserFinance> { UserFinanceRepo(get()) }
-    single<FixedDepositRepository> { FakeFixedDepositRepository() }
+    single<FixedDepositRepository> { FixedDepositRepo(get()) }
 
     single<UserAuth> { UserAuthenticationRepo(get(), get(), get()) }
     single<MFKYCRepository> { MFKYCRepo(get()) }

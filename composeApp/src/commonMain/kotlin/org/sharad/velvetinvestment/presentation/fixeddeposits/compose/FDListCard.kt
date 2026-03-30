@@ -25,19 +25,19 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.appGreen
-import org.sharad.emify.core.ui.theme.appOrange
 import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.appYellow
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.RiskLevel
-import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FixedDepositUIModel
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.fd_placeholder
 
 @Composable
-fun FDListCard(fd: FixedDepositUIModel, onClick: () -> Unit, selectedYear: Int) {
+fun FDListCard(fd: FixedDepositDomain, onClick: () -> Unit, selectedYear: Int) {
     Column(
         modifier=Modifier.fillMaxWidth()
             .clickable(onClick=onClick)
@@ -71,9 +71,7 @@ fun FDListCard(fd: FixedDepositUIModel, onClick: () -> Unit, selectedYear: Int) 
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        text = fd.tenures.firstOrNull {
-                            (selectedYear * 365) in it.minDays..it.maxDays
-                        }?.interestText ?: "--",
+                        text = (fd.tenures.firstOrNull()?.interestRate?.trimTo(2) ?: "0") +" %",
                         style = subHeading,
                         color = appGreen
                     )
@@ -90,7 +88,7 @@ fun FDListCard(fd: FixedDepositUIModel, onClick: () -> Unit, selectedYear: Int) 
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        text = selectedYear.toString()+"Y",
+                        text = "3 Y",
                         style = titlesStyle,
                         color = titleColor,
                     )
@@ -124,8 +122,8 @@ fun RiskLevelIndicator(risk: RiskLevel) {
 
     Row(
         modifier = Modifier.height(20.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
 
         Text(
@@ -136,7 +134,7 @@ fun RiskLevelIndicator(risk: RiskLevel) {
 
         Row(
             modifier = Modifier
-                .fillMaxHeight(),
+                .height(12.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
