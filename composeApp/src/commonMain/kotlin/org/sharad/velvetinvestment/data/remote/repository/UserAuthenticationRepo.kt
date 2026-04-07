@@ -12,6 +12,12 @@ import org.sharad.velvetinvestment.data.remote.model.auth.sendotp.SendOtpDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpBodyDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
+import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
+import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
+import org.sharad.velvetinvestment.data.remote.model.updateuserdata.GoalsUpdateDto
+import org.sharad.velvetinvestment.data.remote.model.updateuserdata.InsuranceUpdateDto
+import org.sharad.velvetinvestment.data.remote.model.updateuserdata.LoanUpdateDto
+import org.sharad.velvetinvestment.data.remote.model.updateuserdata.ProfileUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.useedata.UserDataDto
 import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
 import org.sharad.velvetinvestment.domain.repository.UserAuth
@@ -137,6 +143,8 @@ class UserAuthenticationRepo(
         }
     }
 
+
+
     override suspend fun getUserData(): NetworkResponse<UserDataDto, ErrorDomain> {
         val response= safeRequest<UserDataDto> {
             client.get(
@@ -144,5 +152,58 @@ class UserAuthenticationRepo(
             )
         }
         return  response
+    }
+
+    override suspend fun updateAssets(
+        data: AssetUpdateDto
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return postPartial(data)
+    }
+
+    override suspend fun updateFinance(
+        data: FinanceUpdateDto
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return postPartial(data)
+    }
+
+    override suspend fun updateInsurance(
+        data: InsuranceUpdateDto
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return postPartial(data)
+    }
+
+
+    override suspend fun updateLoans(
+        data: LoanUpdateDto
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return postPartial(data)
+    }
+
+    override suspend fun updateProfile(
+        data: ProfileUpdateDto
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return postPartial(data)
+    }
+
+    override suspend fun updateGoals(
+        data: GoalsUpdateDto
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return postPartial(data)
+    }
+
+    private suspend inline fun <reified T> postPartial(
+        body: T
+    ): NetworkResponse<Unit, ErrorDomain> {
+
+        val response = safeUnitRequest {
+            client.post(getUrl("/onboarding/complete-onboarding")) {
+                setBody<T>(body)
+            }
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> response
+        }
     }
 }

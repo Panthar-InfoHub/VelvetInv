@@ -47,9 +47,18 @@ object Route {
     data object Home
     @Serializable
     data object FundScreener
-
     @Serializable
     data object PortFolio
+    @Serializable
+    data object Insurance
+
+    @Serializable
+    data object HealthInsurance
+    @Serializable
+    data object TermInsurance
+    @Serializable
+    data object OtherInsurance
+
 
     @Serializable
     data class SIPDetails(val id:String)
@@ -68,6 +77,16 @@ object Route {
     data class MutualFundDetails(val id:String)
     @Serializable
     data object FireReport
+    @Serializable
+    data object FireReportUpdateOptions
+    @Serializable
+    data object FinancialFlowEdit
+    @Serializable
+    data object InsuranceCoverageEdit
+    @Serializable
+    data object CurrentAssetEdit
+
+
     @Serializable
     data object KYCScreen
     @Serializable
@@ -97,5 +116,29 @@ object Route {
     data class FixedDepositDetails(val id:String)
     @Serializable
     data class PurchaseFixedDeposit(val id:String)
+    @Serializable
+    data object CartScreen
 
+    @Serializable
+    data object TradingAccountNavigation
+
+    @Serializable
+    data object TradingAccountBasicDetails
+    @Serializable
+    data object TradingAccountPANDetails
+    @Serializable
+    data object TradingAccountFinancialDetails
+    @Serializable
+    data object TradingAccountClientInfo
+    @Serializable
+    data object TradingAccountBankDetails
+    @Serializable
+    data object TradingAccountAddressDetails
+    @Serializable
+    data object TradingAccountGuardianDetails
+    @Serializable
+    data object TradingAccountGuardiansPANDetails
+
+    @Serializable
+    data object SingleGoadAdd
 }

@@ -113,7 +113,7 @@ fun SIPDetailsLoadedScreen(sipData: SIPDetailsDomain, pv: PaddingValues) {
             backText = "Withdraw",
             onContinue = {},
             onBack = {},
-            pv = pv
+            pv = pv,
         )
 
     }

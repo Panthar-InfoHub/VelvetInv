@@ -9,24 +9,21 @@ import org.sharad.velvetinvestment.data.remote.model.useedata.Data
 import org.sharad.velvetinvestment.data.remote.model.useedata.UserDataDto
 import org.sharad.velvetinvestment.data.remote.model.useedata.UserGoal
 import org.sharad.velvetinvestment.domain.GoalType
-import org.sharad.velvetinvestment.domain.models.home.FireReportSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
-import org.sharad.velvetinvestment.domain.models.home.KYCCompletion
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.presentation.goals.uimodels.GoalOption
 import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
+import org.sharad.velvetinvestment.utils.trimDoubleTo
+import org.sharad.velvetinvestment.utils.trimTo
 
 fun UserDataDto.toHomeScreenUiData(): HomeScreenUiData {
     return HomeScreenUiData(
         name = data.full_name.trim(),
-
         userWorth = data.toUserWorth(),
-
-        fireReport = data.user_home_data.fire_number.emi_exclude.toLong(),
-
+        fireReport = data.user_home_data.fire_percentage.emi_include.trimDoubleTo(2),
         goals = data.user_goals.map { it.toGoalSummary() },
-
-        kycCompletion = data.toKycCompletion()
+        kycCompletion = data.toKycCompletion(),
+        tradingAccountCompletion = data.toTradingCompletion(),
     )
 }
 
@@ -88,11 +85,17 @@ fun UserGoal.mapGoalOption(): GoalOption {
 
 fun Data.toKycCompletion(): Boolean {
 
-    val mfKyc = kyc_types.firstOrNull { it.kyc_type == "mf" }
 
-    val isCompleted = mfKyc?.status
+    val isCompleted = this.kyc_types.mf?.status
         ?.lowercase()
-        ?.contains("complete") == true
+        ?.contains("verified") == true
 
+    return isCompleted
+}
+
+fun Data.toTradingCompletion(): Boolean {
+    val isCompleted = this.kyc_types.trading?.status
+        ?.lowercase()
+        ?.contains("verified") == true
     return isCompleted
 }

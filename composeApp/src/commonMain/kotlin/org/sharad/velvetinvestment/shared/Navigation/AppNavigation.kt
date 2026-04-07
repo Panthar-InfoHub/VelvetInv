@@ -11,11 +11,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import org.sharad.velvetinvestment.presentation.firereport.compose.CurrentAssetEditScreen
+import org.sharad.velvetinvestment.presentation.firereport.compose.FinancialFlowEditScreen
 import org.sharad.velvetinvestment.presentation.firereport.compose.FireReportScreen
+import org.sharad.velvetinvestment.presentation.firereport.compose.InsuranceCoverageEditScreen
+import org.sharad.velvetinvestment.presentation.firereport.compose.UpdateDetailsScreen
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDDetailsScreenRoot
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDPurchaseScreenRoot
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDSearchScreenRoot
 import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
+import org.sharad.velvetinvestment.presentation.goals.compose.SingleGoalScreen
+import org.sharad.velvetinvestment.presentation.insurance.HealthInsuranceScreen
+import org.sharad.velvetinvestment.presentation.insurance.OtherInsuranceScreen
+import org.sharad.velvetinvestment.presentation.insurance.TermInsuranceScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCFormScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
@@ -27,6 +35,7 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellatio
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.CartScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
@@ -138,6 +147,27 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
+                    navigateToHealthInsurance = {
+                        navController.navigate(Route.HealthInsurance) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToTermInsurance = {
+                        navController.navigate(Route.TermInsurance) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToOtherInsurance = {
+                        navController.navigate(Route.OtherInsurance) {
+                            launchSingleTop = true
+                        }
+
+                    },
+                    navigateToAddGoal={
+                        navController.navigate(Route.SingleGoadAdd){
+                            launchSingleTop=true
+                        }
+                    },
                     onSignOut = onSignOut
                 )
             }
@@ -239,16 +269,81 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
                         }
                     },
-                    onMonthlySipClick = {},
-                    onOneTimeSipClick = {}
+                    onCartClick = {
+                        navController.navigate(Route.CartScreen)
+                    },
+                    onKycClick={
+                        navController.navigate(Route.KYCScreen){
+                            launchSingleTop=true
+                        }
+                    },
+                    onTradingAccountClick={
+                        navController.navigate(Route.KYCScreen){
+                            launchSingleTop=true
+                        }
+                    }
                 )
             }
 
             composable<Route.FireReport> {
                 FireReportScreen(
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onUpdateClick = {
+                        navController.navigate(Route.FireReportUpdateOptions) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
+
+            composable<Route.FireReportUpdateOptions> {
+                UpdateDetailsScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onFinancialFlowClick = {
+                        navController.navigate(Route.FinancialFlowEdit) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onLoanClick = {},
+                    onInsuranceClick = {
+                        navController.navigate(Route.InsuranceCoverageEdit) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onAssetClick={
+                        navController.navigate(Route.CurrentAssetEdit){
+                            launchSingleTop=true
+                        }
+                    },
+                    onGoalsClick = {}
+                )
+            }
+
+            composable<Route.FinancialFlowEdit> {
+                FinancialFlowEditScreen(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv
+                )
+            }
+
+            composable<Route.InsuranceCoverageEdit> {
+                InsuranceCoverageEditScreen(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv
+                )
+            }
+
+            composable<Route.CurrentAssetEdit> {
+                CurrentAssetEditScreen(
+                    onBackClick = { navController.popBackStack() },
+                    pv = pv
+                )
+            }
+
+
+
             composable<Route.KYCScreen> {
                 KYCScreen(
                     onBackClick = { navController.popBackStack() },
@@ -315,8 +410,8 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     navController.popBackStack()
                 },
                     onStartInvestingClick = {
-                        navController.navigate(Route.MutualFundSearchResult) {
-                            popUpTo(Route.MutualFundSearchResult) {
+                        navController.navigate(Route.MutualFundSearchResult()) {
+                            popUpTo(Route.MutualFundSearchResult()) {
                                 inclusive = false
                             }
                             launchSingleTop = true
@@ -327,7 +422,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.GoalsScreen> {
                 GoalScreen(
                     onBack = { navController.popBackStack() },
-                    onAddClick = {},
+                    onAddClick = {
+                        navController.navigate(Route.SingleGoadAdd) {
+                            launchSingleTop = true
+                        }
+                    },
                     pv = pv,
                     onGoalClick = {}
                 )
@@ -389,6 +488,37 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     id = id
                 )
             }
+            composable<Route.CartScreen> {
+                CartScreen(
+                    pv = pv,
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable<Route.HealthInsurance> {
+                HealthInsuranceScreen { navController.popBackStack() }
+            }
+            composable<Route.TermInsurance> {
+                TermInsuranceScreen { navController.popBackStack() }
+            }
+            composable<Route.OtherInsurance> {
+                OtherInsuranceScreen { navController.popBackStack() }
+            }
+
+            composable<Route.TradingAccountNavigation> {
+                TradingAccountNavigation(
+                    onBackClick = { navController.popBackStack() },
+                )
+            }
+
+            composable<Route.SingleGoadAdd> {
+                SingleGoalScreen(
+                    pv = pv,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
         }
     }
 }

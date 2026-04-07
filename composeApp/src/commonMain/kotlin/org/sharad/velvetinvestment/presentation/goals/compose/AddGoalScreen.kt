@@ -1,0 +1,309 @@
+package org.sharad.velvetinvestment.presentation.goals.compose
+
+
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.velvetinvestment.domain.GoalType
+import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalFormState
+import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalUiState
+import org.sharad.velvetinvestment.presentation.goals.viewmodel.SingleGoalViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.MoneyTextField
+import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.GoalEntry
+import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.GoalSelectionDropDown
+import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.goalOptions
+import org.sharad.velvetinvestment.shared.compose.BackHeader
+import org.sharad.velvetinvestment.shared.compose.BarHeader
+import org.sharad.velvetinvestment.shared.compose.ErrorScreen
+import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.utils.UiState
+
+
+@Composable
+fun SingleGoalScreen(
+    pv: PaddingValues,
+    onBack: () -> Unit
+) {
+
+    val vm: SingleGoalViewModel = koinViewModel()
+
+    val state by vm.state.collectAsStateWithLifecycle()
+    val loading by vm.loading.collectAsStateWithLifecycle()
+
+
+
+    Column(modifier = Modifier.fillMaxSize()) {
+
+        when (state) {
+
+            is UiState.Loading -> {
+                LoaderScreen()
+            }
+
+            is UiState.Error -> {
+                ErrorScreen((state as UiState.Error).message){
+                    vm.loadUserData()
+                }
+            }
+
+            is UiState.Success -> {
+
+                val data = (state as UiState.Success<GoalUiState>).data
+                BackHeader(
+                    heading = "Add Goal",
+                    showBack = true,
+                    onBackClick = onBack
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
+                    item {
+                        GoalFormSection(
+                            form = data.form,
+                            onChange = vm::updateForm
+                        )
+                    }
+
+                    data.preview?.let {
+                        item {
+                            GoalEntry(
+                                goalInfo = it,
+                                dob = data.dob,
+                                showDelete = false,
+                                onDeleteClick = {}
+                            )
+                        }
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(pv.calculateBottomPadding()+16.dp))
+                    }
+                }
+
+                // ---------- CTA ----------
+                NextButtonFooter(
+                    value = "Save Goal",
+                    onClick = {
+                        vm.submit {
+                            onBack()
+                        }
+                    },
+                    pv = pv,
+                    enabled = data.isValid,
+                    loading = loading
+                )
+            }
+        }
+    }
+}
+@Composable
+fun GoalFormSection(
+    form: GoalFormState,
+    onChange: (GoalFormState.() -> GoalFormState) -> Unit,
+    retirementAgeDefault: Int? = null
+) {
+
+    LaunchedEffect(Unit) {
+        if (form.retirementAge.isEmpty()) {
+            retirementAgeDefault?.let {
+                onChange { copy(retirementAge = it.toString()) }
+            }
+        }
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+
+        // ---------- GOAL TYPE ----------
+        GoalSelectionDropDown(
+            value = form.selectedOption,
+            onValueChange = {
+                onChange {
+                    copy(
+                        selectedOption = it,
+                        goalName = it.title,
+                        goalItemName = it.goalItemName ?: it.title
+                    )
+                }
+            },
+            placeHolder = "Select Goal Type",
+            label = "Goal Type",
+            options = goalOptions
+        )
+
+        // ---------- DYNAMIC FORM ----------
+        form.selectedOption?.let { option ->
+
+            when (option.type) {
+
+                // ---------------- CHILD ----------------
+                GoalType.ChildEducation,
+                GoalType.ChildMarriage -> {
+
+                    OnBoardingTextField(
+                        value = form.childName,
+                        onValueChange = {
+                            onChange { copy(childName = it) }
+                        },
+                        placeHolder = "Child Name",
+                        label = "Child Name"
+                    )
+
+                    OnBoardingTextField(
+                        value = form.childAge,
+                        onValueChange = {
+                            onChange { copy(childAge = it) }
+                        },
+                        placeHolder = "Age",
+                        label = "Child Age",
+                        keyboardType = KeyboardType.Number
+                    )
+
+                    MoneyTextField(
+                        value = form.goalCost,
+                        onValueChange = {
+                            onChange { copy(goalCost = it) }
+                        },
+                        placeHolder = "Enter Goal Cost",
+                        label = "Present Goal Value"
+                    )
+
+                    OnBoardingTextField(
+                        value = form.inflation,
+                        onValueChange = {
+                            onChange { copy(inflation = it) }
+                        },
+                        placeHolder = "Inflation %",
+                        label = "Inflation Rate(%)",
+                        keyboardType = KeyboardType.Number
+                    )
+
+                    OnBoardingTextField(
+                        value = form.targetYear,
+                        onValueChange = {
+                            onChange { copy(targetYear = it) }
+                        },
+                        placeHolder = "Target Year For Goal",
+                        label = "Target Year",
+                        keyboardType = KeyboardType.Number
+                    )
+                }
+
+                // ---------------- RETIREMENT ----------------
+                GoalType.Retirement -> {
+
+                    OnBoardingTextField(
+                        value = form.inflation,
+                        onValueChange = {
+                            onChange { copy(inflation = it) }
+                        },
+                        placeHolder = "Inflation %",
+                        label = "Inflation Rate(%)",
+                        keyboardType = KeyboardType.Number
+                    )
+
+                    OnBoardingTextField(
+                        value = form.retirementAge,
+                        onValueChange = {
+                            onChange { copy(retirementAge = it) }
+                        },
+                        placeHolder = "Retirement Age",
+                        label = "Retirement Age",
+                        keyboardType = KeyboardType.Number
+                    )
+
+                    OnBoardingTextField(
+                        value = form.lifeExpectancy,
+                        onValueChange = {
+                            onChange { copy(lifeExpectancy = it) }
+                        },
+                        placeHolder = "Life Expectancy",
+                        label = "Life Expectancy",
+                        keyboardType = KeyboardType.Number
+                    )
+
+                    OnBoardingTextField(
+                        value = form.postReturn,
+                        onValueChange = {
+                            onChange { copy(postReturn = it) }
+                        },
+                        placeHolder = "Post Retirement Return %",
+                        label = "Post Retirement Return(%)",
+                        keyboardType = KeyboardType.Number
+                    )
+                }
+
+                // ---------------- WEALTH ----------------
+                GoalType.WealthBuilding -> {
+
+                    OnBoardingTextField(
+                        value = form.goalName,
+                        onValueChange = {
+                            onChange { copy(goalName = it) }
+                        },
+                        placeHolder = "Goal Name",
+                        label = "Goal Name"
+                    )
+
+                    OnBoardingTextField(
+                        value = form.goalItemName,
+                        onValueChange = {
+                            onChange { copy(goalItemName = it) }
+                        },
+                        placeHolder = "Goal Category (e.g. House, Travel)",
+                        label = "Goal Category"
+                    )
+
+                    MoneyTextField(
+                        value = form.goalCost,
+                        onValueChange = {
+                            onChange { copy(goalCost = it) }
+                        },
+                        placeHolder = "Target Amount",
+                        label = "Target Amount"
+                    )
+
+                    OnBoardingTextField(
+                        value = form.inflation,
+                        onValueChange = {
+                            onChange { copy(inflation = it) }
+                        },
+                        placeHolder = "Inflation %",
+                        label = "Inflation Rate(%)",
+                        keyboardType = KeyboardType.Number
+                    )
+
+                    OnBoardingTextField(
+                        value = form.targetYear,
+                        onValueChange = {
+                            onChange { copy(targetYear = it) }
+                        },
+                        placeHolder = "Target Year For Goal",
+                        label = "Target Year",
+                        keyboardType = KeyboardType.Number
+                    )
+                }
+            }
+        }
+    }
+}

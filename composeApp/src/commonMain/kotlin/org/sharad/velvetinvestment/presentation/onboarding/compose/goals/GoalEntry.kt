@@ -18,6 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.GoalUtils.GoalCalculator
 import org.sharad.velvetinvestment.utils.GoalUtils.getGoalInputs
+import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
@@ -42,12 +44,171 @@ import velvet.composeapp.generated.resources.delete_box
 import velvet.composeapp.generated.resources.info_icon
 
 
-@Composable
-fun GoalEntry(goalInfo: GoalRequest, onDeleteClick: (GoalRequest) -> Unit, dob: Long?) {
+data class RetirementGoalResult(
+    val monthlyExpense: Double,
+    val retirementCorpus: Double,
+    val retirementAge: Int,
+    val sip: Double
+)
 
-    val dobYear= dob?.let {
-        DateTimeUtils.getYear(it)
-    }?: DateTimeUtils.getCurrentYear()
+@Composable
+fun GoalEntry(
+    goalInfo: GoalRequest,
+    onDeleteClick: (GoalRequest) -> Unit,
+    showDelete: Boolean = true,
+    dob: Long?
+) {
+    val dobYear = dob?.let { DateTimeUtils.getYear(it) }
+        ?: DateTimeUtils.getCurrentYear()
+
+    when (goalInfo) {
+        is GoalRequest.Retirement -> {
+            RetirementGoalCard(
+                goalInfo = goalInfo,
+                dobYear = dobYear,
+                onDeleteClick = onDeleteClick,
+                showDelete = showDelete
+            )
+        }
+
+        else -> {
+            NormalGoalCard(
+                goalInfo = goalInfo,
+                dobYear = dobYear,
+                onDeleteClick = onDeleteClick,
+                showDelete = showDelete
+            )
+        }
+    }
+}
+@Composable
+fun RetirementGoalCard(
+    goalInfo: GoalRequest.Retirement,
+    dobYear: Int,
+    onDeleteClick: (GoalRequest) -> Unit,
+    showDelete: Boolean
+) {
+
+    val result = remember(goalInfo) {
+        GoalCalculator.calculateRetirementFromInputs(
+            currentAge = DateTimeUtils.getCurrentYear() - dobYear,
+            retirementAge = goalInfo.retirementAge,
+            lifeExpectancy = goalInfo.lifeExpectancy,
+            monthlyExpense = goalInfo.currentMonthlyExpense.toDouble(),
+            inflationRate = goalInfo.inflationRate.toDouble()/100,
+            returnRate = goalInfo.returnRate.toDouble()/100
+        )
+    }
+
+    LaunchedEffect(result) {
+
+        Log(
+            "RETIREMENT_DEBUG",
+            """
+        -------- RETIREMENT DEBUG --------
+
+        📌 RAW INPUT (GoalRequest):
+        currentMonthlyExpense: ${goalInfo.currentMonthlyExpense}
+        retirementAge: ${goalInfo.retirementAge}
+        lifeExpectancy: ${goalInfo.lifeExpectancy}
+        inflationRate: ${goalInfo.inflationRate}
+        returnRate: ${goalInfo.returnRate}
+
+        📌 USER:
+        dobYear: $dobYear
+        currentAge: ${DateTimeUtils.getCurrentYear() - dobYear}
+
+        📌 RESULT (Calculator Output):
+        monthlyExpense: ${result.monthlyExpense}
+        retirementCorpus: ${result.retirementCorpus}
+        retirementAge: ${result.retirementAge}
+        sip: ${result.sip}
+
+        ----------------------------------
+        """.trimIndent()
+        )
+    }
+    ShadowCard(modifier = Modifier.fillMaxWidth()) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = "Retirement Goals",
+                    fontFamily = Poppins,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp,
+                    color = Primary
+                )
+
+                Row {
+                    ClickableIcon({}, Res.drawable.info_icon)
+                    if (showDelete){ ClickableIcon({ onDeleteClick(goalInfo) }, Res.drawable.delete_box) }
+                }
+            }
+
+            HorizontalDivider()
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.weight(1f),
+                    ) {
+
+                    EntryPair(
+                        "Current Monthly Expenses",
+                        "₹${formatMoneyWithUnits(result.monthlyExpense.toLong())}"
+                    )
+
+                    EntryPair(
+                        "Retirement Age",
+                        result.retirementAge.toString()
+                    )
+                }
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+//                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.weight(1f),
+
+                ) {
+
+                    EntryPair(
+                        "Retirement Corpus Required",
+                        "₹${formatMoneyWithUnits(result.retirementCorpus.toLong())}"
+                    )
+
+                    EntryPair(
+                        "Required SIP",
+                        "₹${formatMoneyWithUnits(result.sip.toLong())}/month"
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NormalGoalCard(
+    goalInfo: GoalRequest,
+    dobYear: Int,
+    onDeleteClick: (GoalRequest) -> Unit,
+    showDelete: Boolean
+) {
+
     val (presentValue, inflation, years) = goalInfo.getGoalInputs()
 
     val futureValue = remember(goalInfo) {
@@ -66,57 +227,43 @@ fun GoalEntry(goalInfo: GoalRequest, onDeleteClick: (GoalRequest) -> Unit, dob: 
         )
     }
 
-    ShadowCard(
-        modifier= Modifier.fillMaxWidth()
-    ) {
+    ShadowCard(modifier = Modifier.fillMaxWidth()) {
+
         Column(
-            modifier=Modifier.fillMaxWidth().padding(20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
             Row(
-                modifier=Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Text(
-                    text=goalInfo.title,
+                    text = goalInfo.title,
                     fontFamily = Poppins,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
                     color = Primary
                 )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(end = 4.dp)
-                ){
-                    ClickableIcon(
-                        onClick = {
-
-                        },
-                        icon= Res.drawable.info_icon
-                    )
-                    ClickableIcon(
-                        onClick = {
-                            onDeleteClick(goalInfo)
-                        },
-                        icon= Res.drawable.delete_box
-                    )
+                Row {
+                    ClickableIcon({}, Res.drawable.info_icon)
+                    if (showDelete){ ClickableIcon({ onDeleteClick(goalInfo) }, Res.drawable.delete_box) }
                 }
             }
 
             HorizontalDivider()
 
             Text(
-                text = when(goalInfo){
-                    is GoalRequest.ChildEducation -> goalInfo.childName.trim()
-                        .split(" ")
-                        .firstOrNull() + "'s Education Goal"
-                    is GoalRequest.ChildMarriage -> goalInfo.childName.trim()
-                        .split(" ")
-                        .firstOrNull() +"'s Marriage Goal"
-                    is GoalRequest.Retirement -> " Your Retirement Goal"
-                    is GoalRequest.WealthBuildingGoal -> goalInfo.goalItemName+" Goal"
+                text = when (goalInfo) {
+                    is GoalRequest.ChildEducation -> "${goalInfo.childName.split(" ").first()}’s Education Goal"
+                    is GoalRequest.ChildMarriage -> "${goalInfo.childName.split(" ").first()}’s Marriage Goal"
+                    is GoalRequest.WealthBuildingGoal -> "${goalInfo.goalItemName} Goal"
+                    else -> ""
                 },
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
@@ -125,28 +272,27 @@ fun GoalEntry(goalInfo: GoalRequest, onDeleteClick: (GoalRequest) -> Unit, dob: 
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalAlignment = Alignment.Start
+                    modifier = Modifier.weight(1f),
                 ) {
                     EntryPair("Present Value", "₹${formatMoneyWithUnits(presentValue)}")
-                    EntryPair("Years to goals", goalInfo.yearsToGoal.toString())
+                    EntryPair("Years to goals", years.toString())
                 }
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalAlignment = Alignment.End
-                ){
-
+                Column(horizontalAlignment = Alignment.End,
+                    modifier = Modifier.weight(1f),
+                    ) {
                     EntryPair("Future value", "₹${formatMoneyWithUnits(futureValue.toLong())}")
-                    EntryPair("Required SIP", "₹${formatMoneyWithUnits(sip.toLong())}")
+                    EntryPair("Required SIP", "₹${formatMoneyWithUnits(sip.toLong())}/month")
                 }
             }
 
-            ExpenseAge(value= DateTimeUtils.getCurrentYear()-dobYear+ goalInfo.yearsToGoal)
+            ExpenseAge(
+                value = DateTimeUtils.getCurrentYear() - dobYear + years
+            )
         }
     }
 }
@@ -216,6 +362,7 @@ private fun EntryPair(
             text = label,
             fontFamily = Poppins,
             fontSize = 12.sp,
+            lineHeight = 13.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xff6A7282)
         )

@@ -84,7 +84,7 @@ fun FDPurchaseScreenRoot(
             ) {
                 when (uiState) {
                     is UiState.Error -> {
-                        ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
+                        ErrorScreen((uiState as UiState.Error).message, onRetryClick = {})
 
                     }
                     UiState.Loading ->{

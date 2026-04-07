@@ -4,6 +4,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class KycType(
-    val kyc_type: String,
+    val trading: KycStatus? =null,
+    val mf: KycStatus?= null
+)
+
+@Serializable
+data class KycStatus(
     val status: String
 )

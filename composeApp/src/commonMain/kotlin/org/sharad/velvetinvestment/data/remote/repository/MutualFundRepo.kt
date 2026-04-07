@@ -4,20 +4,29 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toPaginatedDomain
+import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumRequest
+import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumResponseDto
+import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
+import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipResponseDto
+import org.sharad.velvetinvestment.data.remote.model.cartpurchase.CartPurchaseDto
 import org.sharad.velvetinvestment.data.remote.model.getmf.MutualFundDto
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.MutualFundsDetailDto
 import org.sharad.velvetinvestment.data.remote.model.mfgraph.MFGraphDto
+import org.sharad.velvetinvestment.data.remote.model.usercart.UserCartDto
 import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CategoryMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
+import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
 import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
 import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
+import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkError
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -104,6 +113,96 @@ class MutualFundRepo(
 
             is NetworkResponse.Error -> {
                 NetworkResponse.Error(response.error)
+            }
+        }
+    }
+
+    override suspend fun getMutualFundCart(): NetworkResponse<UserCartDomain, ErrorDomain> {
+        val response= safeRequest<UserCartDto> {
+            client.get(getUrl("/user/cart"))
+        }
+
+        return when(response){
+            is NetworkResponse.Error-> {
+                NetworkResponse.Error(response.error)
+            }
+
+            is NetworkResponse.Success -> {
+                val domain= response.data.toDomain()
+                CartInfo.updateFundAmount(domain.sipItems.size+ domain.lumpSumItems.size)
+                NetworkResponse.Success(domain)
+            }
+        }
+    }
+
+    override suspend fun addToCartLumSumFund(
+        id: String,
+        amount: Long,
+    ): NetworkResponse<Unit, ErrorDomain> {
+        val response= safeRequest<AddCartLumpSumResponseDto> {
+            client.post(getUrl("/mf/lumpsum-cart")){
+                setBody(
+                    AddCartLumpSumRequest(
+                        amount = amount,
+                        mfProductId = id
+                    )
+                )
+            }
+        }
+
+        return when(response){
+            is NetworkResponse.Error-> {
+                NetworkResponse.Error(response.error)
+            }
+
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
+    override suspend fun addToCartSipFund(request: AddCartSipRequest): NetworkResponse<Unit, ErrorDomain> {
+        val response= safeRequest<AddCartSipResponseDto> {
+            client.post(getUrl("/mf/sip-cart")){
+                setBody(request)
+            }
+        }
+
+        return when(response){
+            is NetworkResponse.Error-> {
+                NetworkResponse.Error(response.error)
+            }
+
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
+    override suspend fun purchaseLumSumFund(): NetworkResponse<String, ErrorDomain> {
+        val response=safeRequest<CartPurchaseDto> {
+            client.post(getUrl("/mf/purchase-lumpsum"))
+        }
+        return when(response){
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.data)
+            }
+        }
+    }
+
+    override suspend fun purchaseSipFund(): NetworkResponse<String, ErrorDomain> {
+        val response=safeRequest<CartPurchaseDto> {
+            client.post(getUrl("/mf/purchase-sip"))
+        }
+        return when(response){
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.data)
             }
         }
     }

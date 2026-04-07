@@ -99,7 +99,7 @@ fun FormContent(
 
             item {
                 OnBoardingTextField(
-                    value = state.aadhaarNumber,
+                    value = state.aadhaarNumber.maskAadhaar(),
                     onValueChange = {},
                     placeHolder = "Aadhaar",
                     label = "Aadhaar Number",
@@ -216,7 +216,7 @@ fun FormContent(
                 DropDownSelector(
                     value = state.occupationCode,
                     onValueChange ={
-                        viewModel.updateOccupationCode(it.code)
+                        viewModel.updateOccupationCode(it)
                     },
                     placeHolder = "Occupation",
                     label = "Occupation Code",
@@ -224,15 +224,6 @@ fun FormContent(
                     textConvertor = {
                         it.code+":" +it.name
                     },
-                    mandatory = true
-                )
-            }
-            item {
-                OnBoardingTextField(
-                    value = state.occupationDescription,
-                    onValueChange = viewModel::updateOccupationDesciption,
-                    placeHolder = "Occupation Description",
-                    label = "Occupation Description",
                     mandatory = true
                 )
             }
@@ -249,4 +240,11 @@ fun FormContent(
             enabled = buttonEnabled
         )
     }
+}
+
+fun String.maskAadhaar(): String {
+    if (length <= 4) return this
+    val visible = takeLast(4)
+    val masked = "x".repeat(length - 4)
+    return masked + visible
 }

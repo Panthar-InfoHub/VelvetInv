@@ -14,6 +14,7 @@ import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetDigiLockerDe
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.SubmitKycFormUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
 import org.sharad.velvetinvestment.presentation.kyc.uistate.KycFormUiState
+import org.sharad.velvetinvestment.presentation.kyc.uistate.OccupationType
 import org.sharad.velvetinvestment.presentation.kyc.uistate.toDomain
 import org.sharad.velvetinvestment.presentation.kyc.uistate.toFormState
 import org.sharad.velvetinvestment.utils.SnackBarController
@@ -81,8 +82,9 @@ class KYCFormScreenViewModel(
         _formState.value = _formState.value.copy(occupationDescription = value)
     }
 
-    fun updateOccupationCode(value: String) {
-        _formState.value = _formState.value.copy(occupationCode = value)
+    fun updateOccupationCode(value: OccupationType) {
+        _formState.value = _formState.value.copy(occupationCode = value.code)
+        _formState.value = _formState.value.copy(occupationDescription = value.name)
 
     }
 

@@ -96,7 +96,7 @@ fun FileUploadScreen(
                 it.fileSize?.let {size->
                     if (size>5_242_880L) {
                         scope.launch { SnackBarController.showSnackBar(SnackBarType.Error("File exceeds 5MB limit")) }
-                        viewModel.hideSignatureSelector()
+                        viewModel.hidePhotoSelector()
                         return@ImageUploader
                     }
                 }

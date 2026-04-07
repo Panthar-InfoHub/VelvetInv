@@ -10,16 +10,27 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
+import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartLumpsumUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGraphUseCase
 import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
+import org.sharad.velvetinvestment.presentation.mutualfund.CartBottomSheetState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
+import org.sharad.velvetinvestment.presentation.mutualfund.Duration
 import org.sharad.velvetinvestment.presentation.mutualfund.GraphDurationSelection
 import org.sharad.velvetinvestment.presentation.mutualfund.GraphState
+import org.sharad.velvetinvestment.presentation.mutualfund.MFPurchaseTypes
 import org.sharad.velvetinvestment.presentation.mutualfund.MutualFundScreenState
 import org.sharad.velvetinvestment.presentation.mutualfund.StableMetricUi
+import org.sharad.velvetinvestment.presentation.mutualfund.toSipRequest
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.SnackBarType
+import org.sharad.velvetinvestment.utils.networking.ErrorType
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.pruneForGraph
@@ -27,16 +38,16 @@ import org.sharad.velvetinvestment.utils.pruneForGraph
 class MutualFundDetailsScreenViewModel(
     private val id: String,
     private val getDetailsUseCase: GetMutualFundDetailsUseCase,
-    private val getGraphUseCase: GetMutualFundGraphUseCase
+    private val getGraphUseCase: GetMutualFundGraphUseCase,
+    private val addToCartLumpsumUseCase: AddToCartLumpsumUseCase,
+    private val addToCartSIPUseCase: AddToCartSipUseCase,
 ): ViewModel() {
 
-    val idTemp="771e9ac9-7159-477d-b54f-634a63f9ae75"
     private val _detailsState=MutableStateFlow<DetailsState>(DetailsState.Loading)
     val detailsState = _detailsState.asStateFlow()
 
     private val _calculatorInput = MutableStateFlow(CalculatorInputState())
     val calculatorInput = _calculatorInput.asStateFlow()
-
 
     private val _graphState = MutableStateFlow<GraphState>(GraphState.Loading)
     val graphState: StateFlow<GraphState> = _graphState.asStateFlow()
@@ -44,8 +55,68 @@ class MutualFundDetailsScreenViewModel(
     private val _selectedYear = MutableStateFlow(GraphDurationSelection.ThreeYears)
     val selectedYear= _selectedYear.asStateFlow()
 
-    private val _bottomSheetVisibility= MutableStateFlow(false)
+    private val _bottomSheetVisibility= MutableStateFlow<MFBottomSheetType?>(null)
     val bottomSheetVisibility= _bottomSheetVisibility.asStateFlow()
+
+    private val _cartSheetState= MutableStateFlow<CartBottomSheetState>(CartBottomSheetState())
+    val cartSheetState= _cartSheetState.asStateFlow()
+
+    fun onCartAmountChange(amount: String) {
+        if (amount.isEmpty()) {
+            _cartSheetState.value = _cartSheetState.value.copy(amount = null)
+            return
+        }
+
+        val safeAmount = amount.toLongOrNull()
+        if (safeAmount != null) {
+            _cartSheetState.value = _cartSheetState.value.copy(amount = safeAmount)
+        }
+
+    }
+
+    fun onCartTypeChange(
+        type: MFPurchaseTypes
+    ){
+        _cartSheetState.value = _cartSheetState.value.copy(selectedType = type)
+    }
+
+    fun onCartFrequencyChange(
+        frequency: InvestmentFrequency
+    ){
+        _cartSheetState.value = _cartSheetState.value.copy(selectedFrequency = frequency)
+    }
+
+    fun onCartDateChange(
+        date: String
+    ){
+        _cartSheetState.value = _cartSheetState.value.copy(selectedSIPDate = date)
+    }
+
+    fun onCartDurationChange(
+        duration: Duration
+    ){
+        _cartSheetState.value = _cartSheetState.value.copy(selectedDuration = duration)
+    }
+
+    fun showCartFrequenciesDropDown(){
+        _cartSheetState.value = _cartSheetState.value.copy(frequencyDropDownExpanded = true)
+    }
+
+    fun showCartDateDropDown(){
+        _cartSheetState.value = _cartSheetState.value.copy(dayDropDownExpanded = true)
+    }
+
+    fun showCartDurationDropDown(){
+        _cartSheetState.value = _cartSheetState.value.copy(durationDropDownExpanded = true)
+    }
+
+    fun onCartDropDownDismiss(){
+        _cartSheetState.value = _cartSheetState.value.copy(
+            frequencyDropDownExpanded = false,
+            dayDropDownExpanded = false,
+            durationDropDownExpanded = false)
+    }
+
 
     val chartPoints: StateFlow<List<MutualFundGraphPointsDomain>> =
         graphState.map { state ->
@@ -117,7 +188,7 @@ class MutualFundDetailsScreenViewModel(
     fun loadGraph() {
         viewModelScope.launch {
             _graphState.value = GraphState.Loading
-            getGraphUseCase(idTemp, _selectedYear.value.id)
+            getGraphUseCase(id, _selectedYear.value.id)
                 .onSuccess {
                     _graphState.value = GraphState.Success(it)
                 }
@@ -133,13 +204,90 @@ class MutualFundDetailsScreenViewModel(
     }
 
     fun showBottomSheet(){
-        _bottomSheetVisibility.value=true
+        showCartBottomSheet()
     }
 
     fun hideBottomSheet(){
-        _bottomSheetVisibility.value=false
+        _bottomSheetVisibility.value=null
     }
 
+    fun addToCart(){
+        when(_cartSheetState.value.selectedType){
+            MFPurchaseTypes.LUMP_SUM -> {
+                val amount= _cartSheetState.value.amount
+                if (amount== null || amount < _cartSheetState.value.minAmount)
+                    return
+                viewModelScope.launch {
+                    startCartSheetLoading()
+                    addToCartLumpsumUseCase(
+                        id = id,
+                        amount = amount
+                    ).onSuccess {
+                        stopCartSheetLoading()
+                        hideBottomSheet()
+                        resetCartSheet()
+                        SnackBarController.showSnackBar(SnackBarType.Success("Fund Added to the cart"))
+                    }.onError {
+                        stopCartSheetLoading()
+                        if (it.type == ErrorType.MF_KYC_REQUIRED){
+                            showKYCBottomSheet()
+                            return@onError
+                        }
+                        SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    }
+                }
+            }
+            MFPurchaseTypes.SIP -> {
+                val state = _cartSheetState.value
+                val request = state.toSipRequest(id) ?: return
+                viewModelScope.launch {
+                    startCartSheetLoading()
+                    addToCartSIPUseCase(
+                        request = request
+                    ).onSuccess {
+                        stopCartSheetLoading()
+                        hideBottomSheet()
+                        resetCartSheet()
+                        SnackBarController.showSnackBar(SnackBarType.Success("Fund Added to the cart"))
+                    }.onError {
+                        stopCartSheetLoading()
+                        if (it.type == ErrorType.MF_KYC_REQUIRED){
+                            showKYCBottomSheet()
+                            return@onError
+                        }
+                        SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun startCartSheetLoading(){
+        _cartSheetState.value = _cartSheetState.value.copy(loading = true)
+    }
+
+    private fun stopCartSheetLoading(){
+        _cartSheetState.value = _cartSheetState.value.copy(loading = false)
+    }
+
+    private fun resetCartSheet(){
+        _cartSheetState.value = CartBottomSheetState()
+    }
+
+
+    private fun showKYCBottomSheet(){
+        hideBottomSheet()
+        _bottomSheetVisibility.value=MFBottomSheetType.KYC
+    }
+
+    private fun showTradingAccountBottomSheet(){
+        hideBottomSheet()
+        _bottomSheetVisibility.value=MFBottomSheetType.TRADING_ACCOUNT
+    }
+
+    private fun showCartBottomSheet(){
+        _bottomSheetVisibility.value=MFBottomSheetType.CART
+    }
 
     fun onSipToggle(isSip: Boolean) {
         _calculatorInput.value = _calculatorInput.value.copy(isSip = isSip)
@@ -175,4 +323,8 @@ fun Metrics.getPreferredReturn(): Float {
         return_3y != null -> return_3y.toFloat()
         else -> 12f
     }
+}
+
+enum class MFBottomSheetType{
+    KYC,TRADING_ACCOUNT,CART
 }

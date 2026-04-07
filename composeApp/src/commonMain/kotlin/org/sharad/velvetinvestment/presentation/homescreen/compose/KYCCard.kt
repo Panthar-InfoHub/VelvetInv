@@ -31,7 +31,10 @@ import velvet.composeapp.generated.resources.arrow_right
 import velvet.composeapp.generated.resources.kyc_icon
 
 @Composable
-fun KYCCard(onClick: () -> Unit) {
+fun KYCCard(
+    text: String,
+    onClick: () -> Unit
+) {
     Row(
         modifier=Modifier.fillMaxWidth()
             .height(80.dp)
@@ -72,7 +75,7 @@ fun KYCCard(onClick: () -> Unit) {
         }
 
         Text(
-            text="Complete the Process",
+            text=text,
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 15.sp),
             color = Color.Black,
             modifier = Modifier.weight(1f)

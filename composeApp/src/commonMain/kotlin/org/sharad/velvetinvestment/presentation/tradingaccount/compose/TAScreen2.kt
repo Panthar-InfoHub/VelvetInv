@@ -5,142 +5,231 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.emify.core.ui.theme.Secondary
+import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.emify.core.ui.theme.grayColor
 import org.sharad.emify.core.ui.theme.orangeColor
 import org.sharad.emify.core.ui.theme.redColor
+import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
+import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
+import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.notice
 
-@Preview(showSystemUi = true)
 @Composable
-fun TradingScreen2() {
+fun TradingScreen2(
+    pv: PaddingValues,
+    onClick: () -> Unit,
+    onBackClick: () -> Boolean
+) {
     val viewModel: TradingAccountViewModel = koinViewModel()
     val state by viewModel.panModel.collectAsStateWithLifecycle()
-    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                "KYC & PAN Details",
-                fontSize = 24.sp,
-                fontFamily = Poppins,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
-            Text(
-                "Verify your identity documents",
-                fontFamily = Poppins,
-                fontSize = 14.sp,
-                color = Color(0xff4A5565)
-            )
-        }
 
-        Column {
-            Row {
-                Text(
-                    "PAN Number ",
-                    fontFamily = Poppins,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 20.sp
-                )
-                Text("   *", fontWeight = FontWeight.Medium, color = redColor)
-            }
-            TextField(
-                value = state.panNumber,
-                onValueChange = viewModel::onPanChange,
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                ),
-                modifier = Modifier.fillMaxWidth()
-                    .border(2.dp, goldenColor, RoundedCornerShape(10.dp)),
-                placeholder = {
-                    Text(text = "ABCDE1234F")
-                },
-                trailingIcon = {
-                    TextButton(onClick = { viewModel.verifyPan() }) {
-                        Text(
-                            text = "Verify",
-                            color = darkBlue,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = Poppins,
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-            )
-        }
-         Text(
-            "Enter your 10-character PAN card number (5 letters, 4 digits, 1 letter)",
-            color = grayColor,
-            fontFamily = Poppins,
-            fontSize = 14.sp
+    Column(modifier = Modifier.fillMaxSize()) {
+
+        BackHeader(
+            "Trading account",
+            showBack = true,
+            onBackClick = { onBackClick() }
         )
 
-        Box(
-            modifier = Modifier.fillMaxWidth().genericDropShadow(RoundedCornerShape(24.dp))
-                .clip(RoundedCornerShape(24.dp)).background(
-                color =
-                    orangeColor.copy(0.1f)
-            ).padding(16.dp)
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column {
-                Row(
+
+            item {
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.notice),
-                        contentDescription = "notice icon"
+                    Text(
+                        "KYC & PAN Details",
+                        style = MaterialTheme.typography.headlineLarge
                     )
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "Verify your identity documents",
+                        style = titlesStyle,
+                        color = titleColor
+                    )
+                }
+            }
+
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    Row(verticalAlignment = Alignment.Top) {
                         Text(
-                            "Regulatory Disclosure",
-                            fontFamily = Poppins,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = grayColor
+                            text = "PAN Number",
+                            style = subHeadingMedium,
+                            color = Color.Black
                         )
                         Text(
-                            "UCC will be rejected outright if PAN and KYC identifiers are inconsistent.",
-                            fontFamily = Poppins,
-                            fontSize = 14.sp,
-                            color = grayColor
+                            text = "*",
+                            color = Color.Red,
+                            style = subHeadingMedium
                         )
+                    }
+
+                    BasicTextField(
+                        value = state.panNumber,
+                        onValueChange = viewModel::onPanChange,
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodySmall,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(54.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .background(Color.White, RoundedCornerShape(15.dp))
+                            .border(
+                                width = 0.7.dp,
+                                shape = RoundedCornerShape(15.dp),
+                                color = Color(0xFFC5A572)
+                            ),
+                        decorationBox = { innerTextField ->
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+
+                                if (state.panNumber.isEmpty()) {
+                                    Text(
+                                        text = "ABCDE1234F",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color(0xffC5C5C5),
+                                        maxLines = 1
+                                    )
+                                }
+
+                                innerTextField()
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    TextButton(onClick = { viewModel.verifyPan() }) {
+                                        Text(
+                                            text = "Verify",
+                                            color = darkBlue,
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontFamily = Poppins,
+                                            fontSize = 16.sp
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+
+            item {
+                Text(
+                    "Enter your 10-character PAN card number (5 letters, 4 digits, 1 letter)",
+                    style = titlesStyle,
+                    color = titleColor
+                )
+            }
+
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .genericDropShadow(RoundedCornerShape(24.dp))
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(bgColor3.copy(0.1f))
+                        .padding(16.dp)
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.notice),
+                                contentDescription = "notice icon",
+                                tint = Secondary
+                            )
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(
+                                    "Regulatory Disclosure",
+                                    fontFamily = Poppins,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = grayColor
+                                )
+                                Text(
+                                    "UCC will be rejected outright if PAN and KYC identifiers are inconsistent.",
+                                    fontFamily = Poppins,
+                                    fontSize = 14.sp,
+                                    lineHeight = 15.sp,
+                                    color = titleColor
+                                )
+                            }
+                        }
                     }
                 }
             }
+
+            item {
+                Spacer(modifier = Modifier.height(pv.calculateBottomPadding()))
+            }
         }
 
-
+        NextButtonFooter(
+            onClick = onClick,
+            pv = pv,
+            value = "Next",
+            enabled = true
+        )
     }
 }

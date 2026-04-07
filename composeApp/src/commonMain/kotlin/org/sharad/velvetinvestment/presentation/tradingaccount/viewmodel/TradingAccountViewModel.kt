@@ -95,6 +95,7 @@ class TradingAccountViewModel : ViewModel() {
         _financialTradingDetailModel.update { it ->
             it.copy(checked = value)
         }
+        onNominationChange(if(value) "Y" else "N")
     }
 
     // Nomination OPT

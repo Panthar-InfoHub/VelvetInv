@@ -18,7 +18,7 @@ suspend inline fun <reified T> safeRequest(
             ErrorDomain(
                 code = -1,
                 message = "No internet connection",
-                type = "NO_INTERNET"
+                type = ErrorType.NO_INTERNET
             )
         )
     } catch (e: SerializationException) {
@@ -26,7 +26,7 @@ suspend inline fun <reified T> safeRequest(
             ErrorDomain(
                 code = -1,
                 message = "Serialization error",
-                type = "SERIALIZATION"
+                type = ErrorType.SERIALIZATION
             )
         )
     } catch (e: Exception) {
@@ -34,7 +34,7 @@ suspend inline fun <reified T> safeRequest(
             ErrorDomain(
                 code = -1,
                 message = "Unknown network error",
-                type = "UNKNOWN"
+                type = ErrorType.UNKNOWN
             )
         )
     }
@@ -48,7 +48,7 @@ suspend inline fun <reified T> safeRequest(
                 ErrorDomain(
                     code = response.status.value,
                     message = "Serialization error",
-                    type = "SERIALIZATION"
+                    type = ErrorType.SERIALIZATION
                 )
             )
         }
@@ -69,7 +69,7 @@ suspend inline fun safeUnitRequest(
             ErrorDomain(
                 code = -1,
                 message = "No internet connection",
-                type = "NO_INTERNET"
+                type = ErrorType.NO_INTERNET
             )
         )
     } catch (e: SerializationException) {
@@ -77,7 +77,7 @@ suspend inline fun safeUnitRequest(
             ErrorDomain(
                 code = -1,
                 message = "Serialization error",
-                type = "SERIALIZATION"
+                type = ErrorType.SERIALIZATION
             )
         )
     } catch (e: Exception) {
@@ -85,7 +85,7 @@ suspend inline fun safeUnitRequest(
             ErrorDomain(
                 code = -1,
                 message = "Unknown network error",
-                type = "UNKNOWN"
+                type = ErrorType.UNKNOWN
             )
         )
     }
@@ -109,7 +109,7 @@ suspend fun parseServerError(
             ErrorDomain(
                 code = response.status.value,
                 message = serverError.error.message,
-                type = serverError.error.type
+                type = serverError.error.type.toErrorType()
             )
         )
 
@@ -119,8 +119,15 @@ suspend fun parseServerError(
             ErrorDomain(
                 code = response.status.value,
                 message = "Unknown error",
-                type = "UNKNOWN"
+                type = ErrorType.UNKNOWN
             )
         )
+    }
+}
+
+fun String?.toErrorType(): ErrorType {
+    return when (this) {
+        "MF_KYC_REQUIRED" -> ErrorType.MF_KYC_REQUIRED
+        else -> ErrorType.SERVER
     }
 }

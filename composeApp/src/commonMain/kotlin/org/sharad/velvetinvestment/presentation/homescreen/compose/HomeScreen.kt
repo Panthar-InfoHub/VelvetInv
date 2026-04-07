@@ -37,6 +37,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
@@ -44,7 +45,6 @@ import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.CircleButton
-import org.sharad.velvetinvestment.shared.compose.DotCapCircularProgress
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.GoalEntryCard
 import org.sharad.velvetinvestment.shared.compose.GradientBackground
@@ -71,7 +71,8 @@ fun HomeScreenMain(
     navigateToFireReportScreen: () -> Unit,
     navigateToKYCScreen: () -> Unit,
     navigateToGoalScreen: () -> Unit,
-    navigateToNotification: () -> Unit
+    navigateToNotification: () -> Unit,
+    navigateToAddGoal: () -> Unit
 ){
 
     LaunchedEffect(Unit){
@@ -79,7 +80,15 @@ fun HomeScreenMain(
             when(it){
                 RefreshEvents.HomeEventRefresh -> {
                     viewModel.loadHome()
+                    AppEvents.clear()
                 }
+
+                RefreshEvents.GoalEventRefresh -> {
+                    viewModel.loadHome()
+                    AppEvents.clear()
+                }
+
+                else -> {}
             }
         }
     }
@@ -108,14 +117,18 @@ fun HomeScreenMain(
                     name = data.name,
                     netWorth = data.userWorth,
                     kyc = data.kycCompletion,
+                    tradingKyc= data.tradingAccountCompletion,
                     fireReport = data.fireReport,
                     goals = data.goals,
+                    hidden=data.hidden,
+                    onHiddenToggle={viewModel.toggleHidden()},
                     onNotificationIconClick = {navigateToNotification()},
                     onSettingsIconClick = {},
                     pv = pv,
                     onFireReportClick = navigateToFireReportScreen,
                     navigateToKYCScreen = navigateToKYCScreen,
-                    navigateToGoalScreen =navigateToGoalScreen
+                    navigateToGoalScreen =navigateToGoalScreen,
+                    navigateToAddGoal=navigateToAddGoal
                 )
             }
         }
@@ -128,14 +141,18 @@ fun HomeScreen(
     name: String,
     netWorth: UserWorthCardDomain?,
     kyc: Boolean,
-    fireReport: Long,
+    fireReport: Double,
     goals: List<GoalsSummaryDomain>,
     onNotificationIconClick: () -> Unit,
     onSettingsIconClick: () -> Unit,
     pv: PaddingValues,
     onFireReportClick: () -> Unit,
     navigateToKYCScreen: () -> Unit,
-    navigateToGoalScreen: () -> Unit
+    navigateToGoalScreen: () -> Unit,
+    hidden: Boolean,
+    onHiddenToggle: () -> Unit,
+    tradingKyc: Boolean,
+    navigateToAddGoal: () -> Unit
 ) {
 
     LazyColumn(
@@ -145,10 +162,16 @@ fun HomeScreen(
     ) {
         item { Spacer(modifier=Modifier.height(16.dp,)) }
         item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick) }
-        item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick={})}
-        item{ BarHeader(heading = "Finish Setting Up Account") }
-        if (!kyc){ item { KYCCard(onClick = { navigateToKYCScreen() }) } }
-        if (goals.isEmpty()){ item { FirstGoalCard(onClick={}) } }
+        item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick={}, hidden=hidden, onHiddenToggle=onHiddenToggle)}
+        if (!kyc || !tradingKyc){ item { BarHeader(heading = "Finish Setting Up Account") } }
+        if (!kyc){
+            item { KYCCard(onClick = { navigateToKYCScreen() }, text = "Complete the KYC Process") }
+        }else{
+            if (!tradingKyc){
+                item { KYCCard(onClick = { navigateToKYCScreen() }, text = "Complete the Trading Account KYC Process") }
+            }
+        }
+        if (goals.isEmpty()){ item { FirstGoalCard(onClick={navigateToAddGoal()}) } }
         item { FireReportHeader()}
         item { FireReportCard(fireReport, onClick ={onFireReportClick()}) }
         item { BarHeader(heading = "Why Invest with Velvet?") }
@@ -166,7 +189,7 @@ fun HomeScreen(
 
             }
             item{
-                AddCustomGoalCard(onClick={})
+                AddCustomGoalCard(onClick={navigateToAddGoal()})
             }
         }
 
@@ -238,7 +261,7 @@ fun LazyListScope.homeGoalsInfo(goals: List<GoalsSummaryDomain>, onClick:(String
 
 
 @Composable
-fun FireReportCard(summary: Long, onClick: () -> Unit) {
+fun FireReportCard(summary: Double, onClick: () -> Unit) {
     Row(
         modifier=Modifier.fillMaxWidth()
             .height(80.dp)
@@ -284,9 +307,9 @@ fun FireReportCard(summary: Long, onClick: () -> Unit) {
                     modifier = Modifier.padding(end = 4.dp).width(15.dp)
                 )
                 Text(
-                    text="${12.5}%",
+                    text="${summary}%",
                     style = titlesStyle,
-                    color = appGreen,
+                    color =if (summary>0) appGreen else appRed,
                 )
                 Text(
                     text=" annual growth",

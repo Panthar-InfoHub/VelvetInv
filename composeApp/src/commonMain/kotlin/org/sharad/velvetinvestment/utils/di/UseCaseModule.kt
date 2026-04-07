@@ -9,6 +9,8 @@ import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFixedD
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFixedDepositsSearchResultUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetTopPickFDUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.PurchaseFDUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartLumpsumUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDashboardUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDetailsUseCase
@@ -16,6 +18,9 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGra
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundSearchResultUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundTopPicksUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetPortfolioMutualFundsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetUserCartUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseLumpsumFundUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseSipFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetFireReportSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetGoalsSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
@@ -23,6 +28,7 @@ import org.sharad.velvetinvestment.domain.usecases.home.GetUserWorthCardUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.HomeScreenUseCases
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.FinalizeKycUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetDigiLockerDetailsUseCase
+import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetESingKycUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.InitiateKycUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.SubmitKycFormUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageAndSignatureDataUseCase
@@ -102,6 +108,7 @@ val useCaseModule= module {
 
     factory { GetContractPdfUseCase(get()) }
     factory { FinalizeKycUseCase(get()) }
+    factory { GetESingKycUseCase(get()) }
 
     // Browser
     factory { LaunchBrowserUseCase(get()) }
@@ -109,6 +116,12 @@ val useCaseModule= module {
     factory { GetUserPersonalInfo(get()) }
     factory { org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFDDetailsUseCase(get()) }
     factory { PurchaseFDUseCase(get()) }
+
+    factory { GetUserCartUseCase(get()) }
+    factory { PurchaseLumpsumFundUseCase(get()) }
+    factory { PurchaseSipFundUseCase(get()) }
+    factory { AddToCartSipUseCase(get()) }
+    factory { AddToCartLumpsumUseCase(get()) }
 
 
 }

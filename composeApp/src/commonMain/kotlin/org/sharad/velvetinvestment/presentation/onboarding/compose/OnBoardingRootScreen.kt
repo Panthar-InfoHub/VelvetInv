@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,7 +20,7 @@ import org.koin.core.parameter.parametersOf
 import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CASUploadScreenDialog
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
-import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenOnboardingViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
@@ -54,7 +53,7 @@ fun OnboardingScreenRoot(
     val shoeCASScreen by assetViewModel.showCASDialog.collectAsStateWithLifecycle()
     val loanScreenViewModel: LoanScreenViewModel=koinViewModel()
     val insuranceCoverageViewModel: InsuranceCoverageViewModel=koinViewModel()
-    val goalViewModel: GoalScreenViewModel=koinViewModel()
+    val goalViewModel: GoalScreenOnboardingViewModel=koinViewModel()
 
     val navController = rememberNavController()
 

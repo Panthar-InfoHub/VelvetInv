@@ -17,6 +17,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.presentation.explorefunds.compose.ExploreFundScreen
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
+import org.sharad.velvetinvestment.presentation.insurance.InsuranceNavigationScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.PortfolioScreenMain
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileScreen
@@ -34,7 +35,11 @@ fun BottomNavigation(
     navigateToPersonalInfo: () -> Unit,
     navigateToCategoryFDScreen: () -> Unit,
     navigateToMutualFundDetailScreen: (String) -> Unit,
-    onSignOut: () -> Unit
+    navigateToHealthInsurance: () -> Unit,
+    navigateToTermInsurance: () -> Unit,
+    navigateToOtherInsurance: () -> Unit,
+    onSignOut: () -> Unit,
+    navigateToAddGoal: () -> Unit
 ) {
 
     val navController= rememberNavController()
@@ -100,7 +105,8 @@ fun BottomNavigation(
                     navigateToFireReportScreen=navigateToFireReportScreen,
                     navigateToKYCScreen=navigateToKYCScreen,
                     navigateToGoalScreen=navigateToGoalScreen,
-                    navigateToNotification=navigateToNotification
+                    navigateToNotification=navigateToNotification,
+                    navigateToAddGoal=navigateToAddGoal
                 )
             }
             composable<Route.FundScreener> {
@@ -127,6 +133,13 @@ fun BottomNavigation(
                     navigateToNotification=navigateToNotification,
                     navigateToPersonalInfo=navigateToPersonalInfo,
                     onSignOut=onSignOut
+                )
+            }
+            composable<Route.Insurance> {
+                InsuranceNavigationScreen(
+                   navigateToHealthInsurance=navigateToHealthInsurance,
+                   navigateToTermInsurance=navigateToTermInsurance,
+                   navigateToOtherInsurance=navigateToOtherInsurance
                 )
             }
 

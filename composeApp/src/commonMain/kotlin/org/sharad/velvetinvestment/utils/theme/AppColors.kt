@@ -39,3 +39,7 @@ val goldenColor=Color(0xFFD2B077)
 val darkBlue = Color(0xFF273F73)
 val orangeColor =Color(0xFFFF9D00)
 val grayColor = Color(0xFF5A5E60)
+
+val healthColor = Color(0xff2196F3)
+val termColor = Color(0xff9C27B0)
+val otherColor = appGreen

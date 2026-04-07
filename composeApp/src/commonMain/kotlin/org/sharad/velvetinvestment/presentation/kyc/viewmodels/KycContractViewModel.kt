@@ -7,7 +7,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.mfkyc.GetContractPdfUseCase
+import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.FinalizeKycUseCase
+import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetESingKycUseCase
+import org.sharad.velvetinvestment.utils.AppEvents
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
@@ -16,7 +19,9 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class KycContractViewModel(
     private val getContractPdfUseCase: GetContractPdfUseCase,
+    private val getESignKycUseCase: GetESingKycUseCase,
     private val finalizeKycUseCase: FinalizeKycUseCase,
+    private val launchBrowserUseCase: LaunchBrowserUseCase
 ): ViewModel() {
 
     private val _contractPdfUrl = MutableStateFlow<UiState<String>>(UiState.Loading)
@@ -48,16 +53,35 @@ class KycContractViewModel(
         }
     }
 
-    fun finalizeKyc() {
+    fun getESignUrl(onSuccess: () -> Unit) {
         viewModelScope.launch {
             _submitLoading.value = true
-            finalizeKycUseCase()
+            getESignKycUseCase()
                 .onSuccess {
                     _submitLoading.value = false
-                    _successState.value = true
+                    onSuccess()
+                    launchBrowserUseCase(it)
                 }
                 .onError {
                     _submitLoading.value = false
+                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                }
+        }
+    }
+
+    fun finalizeKyc(onSuccess: () -> Unit) {
+        val data= _contractPdfUrl.value
+        viewModelScope.launch {
+            _contractPdfUrl.value = UiState.Loading
+            finalizeKycUseCase()
+                .onSuccess {
+                    AppEvents.sendHomeRefreshEvent()
+                    onSuccess()
+                    _contractPdfUrl.value = data
+                    _successState.value = true
+                }
+                .onError {
+                    _contractPdfUrl.value = data
                     SnackBarController.showSnackBar(SnackBarType.Error(it.message))
                 }
         }

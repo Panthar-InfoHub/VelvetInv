@@ -78,7 +78,7 @@ fun CancelSIPConfirmationScreen(
             backText ="Don’t Cancel",
             onContinue = { onConfirmClick(id) },
             onBack = onCancelClick,
-            pv = pv
+            pv = pv,
         )
     }
 

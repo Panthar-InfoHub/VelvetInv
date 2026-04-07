@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -36,9 +37,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -58,14 +61,17 @@ import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.ToggleSwitch
 import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
-import velvet.composeapp.generated.resources.icon_download
+import velvet.composeapp.generated.resources.download_ic
+import velvet.composeapp.generated.resources.ic_pencil
 
 @Composable
 fun FireReportScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onUpdateClick: () -> Unit
 ){
 
     val viewModel: FireReportViewModel = koinViewModel()
@@ -111,7 +117,8 @@ fun FireReportScreen(
                         },
                         selectedYearChange = {
                             viewModel.onSelectedYearChange(it)
-                        }
+                        },
+                        onUpdateClick=onUpdateClick
                     )
                 }
             }
@@ -126,7 +133,8 @@ fun FireReportContent(
     emiIncluded: Boolean,
     onEmiSwitchClick: () -> Unit,
     selectedYear: SelectedYear,
-    selectedYearChange: (SelectedYear) -> Unit
+    selectedYearChange: (SelectedYear) -> Unit,
+    onUpdateClick: () -> Unit
 ) {
 
     val progressAnim = remember { Animatable(0f) }
@@ -155,6 +163,7 @@ fun FireReportContent(
                 selectedYear = selectedYear,
                 onSelectedYearChange=selectedYearChange,
                 onEmiIncludedClick = onEmiSwitchClick,
+                onUpdateClick=onUpdateClick
             )
         }
         item() {
@@ -309,7 +318,8 @@ fun FireReportHeadSwitcher(
     onEmiIncludedClick: () -> Unit,
     emiIncluded: Boolean,
     selectedYear: SelectedYear,
-    onSelectedYearChange: (SelectedYear) -> Unit
+    onSelectedYearChange: (SelectedYear) -> Unit,
+    onUpdateClick: () -> Unit
 ) {
     ShadowCard {
         Column(
@@ -319,11 +329,23 @@ fun FireReportHeadSwitcher(
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(
-                    text = "FIRE Report",
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = Color.Black
-                )
+                Row(
+                    modifier=Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Text(
+                        text = "FIRE Report",
+                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = Color.Black
+                    )
+
+                    UpdateDetailsButton(
+                        onClick={
+                            onUpdateClick()
+                        }
+                    )
+
+                }
                 Text(
                     text = "Projected Financial Independence",
                     color = titleColor,
@@ -332,6 +354,43 @@ fun FireReportHeadSwitcher(
             }
             YearSelector(selectedYear,onSelectedYearChange)
             IncludeEmi(emiIncluded,onEmiIncludedClick)
+        }
+    }
+}
+
+@Composable
+fun UpdateDetailsButton(onClick: () -> Unit) {
+    val tintColor= Color(0xff0284C7)
+    Box(
+        modifier = Modifier
+            .clip(CircleShape)
+            .shadow(2.dp)
+            .background(
+                Color(0xffE0F2FE)
+            )
+            .clickable(
+                onClick = onClick
+            )
+
+    ){
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+        ) {
+            Icon(
+                painter=painterResource(Res.drawable.ic_pencil),
+                contentDescription = null,
+                tint = tintColor,
+                modifier = Modifier.size(10.dp)
+            )
+            Text(
+                text = "Update Details",
+                color = tintColor,
+                fontFamily = Poppins,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
@@ -476,7 +535,7 @@ fun FireBackHeader(
         }
         else{
             Icon(
-                painter = painterResource(Res.drawable.icon_download),
+                painter = painterResource(Res.drawable.download_ic),
                 contentDescription = null,
                 tint = Secondary,
                 modifier = Modifier.padding(end = 4.dp).size(22.dp).clickable(

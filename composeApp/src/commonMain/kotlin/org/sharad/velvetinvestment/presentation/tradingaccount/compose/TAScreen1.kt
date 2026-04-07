@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,9 +32,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.GenericDropDownField
+import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
@@ -42,7 +45,8 @@ import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
 @Preview(showSystemUi = true)
 @Composable
 fun TradingAccountScreen1(
-    pv: PaddingValues
+    pv: PaddingValues,
+    onClick: () -> Unit
 ) {
     val viewModel: TradingAccountViewModel = koinViewModel()
     val state by viewModel.basicDetailsModel.collectAsStateWithLifecycle()
@@ -55,7 +59,8 @@ fun TradingAccountScreen1(
         LazyColumn(
             modifier = Modifier.weight(1f).fillMaxSize().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+        )
+        {
             item {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -63,10 +68,7 @@ fun TradingAccountScreen1(
                 ) {
                     Text(
                         "Basic Details",
-                        fontSize = 24.sp,
-                        fontFamily = Poppins,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.Black
+                        style = MaterialTheme.typography.headlineLarge,
                     )
                     Text(
                         "Let's start with your basic information",
@@ -109,8 +111,11 @@ fun TradingAccountScreen1(
 
             item {
                 GenderBoxComposable(
-                    "Gender", selected = state.gender, onSelect = {it->
-                        viewModel.onGenderChange(it)}
+                    "Gender",
+                    selected = state.gender,
+                    onSelect = { it ->
+                        viewModel.onGenderChange(it)
+                    }
                 )
             }
 
@@ -152,9 +157,26 @@ fun TradingAccountScreen1(
 
             }
 
+            item{
+                OnBoardingDateField(
+                    value = state.dob,
+                    placeHolder = "dd/mm/yy",
+                    label = "DOB ",
+                    mandatory = true,
+                    onClick = {
+                    }
+                )
+            }
+
             item { Spacer(modifier = Modifier.height(pv.calculateBottomPadding())) }
 
         }
+        NextButtonFooter(
+            onClick=onClick,
+            pv=pv,
+            value = "Next",
+            enabled = true
+        )
     }
 }
 
@@ -170,27 +192,30 @@ fun GenderBoxComposable(
     Column(
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = label, style = subHeadingMedium, color = Color.Black
-        )
-    }
-
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        genderList.forEach { text ->
-            GenderBox(modifier = Modifier.weight(1f).fillMaxWidth(),
-                gender = text,
-                isSelected = (selected == text),
-                onSelect = {
-                    onSelect(text)
-                }
+        Row{
+            Text(
+                text = label, style = subHeadingMedium, color = Color.Black
             )
+            Text(
+                text = "*", color = Color.Red, style = subHeadingMedium
+            )
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            genderList.forEach { text ->
+                GenderBox(modifier = Modifier.weight(1f).fillMaxWidth(),
+                    gender = text,
+                    isSelected = (selected == text),
+                    onSelect = {
+                        onSelect(text)
+                    }
+                )
+            }
         }
     }
 
 }
 
 
-@Preview(showBackground = true)
 @Composable
 fun GenderBox(
     modifier: Modifier = Modifier, gender: String, isSelected: Boolean,

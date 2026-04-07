@@ -1,13 +1,16 @@
 package org.sharad.velvetinvestment.presentation.tradingaccount.compose
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +21,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,317 +47,343 @@ import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.emify.core.ui.theme.grayColor
 import org.sharad.emify.core.ui.theme.redColor
+import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.uimodel.FinancialTradingDetailsModel
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
+import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.GenericDropDownField
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.add_icon
 
-@Preview(showSystemUi = true)
 @Composable
-fun TradingScreen3() {
+fun TradingScreen3(
+    pv: PaddingValues,
+    onClick: () -> Unit,
+    onBackClick: () -> Unit
+) {
     val tradingDetailViewModel: TradingAccountViewModel = koinViewModel()
     val state by tradingDetailViewModel.financialTradingDetailsModel.collectAsStateWithLifecycle()
+
     val list = listOf(
-        "Business",
-        "Service",
-        "Professional",
-        "Agriculture",
-        "Retired",
-        "Housewife",
-        "Student",
-        "Other"
+        "Business", "Service", "Professional", "Agriculture",
+        "Retired", "Housewife", "Student", "Other"
     )
-    val nomineeauthenticationlist = listOf(
-        "W-WET",
-        "E-Sign",
-        "O-OTP"
-    )
+    val nomineeauthenticationlist = listOf("W-WET", "E-Sign", "O-OTP")
+    val listofRelations = listOf("Mother", "Father", "Son", "Daughter", "Brother", "Sister")
+    val listOfNomineeIdentity = listOf("PAN", "Aadhaar", "Driving License", "OCI/Pasport")
+    val listOfCountry = listOf("India", "Dubai", "US", "UK", "France", "Germany", "Japan")
 
-    val listofRelations = listOf(
-        "Mother",
-        "Father",
-        "Son",
-        "Daughter",
-        "Brother",
-        "Sister"
+    Column(modifier = Modifier.fillMaxSize()) {
 
-    )
-    val listOfNomineeIdentity = listOf(
-        "PAN", "Aadhaar", "Driving License", "OCI/Pasport"
-    )
-    val listOfCountry = listOf(
-        "India", "Dubai", "US", "UK", "France", "Germany", "Japan"
-    )
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(16.dp).safeDrawingPadding(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Column(
-                modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    "Financial & Trading Details",
-                    fontSize = 24.sp,
-                    fontFamily = Poppins,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
-                )
-                Text(
-                    "Help us to understand your trading profile",
-                    fontFamily = Poppins,
-                    fontSize = 14.sp,
-                    color = Color(0xff4A5565)
+        BackHeader(
+            "Trading account",
+            showBack = true,
+            onBackClick = onBackClick
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        "Financial & Trading Details",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                    Text(
+                        "Help us to understand your trading profile",
+                        style = titlesStyle,
+                        color = titleColor
+                    )
+                }
+            }
+
+            item {
+                GenericDropDownField(
+                    value = state.occupation,
+                    onValueChange = tradingDetailViewModel::onOccupationChange,
+                    placeHolder = "Select Occupation",
+                    mandatory = true,
+                    label = "Occupation",
+                    modifier = Modifier.fillMaxWidth(),
+                    list = list
                 )
             }
-        }
 
-        item {
-            GenericDropDownField(
-                value = state.occupation,
-                onValueChange = tradingDetailViewModel::onOccupationChange,
-                placeHolder = "Select Occupation",
-                mandatory = true,
-                label = "Occupation",
-                modifier = Modifier.fillMaxWidth(),
-                list = list
-            )
-        }
-        item {
-            HolderNature(
-                Selected = state.holderNature,
-                onHolderNatureChange = tradingDetailViewModel::onHolderNatureChange
-            )
-        }
-        if (state.holderNature == Holding.JOINT) {
             item {
-                JointHolder(jointHolder ="Joint Holder 2",list=listofRelations, list2 = listOfCountry,state,tradingDetailViewModel)
+                HolderNature(
+                    Selected = state.holderNature,
+                    onHolderNatureChange = tradingDetailViewModel::onHolderNatureChange
+                )
             }
-            item {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)){
+
+            if (state.holderNature == Holding.JOINT) {
+                item {
+                    JointHolder(
+                        jointHolder = "Joint Holder 2",
+                        list = listofRelations,
+                        list2 = listOfCountry,
+                        state,
+                        tradingDetailViewModel
+                    )
+                }
+
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         JointHolder(
                             jointHolder = "Joint Holder 3",
                             list = listofRelations,
-                            list2 = listOfCountry,state,tradingDetailViewModel
+                            list2 = listOfCountry,
+                            state,
+                            tradingDetailViewModel
                         )
                         AddMoreNominiee("Add More Joint Holder")
-
                     }
                 }
-        }
-            item {
-                CheckBoxComp(
-                    checked = state.checked,
-                    onCheckedChange = tradingDetailViewModel::onCheckedChange
-                )
-            }
-            item {
-                OnBoardingTextField(
-                    value = state.nominationOPT,
-                    onValueChange = tradingDetailViewModel::onNominationChange,
-                    placeHolder = "Y/N",
-                    label = "Nomination OPT",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Text
-                )
             }
 
             item {
-                GenericDropDownField(
-                    value = state.nomineeAuthentication, onValueChange = tradingDetailViewModel::onNomineeAuthenticationChange,
-                    placeHolder = "Nominee authentication",
-                    mandatory = true,
-                    label = "Nominee Authentication",
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    list = nomineeauthenticationlist,
-                )
-            }
-
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeName, onValueChange = tradingDetailViewModel::onNomineeNameChange,
-                    placeHolder = "Nominee Name",
-                    label = "Nomination Name",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Text,
-                )
-            }
-
-            item {
-                GenericDropDownField(
-                    value = state.nomineeRelation,
-                    onValueChange = tradingDetailViewModel::onNomineeRelationChange,
-                    placeHolder = "Nomination Relation",
-                    mandatory = true,
-                    label = "Relationship",
-                    modifier = Modifier.fillMaxWidth(),
-                    list = listofRelations,
-                )
-            }
-            //Nomination dob
-            item {
-                GenericDropDownField(
-                    value = state.nomineeIdentityType,
-                    onValueChange = tradingDetailViewModel::onNomineeIdentityTypeChange,
-                    placeHolder = "Nominee identity",
-                    mandatory = true,
-                    label = "Nomination Identity type",
-                    modifier = Modifier.fillMaxWidth(),
-                    list = listOfNomineeIdentity,
-
-
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ){
+                    CheckBoxComp(
+                        checked = state.checked,
+                        onCheckedChange = tradingDetailViewModel::onCheckedChange
                     )
-            }
-
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeAadhar,
-                    onValueChange =tradingDetailViewModel::onNomineeAadharChange,
-                    placeHolder = "xxxx xxxx 1234",
-                    label = "Nomination Aadhar number",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Number,
-                )
-
-            }
-
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeEmail,
-                    onValueChange = tradingDetailViewModel::onNomineeEmailChange,
-                    placeHolder = "Nominee  Email",
-                    label = "Nominee Email",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Email,
-                )
-
-            }
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeMobile,
-                    onValueChange = tradingDetailViewModel::onNomineeMobileChange,
-                    placeHolder = "Nominee Mobile number",
-                    label = "Nominee Mobile number",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Number,
-                )
-
-            }
-
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeAddress1,
-                    onValueChange = tradingDetailViewModel::onNomineeAddress1Change,
-                    placeHolder = "House/Flat No.,Building Name",
-                    label = "Nominee Address 1",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Text,
-                )
-
-            }
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeAddress2,
-                    onValueChange = tradingDetailViewModel::onNomineeAddress2Change,
-                    placeHolder = "Street Name,Area",
-                    label = "Nominee Address 2 (optional)",
-                    mandatory = false,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Text,
-                )
-
-            }
-
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeAddress3,
-                    onValueChange = tradingDetailViewModel::onNomineeAddress3Change,
-                    placeHolder = "Landmark",
-                    label = "Nominee Address 3 (optional)",
-                    mandatory = false,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Text,
-                )
-            }
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeCity,
-                    onValueChange = tradingDetailViewModel::onNomineeCityChange,
-                    placeHolder = "Enter City",
-                    label = "City",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Text,
-                )
-
-            }
-            item {
-                OnBoardingTextField(
-                    value = state.nomineePincode,
-                    onValueChange = tradingDetailViewModel::onNomineePincodeChange,
-                    placeHolder = "6-digit pincode",
-                    label = "Pincode",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Number,
-                )
-
-            }
-
-            item {
-                GenericDropDownField(
-                    value = state.nomineeCity,
-                    onValueChange = {},
-                    placeHolder = "Select Country",
-                    mandatory = true,
-                    label = "Country",
-                    modifier = Modifier.fillMaxWidth(),
-                    list = listOfCountry,
-
+                    Text(
+                        text="Check this to add a Nominee",
+                        style = titlesStyle.copy(fontSize = 14.sp),
+                        color = titleColor
                     )
-            }
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeSOA,
-                    onValueChange = tradingDetailViewModel::onNomineeSOAChange,
-                    placeHolder = "Y/N",
-                    label = "Nomination SOA(Statement of Account)",
-                    mandatory = false,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Text,
+                }
 
+            }
+
+//            item {
+//                OnBoardingTextField(
+//                    value = state.nominationOPT,
+//                    onValueChange = tradingDetailViewModel::onNominationChange,
+//                    placeHolder = "Y/N",
+//                    label = "Nomination OPT",
+//                    mandatory = true,
+//                    modifier = Modifier.fillMaxWidth(),
+//                    keyboardType = KeyboardType.Text
+//                )
+//            }
+
+            if(state.checked){
+                item {
+                    GenericDropDownField(
+                        value = state.nomineeAuthentication,
+                        onValueChange = tradingDetailViewModel::onNomineeAuthenticationChange,
+                        placeHolder = "Nominee authentication",
+                        mandatory = true,
+                        label = "Nominee Authentication",
+                        modifier = Modifier.fillMaxWidth(),
+                        list = nomineeauthenticationlist,
                     )
-            }
-            item {
-                OnBoardingTextField(
-                    value = state.nomineeOptRefNo,
-                    onValueChange = tradingDetailViewModel::onNomineeOptRefNoChange,
-                    placeHolder = "opt ref no.",
-                    label = "Nominee opt ref no.",
-                    mandatory = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardType = KeyboardType.Number,
-                )
-            }
-            item {
-                AddMoreNominiee("Add More Nominee")
+                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeName,
+                        onValueChange = tradingDetailViewModel::onNomineeNameChange,
+                        placeHolder = "Nominee Name",
+                        label = "Nomination Name",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Text,
+                    )
+                }
+
+                item {
+                    GenericDropDownField(
+                        value = state.nomineeRelation,
+                        onValueChange = tradingDetailViewModel::onNomineeRelationChange,
+                        placeHolder = "Nomination Relation",
+                        mandatory = true,
+                        label = "Relationship",
+                        modifier = Modifier.fillMaxWidth(),
+                        list = listofRelations,
+                    )
+                }
+
+                item {
+                    GenericDropDownField(
+                        value = state.nomineeIdentityType,
+                        onValueChange = tradingDetailViewModel::onNomineeIdentityTypeChange,
+                        placeHolder = "Nominee identity",
+                        mandatory = true,
+                        label = "Nomination Identity type",
+                        modifier = Modifier.fillMaxWidth(),
+                        list = listOfNomineeIdentity,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeAadhar,
+                        onValueChange = tradingDetailViewModel::onNomineeAadharChange,
+                        placeHolder = "xxxx xxxx 1234",
+                        label = "Nomination Aadhar number",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Number,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeEmail,
+                        onValueChange = tradingDetailViewModel::onNomineeEmailChange,
+                        placeHolder = "Nominee Email",
+                        label = "Nominee Email",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Email,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeMobile,
+                        onValueChange = tradingDetailViewModel::onNomineeMobileChange,
+                        placeHolder = "Nominee Mobile number",
+                        label = "Nominee Mobile number",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Number,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeAddress1,
+                        onValueChange = tradingDetailViewModel::onNomineeAddress1Change,
+                        placeHolder = "House/Flat No.,Building Name",
+                        label = "Nominee Address 1",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Text,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeAddress2,
+                        onValueChange = tradingDetailViewModel::onNomineeAddress2Change,
+                        placeHolder = "Street Name,Area",
+                        label = "Nominee Address 2 (optional)",
+                        mandatory = false,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Text,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeAddress3,
+                        onValueChange = tradingDetailViewModel::onNomineeAddress3Change,
+                        placeHolder = "Landmark",
+                        label = "Nominee Address 3 (optional)",
+                        mandatory = false,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Text,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeCity,
+                        onValueChange = tradingDetailViewModel::onNomineeCityChange,
+                        placeHolder = "Enter City",
+                        label = "City",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Text,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineePincode,
+                        onValueChange = tradingDetailViewModel::onNomineePincodeChange,
+                        placeHolder = "6-digit pincode",
+                        label = "Pincode",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Number,
+                    )
+                }
+
+                item {
+                    GenericDropDownField(
+                        value = state.nomineeCity,
+                        onValueChange = {},
+                        placeHolder = "Select Country",
+                        mandatory = true,
+                        label = "Country",
+                        modifier = Modifier.fillMaxWidth(),
+                        list = listOfCountry,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeSOA,
+                        onValueChange = tradingDetailViewModel::onNomineeSOAChange,
+                        placeHolder = "Y/N",
+                        label = "Nomination SOA(Statement of Account)",
+                        mandatory = false,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Text,
+                    )
+                }
+
+                item {
+                    OnBoardingTextField(
+                        value = state.nomineeOptRefNo,
+                        onValueChange = tradingDetailViewModel::onNomineeOptRefNoChange,
+                        placeHolder = "opt ref no.",
+                        label = "Nominee opt ref no.",
+                        mandatory = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Number,
+                    )
+                }
+            }
+
+//            item {
+//                AddMoreNominiee("Add More Nominee")
+//            }
+
+            item {
+                Spacer(modifier = Modifier.height(pv.calculateBottomPadding()+16.dp))
             }
         }
 
-
-        }
+        NextButtonFooter(
+            onClick = onClick,
+            pv = pv,
+            value = "Next",
+            enabled = true
+        )
+    }
+}
 
 
 
@@ -415,12 +445,13 @@ fun HoldingCard(
             .clickable { onHolderNatureChange() }.padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 text = cardHeading,
                 fontFamily = Poppins,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
+                lineHeight = 18.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(
@@ -430,7 +461,8 @@ fun HoldingCard(
             Text(
                 text = cardSubHeading,
                 color = grayColor,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
+                lineHeight = 13.sp,
                 fontFamily = Poppins,
                 textAlign = TextAlign.Center
             )
@@ -496,7 +528,7 @@ fun CheckBoxComp(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Checkbox(
             checked = checked,

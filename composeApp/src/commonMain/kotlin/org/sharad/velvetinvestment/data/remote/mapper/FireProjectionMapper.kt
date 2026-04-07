@@ -19,8 +19,8 @@ fun FireReportDto.toDomain(): FireReportDomain {
             PortfolioProjectionPointDomain(
                 year = projection.year,
                 portfolioValue = EmiValueDomain(
-                    includeEmi = projection.portfolio_value.emi_include.toLong(),
-                    excludeEmi = projection.portfolio_value.emi_exclude.toLong()
+                    includeEmi = projection.portfolio_value.emi_include,
+                    excludeEmi = projection.portfolio_value.emi_exclude
                 )
             )
         )
@@ -38,25 +38,25 @@ fun FireReportDto.toDomain(): FireReportDomain {
         projectionRows.add(
             FireProjectionRowDomain(
                 year = projection.year,
-                income = projection.income.toLong(),
+                income = projection.income,
 
                 expenses = EmiValueDomain(
-                    includeEmi = projection.total_expenses.emi_include.toLong(),
-                    excludeEmi = projection.total_expenses.emi_exclude.toLong()
+                    includeEmi = projection.total_expenses.emi_include,
+                    excludeEmi = projection.total_expenses.emi_exclude
                 ),
 
-                yearlyGoalSip = projection.goal_commitment_annual.toLong(),
+                yearlyGoalSip = projection.goal_commitment_annual,
 
                 surplusMoney = EmiValueDomain(
-                    includeEmi = projection.savings.emi_include.toLong(),
-                    excludeEmi = projection.savings.emi_exclude.toLong()
+                    includeEmi = projection.savings.emi_include,
+                    excludeEmi = projection.savings.emi_exclude
                 ),
 
-                goalsFutureValue = projection.goals_payout.toLong(),
+                goalsFutureValue = projection.goals_payout,
 
                 portfolioValue = EmiValueDomain(
-                    includeEmi = projection.portfolio_value.emi_include.toLong(),
-                    excludeEmi = projection.portfolio_value.emi_exclude.toLong()
+                    includeEmi = projection.portfolio_value.emi_include,
+                    excludeEmi = projection.portfolio_value.emi_exclude
                 ),
 
                 fireNumber = EmiValueDomain(

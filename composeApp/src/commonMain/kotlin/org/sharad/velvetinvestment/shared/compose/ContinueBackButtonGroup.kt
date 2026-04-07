@@ -21,6 +21,7 @@ fun ContinueBackButtonFooter(
     onContinue: () -> Unit,
     onBack: () -> Unit,
     pv: PaddingValues,
+    enabled: Boolean=true,
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -45,7 +46,8 @@ fun ContinueBackButtonFooter(
             AppButton(
                 modifier = Modifier.weight(1f),
                 onClick = onContinue,
-                text = continueText
+                text = continueText,
+                enabled = enabled
             )
         }
 

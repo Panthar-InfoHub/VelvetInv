@@ -1,8 +1,8 @@
 package org.sharad.velvetinvestment.data.remote.mapper
 
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.MutualFundsDetailDto
+import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
-import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 
 fun MutualFundsDetailDto.toDomain(): MutualFundDetailsDomain {
     val d = data
@@ -33,7 +33,8 @@ fun MutualFundsDetailDto.toDomain(): MutualFundDetailsDomain {
         sip_allowed = d.sip_allowed,
         structure = d.structure,
         switch_allowed = d.switch_allowed,
-        transaction_rules = d.transaction_rules,
+        sipAllowedDated = d.transaction_rules.sip_allowed_dates,
+        investmentFrequency = d.transaction_rules.sip_frequencies.mapNotNull { InvestmentFrequency.fromCode(it) },
         updatedAt = d.updatedAt
     )
 }

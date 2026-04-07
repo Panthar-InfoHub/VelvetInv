@@ -13,7 +13,7 @@ data class Data(
     val id: String,
     val inv_id: Int,
     val kyc_progress: Int,
-    val kyc_types: List<KycType>,
+    val kyc_types: KycType,
     val meta_data: MetaData,
     val nse_client_code: String?,
     val phone_no: String,

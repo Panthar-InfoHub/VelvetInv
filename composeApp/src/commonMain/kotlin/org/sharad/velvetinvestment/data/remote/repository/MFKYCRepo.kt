@@ -13,6 +13,7 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toDto
+import org.sharad.velvetinvestment.data.remote.model.mfkyc.ESignDto
 import org.sharad.velvetinvestment.data.remote.model.mfkyc.imageupload.ImageUploadDto
 import org.sharad.velvetinvestment.data.remote.model.mfkyc.digilockerdetails.DigiLockerDetailsDto
 import org.sharad.velvetinvestment.data.remote.model.mfkyc.imageupload.UrlUploadBodyDto
@@ -171,6 +172,21 @@ class MFKYCRepo(
             }
             is NetworkResponse.Success->{
                 val url= response.data.data.`object`.result.combinedPdf
+                NetworkResponse.Success(url)
+            }
+        }
+    }
+
+    override suspend fun getESignUrl(): NetworkResponse<String, ErrorDomain> {
+        val response= safeRequest<ESignDto> {
+            client.get(getUrl("/kyc/mf-esign"))
+        }
+        return when(response){
+            is NetworkResponse.Error ->{
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success->{
+                val url= response.data.data
                 NetworkResponse.Success(url)
             }
         }

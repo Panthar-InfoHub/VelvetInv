@@ -78,6 +78,7 @@ class FDPurchaseViewModel(
                             bankLogo = data.bankLogo,
                             riskLabel = data.riskLabel,
                             highestInterestRate = data.maxInterestRate,
+                            id=data.id
                         )
                     )
                 }
@@ -152,7 +153,7 @@ class FDPurchaseViewModel(
                 investment_amount = data.amount,
                 investment_period = selectedTenure.tenureDays,
                 payout_frequency = selectedFrequency,
-                product_id = id,
+                product_id = data.id,
                 tenure = selectedTenure.tenureDays
             )
 

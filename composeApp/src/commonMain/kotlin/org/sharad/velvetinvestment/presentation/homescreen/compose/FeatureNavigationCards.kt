@@ -53,7 +53,7 @@ fun FeatureNavigationCards(
         ) {
             FeatureNavigationCard(
                 onClick = onBeatInflationClick,
-                title = "Beat Inflation",
+                title = "Mutual Fund",
                 description = "Grow Wealth faster than rising cost",
                 icon = {
                     Icon(
@@ -68,7 +68,7 @@ fun FeatureNavigationCards(
             )
             FeatureNavigationCard(
                 onClick = onExpertPickedClick,
-                title = "Expert Picked",
+                title = "Fixed Deposits",
                 description = "Curated fund for better Returns",
                 icon = {
                     Icon(
@@ -88,7 +88,7 @@ fun FeatureNavigationCards(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             FeatureNavigationCard(
-                onClick = onBeatInflationClick,
+                onClick = onStartSmallClick,
                 title = "Track F.I.R.E report",
                 description = "Begin your journey to financial freedom!",
                 icon = {
@@ -103,7 +103,7 @@ fun FeatureNavigationCards(
                 modifier = Modifier.weight(1f)
             )
             FeatureNavigationCard(
-                onClick = onExpertPickedClick,
+                onClick = onDiversifiedClick,
                 title = "Insurance Planning",
                 description = "Allocate your budget wisely to manage risks.",
                 icon = {

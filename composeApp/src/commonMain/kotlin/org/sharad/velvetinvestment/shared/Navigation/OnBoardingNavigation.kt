@@ -16,7 +16,7 @@ import androidx.navigation.compose.composable
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingConfirmationScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CurrentAssetScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.FinancialFlowScreen
-import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.AddGoalScreen
+import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.AddGoalOnboardingScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.OnBoardingGoalScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.insurancecoverage.InsuranceCoverageScreen
 import org.sharad.velvetinvestment.presentation.onboarding.compose.loan.AddLoanScreen
@@ -24,7 +24,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.loan.OnBoardi
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.PersonalDetailScreen
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
-import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenOnboardingViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
@@ -38,7 +38,7 @@ fun OnBoardingNavigation(
     pv: PaddingValues,
     loanScreenViewModel: LoanScreenViewModel,
     insuranceCoverageViewModel: InsuranceCoverageViewModel,
-    goalViewModel: GoalScreenViewModel,
+    goalViewModel: GoalScreenOnboardingViewModel,
     navController: NavHostController,
     onLoginSuccessNavigation: () -> Unit
 ) {
@@ -210,7 +210,7 @@ fun OnBoardingNavigation(
         }
 
         composable<Route.OnBoardingGoalAdd> {
-            AddGoalScreen(
+            AddGoalOnboardingScreen(
                 viewModel = goalViewModel,
                 onBack = { navController.popBackStack() },
                 retirementAgeMain = personalData.retirementAge,

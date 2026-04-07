@@ -1,18 +1,11 @@
 package org.sharad.velvetinvestment.presentation.mutualfund.compose
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,16 +17,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +35,6 @@ import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.getPreferre
 import org.sharad.velvetinvestment.shared.compose.TwoWaySwitch
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import kotlin.math.pow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,6 +72,8 @@ fun WhatIfCalculator(
                 (1 + expectedReturn / 100).toDouble()
                     .pow(input.timeInYears.toDouble())).toLong()
     }
+
+    val amountRange =if (input.isSip) 500f..50000f else 500f..100000f
 
     val returns = totalValue - totalInvested
 
@@ -133,7 +121,7 @@ fun WhatIfCalculator(
             Slider(
                 value = input.monthlyInvestment.toFloat(),
                 onValueChange = { onInvestmentChange(it.toLong()) },
-                valueRange = 1000f..100000f,
+                valueRange = amountRange,
                 modifier = Modifier.fillMaxWidth(),
                 thumb = {
                     Box(

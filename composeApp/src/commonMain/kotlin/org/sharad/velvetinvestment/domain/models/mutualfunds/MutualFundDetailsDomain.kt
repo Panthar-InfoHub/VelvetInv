@@ -29,7 +29,35 @@ data class MutualFundDetailsDomain(
     val sip_allowed: Boolean,
     val structure: String,
     val switch_allowed: Boolean,
-    val transaction_rules: TransactionRules,
+    val sipAllowedDated: List<Int>,
+    val investmentFrequency: List<InvestmentFrequency>,
     val updatedAt: String
 )
 
+enum class InvestmentFrequency(
+    val code: String,
+    val label: String
+) {
+    DAILY_Z("DZ", "Daily"),
+    DAILY("D", "Daily"),
+
+    MONTHLY("OM", "Monthly"),
+    QUARTERLY("Q", "Quarterly"),
+
+    WEEKLY("WD", "Weekly"),
+    ONCE_A_WEEK("OW", "Once a Week"),
+
+    HALF_YEARLY("H", "Half Yearly"),
+    YEARLY("Y", "Yearly");
+
+    companion object {
+
+        fun fromCode(code: String?): InvestmentFrequency? {
+            return entries.find { it.code.equals(code, ignoreCase = true) }
+        }
+
+        fun fromLabel(label: String?): InvestmentFrequency? {
+            return entries.find { it.label.equals(label, ignoreCase = true) }
+        }
+    }
+}

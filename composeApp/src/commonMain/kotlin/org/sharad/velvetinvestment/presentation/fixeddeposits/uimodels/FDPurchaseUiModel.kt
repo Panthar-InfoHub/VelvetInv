@@ -14,5 +14,6 @@ data class FDPurchaseUiModel(
     val bankLogo: String,
     val riskLabel: RiskLevel,
     val highestInterestRate: Double,
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val id:String
 )

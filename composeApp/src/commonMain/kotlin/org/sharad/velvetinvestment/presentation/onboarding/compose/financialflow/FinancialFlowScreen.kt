@@ -118,7 +118,7 @@ fun FinancialFlowScreen(
         ContinueBackButtonFooter(
             onContinue = onNext,
             onBack = onPrev,
-            pv = pv
+            pv = pv,
         )
     }
 
@@ -272,7 +272,7 @@ fun IncomeEntry(annualIncome: Long?, onAnnualIncomeUpdate: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             onValueChange = onAnnualIncomeUpdate,
             placeHolder = "",
-            label = "Current Annual Income (Post Taxes)",
+            label = "Current Annual Income",
             mandatory = false
         )
         Box(

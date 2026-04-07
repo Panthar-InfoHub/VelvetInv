@@ -115,7 +115,7 @@ fun CurrentAssetScreen(
         ContinueBackButtonFooter(
             onContinue = onNext,
             onBack = onPrev,
-            pv = pv
+            pv = pv,
         )
     }
 

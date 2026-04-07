@@ -29,7 +29,7 @@ import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.GenericInfoHeader
-import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenViewModel
+import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenOnboardingViewModel
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.utils.AppBackHandler
@@ -40,7 +40,7 @@ import org.sharad.velvetinvestment.utils.theme.titlesStyle
 
 @Composable
 fun OnBoardingGoalScreen(
-    viewModel: GoalScreenViewModel,
+    viewModel: GoalScreenOnboardingViewModel,
     modifier: Modifier = Modifier,
     pv: PaddingValues,
     onNext: () -> Unit,

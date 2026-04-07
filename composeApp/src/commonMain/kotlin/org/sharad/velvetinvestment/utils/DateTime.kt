@@ -209,6 +209,10 @@ object DateTimeUtils {
 
         return localDate.toString()
     }
+
+    fun dobToEpochMillis(dob: String): Long {
+        return Instant.parse(dob).toEpochMilliseconds()
+    }
 }
 
 

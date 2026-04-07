@@ -16,5 +16,6 @@ interface MFKYCRepository {
     suspend fun uploadSignature(signature: PhotoResult): NetworkResponse<String, ErrorDomain>
     suspend fun uploadImageAndSignatureData(data: UrlUploadBodyDto): NetworkResponse<Unit, ErrorDomain>
     suspend fun getContractPdf(): NetworkResponse<String, ErrorDomain>
+    suspend fun getESignUrl(): NetworkResponse<String, ErrorDomain>
     suspend fun finalizeKyc(): NetworkResponse<Unit, ErrorDomain>
 }

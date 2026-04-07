@@ -24,7 +24,15 @@ enum class NetworkError: Error {
 
 
 data class ErrorDomain(
-    val code:Int,
-    val message:String,
-    val type:String,
-):Error
+    val code: Int,
+    val message: String,
+    val type: ErrorType
+)
+
+enum class ErrorType {
+    MF_KYC_REQUIRED,
+    NO_INTERNET,
+    SERIALIZATION,
+    UNKNOWN,
+    SERVER
+}

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +23,8 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.utils.AppEvents
+import org.sharad.velvetinvestment.utils.RefreshEvents
 import org.sharad.velvetinvestment.utils.UiState
 
 @Composable
@@ -33,6 +36,24 @@ fun GoalScreen(
 ){
     val viewModel: GoalInfoScreenViewModel= koinViewModel()
     val uiState by viewModel.goalsInfo.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit){
+        AppEvents.refreshEvents.collect{
+            when(it){
+                RefreshEvents.GoalEventRefresh ->{
+                    viewModel.loadGoals()
+                    AppEvents.clear()
+
+                }
+                RefreshEvents.HomeEventRefresh -> {
+
+                }
+
+                else -> {}
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
     ){
