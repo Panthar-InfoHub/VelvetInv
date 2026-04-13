@@ -23,7 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,18 +32,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.data.remote.repository.UserAuthenticationRepo
 import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
 import org.sharad.velvetinvestment.shared.compose.BarHeader
+import org.sharad.velvetinvestment.shared.compose.ErrorScreen
+import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.SnackBarType
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.theme.Poppins
@@ -61,84 +66,103 @@ import velvet.composeapp.generated.resources.termcondition
 fun ProfileScreen(
     navigateToNotification: () -> Unit,
     navigateToPersonalInfo: () -> Unit,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    viewModel: HomeScreenViewModel
 ) {
+
+    val state by viewModel.homeState.collectAsStateWithLifecycle()
     val authRepo = koinInject<UserAuth>()
     val scope= rememberCoroutineScope()
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(bottom = 60.dp)
-    ) {
-
-
-        item {
-            ProfileTopBar()
-        }
-
-        item {
-            ProfileHeader("")
-        }
-
-        item{ Spacer(Modifier) }
-
-        item {
-            BarHeader(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                "Account Setting"
-            )
-        }
-
-        item {
-            AccountSettingsCard(
-                onPersonalInfoClick=navigateToPersonalInfo
-            )
-        }
-
-        item {
-            BarHeader(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                "Preferences"
-            )
-        }
-
-        item {
-            PreferencesCard(
-                onNotificationClick = navigateToNotification
-            )
-        }
-
-        item {
-            BarHeader(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                "Legal"
-            )
-        }
-
-        item {
-            LegalCard()
-        }
-
-        item {
-            SignOutButton(
-                onClick={
-                    scope.launch {
-                        authRepo.signOut()
-                            .onSuccess {
-                                onSignOut()
-                            }
-                            .onError {
-                                SnackBarController.showSnackBar(SnackBarType.Error(it.message))
-                            }
-                    }
+    when(state){
+        is UiState.Error -> {
+            ErrorScreen(
+                errorMessage = (state as UiState.Error).message,
+                onRetryClick = {
+                    viewModel.loadHome()
                 }
             )
+        }
+        UiState.Loading -> {
+            LoaderScreen()
+        }
+        is UiState.Success-> {
+            val data=(state as UiState.Success<HomeScreenUiData>).data
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                contentPadding = PaddingValues(bottom = 60.dp)
+            ) {
+
+
+                item {
+                    ProfileTopBar()
+                }
+
+                item {
+                    ProfileHeader("", name=data.name)
+                }
+
+                item{ Spacer(Modifier) }
+
+                item {
+                    BarHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        "Account Setting"
+                    )
+                }
+
+                item {
+                    AccountSettingsCard(
+                        onPersonalInfoClick=navigateToPersonalInfo
+                    )
+                }
+
+                item {
+                    BarHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        "Preferences"
+                    )
+                }
+
+                item {
+                    PreferencesCard(
+                        onNotificationClick = navigateToNotification
+                    )
+                }
+
+                item {
+                    BarHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        "Legal"
+                    )
+                }
+
+                item {
+                    LegalCard()
+                }
+
+                item {
+                    SignOutButton(
+                        onClick={
+                            scope.launch {
+                                authRepo.signOut()
+                                    .onSuccess {
+                                        onSignOut()
+                                    }
+                                    .onError {
+                                        SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                                    }
+                            }
+                        }
+                    )
+                }
+            }
         }
     }
   }
@@ -178,7 +202,7 @@ fun ProfileTopBar() {
 }
 
 @Composable
-fun ProfileHeader(image:String) {
+fun ProfileHeader(image: String, name: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -189,9 +213,18 @@ fun ProfileHeader(image:String) {
         Box(
             modifier = Modifier
                 .size(120.dp)
-                .background(color = Color.LightGray, shape = CircleShape),
+                .clip(CircleShape)
+                .background(color = Primary, shape = CircleShape),
             contentAlignment = Alignment.Center
         ){
+
+            Text(
+                text = name.take(1),
+                fontFamily = Poppins,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 40.sp
+            )
+
 //            AsyncImage(
 //                modifier = Modifier.fillMaxSize(),
 //                contentDescription = null,
@@ -205,7 +238,7 @@ fun ProfileHeader(image:String) {
         Spacer(modifier = Modifier.height(15.dp))
 
         Text(
-            text = "Pooja Sharma",
+            text = name,
             fontFamily = Poppins,
             fontWeight = FontWeight.SemiBold,
             fontSize = 24.sp

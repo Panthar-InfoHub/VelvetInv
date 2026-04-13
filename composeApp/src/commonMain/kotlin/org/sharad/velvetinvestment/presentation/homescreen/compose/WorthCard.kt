@@ -200,7 +200,7 @@ fun UserWorthCard(
 fun maskAmount(amount: String): String {
 
     return amount.map { char ->
-        if (char.isDigit()) '*' else if (char=='+'|| char=='-' || char=='%') "" else char
+        if (char.isDigit()) '*' else if (char=='+'|| char=='-') "" else char
     }.joinToString("")
 }
 

@@ -10,6 +10,8 @@ import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomai
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFixedDepositsSearchResultUseCase
 import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.fundfiltersystem.InvestmentFilter
 import org.sharad.velvetinvestment.utils.fundfiltersystem.createInitialFDFilters
 import org.sharad.velvetinvestment.utils.fundfiltersystem.createInitialInvestmentFilter
@@ -39,28 +41,63 @@ class FDSearchResultViewModel(
     private val _filterState = MutableStateFlow<InvestmentFilter>(createInitialFDFilters())
     val filterState: StateFlow<InvestmentFilter> = _filterState
 
+    private var currentPage = 1
+    private var hasNextPage = true
+    private val _isLoadingNext = MutableStateFlow(false)
+    val isLoadingNext = _isLoadingNext.asStateFlow()
+
+
 
 
     init {
         loadFunds(page=1,limit=30,tenure="3y")
     }
 
-    private fun loadFunds(page: Int, limit: Int, tenure: String) {
+    fun loadFunds(page: Int, limit: Int, tenure: String) {
         viewModelScope.launch {
             _loadingState.value = LoadingState.Loading
-            getFDSearchResult(page,limit,tenure)
+
+            getFDSearchResult(page, limit, tenure)
                 .onSuccess { data ->
-                    _fixedDeposits.value =
-                        data.items
+                    currentPage = data.page
+                    hasNextPage = data.hasNextPage
+
+                    _fixedDeposits.value = data.items
                     _loadingState.value = LoadingState.Success
                 }
                 .onError { error ->
-                    _loadingState.value =
-                        LoadingState.Error(error.message)
+                    _loadingState.value = LoadingState.Error(error.message)
                 }
         }
     }
 
+    fun loadNext() {
+        if (!hasNextPage || _isLoadingNext.value) return
+
+        viewModelScope.launch {
+            _isLoadingNext.value = true
+
+            val nextPage = currentPage + 1
+
+            getFDSearchResult(
+                page = nextPage,
+                limit = 30,
+                tenure = "${_selectedYear.value}y"
+            )
+                .onSuccess { data ->
+                    currentPage = data.page
+                    hasNextPage = data.hasNextPage
+
+                    _fixedDeposits.value =
+                        _fixedDeposits.value + data.items
+                }
+                .onError {
+                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                }
+
+            _isLoadingNext.value = false
+        }
+    }
     fun onFilterSelected(filter: LabelFilter) {
         _selectedFilter.value =
             if (_selectedFilter.value == filter) null

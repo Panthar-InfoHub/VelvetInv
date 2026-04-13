@@ -132,7 +132,8 @@ fun BottomNavigation(
                 ProfileScreen(
                     navigateToNotification=navigateToNotification,
                     navigateToPersonalInfo=navigateToPersonalInfo,
-                    onSignOut=onSignOut
+                    onSignOut=onSignOut,
+                    viewModel=homeViewModel
                 )
             }
             composable<Route.Insurance> {

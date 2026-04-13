@@ -415,16 +415,16 @@ fun UserSettingsHeader(
                 )
             }
         )
-        CircleButton(
-            onClick = onSettingsIconClick,
-            icon = {
-                Icon(
-                    painter = painterResource(Res.drawable.settings_icon),
-                    contentDescription = null,
-                    tint = Secondary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        )
+//        CircleButton(
+//            onClick = onSettingsIconClick,
+//            icon = {
+//                Icon(
+//                    painter = painterResource(Res.drawable.settings_icon),
+//                    contentDescription = null,
+//                    tint = Secondary,
+//                    modifier = Modifier.size(24.dp)
+//                )
+//            }
+//        )
     }
 }

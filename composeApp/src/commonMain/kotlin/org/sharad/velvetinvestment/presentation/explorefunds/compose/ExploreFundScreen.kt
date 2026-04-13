@@ -102,25 +102,25 @@ fun ExploreFundScreenContent(
 
         item { InvestmentOptions(onMFClick, onFDClick) }
 
-        when(loadingState){
-            is LoadingState.Error -> {
-                item { ErrorScreen(loadingState.error, onRetryClick = {}) }
-            }
-            LoadingState.Loading -> {
-                item { LoaderScreen() }
-            }
-            LoadingState.Success -> {
-                item { BarHeader(heading ="Top Picks Mutual Funds", modifier = Modifier.padding(horizontal = 16.dp)) }
-
-                item { MFTopPicks(topFunds,navigateToSpecificMF) }
-
-                item { BarHeader(heading ="Top Picks Fixed Deposit", modifier = Modifier.padding(horizontal = 16.dp)) }
-
-                item { FDTopPicks(topFd =topFixedDeposits, onClick =navigateToSpecificFD) }
-
-                item { Spacer(modifier = Modifier.padding(bottom = pv.calculateBottomPadding())) }
-            }
-        }
+//        when(loadingState){
+//            is LoadingState.Error -> {
+//                item { ErrorScreen(loadingState.error, onRetryClick = {}) }
+//            }
+//            LoadingState.Loading -> {
+//                item { LoaderScreen() }
+//            }
+//            LoadingState.Success -> {
+//                item { BarHeader(heading ="Top Picks Mutual Funds", modifier = Modifier.padding(horizontal = 16.dp)) }
+//
+//                item { MFTopPicks(topFunds,navigateToSpecificMF) }
+//
+//                item { BarHeader(heading ="Top Picks Fixed Deposit", modifier = Modifier.padding(horizontal = 16.dp)) }
+//
+//                item { FDTopPicks(topFd =topFixedDeposits, onClick =navigateToSpecificFD) }
+//
+//                item { Spacer(modifier = Modifier.padding(bottom = pv.calculateBottomPadding())) }
+//            }
+//        }
 
     }
 }

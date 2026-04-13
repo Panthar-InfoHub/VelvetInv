@@ -15,6 +15,7 @@ import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearch
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalInfoScreenViewModel
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.SingleGoalViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.presentation.insurance.InsuranceScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCFormScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
@@ -95,4 +96,5 @@ val viewModelModule= module {
     viewModel { FinancialFlowEditScreenViewModel(get()) }
     viewModel { InsuranceCoverageEditViewModel(get()) }
     viewModel { CurrentAssetEditViewModel(get()) }
+    viewModel { InsuranceScreenViewModel(get()) }
 }

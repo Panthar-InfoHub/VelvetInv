@@ -14,17 +14,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
@@ -55,6 +61,8 @@ fun FDSearchScreenRoot(
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
     val showFilterScreen by viewModel.showFilterScreen.collectAsStateWithLifecycle()
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
+    val isLoadingNext by viewModel.isLoadingNext.collectAsStateWithLifecycle()
+
 
     Box(modifier = Modifier.fillMaxSize())
     {
@@ -82,6 +90,8 @@ fun FDSearchScreenRoot(
                             result = sortedFD,
                             onFDClick = onFDClick,
                             pv = pv,
+                            isLoadingNext=isLoadingNext,
+                            loadNext=viewModel::loadNext,
                             incrementYear = viewModel::incrementYear,
                             decrementYear = viewModel::decrementYear,
                             selectedYear = selectedYear,
@@ -141,7 +151,9 @@ fun FDSearchScreen(
     decrementYear: () -> Unit,
     selectedFilter: LabelFilter?,
     onFilterSelected: (LabelFilter) -> Unit,
-    toggleFilterScreen: () -> Unit
+    toggleFilterScreen: () -> Unit,
+    isLoadingNext: Boolean,
+    loadNext: () -> Unit
 ) {
 
     val labels: List<LabelFilter> = listOf(
@@ -152,8 +164,23 @@ fun FDSearchScreen(
         FDLabel.WomenSpecial
     )
 
+    val lazyListState= rememberLazyListState()
+
+    LaunchedEffect(result){
+        snapshotFlow {
+            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+        }
+            .distinctUntilChanged()
+            .collect {
+                if(it==result.lastIndex){
+                    loadNext()
+                }
+            }
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top=4.dp),
+        state = lazyListState
     ) {
 
         item {
@@ -192,8 +219,16 @@ fun FDSearchScreen(
             }
         }
 
-
         item { Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp)) }
+
+        if (isLoadingNext){
+            item {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = Color.LightGray
+                )
+            }
+        }
 
     }
 

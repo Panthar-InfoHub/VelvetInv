@@ -317,7 +317,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop=true
                         }
                     },
-                    onGoalsClick = {}
+                    onGoalsClick = {
+                        navController.navigate(Route.GoalsScreen) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +39,7 @@ import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Profile
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
+import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.GoalEntry
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.onboarding.models.AssetFlowDetails
 import org.sharad.velvetinvestment.presentation.onboarding.models.FinancialFlowDetails
@@ -187,22 +189,32 @@ fun OnBoardingConfirmationScreen(
             }
 
             if (goals.isNotEmpty()) {
-                item {
-                    SectionCard(title = "Goals (${goals.size})") {
-                        goals.forEach {
-                            KeyValueRow(
-                                label = it.title,
-                                value = when(it){
-                                    is GoalRequest.ChildEducation -> formatMoneyWithUnits(it.currentGoalCost)
-                                    is GoalRequest.ChildMarriage -> formatMoneyWithUnits(it.currentGoalCost)
-                                    is GoalRequest.Retirement -> formatMoneyWithUnits(it.currentMonthlyExpense)
-                                    is GoalRequest.WealthBuildingGoal -> formatMoneyWithUnits(it.currentGoalCost)
-                                },
-                                valueColor = Secondary
-                            )
-                        }
-                    }
+//                item {
+//                    SectionCard(title = "Goals (${goals.size})") {
+//                        goals.forEach {
+//                            KeyValueRow(
+//                                label = it.title,
+//                                value = when(it){
+//                                    is GoalRequest.ChildEducation -> formatMoneyWithUnits(it.currentGoalCost)
+//                                    is GoalRequest.ChildMarriage -> formatMoneyWithUnits(it.currentGoalCost)
+//                                    is GoalRequest.Retirement -> formatMoneyWithUnits(it.currentMonthlyExpense)
+//                                    is GoalRequest.WealthBuildingGoal -> formatMoneyWithUnits(it.currentGoalCost)
+//                                },
+//                                valueColor = Secondary
+//                            )
+//                        }
+//                    }
+//                }
+
+                items(goals){
+                    GoalEntry(
+                        it,
+                        showDelete = false,
+                        dob = personalDetails.dob,
+                        onDeleteClick = {}
+                    )
                 }
+
             }
             item {
                 Spacer(

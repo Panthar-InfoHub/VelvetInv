@@ -63,13 +63,13 @@ fun UpdateDetailsScreen(
                 )
             }
 
-            item {
-                UpdateCard(
-                    heading = "Loan & Debts",
-                    subHeading = "Liabilities",
-                    onClick = onLoanClick
-                )
-            }
+//            item {
+//                UpdateCard(
+//                    heading = "Loan & Debts",
+//                    subHeading = "Liabilities",
+//                    onClick = onLoanClick
+//                )
+//            }
 
             item {
                 UpdateCard(

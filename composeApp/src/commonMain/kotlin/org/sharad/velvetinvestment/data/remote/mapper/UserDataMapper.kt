@@ -21,7 +21,7 @@ fun UserDataDto.toHomeScreenUiData(): HomeScreenUiData {
         name = data.full_name.trim(),
         userWorth = data.toUserWorth(),
         fireReport = data.user_home_data.fire_percentage.emi_include.trimDoubleTo(2),
-        goals = data.user_goals.map { it.toGoalSummary() },
+        goals = data.user_goals.take(5).map { it.toGoalSummary() },
         kycCompletion = data.toKycCompletion(),
         tradingAccountCompletion = data.toTradingCompletion(),
     )

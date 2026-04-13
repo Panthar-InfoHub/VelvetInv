@@ -56,6 +56,7 @@ fun GoalEntry(
     goalInfo: GoalRequest,
     onDeleteClick: (GoalRequest) -> Unit,
     showDelete: Boolean = true,
+    showInfoIcon: Boolean=true,
     dob: Long?
 ) {
     val dobYear = dob?.let { DateTimeUtils.getYear(it) }
@@ -67,7 +68,8 @@ fun GoalEntry(
                 goalInfo = goalInfo,
                 dobYear = dobYear,
                 onDeleteClick = onDeleteClick,
-                showDelete = showDelete
+                showDelete = showDelete,
+                showInfoIcon=showInfoIcon
             )
         }
 
@@ -86,7 +88,8 @@ fun RetirementGoalCard(
     goalInfo: GoalRequest.Retirement,
     dobYear: Int,
     onDeleteClick: (GoalRequest) -> Unit,
-    showDelete: Boolean
+    showDelete: Boolean,
+    showInfoIcon: Boolean
 ) {
 
     val result = remember(goalInfo) {
@@ -96,7 +99,7 @@ fun RetirementGoalCard(
             lifeExpectancy = goalInfo.lifeExpectancy,
             monthlyExpense = goalInfo.currentMonthlyExpense.toDouble(),
             inflationRate = goalInfo.inflationRate.toDouble()/100,
-            returnRate = goalInfo.returnRate.toDouble()/100
+            returnRate = goalInfo.postRetirementReturn.toDouble()/100
         )
     }
 
@@ -152,7 +155,7 @@ fun RetirementGoalCard(
                 )
 
                 Row {
-                    ClickableIcon({}, Res.drawable.info_icon)
+                    if (showInfoIcon){ ClickableIcon({}, Res.drawable.info_icon) }
                     if (showDelete){ ClickableIcon({ onDeleteClick(goalInfo) }, Res.drawable.delete_box) }
                 }
             }
