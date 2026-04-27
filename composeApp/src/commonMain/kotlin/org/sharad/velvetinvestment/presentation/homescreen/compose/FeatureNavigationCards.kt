@@ -104,8 +104,8 @@ fun FeatureNavigationCards(
             )
             FeatureNavigationCard(
                 onClick = onDiversifiedClick,
-                title = "Insurance Planning",
-                description = "Allocate your budget wisely to manage risks.",
+                title = "Insurance",
+                description = "Allocate wisely to reduce financial risk.",
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.circe_chart_icon),

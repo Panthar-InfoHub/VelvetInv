@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.data.remote.model.purchasefd.PurchaseFDBodyDto
 import org.sharad.velvetinvestment.domain.models.fd.FDTenureDomain
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
@@ -21,7 +22,6 @@ import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
-import kotlin.math.pow
 
 class FDPurchaseViewModel(
     private val id: String,
@@ -38,14 +38,25 @@ class FDPurchaseViewModel(
 
     private var allTenures: List<FDTenureDomain> = emptyList()
 
-    val buttonEnabled= combine(uiState){
-        val data=it[0]
+    val buttonEnabled = combine(uiState) { states ->
+        val state = states[0]
 
-        data is UiState.Success && data.data.selectedTenure!=null
-                && data.data.amount>=data.data.minAmount
-                && data.data.amount.toString().isNotBlank()
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+        if (state is UiState.Success) {
+            val data = state.data
 
+            data.selectedTenure != null &&
+                    data.amount != null &&
+                    data.amount > 0 &&
+                    data.amount >= data.minAmount &&
+                    !data.showError
+        } else {
+            false
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        false
+    )
 
     init {
         loadFDDetails()
@@ -62,9 +73,7 @@ class FDPurchaseViewModel(
 
                     allTenures = tenures
 
-                    val frequencies = data.interestRates
-                        .map { it.payoutFrequency }
-                        .distinct()
+                    val frequencies = data.payoutOptions
 
                     val defaultTenure = tenures.find { it.isDefault } ?: tenures.firstOrNull()
 
@@ -73,6 +82,7 @@ class FDPurchaseViewModel(
                             tenures = emptyList(),
                             frequencies = frequencies,
                             amount = data.minDeposit,
+                            amountInput = data.minDeposit.toString(),
                             minAmount = data.minDeposit,
                             bankName = data.bankName,
                             bankLogo = data.bankLogo,
@@ -88,7 +98,7 @@ class FDPurchaseViewModel(
         }
     }
 
-    fun updateFrequency(frequency: String) {
+    fun updateFrequency(frequency: PayoutType) {
         _uiState.update { state ->
             if (state is UiState.Success) {
 
@@ -101,7 +111,8 @@ class FDPurchaseViewModel(
                     data = state.data.copy(
                         frequencies = state.data.frequencies,
                         selectedFrequency = frequency,
-                        tenures = filtered
+                        tenures = filtered,
+                        selectedTenure = null
                     )
                 )
             } else state
@@ -120,15 +131,36 @@ class FDPurchaseViewModel(
         }
     }
 
-    fun updateAmount(amount: Long) {
+    fun updateAmount(input: String) {
         _uiState.update { state ->
             if (state is UiState.Success) {
+
+                val parsedAmount = input.toLongOrNull()
+
+                val hasInvalidNumber =
+                    input.isNotBlank() && parsedAmount == null
+
+                val isBelowMinAmount =
+                    parsedAmount != null &&
+                            parsedAmount < state.data.minAmount
+
+                val errorText = when {
+                    hasInvalidNumber -> "Please enter a valid amount"
+                    isBelowMinAmount -> "Minimum amount is ₹${state.data.minAmount}"
+                    else -> ""
+                }
+
                 state.copy(
                     data = state.data.copy(
-                        amount = amount
+                        amountInput = input,
+                        amount = parsedAmount,
+                        showError = hasInvalidNumber || isBelowMinAmount,
+                        errorText = errorText
                     )
                 )
-            } else state
+            } else {
+                state
+            }
         }
     }
 
@@ -142,6 +174,7 @@ class FDPurchaseViewModel(
             val data = currentState.data
             val selectedTenure = data.selectedTenure ?: return@launch
             val selectedFrequency = data.selectedFrequency ?: return@launch
+            val amount = data.amount ?: return@launch
 
             _uiState.update {
                 if (it is UiState.Success) {
@@ -150,9 +183,9 @@ class FDPurchaseViewModel(
             }
 
             val request = PurchaseFDBodyDto(
-                investment_amount = data.amount,
+                investment_amount = amount,
                 investment_period = selectedTenure.tenureDays,
-                payout_frequency = selectedFrequency,
+                payout_frequency = selectedFrequency.id,
                 product_id = data.id,
                 tenure = selectedTenure.tenureDays
             )
@@ -181,22 +214,4 @@ class FDPurchaseViewModel(
                 }
         }
     }
-}
-
-fun calculateMaturityAmount(
-    amount: Long,
-    rate: Double,
-    days: Int
-): Long {
-    val years = days / 365.0
-    val n = 4 // quarterly compounding
-
-    return (amount * (1 + (rate / 100) / n).pow(n * years)).toLong()
-}
-
-fun calculateInterestEarned(
-    maturity: Long,
-    principal: Long
-): Long {
-    return maturity - principal
 }

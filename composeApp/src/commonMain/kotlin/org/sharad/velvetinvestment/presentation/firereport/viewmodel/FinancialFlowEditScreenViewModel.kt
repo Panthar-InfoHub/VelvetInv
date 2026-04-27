@@ -94,7 +94,7 @@ class FinancialFlowEditScreenViewModel(
 
         FinancialSummary(
             totalExpense = "₹${formatMoneyWithUnits(totalExpense)}",
-            monthlySurplus = "₹$surplus",
+            monthlySurplus = "₹${formatMoneyWithUnits(surplus)}",
             savingsRate = "$savingsRate%"
         )
     }.stateIn(

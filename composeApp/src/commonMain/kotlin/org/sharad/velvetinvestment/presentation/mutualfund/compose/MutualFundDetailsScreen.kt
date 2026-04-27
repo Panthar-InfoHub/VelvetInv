@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,7 +55,6 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
@@ -492,24 +491,24 @@ fun InvestmentRiskCard() {
         }
     }
 }
-
-@Composable
-fun TopRatedFunds(topFunds: List<MutualFundDomain>, onFundClick: (String) -> Unit) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 150.dp),
-        modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp)
-    ){
-        items(
-            items = topFunds,
-            key = { it.id }
-        ) { fund ->
-            MutualFundGridCard(fund, onClick = { onFundClick(fund.id) })
-        }
-    }
-}
+//
+//@Composable
+//fun TopRatedFunds(topFunds: List<MutualFundDomain>, onFundClick: (String) -> Unit) {
+//    LazyVerticalGrid(
+//        columns = GridCells.Adaptive(minSize = 150.dp),
+//        modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp),
+//        verticalArrangement = Arrangement.spacedBy(20.dp),
+//        horizontalArrangement = Arrangement.spacedBy(16.dp),
+//        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp)
+//    ){
+//        items(
+//            items = topFunds,
+//            key = { it.id }
+//        ) { fund ->
+//            MutualFundGridCard(fund, onClick = { onFundClick(fund.id) })
+//        }
+//    }
+//}
 
 //@Composable
 //fun AssetAllocationCard(assets: AssetsAllocationDomain) {
@@ -766,17 +765,9 @@ fun InfoCard(detailsState: DetailsState.Success, displayPercent: StableMetricUi?
         )
         {
 
-            Box(
-                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(15.dp))
-                    .background(Primary),
-                contentAlignment = Alignment.Center
-            ){
-                Text(
-                    text= detailsState.data.scheme_name.take(2).capitalize(Locale.current),
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color.White
-                )
-            }
+            MutualFundIcon(
+                schemeName = detailsState.data.scheme_name,
+            )
 
             Box(
                 modifier = Modifier
@@ -852,5 +843,29 @@ fun InfoCard(detailsState: DetailsState.Success, displayPercent: StableMetricUi?
         }
 
     }
+}
 
+@Composable
+fun MutualFundIcon(
+    schemeName: String,
+    modifier: Modifier = Modifier,
+    size: Dp = 48.dp,
+    cornerRadius: Dp = 15.dp,
+    backgroundColor: Color = Primary,
+    textColor: Color = Color.White
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(backgroundColor),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = schemeName
+                .take(2).capitalize(Locale.current),
+            style = MaterialTheme.typography.headlineLarge,
+            color = textColor
+        )
+    }
 }

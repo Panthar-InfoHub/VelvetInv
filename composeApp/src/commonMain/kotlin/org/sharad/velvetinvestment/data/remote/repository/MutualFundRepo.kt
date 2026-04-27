@@ -1,12 +1,14 @@
 package org.sharad.velvetinvestment.data.remote.repository
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toPaginatedDomain
+import org.sharad.velvetinvestment.data.remote.model.bundledfunds.BundledFundsDto
 import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumRequest
 import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumResponseDto
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
@@ -15,10 +17,12 @@ import org.sharad.velvetinvestment.data.remote.model.cartpurchase.CartPurchaseDt
 import org.sharad.velvetinvestment.data.remote.model.getmf.MutualFundDto
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.MutualFundsDetailDto
 import org.sharad.velvetinvestment.data.remote.model.mfgraph.MFGraphDto
+import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.CombinedFundsDto
 import org.sharad.velvetinvestment.data.remote.model.usercart.UserCartDto
 import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
-import org.sharad.velvetinvestment.domain.models.mutualfunds.CategoryMutualFundDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
@@ -28,28 +32,48 @@ import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardDat
 import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
 import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
-import org.sharad.velvetinvestment.utils.networking.NetworkError
+import org.sharad.velvetinvestment.utils.networking.ErrorType
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import org.sharad.velvetinvestment.utils.networking.getUrl
 import org.sharad.velvetinvestment.utils.networking.safeRequest
+import org.sharad.velvetinvestment.utils.networking.safeUnitRequest
 
 class MutualFundRepo(
     private val client: HttpClient
 ): MutualFundRepository {
-    override suspend fun getPortfolioMutualFunds(): NetworkResponse<List<FundListCardData>, NetworkError> {
+    override suspend fun getPortfolioMutualFunds(): NetworkResponse<List<FundListCardData>, ErrorDomain> {
         return NetworkResponse.Success(emptyList())
     }
 
-    override suspend fun getDashboard(): NetworkResponse<MutualFundDashBoardData, NetworkError> {
-        return NetworkResponse.Error(NetworkError.UNKNOWN)
+    override suspend fun getDashboard(): NetworkResponse<MutualFundDashBoardData, ErrorDomain> {
+        return NetworkResponse.Error(ErrorDomain(0, "Unknown", ErrorType.UNKNOWN))
     }
 
-    override suspend fun getMutualFundTopPicks(): NetworkResponse<List<MutualFundTopPicksDomain>, NetworkError> {
-        return NetworkResponse.Error(NetworkError.UNKNOWN)
+    override suspend fun getMutualFundTopPicks(): NetworkResponse<List<MutualFundTopPicksDomain>, ErrorDomain> {
+        return NetworkResponse.Error(ErrorDomain(0, "Unknown", ErrorType.UNKNOWN))
     }
 
-    override suspend fun getCategoryMutualFunds(): NetworkResponse<List<CategoryMutualFundDomain>, NetworkError> {
-        return NetworkResponse.Error(NetworkError.UNKNOWN)
+    override suspend fun getCategoryMutualFunds(
+        page: Int?,
+        limit: Int?
+    ): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain> {
+
+        val response = safeRequest<BundledFundsDto> {
+            client.get(getUrl("/bundles")) {
+                page?.let { parameter("page", it) }
+                limit?.let { parameter("limit", it) }
+            }
+        }
+
+        return when (response) {
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.toDomain())
+            }
+
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+        }
     }
 
     override suspend fun getMutualFundsBySearch(
@@ -135,6 +159,22 @@ class MutualFundRepo(
         }
     }
 
+    override suspend fun deleteCartItem(id: String): NetworkResponse<Unit, ErrorDomain> {
+        val response= safeUnitRequest {
+            client.delete(getUrl("/mf/remove-cart-item")) {
+                parameter("cart_item_id", id)
+            }
+        }
+        return when(response){
+            is NetworkResponse.Error-> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
     override suspend fun addToCartLumSumFund(
         id: String,
         amount: Long,
@@ -144,7 +184,7 @@ class MutualFundRepo(
                 setBody(
                     AddCartLumpSumRequest(
                         amount = amount,
-                        mfProductId = id
+                        mf_product_id = id
                     )
                 )
             }
@@ -203,6 +243,22 @@ class MutualFundRepo(
             }
             is NetworkResponse.Success -> {
                 NetworkResponse.Success(response.data.data)
+            }
+        }
+    }
+
+    override suspend fun getCombinedCategoryMutualFunds(): NetworkResponse<CombinedFundsDomain, ErrorDomain> {
+        val response = safeRequest<CombinedFundsDto> {
+            client.get(getUrl("/frontend/mf-data"))
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.toDomain())
             }
         }
     }

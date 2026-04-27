@@ -1,12 +1,11 @@
 package org.sharad.velvetinvestment.shared.compose
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -14,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
@@ -24,12 +24,14 @@ fun AppButton(
     text:String,
     onClick:()->Unit,
     loading:Boolean=false,
-    enabled: Boolean=true
+    enabled: Boolean=true,
+    shape: Shape = CircleShape
 ){
     Button(
         onClick=onClick,
         modifier=modifier.fillMaxWidth().height(50.dp),
         enabled = enabled && !loading,
+        shape=shape,
         colors = ButtonDefaults.buttonColors(
             containerColor = Primary,
             contentColor = Color.White,

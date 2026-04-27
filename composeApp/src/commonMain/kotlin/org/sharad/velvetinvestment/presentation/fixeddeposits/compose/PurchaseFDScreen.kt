@@ -25,10 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,11 +35,11 @@ import org.koin.core.parameter.parametersOf
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.domain.models.fd.FDTenureDomain
 import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FDPurchaseUiModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDPurchaseViewModel
-import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.calculateInterestEarned
-import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.calculateMaturityAmount
+import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.calculateMaturity
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.MoneyTextField
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.DropDownSelector
@@ -50,7 +47,6 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.Poppins
@@ -114,9 +110,9 @@ fun FDPurchaseScreenRoot(
 @Composable
 fun FDPurchaseScreen(
     data: FDPurchaseUiModel,
-    onAmountChange: (Long) -> Unit,
+    onAmountChange: (String) -> Unit,
     onTenureChange: (FDTenureDomain) -> Unit,
-    onFrequencyChange: (String) -> Unit,
+    onFrequencyChange: (PayoutType) -> Unit,
     pv: PaddingValues,
     buttonEnabled: Boolean,
     onButtonClick: () -> Unit
@@ -133,21 +129,20 @@ fun FDPurchaseScreen(
 
             item {
                 MoneyTextField(
-                    value = data.amount.toString(),
-                    onValueChange = {
-                        val amount= it.toLongOrNull()
-                        amount?.let {
-                            onAmountChange(it)
-                        }
+                    value = data.amountInput,
+                    onValueChange = {value->
+                        onAmountChange(value)
                     },
                     placeHolder = "Enter Valid Amount",
                     mandatory = false,
-                    label = "Investment Amount"
+                    label = "Investment Amount",
+                    showWarning = data.showError,
+                    warningText = data.errorText
                 )
             }
             item {
                 DropDownSelector(
-                    value = data.selectedFrequency ?: "",
+                    value = data.selectedFrequency?.displayName ?: "",
                     onValueChange = {
                         onFrequencyChange(it)
                     },
@@ -157,7 +152,7 @@ fun FDPurchaseScreen(
                     modifier = Modifier.fillMaxWidth(),
                     list = data.frequencies,
                     textConvertor = {
-                        it.toLowerCase(Locale.current).capitalize(Locale.current)
+                        it.displayName
                     }
                 )
             }
@@ -181,7 +176,7 @@ fun FDPurchaseScreen(
 
 
             item {
-                data.selectedTenure?.let{ FDProjectedReturnsCard(data.selectedTenure, data.amount) }
+                data.selectedTenure?.let{ FDProjectedReturnsCard(data.selectedTenure, data.amount?: 0) }
             }
 
 
@@ -275,15 +270,16 @@ fun FDProjectedReturnsCard(
 
 
     val maturityAmount = remember(amount, tenure) {
-        calculateMaturityAmount(
-            amount = amount,
+        calculateMaturity(
+            principal = amount,
             rate = tenure.interestRate,
-            days = tenure.tenureDays
+            days = tenure.tenureDays,
+            frequency = tenure.payoutFrequency
         )
     }
 
     val interestEarned = remember(maturityAmount, amount) {
-        calculateInterestEarned(maturityAmount, amount)
+        maturityAmount-amount
     }
 
     ShadowCard(
@@ -321,7 +317,7 @@ fun FDProjectedReturnsCard(
             ) {
 
                 Text(
-                    text = "₹ "+ formatMoneyAfterL(maturityAmount),
+                    text = "₹ "+ formatMoneyAfterL(maturityAmount.toLong()),
                     style = MaterialTheme.typography.headlineMedium,
                     color = Secondary
                 )
@@ -357,7 +353,7 @@ fun FDProjectedReturnsCard(
                 )
 
                 Text(
-                    text = "+ ₹${formatMoneyAfterL(interestEarned)}",
+                    text = "+ ₹${formatMoneyAfterL(interestEarned.toLong())}",
                     style = titlesStyle,
                     color = appGreen
                 )

@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
 import org.sharad.velvetinvestment.domain.repository.UserAuth
 import org.sharad.velvetinvestment.utils.AuthMode
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.isValidEmail
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -114,12 +116,14 @@ class LoginScreenViewModel(
                 .onSuccess {
                     _loadingLogin.value=false
                     _otp.value=""
+                    _loadingOtp.value=false
                     startOtpTimer()
                     onSuccess()
                 }
                 .onError {
                    _loadingLogin.value=false
                     onFailure(it.message)
+                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
                 }
         }
     }
@@ -138,6 +142,7 @@ class LoginScreenViewModel(
                 .onError {
                     _loadingOtp.value=false
                     onFailure(it.message)
+                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
                 }
         }
     }

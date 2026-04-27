@@ -99,7 +99,8 @@ fun RetirementGoalCard(
             lifeExpectancy = goalInfo.lifeExpectancy,
             monthlyExpense = goalInfo.currentMonthlyExpense.toDouble(),
             inflationRate = goalInfo.inflationRate.toDouble()/100,
-            returnRate = goalInfo.postRetirementReturn.toDouble()/100
+            postRetirementReturn = goalInfo.postRetirementReturn.toDouble()/100,
+            preRetirementReturn = goalInfo.returnRate.toDouble()/100
         )
     }
 
@@ -285,11 +286,12 @@ fun NormalGoalCard(
                     EntryPair("Years to goals", years.toString())
                 }
 
-                Column(horizontalAlignment = Alignment.End,
+                Column(
+                    horizontalAlignment = Alignment.End,
                     modifier = Modifier.weight(1f),
                     ) {
-                    EntryPair("Future value", "₹${formatMoneyWithUnits(futureValue.toLong())}")
-                    EntryPair("Required SIP", "₹${formatMoneyWithUnits(sip.toLong())}/month")
+                    EntryPair("Future value", "₹${formatMoneyWithUnits(futureValue.toLong())}", horizontal = Alignment.End)
+                    EntryPair("Required SIP", "₹${formatMoneyWithUnits(sip.toLong())}/month", horizontal = Alignment.End)
                 }
             }
 
@@ -358,9 +360,12 @@ private fun ClickableIcon(
 @Composable
 private fun EntryPair(
     label: String,
-    value: String
+    value: String,
+    horizontal: Alignment.Horizontal= Alignment.Start
 ){
-    Column {
+    Column(
+        horizontalAlignment = horizontal,
+    ) {
         Text(
             text = label,
             fontFamily = Poppins,

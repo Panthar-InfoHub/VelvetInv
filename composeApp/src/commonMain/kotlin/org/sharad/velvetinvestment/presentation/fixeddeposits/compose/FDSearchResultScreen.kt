@@ -6,6 +6,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,45 +18,57 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.distinctUntilChanged
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.FundFilterRow
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentFilterScreen
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.YearRow
-import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
+import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
+import org.sharad.velvetinvestment.shared.compose.FilterChip
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.FDLabel
 import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.icon_filter
 
 @Composable
 fun FDSearchScreenRoot(
     onBackClick: () -> Unit,
     onFDClick: (String) -> Unit,
+    onSearchClick: (String) -> Unit,
     heading: String,
     pv: PaddingValues,
+    search: String?,
 ) {
 
 
-    val viewModel: FDSearchResultViewModel = koinViewModel()
+    val viewModel: FDSearchResultViewModel = koinViewModel{
+        parametersOf(search)
+    }
     val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
     val sortedFD by viewModel.fixedDeposits.collectAsStateWithLifecycle()
@@ -62,6 +76,7 @@ fun FDSearchScreenRoot(
     val showFilterScreen by viewModel.showFilterScreen.collectAsStateWithLifecycle()
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
     val isLoadingNext by viewModel.isLoadingNext.collectAsStateWithLifecycle()
+    val searchText by  viewModel.searchText.collectAsStateWithLifecycle()
 
 
     Box(modifier = Modifier.fillMaxSize())
@@ -78,7 +93,7 @@ fun FDSearchScreenRoot(
             ) {
                 when (uiState) {
                     is LoadingState.Error -> {
-                        ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
+                        ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {viewModel.loadFunds()})
                     }
 
                     LoadingState.Loading -> {
@@ -90,14 +105,15 @@ fun FDSearchScreenRoot(
                             result = sortedFD,
                             onFDClick = onFDClick,
                             pv = pv,
-                            isLoadingNext=isLoadingNext,
-                            loadNext=viewModel::loadNext,
-                            incrementYear = viewModel::incrementYear,
-                            decrementYear = viewModel::decrementYear,
+                            isLoadingNext =isLoadingNext,
+                            loadNext =viewModel::loadNext,
                             selectedYear = selectedYear,
                             selectedFilter = selectedFilter,
                             onFilterSelected = viewModel::onFilterSelected,
-                            toggleFilterScreen = viewModel::toggleFilterScreen
+                            toggleFilterScreen = viewModel::toggleFilterScreen,
+                            searchText =searchText,
+                            onTextChange = viewModel::onSearchTextChange,
+                            onSearchClick = onSearchClick
                         )
                     }
                 }
@@ -127,7 +143,6 @@ fun FDSearchScreenRoot(
                     viewModel.toggleFilterScreen()
                 },
                 onCancelClick = {
-                    viewModel.clearFilter()
                     viewModel.toggleFilterScreen()
                 },
                 onApplyClick = {
@@ -147,13 +162,14 @@ fun FDSearchScreen(
     onFDClick: (String) -> Unit,
     pv: PaddingValues,
     selectedYear: Int,
-    incrementYear: () -> Unit,
-    decrementYear: () -> Unit,
     selectedFilter: LabelFilter?,
     onFilterSelected: (LabelFilter) -> Unit,
     toggleFilterScreen: () -> Unit,
     isLoadingNext: Boolean,
-    loadNext: () -> Unit
+    loadNext: () -> Unit,
+    searchText: String,
+    onTextChange: (String) -> Unit,
+    onSearchClick: (String) -> Unit
 ) {
 
     val labels: List<LabelFilter> = listOf(
@@ -184,7 +200,17 @@ fun FDSearchScreen(
     ) {
 
         item {
-            FundFilterRow(
+            AppSearchBar(
+                value = searchText,
+                onTextChange = { onTextChange(it) },
+                onSearchClick = { onSearchClick(searchText) },
+                modifier=Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            )
+        }
+        item{Spacer(Modifier.height(20.dp))}
+
+        item {
+            FundFilterRowMF(
                 filters = labels,
                 selectedFilter = selectedFilter,
                 onFilterSelected = onFilterSelected,
@@ -194,17 +220,17 @@ fun FDSearchScreen(
 
         item{Spacer(Modifier.height(20.dp))}
 
-        item{
-            YearRow(
-                selectedYear = SelectedReturnRatePeriod.THREE_YEAR,
-//                incrementYear = incrementYear,
-//                decrementYear = decrementYear,
-                totalFunds = result.size,
-                toggleRateYear = {}
-            )
-        }
+//        item{
+//            YearRow(
+//                selectedYear = SelectedReturnRatePeriod.THREE_YEAR,
+////                incrementYear = incrementYear,
+////                decrementYear = decrementYear,
+//                totalFunds = result.size,
+//                toggleRateYear = {}
+//            )
+//        }
 
-        item{Spacer(Modifier.height(10.dp))}
+//        item{Spacer(Modifier.height(10.dp))}
 
         itemsIndexed(result, key = { _, item -> item.id }){idx, fd ->
             FDListCard(fd =fd, onClick = { onFDClick(fd.id) }, selectedYear =selectedYear)
@@ -232,4 +258,50 @@ fun FDSearchScreen(
 
     }
 
+}
+@Composable
+fun FundFilterRowMF(
+    filters: List<LabelFilter>,
+    selectedFilter: LabelFilter?,
+    onFilterSelected: (LabelFilter) -> Unit,
+    toggleFilterScreen: () -> Unit
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        item {
+            if (selectedFilter is FDLabel.CustomLabel){
+                FilterChip(
+                    title=selectedFilter.title,
+                    isSelected = true,
+                    onClick = {
+                        onFilterSelected(selectedFilter)
+                    }
+                )
+            }else{
+                Box(
+                    modifier=Modifier.size(32.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(Color(0xFFDEE2F6).copy(0.7f))
+                        .clickable { toggleFilterScreen()  },
+                    contentAlignment = Alignment.Center
+                ){
+                    Icon(
+                        painter = painterResource(Res.drawable.icon_filter),
+                        contentDescription = null,
+                        tint= Color.Black,
+                        modifier=Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+        items(filters) { filter ->
+            FilterChip(
+                title=filter.title,
+                isSelected = selectedFilter == filter,
+                onClick = { onFilterSelected(filter) }
+            )
+        }
+    }
 }

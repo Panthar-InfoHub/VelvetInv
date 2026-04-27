@@ -12,21 +12,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
@@ -41,13 +42,14 @@ import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.notice
 
-@Preview(showSystemUi = true)
 @Composable
 fun TAScreen8(
     pv: PaddingValues,
     onClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: TradingAccountViewModel
 ) {
+    val state by viewModel.formState.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -152,8 +154,8 @@ fun TAScreen8(
                                     horizontalArrangement = Arrangement.spacedBy(30.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    KYCButton("ABCDE1234F", onClick = {}, selected = false)
-                                    KYCButton("Verify PAN", onClick = {}, selected = true)
+                                    KYCButton(state.data.guardian_pan.ifEmpty { "ABCDE1234F" }, onClick = {}, selected = false)
+                                    KYCButton("Verify PAN", onClick = viewModel::verifyPan, selected = true)
                                 }
                             }
                         }
@@ -229,7 +231,7 @@ fun KYCButton(text: String, onClick: () -> Unit, selected: Boolean) {
             .background(
                 if (selected) Color.LightGray else Color.Transparent,
                 shape = RoundedCornerShape(10.dp)
-            ).padding(horizontal = 8.dp, vertical = 3.dp).clickable { onClick }, contentAlignment = Alignment.Center) {
+            ).padding(horizontal = 8.dp, vertical = 3.dp).clickable { onClick() }, contentAlignment = Alignment.Center) {
         Text(
             text = text,
             lineHeight = 20.sp,

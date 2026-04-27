@@ -72,7 +72,7 @@ object Route {
     @Serializable
     data object CategoryMutualFund
     @Serializable
-    data class MutualFundSearchResult(val heading:String="Mutual Fund")
+    data class MutualFundSearchResult(val search:String="")
     @Serializable
     data class MutualFundDetails(val id:String)
     @Serializable
@@ -111,7 +111,7 @@ object Route {
     @Serializable
     data object FixedDepositCategory
     @Serializable
-    data object FixedDepositSearchResult
+    data class FixedDepositSearchResult(val search: String?=null)
     @Serializable
     data class FixedDepositDetails(val id:String)
     @Serializable
@@ -141,4 +141,9 @@ object Route {
 
     @Serializable
     data object SingleGoadAdd
+
+    @Serializable
+    data object MutualFundTypeSelectionScreen
+    @Serializable
+    data class GoalProjectionImpact(val id:String)
 }

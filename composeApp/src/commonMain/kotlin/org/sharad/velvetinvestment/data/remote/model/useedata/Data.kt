@@ -17,7 +17,6 @@ data class Data(
     val meta_data: MetaData,
     val nse_client_code: String?,
     val phone_no: String,
-    val pwd: String,
     val refresh_token: String,
     val updatedAt: String,
     val user_assets: UserAssets,

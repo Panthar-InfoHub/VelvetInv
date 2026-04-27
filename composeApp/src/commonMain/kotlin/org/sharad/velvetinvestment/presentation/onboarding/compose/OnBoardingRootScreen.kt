@@ -31,7 +31,7 @@ import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
 @Composable
-fun OnboardingScreenRoot(
+fun             OnboardingScreenRoot(
     onBoardingStep: Int = 1,
     onLoginSuccessNavigation: () -> Unit,
     onSignOut: () -> Unit
@@ -77,8 +77,7 @@ fun OnboardingScreenRoot(
                     onSkip = {
                         when (currentStep) {
                             1 -> {
-                                viewModel.nextStep()
-                                navController.navigate(Route.OnBoardingFinancialFlow)
+
                             }
                             2 -> {
                                 viewModel.nextStep()

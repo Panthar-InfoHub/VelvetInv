@@ -35,6 +35,12 @@ import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.Notific
 import org.sharad.velvetinvestment.utils.theme.Poppins
 
 
+@Preview(showBackground = true)
+@Composable
+fun NotificationAlertScreenPreview() {
+    NotificationAlertScreen()
+}
+
 @Composable
 fun NotificationAlertScreen() {
     val viewModel: NotificationCentreViewModel = koinViewModel()
@@ -105,7 +111,7 @@ fun AlertComposable(
                         fontSize = 14.sp,
                         color = grayColor
                     )
-                    extraText?.let {it->
+                    extraText?.let {
                         Text(
                             it,
                             fontSize = 16.sp,

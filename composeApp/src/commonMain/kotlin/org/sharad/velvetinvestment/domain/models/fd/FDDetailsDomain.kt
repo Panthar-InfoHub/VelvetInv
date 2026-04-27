@@ -1,12 +1,13 @@
 package org.sharad.velvetinvestment.domain.models.fd
 
+import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.RiskLevel
 
 data class FDDetailsDomain(
     val id: String,
 
     val invest: Long =1000,
-    val interestPayout: String ="",
+    val selectedPayout: PayoutType?,
     val applicable: String ="",
 
     val bankName: String,
@@ -17,7 +18,7 @@ data class FDDetailsDomain(
 
     val minDeposit: Long,
 
-    val payoutOptions: List<String>,
+    val payoutOptions: List<PayoutType>,
     val applicableFor: List<String>,
 
     val interestRates: List<FDTenureDomain>,
@@ -37,14 +38,8 @@ data class FDTenureDomain(
     val interestRate: Double,
     val annualYield: Double,
     val isDefault: Boolean,
-    val payoutFrequency: String,
+    val payoutFrequency: PayoutType,
 )
-
-data class FDBenefitDomain(
-    val title: String,
-    val description: String
-)
-
 data class FDFaqDomain(
     val question: String,
     val answer: String

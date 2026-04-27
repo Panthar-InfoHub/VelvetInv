@@ -62,7 +62,6 @@ import velvet.composeapp.generated.resources.expenses_icon
 import velvet.composeapp.generated.resources.fire_icon
 import velvet.composeapp.generated.resources.notification_icon
 import velvet.composeapp.generated.resources.plus_icon
-import velvet.composeapp.generated.resources.settings_icon
 
 @Composable
 fun HomeScreenMain(
@@ -72,7 +71,12 @@ fun HomeScreenMain(
     navigateToKYCScreen: () -> Unit,
     navigateToGoalScreen: () -> Unit,
     navigateToNotification: () -> Unit,
-    navigateToAddGoal: () -> Unit
+    navigateToAddGoal: () -> Unit,
+    navigateToSpecificGoalProjection: (String) -> Unit,
+    navigateToInsurance: () -> Unit,
+    navigateToFd: () -> Unit,
+    navigateToMutualFund: () -> Unit,
+    navigateToTradingAccountSetup: () -> Unit
 ){
 
     LaunchedEffect(Unit){
@@ -123,12 +127,17 @@ fun HomeScreenMain(
                     hidden=data.hidden,
                     onHiddenToggle={viewModel.toggleHidden()},
                     onNotificationIconClick = {navigateToNotification()},
-                    onSettingsIconClick = {},
+                    onSettingsIconClick = navigateToInsurance,
                     pv = pv,
                     onFireReportClick = navigateToFireReportScreen,
                     navigateToKYCScreen = navigateToKYCScreen,
                     navigateToGoalScreen =navigateToGoalScreen,
-                    navigateToAddGoal=navigateToAddGoal
+                    navigateToAddGoal=navigateToAddGoal,
+                    navigateToSpecificGoalProjection=navigateToSpecificGoalProjection,
+                    navigateToMutualFund=navigateToMutualFund,
+                    navigateToFd=navigateToFd,
+                    navigateToInsurance=navigateToInsurance,
+                    navigateToTradingAccountSetup=navigateToTradingAccountSetup
                 )
             }
         }
@@ -152,7 +161,12 @@ fun HomeScreen(
     hidden: Boolean,
     onHiddenToggle: () -> Unit,
     tradingKyc: Boolean,
-    navigateToAddGoal: () -> Unit
+    navigateToAddGoal: () -> Unit,
+    navigateToSpecificGoalProjection: (String) -> Unit,
+    navigateToFd: () -> Unit,
+    navigateToMutualFund: () -> Unit,
+    navigateToInsurance: () -> Unit,
+    navigateToTradingAccountSetup: () -> Unit
 ) {
 
     LazyColumn(
@@ -166,9 +180,10 @@ fun HomeScreen(
         if (!kyc || !tradingKyc){ item { BarHeader(heading = "Finish Setting Up Account") } }
         if (!kyc){
             item { KYCCard(onClick = { navigateToKYCScreen() }, text = "Complete the KYC Process") }
-        }else{
+        }
+        else{
             if (!tradingKyc){
-                item { KYCCard(onClick = { navigateToKYCScreen() }, text = "Complete the Trading Account KYC Process") }
+                item { KYCCard(onClick = { navigateToTradingAccountSetup() }, text = "Setup Your Trading Account") }
             }
         }
         if (goals.isEmpty()){ item { FirstGoalCard(onClick={navigateToAddGoal()}) } }
@@ -177,16 +192,24 @@ fun HomeScreen(
         item { BarHeader(heading = "Why Invest with Velvet?") }
         item {
             FeatureNavigationCards(
-                onBeatInflationClick = {},
-                onExpertPickedClick = {},
-                onStartSmallClick = {},
-                onDiversifiedClick = {}
+                onBeatInflationClick = {
+                    navigateToMutualFund()
+                },
+                onExpertPickedClick = {
+                    navigateToFd()
+                },
+                onStartSmallClick = {
+                    onFireReportClick()
+                },
+                onDiversifiedClick = {
+                    navigateToInsurance()
+                }
             )
         }
         if (goals.isNotEmpty()) {
             item { BarHeader(heading = "Your Goals", showArrow = true, onArrowClick = navigateToGoalScreen) }
             homeGoalsInfo(goals = goals) { id ->
-
+                navigateToSpecificGoalProjection(id)
             }
             item{
                 AddCustomGoalCard(onClick={navigateToAddGoal()})

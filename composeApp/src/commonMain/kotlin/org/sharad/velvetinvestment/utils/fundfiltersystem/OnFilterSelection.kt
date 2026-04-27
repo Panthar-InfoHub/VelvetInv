@@ -10,11 +10,24 @@ fun onFilterOptionSelected(
 
         if (group.id != groupId) return@map group
 
+        val isAlreadySelected = group.options.any {
+            it.id == optionId && it.isSelected
+        }
+
         val updatedOptions = when (group.selectionType) {
 
             SelectionType.SINGLE -> {
                 group.options.map { option ->
-                    option.copy(isSelected = option.id == optionId)
+                    when {
+                        option.id == optionId && isAlreadySelected ->
+                            option.copy(isSelected = false)
+
+                        option.id == optionId ->
+                            option.copy(isSelected = true)
+
+                        else ->
+                            option.copy(isSelected = false)
+                    }
                 }
             }
 

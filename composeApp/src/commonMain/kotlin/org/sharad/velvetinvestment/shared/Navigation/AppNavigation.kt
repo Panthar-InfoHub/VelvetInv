@@ -20,6 +20,7 @@ import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDDetailsS
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDPurchaseScreenRoot
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDSearchScreenRoot
 import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
+import org.sharad.velvetinvestment.presentation.goals.compose.ProjectionImpactScreen
 import org.sharad.velvetinvestment.presentation.goals.compose.SingleGoalScreen
 import org.sharad.velvetinvestment.presentation.insurance.HealthInsuranceScreen
 import org.sharad.velvetinvestment.presentation.insurance.OtherInsuranceScreen
@@ -36,10 +37,12 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScre
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CartScreen
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentMethodScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
 import org.sharad.velvetinvestment.utils.DateTimeUtils
+import org.sharad.velvetinvestment.utils.FundTypeSelector
 
 @Composable
 fun AppNavigation(onSignOut: () -> Unit) {
@@ -108,12 +111,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     navigateToCategoryMutualFundScreen = {
-                        navController.navigate(Route.MutualFundSearchResult()) {
-                            launchSingleTop = true
+                        navController.navigate(Route.MutualFundTypeSelectionScreen){
+                            launchSingleTop=true
                         }
                     },
                     navigateToCategoryFDScreen = {
-                        navController.navigate(Route.FixedDepositSearchResult) {
+                        navController.navigate(Route.FixedDepositSearchResult()) {
                             launchSingleTop = true
                         }
                     },
@@ -165,6 +168,28 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     },
                     navigateToAddGoal={
                         navController.navigate(Route.SingleGoadAdd){
+                            launchSingleTop=true
+                        }
+                    },
+                    navigateToSpecificGoalProjection={id->
+                        navController.navigate(Route.GoalProjectionImpact(id))
+                    },
+                    navigateToMutualFundList={
+                        navController.navigate(
+                            Route.MutualFundTypeSelectionScreen
+                        ){
+                            launchSingleTop=true
+                        }
+                    },
+                    navigateToTradingAccountSetup={
+                      navController.navigate(
+                          Route.TradingAccountNavigation
+                      )
+                    },
+                    navigateToFD={
+                        navController.navigate(
+                            Route.FixedDepositSearchResult()
+                        ){
                             launchSingleTop=true
                         }
                     },
@@ -228,12 +253,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     onSearchClick = { search ->
-                        navController.navigate(Route.MutualFundSearchResult()) {
+                        navController.navigate(Route.MutualFundSearchResult(search)) {
                             launchSingleTop = true
                         }
                     },
-                    onCategoryClick = { id, name ->
-                        navController.navigate(Route.MutualFundSearchResult(heading = name)) {
+                    onCategoryClick = { id ->
+                        navController.navigate(Route.MutualFundSearchResult(search = id)) {
                             launchSingleTop = true
                         }
                     },
@@ -248,7 +273,8 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         navController.navigate(Route.MutualFundDetails(it)) {
                             launchSingleTop = true
                         }
-                    }
+                    },
+                    searchText= it.toRoute<Route.MutualFundSearchResult>().search
                 )
             }
             composable<Route.MutualFundDetails> {
@@ -432,9 +458,22 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     pv = pv,
-                    onGoalClick = {}
+                    onGoalClick = {id->
+                        navController.navigate(Route.GoalProjectionImpact(id))
+                    }
                 )
             }
+
+            composable<Route.GoalProjectionImpact> {
+                ProjectionImpactScreen(
+                    goalId = it.toRoute<Route.GoalProjectionImpact>().id,
+                    onBack = { navController.popBackStack() },
+                    onInvestNow = {
+                        navController.navigate(Route.MutualFundSearchResult())
+                    }
+                )
+            }
+
             composable<Route.Notifications> {
                 NotificationScreen(
                     onBack = { navController.popBackStack() },
@@ -464,14 +503,17 @@ fun AppNavigation(onSignOut: () -> Unit) {
 //                )
             }
             composable<Route.FixedDepositSearchResult> {
-//                val category= it.toRoute<Route.FixedDepositSearchResult>().heading
-//                val id= it.toRoute<Route.FixedDepositSearchResult>().id
+                val search= it.toRoute<Route.FixedDepositSearchResult>().search
                 FDSearchScreenRoot(
+                    search=search,
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
                     heading = "Fixed Deposit",
-                    onFDClick = {
-                        navController.navigate(Route.FixedDepositDetails(it))
+                    onFDClick = {id->
+                        navController.navigate(Route.FixedDepositDetails(id))
+                    },
+                    onSearchClick = {text->
+                        navController.navigate(Route.FixedDepositSearchResult(search = text))
                     }
                 )
             }
@@ -520,6 +562,22 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 SingleGoalScreen(
                     pv = pv,
                     onBack = { navController.popBackStack() }
+                )
+            }
+            
+            composable<Route.MutualFundTypeSelectionScreen> {
+                InvestmentMethodScreen(
+                    onStartSipClick = {
+                        FundTypeSelector.updateFundTypeToSIP()
+                        navController.navigate(Route.CategoryMutualFund) {
+                            launchSingleTop = true
+                        }},
+                    onLumpsumClick = {
+                        FundTypeSelector.updateFundTypeToLumpSum()
+                        navController.navigate(Route.CategoryMutualFund) {
+                            launchSingleTop = true
+                        }},
+                    onBackClick = { navController.popBackStack() },
                 )
             }
 

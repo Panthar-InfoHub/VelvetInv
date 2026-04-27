@@ -1,7 +1,6 @@
 package org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,10 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,11 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.bgColor1
-import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.bgColor5
 import org.sharad.emify.core.ui.theme.bgColor7
@@ -46,14 +40,12 @@ import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.icon_download
 import velvet.composeapp.generated.resources.icon_fd
 import velvet.composeapp.generated.resources.icon_gold
 import velvet.composeapp.generated.resources.icon_mf
 import velvet.composeapp.generated.resources.icon_money
 import velvet.composeapp.generated.resources.icon_real_estate
 import velvet.composeapp.generated.resources.icon_stocks
-import velvet.composeapp.generated.resources.icon_upload
 
 @Composable
 fun CurrentAssetScreen(
@@ -249,33 +241,34 @@ fun InfoHeader(
                 color = Primary,
             )
 
-            Box(
-                modifier=Modifier
-                    .clip(RoundedCornerShape(25))
-                    .clickable(
-                        onClick = {onClick()}
-                    )
-                    .background(bgColor3.copy(0.1f),RoundedCornerShape(25)),
-                contentAlignment = Alignment.Center
-            ){
-                Row(
-                    modifier=Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "CAS Report",
-                        style = titlesStyle,
-                        color = Secondary,
-                    )
-                    Icon(
-                        painter = painterResource(Res.drawable.icon_download),
-                        contentDescription = null,
-                        modifier = Modifier.size(12.dp),
-                        tint = Secondary
-                    )
-                }
-            }
+//            Box(
+//                modifier=Modifier
+//                    .clip(RoundedCornerShape(25))
+//                    .clickable(
+//                        onClick = {onClick()}
+//                    )
+//                    .background(bgColor3.copy(0.1f),RoundedCornerShape(25)),
+//                contentAlignment = Alignment.Center
+//            )
+//            {
+//                Row(
+//                    modifier=Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                ) {
+//                    Text(
+//                        text = "CAS Report",
+//                        style = titlesStyle,
+//                        color = Secondary,
+//                    )
+//                    Icon(
+//                        painter = painterResource(Res.drawable.icon_download),
+//                        contentDescription = null,
+//                        modifier = Modifier.size(12.dp),
+//                        tint = Secondary
+//                    )
+//                }
+//            }
         }
         Text(
             text="Tell us about your existing investments and assets to create a complete financial picture",

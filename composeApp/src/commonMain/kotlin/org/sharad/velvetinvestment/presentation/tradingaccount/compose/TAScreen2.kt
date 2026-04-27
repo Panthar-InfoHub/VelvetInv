@@ -20,18 +20,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,10 +36,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.darkBlue
-import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.emify.core.ui.theme.grayColor
-import org.sharad.emify.core.ui.theme.orangeColor
-import org.sharad.emify.core.ui.theme.redColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
@@ -59,10 +52,10 @@ import velvet.composeapp.generated.resources.notice
 fun TradingScreen2(
     pv: PaddingValues,
     onClick: () -> Unit,
-    onBackClick: () -> Boolean
+    onBackClick: () -> Boolean,
+    viewModel: TradingAccountViewModel
 ) {
-    val viewModel: TradingAccountViewModel = koinViewModel()
-    val state by viewModel.panModel.collectAsStateWithLifecycle()
+    val state by viewModel.formState.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -116,7 +109,7 @@ fun TradingScreen2(
                     }
 
                     BasicTextField(
-                        value = state.panNumber,
+                        value = state.data.primary_holder_pan,
                         onValueChange = viewModel::onPanChange,
                         singleLine = true,
                         textStyle = MaterialTheme.typography.bodySmall,
@@ -140,7 +133,7 @@ fun TradingScreen2(
                                 contentAlignment = Alignment.CenterStart
                             ) {
 
-                                if (state.panNumber.isEmpty()) {
+                                if (state.data.primary_holder_pan.isEmpty()) {
                                     Text(
                                         text = "ABCDE1234F",
                                         style = MaterialTheme.typography.bodySmall,

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -25,7 +24,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,15 +38,15 @@ import org.sharad.velvetinvestment.shared.compose.GenericDropDownField
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.gurdian_icon
-@Preview(showSystemUi = true)
+
 @Composable
 fun GuardianDetail(
     pv: PaddingValues,
     onClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: TradingAccountViewModel
 ) {
-    val viewModel: TradingAccountViewModel = koinViewModel()
-    val state by viewModel.gurdianDetailModel.collectAsStateWithLifecycle()
+    val state by viewModel.formState.collectAsStateWithLifecycle()
 
     val listOfRelationships =
         listOf("Mother", "Father", "Son", "Daughter", "Brother", "Sister")
@@ -93,8 +91,8 @@ fun GuardianDetail(
 
             item {
                 OnBoardingTextField(
-                    value = state.guardianName,
-                    onValueChange = viewModel::onGurdianNameChange,
+                    value = state.data.guardian_first_name,
+                    onValueChange = viewModel::onGuardianFirstNameChange,
                     placeHolder = "Enter guardian's full name",
                     label = "Guardian Name",
                     mandatory = true,
@@ -104,8 +102,8 @@ fun GuardianDetail(
 
             item {
                 GenericDropDownField(
-                    value = state.minorRelation,
-                    onValueChange = viewModel::onMinorRelationChange,
+                    value = state.data.guardian_relation,
+                    onValueChange = viewModel::onGuardianRelationChange,
                     placeHolder = "Minor Relationship",
                     mandatory = true,
                     label = "Minor Relationship",
@@ -116,8 +114,8 @@ fun GuardianDetail(
 
             item {
                 OnBoardingTextField(
-                    value = state.guardianEmail,
-                    onValueChange = viewModel::onGurdianEmailChange,
+                    value = state.data.email,
+                    onValueChange = viewModel::onEmailChange,
                     placeHolder = "Enter Email Address",
                     label = "Email Address",
                     mandatory = true,
@@ -127,8 +125,8 @@ fun GuardianDetail(
 
             item {
                 OnBoardingTextField(
-                    value = state.guardianNumber,
-                    onValueChange = viewModel::onGurdianNumberChange,
+                    value = state.data.indian_mobile_no,
+                    onValueChange = viewModel::onPhoneChange,
                     placeHolder = "Enter Mobile Number",
                     label = "Guardian Mobile Number",
                     mandatory = true,

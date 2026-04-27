@@ -8,32 +8,15 @@ import kotlinx.datetime.toLocalDateTime
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
 import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
 import kotlin.time.Clock
 
-data class CategoryMutualFundUI(
+data class CategoryMutualFundDomain(
     val categoryName: String,
     val categorySearchReference: String,
-    val mutualFunds: List<MutualFundUI>
-)
-
-data class MutualFundUI(
-    val id: String,
-    val name: String,
-    val icon: String,
-    val category: String,
-    val remark: String?,
-    val riskText: String?,
-    val type: String,
-    val returnYearsRate: ReturnYearsRateUi
-)
-
-data class ReturnYearsRateUi(
-    val month3:Double?,
-    val month6:Double?,
-    val year1:Double?,
-    val year3:Double?,
+    val mutualFunds: List<MutualFundDomain>
 )
 
 
@@ -130,11 +113,11 @@ fun CartBottomSheetState.toSipRequest(
 
     return AddCartSipRequest(
         amount = amount,
-        mfProductId = productId,
-        sipStartDate = startDate.toString(),
-        sipEndDate = endDate.toString(),
-        sipFrequency = frequency.code,
-        sipDay = day,
-        sipAmount = amount
+        mf_product_id = productId,
+        sip_start_date = startDate.toString(),
+        sip_end_date = endDate.toString(),
+        sip_frequency = frequency.code,
+        sip_day = day,
+        sip_amount = amount
     )
 }

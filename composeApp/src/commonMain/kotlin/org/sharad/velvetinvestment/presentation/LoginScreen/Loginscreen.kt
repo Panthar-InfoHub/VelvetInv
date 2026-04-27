@@ -130,7 +130,6 @@ fun LoginScreen(
                                     onOtpSend()
                                 },
                                 onFailure = {
-
                                 }
                             )
                         }

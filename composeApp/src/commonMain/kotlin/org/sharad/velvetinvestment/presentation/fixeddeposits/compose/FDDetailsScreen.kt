@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.presentation.fixeddeposits.compose
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -51,6 +53,7 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.domain.models.fd.FDDetailsDomain
 import org.sharad.velvetinvestment.domain.models.fd.FDFaqDomain
 import org.sharad.velvetinvestment.domain.models.fd.FDTenureDomain
@@ -117,16 +120,24 @@ fun FDDetailsScreenRoot(
                             when (sheet) {
                                 FDModalType.PAYOUT -> FDOptionsBottomSheet(
                                     title="Interest Payout",
-                                    data.payoutOptions,
+                                    options=data.payoutOptions,
                                     onOptionCLick = viewModel::updateInterestPayout,
                                     onDismiss = viewModel::closeSheet,
+                                    selectedOption = data.selectedPayout ?: PayoutType.Custom("UNAVAILABLE"),
+                                    optionDisplayString = {option->
+                                        option.displayName
+                                    }
                                 )
 
-                                FDModalType.APPLICABLE -> FDOptionsBottomSheet(
+                                FDModalType.APPLICABLE ->   FDOptionsBottomSheet(
                                     "Applicable For",
                                     options = data.applicableFor,
                                     onOptionCLick = viewModel::updateApplicable,
-                                    onDismiss = viewModel::closeSheet
+                                    onDismiss = viewModel::closeSheet,
+                                    selectedOption = data.applicable,
+                                    optionDisplayString = {option->
+                                        option
+                                    }
                                 )
 
                                 FDModalType.INVEST -> {
@@ -185,7 +196,14 @@ fun FDDetailsScreen(
 
             item { Spacer(Modifier.height(16.dp)) }
 
-            item { FDInterestRatesCard(data.interestRates, invest= data.invest) }
+            item {
+                FDInterestRatesCard(
+                    list = data.interestRates,
+                    invest = data.invest,
+                    selectedPayoutMode = data.selectedPayout,
+                    selectedApplicable = data.applicable
+                )
+            }
 
             item { Spacer(Modifier.height(16.dp)) }
 
@@ -286,7 +304,7 @@ fun FDInvestSection(
         item {
             FDInfoCard(
                 title = "Interest Payout",
-                value = data.payoutOptions.firstOrNull() ?: "-",
+                value = data.selectedPayout?.displayName?:"N/A",
                 onClick = onPayoutClick
             )
         }
@@ -357,10 +375,14 @@ fun FDInfoCard(
 fun FDInterestRatesCard(
     list: List<FDTenureDomain>,
     invest: Long,
+    selectedPayoutMode: PayoutType?,
+    selectedApplicable: String,
 ) {
 
-    val uiList = remember(list, invest) {
-        list.map { it.toUIModel(invest) }
+    val uiList = remember(list, invest, selectedPayoutMode?.id, selectedApplicable) {
+        list
+            .filter { it.payoutFrequency == selectedPayoutMode }
+            .map { it.toUIModel(invest) }
     }
 
     ShadowCard(
@@ -442,11 +464,13 @@ fun LockRow(
     }
 }
 @Composable
-fun FDOptionsBottomSheet(
+fun <T> FDOptionsBottomSheet(
     title: String,
-    options: List<String>,
-    onOptionCLick: (String) -> Unit,
-    onDismiss: () -> Unit
+    options: List<T>,
+    onOptionCLick: (T) -> Unit,
+    optionDisplayString: (T) -> String ,
+    onDismiss: () -> Unit,
+    selectedOption: T
 ) {
 
     Column(
@@ -473,15 +497,44 @@ fun FDOptionsBottomSheet(
 
         else{
             options.forEach {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Secondary,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {onOptionCLick(it) }
-                        .padding(vertical = 12.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ){
+
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .border(
+                                width = 2.dp,
+                                color = Secondary,
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        if (selectedOption==it) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .background(
+                                        color = Secondary,
+                                        shape = CircleShape
+                                    )
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = optionDisplayString(it),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Secondary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onOptionCLick(it) }
+                            .padding(vertical = 12.dp)
+                    )
+                }
             }
         }
     }

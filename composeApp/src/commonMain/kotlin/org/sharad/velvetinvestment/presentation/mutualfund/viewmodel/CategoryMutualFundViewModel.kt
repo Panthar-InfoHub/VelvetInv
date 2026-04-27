@@ -6,24 +6,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCategoryMutualFundsUseCase
-import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundUI
+import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCombinedCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
-import org.sharad.velvetinvestment.utils.networking.toMessage
 
 class CategoryMutualFundViewModel(
-    private val getCategoryMutualFundsUseCase: GetCategoryMutualFundsUseCase
+    private val getCategoryMutualFundsUseCase: GetCombinedCategoryMutualFundsUseCase
 ) : ViewModel() {
 
     private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Loading)
     val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
     private val _mutualFunds =
-        MutableStateFlow<List<CategoryMutualFundUI>>(emptyList())
-    val mutualFunds: StateFlow<List<CategoryMutualFundUI>> =
-        _mutualFunds.asStateFlow()
+        MutableStateFlow<CombinedFundsDomain>(CombinedFundsDomain())
+    val mutualFunds = _mutualFunds.asStateFlow()
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText
@@ -38,13 +36,12 @@ class CategoryMutualFundViewModel(
             _loadingState.value = LoadingState.Loading
             getCategoryMutualFundsUseCase()
                 .onSuccess { data ->
-//                    _mutualFunds.value =
-//                        data.map { it.toUI() }
                     _loadingState.value = LoadingState.Success
+                    _mutualFunds.value = data
                 }
                 .onError { error ->
                     _loadingState.value =
-                        LoadingState.Error(error.toMessage())
+                        LoadingState.Error(error.message)
                 }
         }
     }

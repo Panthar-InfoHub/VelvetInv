@@ -3,13 +3,14 @@ package org.sharad.velvetinvestment.data.remote.repository
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
-import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import org.sharad.velvetinvestment.data.remote.mapper.toCASResponseDto
 import org.sharad.velvetinvestment.data.remote.model.casreport.CASResponseDto
+import org.sharad.velvetinvestment.data.remote.model.casreport.CasReportDto
 import org.sharad.velvetinvestment.domain.repository.CASReportRepo
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -23,10 +24,10 @@ class CASRepo(
         file: ByteArray,
         password: String,
     ): NetworkResponse<CASResponseDto, ErrorDomain> {
-        val response= safeRequest<CASResponseDto> {
-            client.post("https://api.casparser.in/v4/smart/parse") {
+        val response= safeRequest<CasReportDto> {
+            client.post(getUrl("/user/cas-report")) {
                 headers {
-                    append("X-API-KEY", "sandbox-with-json-responses")
+                    append("X-API-KEY", "sk_8776ce87a600aeba37fc595faad3f21f")
                 }
                 setBody(
                     MultiPartFormDataContent(
@@ -37,10 +38,7 @@ class CASRepo(
                                 value = file,
                                 headers = Headers.build {
                                     append(HttpHeaders.ContentType, "application/pdf")
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "form-data; name=\"pdf_file\"; filename=\"casfile\""
-                                    )
+                                    append(HttpHeaders.ContentDisposition, "filename=\"cas.pdf\"")
                                 }
                             )
 
@@ -53,7 +51,7 @@ class CASRepo(
         return when (response) {
             is NetworkResponse.Success -> {
                 NetworkResponse.Success(
-                    response.data
+                    response.data.data.toCASResponseDto()
                 )
             }
             is NetworkResponse.Error -> {

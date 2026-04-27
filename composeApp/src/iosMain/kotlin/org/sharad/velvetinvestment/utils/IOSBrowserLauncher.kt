@@ -7,7 +7,10 @@ class IOSBrowserLauncher : BrowserLauncher {
 
     override fun launchBrowser(url: String) {
         val nsUrl = NSURL.URLWithString(url) ?: return
-
-        UIApplication.sharedApplication.openURL(nsUrl)
+        UIApplication.sharedApplication.openURL(
+            nsUrl,
+            options = emptyMap<Any?, Any>(),
+            completionHandler = null
+        )
     }
 }

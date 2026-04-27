@@ -9,7 +9,8 @@ data class MutualFundDomain(
     val remark: String?,
     val riskText: String?,
     val type: String,
-    val returnYearsRate: ReturnYearsRateDomain
+    val returnYearsRate: ReturnYearsRateDomain,
+    val latestNav: String,
 )
 
 data class ReturnYearsRateDomain(

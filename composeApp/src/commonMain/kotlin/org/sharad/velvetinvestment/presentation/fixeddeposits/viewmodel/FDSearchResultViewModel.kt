@@ -8,22 +8,27 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFixedDepositsSearchResultUseCase
+import org.sharad.velvetinvestment.utils.FDLabel
 import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.SnackBarType
+import org.sharad.velvetinvestment.utils.fundfiltersystem.FDFilterIds
 import org.sharad.velvetinvestment.utils.fundfiltersystem.InvestmentFilter
 import org.sharad.velvetinvestment.utils.fundfiltersystem.createInitialFDFilters
-import org.sharad.velvetinvestment.utils.fundfiltersystem.createInitialInvestmentFilter
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class FDSearchResultViewModel(
+    private val search: String?,
     private val getFDSearchResult: GetFixedDepositsSearchResultUseCase,
 ) : ViewModel() {
 
     private val _loadingState=MutableStateFlow<LoadingState>(LoadingState.Loading)
     val loadingState= _loadingState.asStateFlow()
+
+    private val _searchText=MutableStateFlow("")
+    val searchText= _searchText.asStateFlow()
 
     private val _fixedDeposits = MutableStateFlow<List<FixedDepositDomain>>(emptyList())
     val fixedDeposits = _fixedDeposits.asStateFlow()
@@ -50,14 +55,22 @@ class FDSearchResultViewModel(
 
 
     init {
-        loadFunds(page=1,limit=30,tenure="3y")
+        loadFunds()
     }
 
-    fun loadFunds(page: Int, limit: Int, tenure: String) {
+    fun loadFunds() {
         viewModelScope.launch {
             _loadingState.value = LoadingState.Loading
 
-            getFDSearchResult(page, limit, tenure)
+            val (tenure, payout) = getSelectedFilters()
+
+            getFDSearchResult(
+                page = 1,
+                limit = 30,
+                tenure = tenure,
+                payoutFrequency = payout,
+                search = search
+            )
                 .onSuccess { data ->
                     currentPage = data.page
                     hasNextPage = data.hasNextPage
@@ -78,18 +91,20 @@ class FDSearchResultViewModel(
             _isLoadingNext.value = true
 
             val nextPage = currentPage + 1
+            val (tenure, payout) = getSelectedFilters()
 
             getFDSearchResult(
                 page = nextPage,
                 limit = 30,
-                tenure = "${_selectedYear.value}y"
+                tenure = tenure ?: "${_selectedYear.value}y",
+                payoutFrequency = payout,
+                search = search
             )
                 .onSuccess { data ->
                     currentPage = data.page
                     hasNextPage = data.hasNextPage
 
-                    _fixedDeposits.value =
-                        _fixedDeposits.value + data.items
+                    _fixedDeposits.value += data.items
                 }
                 .onError {
                     SnackBarController.showSnackBar(SnackBarType.Error(it.message))
@@ -99,9 +114,16 @@ class FDSearchResultViewModel(
         }
     }
     fun onFilterSelected(filter: LabelFilter) {
-        _selectedFilter.value =
-            if (_selectedFilter.value == filter) null
-            else filter
+
+        if (_selectedFilter.value == filter) {
+            _selectedFilter.value = null
+            clearFilter()
+        }
+        else{
+            _selectedFilter.value = filter
+            //Remaining Work For Chip Filtering
+        }
+
     }
 
     fun incrementYear(){
@@ -116,14 +138,71 @@ class FDSearchResultViewModel(
 
     fun applyFilter(newFilter: InvestmentFilter) {
         _filterState.value = newFilter
+        currentPage = 1
+        hasNextPage = true
+        _selectedFilter.value= FDLabel.CustomLabel(newFilter.getActiveFilterLabel(),FDFilterIds.CUSTOM)
+        loadFunds()
     }
 
     fun clearFilter() {
-        _filterState.value = createInitialInvestmentFilter()
+        _filterState.value = createInitialFDFilters()
+        currentPage = 1
+        hasNextPage = true
+        loadFunds()
     }
-
     fun toggleFilterScreen() {
         _showFilterScreen.value = !_showFilterScreen.value
     }
 
+        fun onSearchTextChange(text:String){
+        _searchText.value=text
+    }
+
+    private fun getSelectedFilters(): Pair<String?, String?> {
+        val groups = _filterState.value.groups
+
+        val tenure = groups
+            .find { it.id == FDFilterIds.TENURE }
+            ?.options
+            ?.firstOrNull { it.isSelected }
+            ?.id
+
+        val payout = groups
+            .find { it.id == FDFilterIds.PAYOUT_FREQUENCY }
+            ?.options
+            ?.firstOrNull { it.isSelected }
+            ?.id
+
+        return tenure to payout
+    }
+
+}
+
+fun InvestmentFilter.getActiveFilterLabel(): String {
+
+    val tenure = groups
+        .find { it.id == FDFilterIds.TENURE }
+        ?.options
+        ?.firstOrNull { it.isSelected }
+
+    val payout = groups
+        .find { it.id == FDFilterIds.PAYOUT_FREQUENCY }
+        ?.options
+        ?.firstOrNull { it.isSelected }
+
+    val parts = mutableListOf<String>()
+
+    tenure?.let {
+        parts.add(it.id.uppercase()) // "3y" → "3Y"
+    }
+
+    payout?.let {
+        parts.add(it.title) // already user-friendly
+    }
+
+    return if (parts.isEmpty()) {
+        "All FDs"
+    } else {
+        parts.joinToString(" • ")
+    }
 }

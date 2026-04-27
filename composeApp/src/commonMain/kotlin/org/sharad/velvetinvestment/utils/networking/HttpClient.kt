@@ -43,9 +43,9 @@ fun getHttpClient(
             }
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 30_000
-            connectTimeoutMillis = 15_000
-            socketTimeoutMillis = 20_000
+            requestTimeoutMillis = 40_000
+            connectTimeoutMillis = 35_000
+            socketTimeoutMillis = 40_000
         }
         install(Auth) {
             bearer {

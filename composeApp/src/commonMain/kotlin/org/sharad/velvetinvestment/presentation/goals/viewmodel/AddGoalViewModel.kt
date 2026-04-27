@@ -119,27 +119,27 @@ class SingleGoalViewModel(
     }
 
     // ---------- GOAL TYPE ----------
-    fun onGoalTypeSelected(option: GoalOption) {
-        val current = _state.value as? UiState.Success ?: return
-
-        val newForm = GoalFormState(
-            selectedOption = option,
-            goalName = option.title,
-            goalItemName = option.goalItemName ?: option.title,
-            retirementAge = "60",
-            lifeExpectancy = "90",
-            inflation = "8",
-            returns = "10"
-        )
-
-        _state.value = UiState.Success(
-            current.data.copy(
-                form = newForm,
-                preview = null,
-                isValid = false
-            )
-        )
-    }
+//    fun onGoalTypeSelected(option: GoalOption) {
+//        val current = _state.value as? UiState.Success ?: return
+//
+//        val newForm = GoalFormState(
+//            selectedOption = option,
+//            goalName = option.title,
+//            goalItemName = option.goalItemName ?: option.title,
+//            retirementAge = "60",
+//            lifeExpectancy = "90",
+//            inflation = "8",
+//            returns = "10"
+//        )
+//
+//        _state.value = UiState.Success(
+//            current.data.copy(
+//                form = newForm,
+//                preview = null,
+//                isValid = false
+//            )
+//        )
+//    }
 
     // ---------- PREVIEW ----------
     private fun createPreview(
@@ -272,6 +272,7 @@ class SingleGoalViewModel(
                         SnackBarType.Success(message = "Goal added successfully")
                     )
                     AppEvents.sendGoalRefreshEvent()
+                    AppEvents.sendHomeRefreshEvent()
                     _loading.value=false
                 }
                 .onError { error ->

@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AddCartLumpSumRequest(
     val amount: Long,
-    val mfProductId: String
+    val mf_product_id: String
 )

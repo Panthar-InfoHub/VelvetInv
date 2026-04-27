@@ -16,7 +16,8 @@ fun MutualFund.toDomain(): MutualFundDomain {
         remark = null,
         riskText = risk_name,
         type = scheme_type,
-        returnYearsRate = metrics.toReturnDomain()
+        returnYearsRate = metrics.toReturnDomain(),
+        latestNav = latest_nav
     )
 }
 

@@ -35,7 +35,7 @@ fun AppSearchBar(
         onValueChange = {
             onTextChange(it)
         },
-        modifier = modifier.height(48.dp),
+        modifier = modifier.height(52.dp),
         shape = CircleShape,
         singleLine = true,
         placeholder = { Text(text="Search For Funds....", style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp), color = titleColor) },

@@ -11,9 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -30,7 +28,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,15 +42,15 @@ import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.secure
 
-@Preview(showSystemUi = true)
+
 @Composable
 fun TAScreen5(
     pv: PaddingValues,
     onClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: TradingAccountViewModel
 ) {
-    val viewModel: TradingAccountViewModel = koinViewModel()
-    val state by viewModel.bankDetailModel.collectAsStateWithLifecycle()
+    val state by viewModel.formState.collectAsStateWithLifecycle()
 
     val accountList = listOf("SB", "CB", "NE", "NO")
     val paymentModeList =
@@ -99,8 +96,8 @@ fun TAScreen5(
 
             item {
                 GenericDropDownField(
-                    value = state.accountType,
-                    onValueChange = viewModel::onAccountTypeChange,
+                    value = state.data.account_type_1,
+                    onValueChange = viewModel::onAccountType1Change,
                     placeHolder = "Account Type",
                     mandatory = true,
                     label = "Account Type",
@@ -111,8 +108,8 @@ fun TAScreen5(
 
             item {
                 OnBoardingTextField(
-                    value = state.accountNumber,
-                    onValueChange = viewModel::onAccountNumberChange,
+                    value = state.data.account_no_1,
+                    onValueChange = viewModel::onAccountNumber1Change,
                     placeHolder = "Enter Account Number",
                     label = "Account Number",
                     mandatory = true,
@@ -122,8 +119,8 @@ fun TAScreen5(
 
             item {
                 OnBoardingTextField(
-                    value = state.ifscCode,
-                    onValueChange = viewModel::onIFSCchange,
+                    value = state.data.ifsc_code_1,
+                    onValueChange = viewModel::onIfscCode1Change,
                     placeHolder = "HDFC0001234",
                     label = "IFSC Code",
                     mandatory = true
@@ -132,8 +129,8 @@ fun TAScreen5(
 
             item {
                 OnBoardingTextField(
-                    value = state.microNumber,
-                    onValueChange = viewModel::onMicroNumberChange,
+                    value = state.data.micr_no_1,
+                    onValueChange = viewModel::onMicrNo1Change,
                     label = "Micro Number (Optional)",
                     placeHolder = "Enter Micro Number",
                     mandatory = false
@@ -142,8 +139,8 @@ fun TAScreen5(
 
             item {
                 GenericDropDownField(
-                    value = state.paymentMethod,
-                    onValueChange = viewModel::onPaymentModeChange,
+                    value = state.data.div_pay_mode,
+                    onValueChange = viewModel::onDivPayModeChange,
                     label = "Payment Mode",
                     placeHolder = "Payment Mode",
                     mandatory = true,

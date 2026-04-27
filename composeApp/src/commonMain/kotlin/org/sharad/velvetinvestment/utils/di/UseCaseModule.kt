@@ -11,7 +11,9 @@ import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetTopPi
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.PurchaseFDUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartLumpsumUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.DeleteCartItemUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCategoryMutualFundsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCombinedCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDashboardUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGraphUseCase
@@ -73,6 +75,7 @@ val useCaseModule= module {
     factory { GetMutualFundTopPicksUseCase(get()) }
     factory { GetFixedDepositTopPicksUseCase(get()) }
     factory { GetCategoryMutualFundsUseCase(get()) }
+    factory { GetCombinedCategoryMutualFundsUseCase(get()) }
     factory { GetMutualFundSearchResultUseCase(get()) }
     factory { GetMutualFundDetailsUseCase(get()) }
     factory {
@@ -118,6 +121,7 @@ val useCaseModule= module {
     factory { PurchaseFDUseCase(get()) }
 
     factory { GetUserCartUseCase(get()) }
+    factory { DeleteCartItemUseCase(get()) }
     factory { PurchaseLumpsumFundUseCase(get()) }
     factory { PurchaseSipFundUseCase(get()) }
     factory { AddToCartSipUseCase(get()) }

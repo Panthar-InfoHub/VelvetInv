@@ -2,7 +2,6 @@ package org.sharad.velvetinvestment.utils.networking
 
 const val BASE_URL= "https://docker-velvet-backend-357888765640.asia-south1.run.app/api/v1"
 
-fun getUrl(endPoint:String)= "$BASE_URL$endPoint"
+const val PROD_URL="https://prod-velvet-357888765640.asia-south1.run.app/api/v1"
 
-//val bearer="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU5ZDdlOGU5LWQ1NDAtNGM2My1iZjk2LTg1NDJmNWVmOTM0ZiIsInBob25lX25vIjoiOTAyNjcwNTMzOSIsInVzciI6IjkwMjY3MDUzMzkiLCJpbnZfaWQiOjY2LCJwd2QiOiI3MTA1NTIiLCJpYXQiOjE3NzMyMzQzMTIsImV4cCI6MTc3MzgzOTExMn0.nZV5hrzkjgVMOwrMmNph8sT5Iqh4RdH8LWXcB85ynik"
-val bearer="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJhYzA4OGM3LTkwOWYtNDMyZC05ZmNhLWFjMWZjODZkNGYzNCIsInBob25lX25vIjoiOTE5ODY2MzAyMiIsInVzciI6IjkxOTg2NjMwMjIiLCJpbnZfaWQiOjY4LCJwd2QiOiI2MTE0MDEiLCJpYXQiOjE3NzM0MzA3NjQsImV4cCI6MTc3NDAzNTU2NH0.Zk_I8B1fFklesenuMi05LznjuMNpgbJSYOaRScZ1NR4"
+fun getUrl(endPoint:String)= "$PROD_URL$endPoint"

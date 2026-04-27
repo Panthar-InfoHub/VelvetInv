@@ -6,9 +6,15 @@ import kotlinx.cinterop.usePinned
 import platform.Foundation.NSData
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
+import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.dataWithBytes
 import platform.Foundation.writeToURL
+import platform.UIKit.UIApplication
+import platform.UIKit.UIDocumentInteractionController
+import platform.UIKit.UIDocumentInteractionControllerDelegateProtocol
+import platform.UIKit.UIViewController
+import platform.darwin.NSObject
 
 class PdfDownloaderIos : PdfDownloadManager {
 
@@ -42,6 +48,7 @@ class PdfDownloaderIos : PdfDownloadManager {
 
             if (success) {
                 onSuccess(documentsURL.path ?: "")
+                openPdf(fileURL.path ?: "")
 
             } else {
                 onFailed("Failed to save PDF")
@@ -50,6 +57,42 @@ class PdfDownloaderIos : PdfDownloadManager {
         } catch (e: Exception) {
             onFailed(e.message ?: "Unknown error")
         }
+    }
+
+
+
+    private var documentController: UIDocumentInteractionController? = null
+
+    fun openPdf(filePath: String) {
+
+        val url = NSURL.fileURLWithPath(filePath)
+
+        val controller = UIDocumentInteractionController.interactionControllerWithURL(url)
+
+        val rootVC = UIApplication.sharedApplication.keyWindow?.rootViewController
+
+            ?: return
+
+        val delegate = object : NSObject(), UIDocumentInteractionControllerDelegateProtocol {
+
+            override fun documentInteractionControllerViewControllerForPreview(
+
+                controller: UIDocumentInteractionController
+
+            ): UIViewController {
+
+                return rootVC
+
+            }
+
+        }
+
+        controller.delegate = delegate
+
+        documentController = controller
+
+        controller.presentPreviewAnimated(true)
+
     }
 }
 

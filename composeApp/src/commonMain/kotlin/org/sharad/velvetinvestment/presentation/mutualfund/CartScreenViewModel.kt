@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.usercart.CartItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
-import org.sharad.velvetinvestment.domain.models.usercart.SipDetails
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.DeleteCartItemUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetUserCartUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseLumpsumFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseSipFundUseCase
@@ -31,6 +31,7 @@ data class CartUiModel(
 
 class CartScreenViewModel(
     private val getUserCartUseCase: GetUserCartUseCase,
+    private val deleteCartItemUseCase: DeleteCartItemUseCase,
     private val purchaseSipUseCase: PurchaseSipFundUseCase,
     private val purchaseLumpSumUseCase: PurchaseLumpsumFundUseCase,
     private val browserLauncher: LaunchBrowserUseCase
@@ -90,20 +91,22 @@ class CartScreenViewModel(
     }
 
     fun removeItem(itemId: String) {
-        val current = _uiState.value
-        if (current is UiState.Success) {
-
-            val updatedSip = current.data.cartData.sipItems.filterNot { it.id == itemId }
-            val updatedLump = current.data.cartData.lumpSumItems.filterNot { it.id == itemId }
-
-            _uiState.value = UiState.Success(
-                current.data.copy(
-                    cartData = current.data.cartData.copy(
-                        sipItems = updatedSip,
-                        lumpSumItems = updatedLump
-                    )
-                )
-            )
+        if (uiState.value is UiState.Success){
+            val data= (uiState.value as UiState.Success).data
+            viewModelScope.launch {
+                _loading.value = true
+                _uiState.value = UiState.Loading
+                deleteCartItemUseCase(itemId)
+                    .onSuccess {
+                        _loading.value = false
+                        loadCart()
+                    }
+                    .onError {
+                        _loading.value = false
+                        _uiState.value = UiState.Success(data)
+                        SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    }
+            }
         }
     }
 
@@ -122,68 +125,6 @@ class CartScreenViewModel(
                 .onError {
                     _uiState.value=UiState.Error(it.message)
                 }
-
-            val dummyData = UserCartDomain(
-
-                sipItems = listOf(
-                    CartItemDomain(
-                        id = "sip_1",
-                        amcName = "Sector/Thematic Fund",
-                        productName = "ICICI Technology Fund",
-                        amount = 0,
-                        type = CartType.SIP,
-                        date = "2026-04-01",
-                        sipDetails = SipDetails(
-                            startDate = "2026-04-05",
-                            endDate = "2036-04-05",
-                            frequency = "Monthly",
-                            day = 5,
-                            sipAmount = 2000
-                        )
-                    ),
-                    CartItemDomain(
-                        id = "sip_2",
-                        amcName = "Large Cap Fund",
-                        productName = "HDFC Top 100 Fund",
-                        amount = 0,
-                        type = CartType.SIP,
-                        date = "2026-04-01",
-                        sipDetails = SipDetails(
-                            startDate = "2026-04-10",
-                            endDate = "2036-04-10",
-                            frequency = "Monthly",
-                            day = 10,
-                            sipAmount = 3000
-                        )
-                    )
-                ),
-
-                lumpSumItems = listOf(
-                    CartItemDomain(
-                        id = "lump_1",
-                        amcName = "Sector/Thematic Fund",
-                        productName = "Baroda Bnp Paribas Energy Opportunities Fund",
-                        amount = 5000,
-                        type = CartType.LUMPSUM,
-                        date = "2026-04-01"
-                    ),
-                    CartItemDomain(
-                        id = "lump_2",
-                        amcName = "Commodities • Gold",
-                        productName = "SBI Gold Fund",
-                        amount = 3000,
-                        type = CartType.LUMPSUM,
-                        date = "2026-04-01"
-                    )
-                )
-            )
-
-            _uiState.value = UiState.Success(
-                CartUiModel(
-                    cartData = dummyData,
-                    selectedCartType = CartType.LUMPSUM
-                )
-            )
         }
     }
 

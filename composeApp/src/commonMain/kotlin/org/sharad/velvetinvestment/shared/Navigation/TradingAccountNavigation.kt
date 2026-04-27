@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.GuardianDetail
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TAScreen4
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TAScreen5
@@ -16,12 +17,13 @@ import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TAScreen8
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TradingAccountScreen1
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TradingScreen2
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TradingScreen3
+import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 
 @Composable
 fun TradingAccountNavigation(onBackClick: () -> Boolean) {
 
     val navController = rememberNavController()
-
+    val viewModel: TradingAccountViewModel= koinViewModel()
     Scaffold(
         modifier=Modifier.fillMaxSize(),
         containerColor = Color.White
@@ -34,7 +36,9 @@ fun TradingAccountNavigation(onBackClick: () -> Boolean) {
             composable<Route.TradingAccountBasicDetails> {
                 TradingAccountScreen1(
                     pv = pv,
-                    onClick= {navController.navigate(Route.TradingAccountPANDetails)}
+                    onClick= {navController.navigate(Route.TradingAccountPANDetails)},
+                    onBackClick=onBackClick,
+                    viewModel=viewModel
                 )
             }
 
@@ -42,7 +46,8 @@ fun TradingAccountNavigation(onBackClick: () -> Boolean) {
                 TradingScreen2(
                     pv = pv,
                     onClick= {navController.navigate(Route.TradingAccountFinancialDetails)},
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = {navController.popBackStack()},
+                    viewModel=viewModel
                 )
             }
 
@@ -52,7 +57,8 @@ fun TradingAccountNavigation(onBackClick: () -> Boolean) {
                     onClick = {
                         navController.navigate(Route.TradingAccountClientInfo)
                     },
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = {navController.popBackStack()},
+                    viewModel=viewModel
                 )
             }
 
@@ -62,7 +68,8 @@ fun TradingAccountNavigation(onBackClick: () -> Boolean) {
                     onClick = {
                         navController.navigate(Route.TradingAccountBankDetails)
                     },
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = {navController.popBackStack()},
+                    viewModel=viewModel
                 )
             }
 
@@ -72,7 +79,8 @@ fun TradingAccountNavigation(onBackClick: () -> Boolean) {
                     onClick = {
                         navController.navigate(Route.TradingAccountAddressDetails)
                     },
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = {navController.popBackStack()},
+                    viewModel=viewModel
                 )
             }
 
@@ -82,7 +90,8 @@ fun TradingAccountNavigation(onBackClick: () -> Boolean) {
                     onClick = {
                         navController.navigate(Route.TradingAccountGuardianDetails)
                     },
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = {navController.popBackStack()},
+                    viewModel=viewModel
                 )
             }
 
@@ -92,7 +101,8 @@ fun TradingAccountNavigation(onBackClick: () -> Boolean) {
                     onClick = {
                         navController.navigate(Route.TradingAccountGuardiansPANDetails)
                     },
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = {navController.popBackStack()},
+                    viewModel=viewModel
                 )
             }
 
@@ -102,7 +112,8 @@ fun TradingAccountNavigation(onBackClick: () -> Boolean) {
                     onClick = {
 
                     },
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = {navController.popBackStack()},
+                    viewModel=viewModel
                 )
             }
         }

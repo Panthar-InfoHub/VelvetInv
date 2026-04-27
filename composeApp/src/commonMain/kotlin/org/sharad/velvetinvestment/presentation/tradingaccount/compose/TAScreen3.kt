@@ -1,6 +1,5 @@
 package org.sharad.velvetinvestment.presentation.tradingaccount.compose
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
@@ -36,7 +34,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,9 +45,9 @@ import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.emify.core.ui.theme.grayColor
 import org.sharad.emify.core.ui.theme.redColor
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.tradingaccount.TradingAccountFormDomain
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
-import org.sharad.velvetinvestment.presentation.tradingaccount.uimodel.FinancialTradingDetailsModel
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.GenericDropDownField
@@ -64,10 +61,12 @@ import velvet.composeapp.generated.resources.add_icon
 fun TradingScreen3(
     pv: PaddingValues,
     onClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: TradingAccountViewModel
 ) {
-    val tradingDetailViewModel: TradingAccountViewModel = koinViewModel()
-    val state by tradingDetailViewModel.financialTradingDetailsModel.collectAsStateWithLifecycle()
+    val state by viewModel.formState.collectAsStateWithLifecycle()
+    val holderNature by viewModel.holderNature.collectAsStateWithLifecycle()
+    val nomineeChecked by viewModel.nomineeChecked.collectAsStateWithLifecycle()
 
     val list = listOf(
         "Business", "Service", "Professional", "Agriculture",
@@ -113,8 +112,8 @@ fun TradingScreen3(
 
             item {
                 GenericDropDownField(
-                    value = state.occupation,
-                    onValueChange = tradingDetailViewModel::onOccupationChange,
+                    value = state.data.occupation_code,
+                    onValueChange = viewModel::onOccupationChange,
                     placeHolder = "Select Occupation",
                     mandatory = true,
                     label = "Occupation",
@@ -125,19 +124,19 @@ fun TradingScreen3(
 
             item {
                 HolderNature(
-                    Selected = state.holderNature,
-                    onHolderNatureChange = tradingDetailViewModel::onHolderNatureChange
+                    Selected = holderNature,
+                    onHolderNatureChange = viewModel::onHolderNatureChange
                 )
             }
 
-            if (state.holderNature == Holding.JOINT) {
+            if (holderNature == Holding.JOINT) {
                 item {
                     JointHolder(
                         jointHolder = "Joint Holder 2",
                         list = listofRelations,
                         list2 = listOfCountry,
                         state,
-                        tradingDetailViewModel
+                        viewModel
                     )
                 }
 
@@ -148,7 +147,7 @@ fun TradingScreen3(
                             list = listofRelations,
                             list2 = listOfCountry,
                             state,
-                            tradingDetailViewModel
+                            viewModel
                         )
                         AddMoreNominiee("Add More Joint Holder")
                     }
@@ -161,8 +160,8 @@ fun TradingScreen3(
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ){
                     CheckBoxComp(
-                        checked = state.checked,
-                        onCheckedChange = tradingDetailViewModel::onCheckedChange
+                        checked = nomineeChecked,
+                        onCheckedChange = viewModel::onCheckedChange
                     )
                     Text(
                         text="Check this to add a Nominee",
@@ -185,11 +184,11 @@ fun TradingScreen3(
 //                )
 //            }
 
-            if(state.checked){
+            if(nomineeChecked){
                 item {
                     GenericDropDownField(
-                        value = state.nomineeAuthentication,
-                        onValueChange = tradingDetailViewModel::onNomineeAuthenticationChange,
+                        value = state.data.nomination_authentication,
+                        onValueChange = viewModel::onNominationAuthChange,
                         placeHolder = "Nominee authentication",
                         mandatory = true,
                         label = "Nominee Authentication",
@@ -200,8 +199,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeName,
-                        onValueChange = tradingDetailViewModel::onNomineeNameChange,
+                        value = state.data.nominee_1_name,
+                        onValueChange = viewModel::onNominee1NameChange,
                         placeHolder = "Nominee Name",
                         label = "Nomination Name",
                         mandatory = true,
@@ -212,8 +211,8 @@ fun TradingScreen3(
 
                 item {
                     GenericDropDownField(
-                        value = state.nomineeRelation,
-                        onValueChange = tradingDetailViewModel::onNomineeRelationChange,
+                        value = state.data.nominee_1_relationship,
+                        onValueChange = viewModel::onNominee1RelationChange,
                         placeHolder = "Nomination Relation",
                         mandatory = true,
                         label = "Relationship",
@@ -224,8 +223,12 @@ fun TradingScreen3(
 
                 item {
                     GenericDropDownField(
-                        value = state.nomineeIdentityType,
-                        onValueChange = tradingDetailViewModel::onNomineeIdentityTypeChange,
+                        value = state.data.nominee_1_identity_type,
+                        onValueChange = {selection->
+                            val idx= listOfNomineeIdentity.indexOf(selection)+1
+
+                            viewModel.onNominee1IdentityTypeChange(idx.toString())
+                        },
                         placeHolder = "Nominee identity",
                         mandatory = true,
                         label = "Nomination Identity type",
@@ -236,10 +239,10 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeAadhar,
-                        onValueChange = tradingDetailViewModel::onNomineeAadharChange,
+                        value = state.data.nominee_1_identity_number,
+                        onValueChange = viewModel::onNominee1IdentityNumberChange,
                         placeHolder = "xxxx xxxx 1234",
-                        label = "Nomination Aadhar number",
+                        label = "Nomination Identity number",
                         mandatory = true,
                         modifier = Modifier.fillMaxWidth(),
                         keyboardType = KeyboardType.Number,
@@ -248,8 +251,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeEmail,
-                        onValueChange = tradingDetailViewModel::onNomineeEmailChange,
+                        value = state.data.nominee_1_email,
+                        onValueChange = viewModel::onNominee1EmailChange,
                         placeHolder = "Nominee Email",
                         label = "Nominee Email",
                         mandatory = true,
@@ -260,8 +263,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeMobile,
-                        onValueChange = tradingDetailViewModel::onNomineeMobileChange,
+                        value = state.data.nominee_1_mobile,
+                        onValueChange = viewModel::onNominee1MobileChange,
                         placeHolder = "Nominee Mobile number",
                         label = "Nominee Mobile number",
                         mandatory = true,
@@ -272,8 +275,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeAddress1,
-                        onValueChange = tradingDetailViewModel::onNomineeAddress1Change,
+                        value = state.data.nominee_1_address1,
+                        onValueChange = viewModel::onNominee1Address1Change,
                         placeHolder = "House/Flat No.,Building Name",
                         label = "Nominee Address 1",
                         mandatory = true,
@@ -284,8 +287,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeAddress2,
-                        onValueChange = tradingDetailViewModel::onNomineeAddress2Change,
+                        value = state.data.nominee_1_address2,
+                        onValueChange = viewModel::onNominee1Address2Change,
                         placeHolder = "Street Name,Area",
                         label = "Nominee Address 2 (optional)",
                         mandatory = false,
@@ -296,8 +299,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeAddress3,
-                        onValueChange = tradingDetailViewModel::onNomineeAddress3Change,
+                        value = state.data.nominee_1_address3,
+                        onValueChange = viewModel::onNominee1Address3Change,
                         placeHolder = "Landmark",
                         label = "Nominee Address 3 (optional)",
                         mandatory = false,
@@ -308,8 +311,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeCity,
-                        onValueChange = tradingDetailViewModel::onNomineeCityChange,
+                        value = state.data.nominee_1_city,
+                        onValueChange = viewModel::onNominee1CityChange,
                         placeHolder = "Enter City",
                         label = "City",
                         mandatory = true,
@@ -320,8 +323,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineePincode,
-                        onValueChange = tradingDetailViewModel::onNomineePincodeChange,
+                        value = state.data.nominee_1_pin,
+                        onValueChange = viewModel::onNominee1PincodeChange,
                         placeHolder = "6-digit pincode",
                         label = "Pincode",
                         mandatory = true,
@@ -332,8 +335,8 @@ fun TradingScreen3(
 
                 item {
                     GenericDropDownField(
-                        value = state.nomineeCity,
-                        onValueChange = {},
+                        value = state.data.nominee_1_country,
+                        onValueChange = viewModel::onNominee1CountryChange,
                         placeHolder = "Select Country",
                         mandatory = true,
                         label = "Country",
@@ -344,8 +347,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeSOA,
-                        onValueChange = tradingDetailViewModel::onNomineeSOAChange,
+                        value = state.data.nominee_soa,
+                        onValueChange = viewModel::onNomineeSoaChange,
                         placeHolder = "Y/N",
                         label = "Nomination SOA(Statement of Account)",
                         mandatory = false,
@@ -356,8 +359,8 @@ fun TradingScreen3(
 
                 item {
                     OnBoardingTextField(
-                        value = state.nomineeOptRefNo,
-                        onValueChange = tradingDetailViewModel::onNomineeOptRefNoChange,
+                        value = "",
+                        onValueChange = {},
                         placeHolder = "opt ref no.",
                         label = "Nominee opt ref no.",
                         mandatory = true,
@@ -412,7 +415,7 @@ fun HolderNature(Selected: Holding, onHolderNatureChange: (Holding) -> Unit) {
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Holding.entries.forEach { it ->
+            Holding.entries.forEach {
                 HoldingCard(
                     cardHeading = it.heading,
                     cardSubHeading = it.subHeading,
@@ -426,7 +429,6 @@ fun HolderNature(Selected: Holding, onHolderNatureChange: (Holding) -> Unit) {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
 fun HoldingCard(
     cardHeading: String,
@@ -544,8 +546,10 @@ fun CheckBoxComp(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
 }
 
 @Composable
-fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, state: FinancialTradingDetailsModel,
-                viewModel: TradingAccountViewModel) {
+fun JointHolder(
+    jointHolder: String, list: List<String>, list2: List<String>, state: TradingAccountFormDomain,
+    viewModel: TradingAccountViewModel
+) {
     Column(
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(color = Color(0xffF9F9F9), shape = RoundedCornerShape(16.dp)),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -560,8 +564,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         OnBoardingTextField(
-            value = state.jointFullName,
-            onValueChange = viewModel::onJointFullNameChange,
+            value = state.data.second_holder_first_name,
+            onValueChange = viewModel::onSecondFirstNameChange,
             placeHolder = "Enter full Name",
             label = "Full Name",
             mandatory = true,
@@ -569,8 +573,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
 
 
         GenericDropDownField(
-            value = state.jointRelationship,
-            onValueChange = viewModel::onJointRelationshipChange,
+            value = state.data.second_holder_exempt_category,
+            onValueChange = viewModel::onSecondExemptCategoryChange,
             placeHolder = "Select Relationship",
             mandatory = true,
             label = "Relationship with Primary Holder",
@@ -579,8 +583,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         OnBoardingTextField(
-            value = state.jointPan,
-            onValueChange = viewModel::onJointPanChange,
+            value = state.data.second_holder_pan,
+            onValueChange = viewModel::onSecondPanChange,
             placeHolder = "Enter PAN number",
             label = "PAN number",
             mandatory = true,
@@ -590,8 +594,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
 
 
         OnBoardingTextField(
-            value = state.jointEmail,
-            onValueChange = viewModel::onJointEmailChange,
+            value = state.data.second_holder_email,
+            onValueChange = viewModel::onSecondEmailChange,
             placeHolder = "Enter email address",
             label = "Email",
             mandatory = true,
@@ -601,8 +605,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         OnBoardingTextField(
-            value = state.jointMobile,
-            onValueChange = viewModel::onJointMobileChange,
+            value = state.data.second_holder_mobile,
+            onValueChange = viewModel::onSecondMobileChange,
             placeHolder = "Enter Mobile number",
             label = "Mobile number",
             mandatory = true,
@@ -612,8 +616,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
 
 
         OnBoardingTextField(
-            value = state.jointPercentage,
-            onValueChange = viewModel::onJointPercentageChange,
+            value = state.data.second_holder_ckyc_number,
+            onValueChange = viewModel::onSecondCkycChange,
             placeHolder = "Enter percentage (e.g., 30%)",
             label = "Percentage of Holding",
             mandatory = true,
@@ -630,8 +634,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         OnBoardingTextField(
-            value = state.jointAddress1,
-            onValueChange =viewModel::onJointAddress1Change,
+            value = state.data.address_1,
+            onValueChange =viewModel::onAddress1Change,
             placeHolder = "House/Flat No.,Building Name",
             label = "Address Line 1",
             mandatory = true,
@@ -640,8 +644,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         OnBoardingTextField(
-            value = state.jointAddress2,
-            onValueChange = viewModel::onJointAddress2Change,
+            value = state.data.address_2,
+            onValueChange = viewModel::onAddress2Change,
             placeHolder = "Street Name,Area",
             label = "Address Line 2",
             mandatory = true,
@@ -650,8 +654,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         OnBoardingTextField(
-            value = state.jointAddress3,
-            onValueChange = viewModel::onJointAddress3Change,
+            value = state.data.address_3,
+            onValueChange = viewModel::onAddress3Change,
             placeHolder = "Landmark",
             label = "Address Line 3 (optional)",
             mandatory = false,
@@ -660,8 +664,8 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         OnBoardingTextField(
-            value = state.jointCity,
-            onValueChange = viewModel::onJointCityChange,
+            value = state.data.city,
+            onValueChange = viewModel::onCityChange,
             placeHolder = "Enter City",
             label = "City",
             mandatory = true,
@@ -670,7 +674,7 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         OnBoardingTextField(
-            value = state.jointPincode, onValueChange = viewModel::onJointPincodeChange,
+            value = state.data.pincode, onValueChange = viewModel::onPincodeChange,
             placeHolder = "6-digit pincode",
             label = "Pincode",
             mandatory = true,
@@ -679,7 +683,7 @@ fun JointHolder(jointHolder: String, list: List<String>, list2: List<String>, st
         )
 
         GenericDropDownField(
-            value = state.jointCountry, onValueChange = viewModel::onJointCountryChange,
+            value = state.data.country, onValueChange = viewModel::onCountryChange,
             placeHolder = "Select Country",
             mandatory = true,
             label = "Country",

@@ -23,13 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
@@ -41,21 +38,19 @@ import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
 
-
-@Preview(showSystemUi = true)
 @Composable
 fun TradingAccountScreen1(
     pv: PaddingValues,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onBackClick: () -> Boolean,
+    viewModel: TradingAccountViewModel
 ) {
-    val viewModel: TradingAccountViewModel = koinViewModel()
-    val state by viewModel.basicDetailsModel.collectAsStateWithLifecycle()
-
+    val state by viewModel.formState.collectAsStateWithLifecycle()
     val taxStatusList = listOf("Resident Individual", "Non-Resident Individual (NRI)", "HUF")
 
 
     Column(modifier = Modifier.fillMaxSize()) {
-        BackHeader("Trading account", showBack = true, onBackClick = {})
+        BackHeader("Trading account", showBack = true, onBackClick = {onBackClick()})
         LazyColumn(
             modifier = Modifier.weight(1f).fillMaxSize().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -80,7 +75,7 @@ fun TradingAccountScreen1(
             }
             item {
                 OnBoardingTextField(
-                    value = state.firstName,
+                    value = state.data.primary_holder_first_name,
                     onValueChange = viewModel::onFirstNameChange,
                     placeHolder = "Enter First Name",
                     label = "First Name",
@@ -90,7 +85,7 @@ fun TradingAccountScreen1(
             }
             item {
                 OnBoardingTextField(
-                    value = state.middleName,
+                    value = state.data.primary_holder_middle_name,
                     onValueChange = viewModel::onMiddleNameChange,
                     placeHolder = "Enter Middle Name",
                     label = "Middle Name (Optional)",
@@ -100,7 +95,7 @@ fun TradingAccountScreen1(
             }
             item {
                 OnBoardingTextField(
-                    value = state.lastName,
+                    value = state.data.primary_holder_last_name,
                     onValueChange = viewModel::onLastNameChange,
                     placeHolder = "Enter Last Name",
                     label = "Last Name",
@@ -112,8 +107,8 @@ fun TradingAccountScreen1(
             item {
                 GenderBoxComposable(
                     "Gender",
-                    selected = state.gender,
-                    onSelect = { it ->
+                    selected = state.data.gender,
+                    onSelect = {
                         viewModel.onGenderChange(it)
                     }
                 )
@@ -122,7 +117,7 @@ fun TradingAccountScreen1(
 
             item {
                 GenericDropDownField(
-                    value = state.taxStatus,
+                    value = state.data.tax_status,
                     onValueChange = viewModel::onTaxStatusChange,
                     placeHolder = "Tax Status",
                     mandatory = true,
@@ -136,7 +131,7 @@ fun TradingAccountScreen1(
 
             item {
                 OnBoardingTextField(
-                    value = state.email,
+                    value = state.data.email,
                     onValueChange = viewModel::onEmailChange,
                     placeHolder = "Enter Email",
                     label = "Email Address ",
@@ -147,7 +142,7 @@ fun TradingAccountScreen1(
 
             item {
                 OnBoardingTextField(
-                    value = state.phone,
+                    value = state.data.indian_mobile_no,
                     onValueChange = viewModel::onPhoneChange,
                     placeHolder = "Enter Phone Number",
                     label = "Phone Number",
@@ -159,12 +154,12 @@ fun TradingAccountScreen1(
 
             item{
                 OnBoardingDateField(
-                    value = state.dob,
+                    value = state.data.primary_holder_dob_incorporation,
                     placeHolder = "dd/mm/yy",
                     label = "DOB ",
                     mandatory = true,
                     onClick = {
-                    }
+                    },
                 )
             }
 

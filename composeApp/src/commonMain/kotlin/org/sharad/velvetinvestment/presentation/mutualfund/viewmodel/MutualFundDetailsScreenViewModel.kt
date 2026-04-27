@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
 import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
@@ -18,6 +17,7 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartLumpsum
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGraphUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetUserCartUseCase
 import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
 import org.sharad.velvetinvestment.presentation.mutualfund.CartBottomSheetState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
@@ -39,6 +39,7 @@ class MutualFundDetailsScreenViewModel(
     private val id: String,
     private val getDetailsUseCase: GetMutualFundDetailsUseCase,
     private val getGraphUseCase: GetMutualFundGraphUseCase,
+    private val loadCartUseCase: GetUserCartUseCase,
     private val addToCartLumpsumUseCase: AddToCartLumpsumUseCase,
     private val addToCartSIPUseCase: AddToCartSipUseCase,
 ): ViewModel() {
@@ -169,6 +170,7 @@ class MutualFundDetailsScreenViewModel(
     fun loadInitial() {
         loadDetails()
         loadGraph()
+        loadCart()
     }
 
     fun loadDetails() {
@@ -233,6 +235,7 @@ class MutualFundDetailsScreenViewModel(
                             showKYCBottomSheet()
                             return@onError
                         }
+                        hideBottomSheet()
                         SnackBarController.showSnackBar(SnackBarType.Error(it.message))
                     }
                 }
@@ -255,6 +258,7 @@ class MutualFundDetailsScreenViewModel(
                             showKYCBottomSheet()
                             return@onError
                         }
+                        hideBottomSheet()
                         SnackBarController.showSnackBar(SnackBarType.Error(it.message))
                     }
                 }
@@ -299,6 +303,11 @@ class MutualFundDetailsScreenViewModel(
 
     fun onTimeChange(value: Int) {
         _calculatorInput.value = _calculatorInput.value.copy(timeInYears = value)
+    }
+    fun loadCart(){
+        viewModelScope.launch {
+            loadCartUseCase()
+        }
     }
 }
 

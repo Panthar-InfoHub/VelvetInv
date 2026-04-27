@@ -55,78 +55,54 @@ fun createInitialFDFilters(): InvestmentFilter {
         groups = listOf(
 
             FilterGroup(
-                id = "filters",
-                title = "Filters",
-                selectionType = SelectionType.MULTIPLE,
-                options = listOf(
-                    FilterOption(
-                        id = "senior_rates",
-                        title = "Senior citizen rates\nRate for user aged 60 and above"
-                    ),
-                    FilterOption(
-                        id = "insured_rbi",
-                        title = "Insured by RBI\nUp to ₹5L"
-                    ),
-                    FilterOption(
-                        id = "tax_saver",
-                        title = "Tax saver FDs\nFD eligible under 80C for tax saving"
-                    ),
-                    FilterOption(
-                        id = "low_min_investment",
-                        title = "Low min. investment\nCreate FDs with less than ₹2k"
-                    )
-                )
-            ),
-
-            // Tenure
-            FilterGroup(
-                id = "tenure",
+                id = FDFilterIds.TENURE,
                 title = "Tenure",
                 selectionType = SelectionType.SINGLE,
                 options = listOf(
-                    FilterOption("lt_1y", "< 1 year"),
-                    FilterOption("1_3y", "1-3 years"),
-                    FilterOption("3_5y", "3-5 years"),
-                    FilterOption("gt_5y", "> 5 years")
-                )
-            ),
-
-            // Risk Level
-            FilterGroup(
-                id = "risk_level",
-                title = "Risk Level",
-                selectionType = SelectionType.SINGLE,
-                options = listOf(
-                    FilterOption(
-                        "low",
-                        "Low\nCRISIL rating AAA"
-                    ),
-                    FilterOption(
-                        "moderate",
-                        "Moderate\nCRISIL rating AA and AA"
-                    ),
-                    FilterOption(
-                        "high",
-                        "High\nCRISIL category B"
-                    ),
-                    FilterOption(
-                        "very_high",
-                        "Very high\nCRISIL category C and D"
-                    )
+                    FilterOption(FDFilterIds.TENURE_1Y, "1 Year"),
+                    FilterOption(FDFilterIds.TENURE_2Y, "2 Years"),
+                    FilterOption(FDFilterIds.TENURE_3Y, "3 Years"),
+                    FilterOption(FDFilterIds.TENURE_5Y, "5 Years")
                 )
             ),
 
             FilterGroup(
-                id = "issuer_type",
-                title = "Issuer type",
+                id = FDFilterIds.PAYOUT_FREQUENCY,
+                title = "Payout Frequency",
                 selectionType = SelectionType.SINGLE,
                 options = listOf(
-                    FilterOption("public_bank", "Public banks"),
-                    FilterOption("nbfc", "NBFC"),
-                    FilterOption("private_bank", "Private banks"),
-                    FilterOption("small_finance", "Small finance")
+                    FilterOption(FDFilterIds.PAYOUT_CUMULATIVE, "Cumulative"),
+                    FilterOption(FDFilterIds.PAYOUT_MONTHLY, "Monthly"),
+                    FilterOption(FDFilterIds.PAYOUT_QUARTERLY, "Quarterly"),
+                    FilterOption(FDFilterIds.PAYOUT_HALF_YEARLY, "Half-Yearly"),
+                    FilterOption(FDFilterIds.PAYOUT_YEARLY, "Yearly"),
+                    FilterOption(FDFilterIds.PAYOUT_ON_MATURITY, "On Maturity")
                 )
             )
         )
     )
+}
+
+
+object FDFilterIds {
+
+    // Groups
+    const val TENURE = "tenure"
+    const val PAYOUT_FREQUENCY = "payout_frequency"
+
+    // Tenure Options
+    const val TENURE_1Y = "1y"
+    const val TENURE_2Y = "2y"
+    const val TENURE_3Y = "3y"
+    const val TENURE_5Y = "5y"
+
+    // Payout Frequency Options
+    const val PAYOUT_CUMULATIVE = "CUMULATIVE"
+    const val PAYOUT_MONTHLY = "MONTHLY"
+    const val PAYOUT_QUARTERLY = "QUARTERLY"
+    const val PAYOUT_HALF_YEARLY = "HALF_YEARLY"
+    const val PAYOUT_YEARLY = "YEARLY"
+    const val PAYOUT_ON_MATURITY = "ON_MATURITY"
+
+    const val CUSTOM = "Custom"
 }

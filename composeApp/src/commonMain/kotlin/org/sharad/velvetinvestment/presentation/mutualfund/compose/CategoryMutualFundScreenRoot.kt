@@ -33,29 +33,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
-import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundUI
+import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
+import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.mf_haeder_icon
-import velvet.composeapp.generated.resources.mf_placeholder
 
 @Composable
 fun CategoryMutualFundScreenRoot(
@@ -64,125 +62,160 @@ fun CategoryMutualFundScreenRoot(
     onFundClick:(String)->Unit,
     pv: PaddingValues,
     onSearchClick:(String)->Unit,
-    onCategoryClick:(String,String)->Unit
+    onCategoryClick:(String)->Unit
 ){
 
     val viewModel: CategoryMutualFundViewModel = koinViewModel()
-//    val mutualFunds by viewModel.mutualFunds.collectAsStateWithLifecycle()
-//    val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
-//    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
-//
-//
-//    Column(
-//        modifier = Modifier.fillMaxSize()
-//    ) {
-//        ScreenHeader(
-//            onBackClick = { onBackClick() },
-//            onIconClick = { onIconClick() }
-//        )
-//        Box(
-//            modifier = Modifier.weight(1f)
-//                .fillMaxSize()
-//        ){
-//            when(uiState){
-//                is LoadingState.Error->{
-//                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
-//                }
-//                LoadingState.Loading -> {
-//                    LoaderScreen()
-//                }
-//
-//                LoadingState.Success -> {
-//                    CategoryMutualFundScreen(
-//                        mutualFunds,
-//                        onCategoryClick = onCategoryClick,
-//                        onFundClick = {onFundClick(it)},
-//                        searchText=searchText,
-//                        onTextChange = { viewModel.onSearchTextChange(it) },
-//                        pv=pv,
-//                        onSearchClick = {onSearchClick(searchText)}
-//                    )
-//                }
-//            }
-//        }
-//    }
+    val combinedState by viewModel.mutualFunds.collectAsStateWithLifecycle()
+    val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
+    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
+
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        ScreenHeader(
+            onBackClick = { onBackClick() },
+            onIconClick = { onIconClick() }
+        )
+        Box(
+            modifier = Modifier.weight(1f)
+                .fillMaxSize()
+        ){
+            when(uiState){
+                is LoadingState.Error->{
+                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
+                }
+                LoadingState.Loading -> {
+                    LoaderScreen()
+                }
+
+                LoadingState.Success -> {
+                    CategoryMutualFundScreen(
+                        bundles=combinedState.bundleFunds,
+                        funds= combinedState.categoryMutualFundDomain,
+                        onCategoryClick = onCategoryClick,
+                        onFundClick = {onFundClick(it)},
+                        searchText =searchText,
+                        onTextChange = { viewModel.onSearchTextChange(it) },
+                        pv =pv,
+                        onSearchClick = {onSearchClick(searchText)}
+                    )
+                }
+            }
+        }
+    }
 }
 
-//@Composable
-//fun CategoryMutualFundScreen(
-//    categoryList: List<CategoryMutualFundUI>,
-//    onCategoryClick: (String, String) -> Unit,
-//    onFundClick: (String) -> Unit,
-//    searchText: String,
-//    onTextChange: (String) -> Unit,
-//    pv: PaddingValues,
-//    onSearchClick: (String) -> Unit
-//) {
-//
-//    LazyVerticalGrid(
-//        columns = GridCells.Adaptive(minSize = 150.dp),
-//        modifier = Modifier.fillMaxSize(),
-//        verticalArrangement = Arrangement.spacedBy(20.dp),
-//        horizontalArrangement = Arrangement.spacedBy(16.dp),
-//        contentPadding = PaddingValues(horizontal = 16.dp)
-//    ) {
-//        item(span = { GridItemSpan(maxLineSpan) }) {
-//            AppSearchBar(
-//                value = searchText,
-//                onTextChange = { onTextChange(it) },
-//                onSearchClick = { onSearchClick(searchText) }
-//            )
-//        }
-//        categoryList.forEach { category ->
-//            item(span = { GridItemSpan(maxLineSpan) }) {
-//                BarHeader(
-//                    heading = category.categoryName,
-//                    showArrow = true,
-//                    onArrowClick = {onCategoryClick(category.categorySearchReference, category.categoryName)}
-//                )
-//            }
-//
-//            items(
-//                items = category.mutualFunds,
-//                key = { it.id }
-//            ) { fund ->
-//
-//                MutualFundGridCard(fund, onClick = { onFundClick(fund.id) })
-//            }
-//        }
-//        item(span = { GridItemSpan(maxLineSpan) }){
-//            Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp))
-//        }
-//    }
-//
-//}
+@Composable
+fun CategoryMutualFundScreen(
+    bundles: List<BundledMutualFundDomain>,
+    onCategoryClick: (String) -> Unit,
+    onFundClick: (String) -> Unit,
+    searchText: String,
+    onTextChange: (String) -> Unit,
+    pv: PaddingValues,
+    onSearchClick: (String) -> Unit,
+    funds: List<CategoryMutualFundDomain>
+) {
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 150.dp),
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            AppSearchBar(
+                value = searchText,
+                onTextChange = { onTextChange(it) },
+                onSearchClick = { onSearchClick(searchText) }
+            )
+        }
+        bundles.forEach { category ->
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                BarHeader(
+                    heading = category.categoryName,
+                    showArrow = true,
+                    onArrowClick = {onCategoryClick(category.key)}
+                )
+            }
+
+            items(
+                items = category.mutualFunds,
+                key = { category.key+it.id }
+            ) { fund ->
+
+                MutualFundGridCard(
+                    onClick = { onFundClick(fund.id) },
+                    schemeName = fund.scheme_name,
+                    assetType = fund.asset_type,
+                    latestNav = fund.latest_nav,
+                )
+            }
+        }
+
+        funds.forEach {category->
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                BarHeader(
+                    heading = category.categoryName,
+                    showArrow = true,
+                    onArrowClick = {onCategoryClick(category.categorySearchReference)}
+                )
+            }
+
+            items(
+                items = category.mutualFunds,
+                key = { category.categorySearchReference+it.id }
+            ) { fund ->
+
+                MutualFundGridCard(
+                    onClick = { onFundClick(fund.id) },
+                    schemeName = fund.name,
+                    assetType = fund.type,
+                    latestNav = fund.latestNav,
+                )
+            }
+        }
+        item(span = { GridItemSpan(maxLineSpan) }){
+            Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp))
+        }
+    }
+
+}
 
 @Composable
-fun MutualFundGridCard(fund: MutualFundDomain, onClick: () -> Unit) {
-
+fun MutualFundGridCard(
+    schemeName: String,
+    assetType: String,
+    latestNav: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     ShadowCard(
-        modifier = Modifier.widthIn(min=160.dp).height(176.dp),
+        modifier = modifier
+            .widthIn(min = 160.dp)
+            .height(176.dp),
         clickable = true,
-        onClick=onClick
+        onClick = onClick
     ) {
         Column(
-            modifier=Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
 
-            Column (
-                modifier=Modifier.weight(1f),
+            Column(
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
-            ){
-                AsyncImage(
-                    model=fund.icon,
-                    contentDescription = null,
-                    placeholder = painterResource(Res.drawable.mf_placeholder),
-                    error = painterResource(Res.drawable.mf_placeholder),
-                    fallback = painterResource(Res.drawable.mf_placeholder),
-                    modifier = Modifier.size(38.dp)
+            ) {
+                MutualFundIcon(
+                    schemeName = schemeName
                 )
+
                 Text(
-                    text=fund.name,
+                    text = schemeName,
                     style = subHeading,
                     color = Color.Black,
                     maxLines = 2,
@@ -196,22 +229,22 @@ fun MutualFundGridCard(fund: MutualFundDomain, onClick: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = fund.returnYearsRate.year3 .toString()+"Y CAGR",
+                    text = assetType,
                     style = titlesStyle,
-                    color = titleColor
+                    color = titleColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
-                fund.returnYearsRate.year3?.let {
-                    Text(
-                        text = fund.returnYearsRate.year3.toString()+"%",
-                        style = subHeading,
-                        color = if (it >= 0) appGreen else Color.Red
-                    )
-                }
-            }
 
+                Text(
+                    text = "₹ $latestNav",
+                    style = subHeading,
+                    color = appGreen
+                )
+            }
         }
     }
-
 }
 
 

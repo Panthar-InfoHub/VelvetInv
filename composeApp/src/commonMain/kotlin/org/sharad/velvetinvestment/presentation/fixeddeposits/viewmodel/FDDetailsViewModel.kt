@@ -7,8 +7,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.domain.models.fd.FDDetailsDomain
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFDDetailsUseCase
+import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -47,6 +49,9 @@ class FDDetailsViewModel(
             getFDDetailsUseCase(id)
                 .onSuccess { data ->
                     _uiState.value = UiState.Success(data)
+                    data.interestRates.forEach {
+                        Log(it.tenureLabel, it.tenureDays.toString())
+                    }
                 }
                 .onError { error ->
                     _uiState.value = UiState.Error(error.message)
@@ -67,12 +72,12 @@ class FDDetailsViewModel(
         closeSheet()
     }
 
-    fun updateInterestPayout(payout: String) {
+    fun updateInterestPayout(payout: PayoutType) {
         _uiState.update { state ->
             if (state is UiState.Success) {
                 state.copy(
                     data = state.data.copy(
-                        interestPayout = payout
+                        selectedPayout = payout
                     )
                 )
             } else state
@@ -103,17 +108,51 @@ enum class FDModalType {
     INVEST
 }
 
+
 fun calculateMaturity(
     principal: Long,
     rate: Double,
-    days: Int
-): Long {
-    val years = days / 365.0
-    val n = 4 // quarterly compounding
+    days: Int,
+    frequency: PayoutType
+): Double {
 
-    val maturity = principal * (
-        (1 + (rate / 100) / n).pow(n * years)
+    val years = days / 365.0
+
+    val compoundsPerYear = when (frequency) {
+        PayoutType.Cumulative -> 1
+        PayoutType.Yearly -> 1
+        PayoutType.HalfYearly -> 2
+        PayoutType.Quarterly -> 4
+        PayoutType.Monthly -> 12
+        is PayoutType.Custom -> 1
+    }
+
+    Log(
+        "FD_CALC",
+        """
+        principal=$principal
+        rate=$rate
+        days=$days
+        years=$years
+        frequency=${frequency.id}
+        compoundsPerYear=$compoundsPerYear
+        """.trimIndent()
     )
 
-    return maturity.toLong()
+    val base = 1 + (rate / 100) / compoundsPerYear
+    val exponent = compoundsPerYear * years
+
+    Log(
+        "FD_CALC",
+        "base=$base exponent=$exponent"
+    )
+
+    val maturity = principal * base.pow(exponent)
+
+    Log(
+        "FD_CALC",
+        "maturity=$maturity"
+    )
+
+    return maturity
 }

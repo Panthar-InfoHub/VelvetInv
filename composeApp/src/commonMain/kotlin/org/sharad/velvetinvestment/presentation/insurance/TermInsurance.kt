@@ -4,17 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import org.sharad.emify.core.ui.theme.healthColor
 import org.sharad.emify.core.ui.theme.termColor
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.icon_heart
 import velvet.composeapp.generated.resources.nav_icon_incurance
 import velvet.composeapp.generated.resources.pl2
-import velvet.composeapp.generated.resources.pl3
 
 @Composable
 fun TermInsuranceScreen(
@@ -34,8 +31,8 @@ fun TermInsuranceScreen(
         }
         is UiState.Success-> {
             val data = (state as UiState.Success).data
-            val recommended = viewModel.recommendedLife
-            val remaining= recommended- (data.lifeInsurance?:0L).coerceIn(0,recommended)
+            val recommended by viewModel.recommendedLife.collectAsStateWithLifecycle()
+            val remaining= recommended - (data.lifeInsurance?:0L).coerceIn(0,recommended)
             SharedInsuranceScreen(
                 heading = "Term Insurance",
                 onBack = onBackClick,

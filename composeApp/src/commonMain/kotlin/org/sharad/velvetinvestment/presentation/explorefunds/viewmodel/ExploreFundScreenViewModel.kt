@@ -53,7 +53,7 @@ class ExploreFundScreenViewModel(
                 }
                 .onError {
                     hasError = true
-                    errorMessage = it.name
+                    errorMessage = it.message
                 }
 
             fdResponse.await()

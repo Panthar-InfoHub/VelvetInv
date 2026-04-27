@@ -67,14 +67,14 @@ class PortfolioScreenViewModel(
                 }
                 .onError {
                     hasError = true
-                    _loadingState.value = LoadingState.Error(it.name)
+                    _loadingState.value = LoadingState.Error(it.message)
                 }
 
             dashboardResult
                 .onSuccess { _dashboard.value = it }
                 .onError {
                     hasError = true
-                    _loadingState.value = LoadingState.Error(it.name)
+                    _loadingState.value = LoadingState.Error(it.message)
                 }
 
             fdResult

@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Velvet</string>
+    <string name="projection_impact">Projection Impact</string>
+    <string name="edit">Edit</string>
+    <string name="remove">Remove</string>
+    <string name="projected_impact">Projected Impact</string>
+    <string name="goal_name_placeholder">Goal Name</string>
+    <string name="todays_cost">Today’s Cost:</string>
+    <string name="future_value">Future Value</string>
+    <string name="target">Target</string>
+    <string name="monthly_sip">Monthly SIP</string>
+    <string name="feasibility_score">Feasibility Score</string>
+    <string name="progress">Progress</string>
+    <string name="increased_by">Increased By %s</string>
+    <string name="req_monthly">Req.monthly: %s</string>
+    <string name="explore_bundle_goals">Explore Bundle Goals</string>
+    <string name="sbi_gold_fund">SBI Gold Fund</string>
+    <string name="returns_3y">3Y Returns</string>
+    <string name="high_risk_commodities_gold">High Risk . Commodities . Gold</string>
+    <string name="invest_now">Invest Now</string>
 </resources>

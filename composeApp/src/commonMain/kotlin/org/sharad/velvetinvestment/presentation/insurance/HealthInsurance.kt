@@ -31,7 +31,7 @@ fun HealthInsuranceScreen(
         }
         is UiState.Success-> {
             val data = (state as UiState.Success).data
-            val recommended = viewModel.recommendedHealth
+            val recommended by viewModel.recommendedHealth.collectAsStateWithLifecycle()
             val remaining= (recommended- (data.healthInsurance?:0L)).coerceIn(0,recommended)
 
             SharedInsuranceScreen(

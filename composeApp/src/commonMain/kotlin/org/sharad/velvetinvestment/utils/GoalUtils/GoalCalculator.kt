@@ -5,9 +5,6 @@ import kotlin.math.*
 
 object GoalCalculator {
 
-    // -----------------------------
-    // GENERAL GOALS (MATCH JS)
-    // -----------------------------
 
     fun calculateFutureValue(
         presentValue: Long,
@@ -27,19 +24,14 @@ object GoalCalculator {
         val months = years * 12
         if (months <= 0) return 0.0
 
-        // 🔥 MATCH JS (monthly compounding, not simple /12)
         val r = (1 + annualReturnRate / 100.0).pow(1.0 / 12) - 1
 
         val fvFactor = (1 + r).pow(months) - 1
         if (fvFactor <= 0 || r <= 0) return 0.0
 
-        // 🔥 EXACT JS FORMULA
         return (futureValue * r) / (fvFactor * (1 + r))
     }
 
-    // -----------------------------
-    // RETIREMENT (ALREADY MATCHES JS)
-    // -----------------------------
 
     fun calculateRetirementCorpus(
         currentMonthlyExpense: Double,
@@ -83,7 +75,6 @@ object GoalCalculator {
         val months = yearsToRetirement * 12
         if (months <= 0) return 0.0
 
-        // 🔥 MATCH JS
         val r = (1 + annualReturnRate).pow(1.0 / 12) - 1
 
         val fvFactor = (1 + r).pow(months) - 1
@@ -92,9 +83,6 @@ object GoalCalculator {
         return (retirementCorpus * r) / (fvFactor * (1 + r))
     }
 
-    // -----------------------------
-    // FULL PIPELINE (MATCH JS FLOW)
-    // -----------------------------
 
     fun calculateRetirementFromInputs(
         currentAge: Int,
@@ -102,7 +90,8 @@ object GoalCalculator {
         lifeExpectancy: Int,
         monthlyExpense: Double,
         inflationRate: Double,
-        returnRate: Double
+        postRetirementReturn: Double,
+        preRetirementReturn: Double
     ): RetirementGoalResult {
 
         val yearsToRetirement = retirementAge - currentAge
@@ -115,14 +104,14 @@ object GoalCalculator {
         val corpus = calculateRetirementCorpus(
             currentMonthlyExpense = monthlyExpense,
             inflationRate = inflationRate,
-            returnRate = returnRate,
+            returnRate = postRetirementReturn,
             yearsToRetirement = yearsToRetirement,
             yearsPostRetirement = yearsPostRetirement
         )
 
         val sip = calculateRetirementSip(
             retirementCorpus = corpus,
-            annualReturnRate = returnRate,
+            annualReturnRate = preRetirementReturn,
             yearsToRetirement = yearsToRetirement
         )
 

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,6 +70,7 @@ fun CartScreen(
     val total by viewModel.totalAmount.collectAsStateWithLifecycle()
     val visibleItems by viewModel.visibleItems.collectAsStateWithLifecycle()
     val popupVisible by viewModel.confirmationPopupVisible.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit){
         if (uiState is UiState.Success){
@@ -115,7 +116,8 @@ fun CartScreen(
                 ) {
                     CartScreenContent(
                         items = visibleItems,
-                        onRemoveClick = viewModel::removeItem
+                        onRemoveClick = viewModel::removeItem,
+                        onRefresh = { viewModel.loadCart() }
                     )
                 }
 
@@ -124,7 +126,9 @@ fun CartScreen(
                         viewModel.showPopup()
                     },
                     pv = pv,
-                    value = if (total == 0L) "No Fund Added to the Cart" else "Pay ₹${formatMoneyAfterL(total)}"
+                    value = if (total == 0L) "No Fund Added to the Cart" else "Pay ₹${formatMoneyAfterL(total)}",
+                    loading=loading,
+                    enabled = total != 0L
                 )
             }
             if (popupVisible){
@@ -162,23 +166,28 @@ fun MFTypeSelector(selected: CartType, onSelect: (CartType) -> Unit, lumpsumSize
 }
 
 @Composable
-fun CartScreenContent(items: List<CartItemDomain>, onRemoveClick: (String) -> Unit) {
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        itemsIndexed(
-            items = items,
-            key = {_,it-> it.id }
-        ){idx,it->
-            CartItem(
-                item = it,
-                onRemoveClick = onRemoveClick
-            )
+fun CartScreenContent(items: List<CartItemDomain>, onRemoveClick: (String) -> Unit, onRefresh: () -> Unit) {
+    PullToRefreshBox(
+        isRefreshing = false,
+        onRefresh = onRefresh
+    ){
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            itemsIndexed(
+                items = items,
+                key = { _, it -> it.id }
+            ) { _, it ->
+                CartItem(
+                    item = it,
+                    onRemoveClick = onRemoveClick
+                )
                 HorizontalDivider(
                     thickness = 0.5.dp,
                     color = titleColor,
-                    modifier=Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
+            }
         }
     }
 }

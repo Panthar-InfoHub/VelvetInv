@@ -8,28 +8,32 @@ import org.sharad.velvetinvestment.domain.models.fixeddeposits.RiskLevel
 import org.sharad.velvetinvestment.utils.parseHtmlToReadableText
 
 fun FDDetailsDto.toDomain(): FDDetailsDomain {
+    val payouts = data.interest_rates
+        .distinctBy { it.payout_frequency }
+        .map {
+            PayoutType.fromId(it.payout_frequency)
+        }
+
+    val selectedPayout = PayoutType.defaultSelection(payouts)
     return FDDetailsDomain(
         id = data.id,
         invest =  data.min_deposit.toLongOrNull() ?: 1000,
-        interestPayout = data.interest_rates.firstOrNull()?.payout_frequency?.toReadablePayout()?: "",
+        selectedPayout = selectedPayout,
         applicable = data.interest_rates.firstOrNull()?.customer_type ?: "",
 
 
         // Header
         bankName = data.issuer.display_name,
         bankLogo = data.issuer.logo_url,
-        rating = data.issuer.rating_text,
+        rating = data.issuer.rating_text?: "N/A",
         maxInterestRate = data.interest_rates.maxOfOrNull {
             it.interest_rate.toDoubleOrNull() ?: 0.0
         } ?: 0.0,
-        riskLabel = extractRiskLevel(data.issuer.rating_text),
+        riskLabel = if (data.issuer.rating_text != null) extractRiskLevel(data.issuer.rating_text) else RiskLevel.LOW,
 
         minDeposit = data.min_deposit.toLongOrNull() ?: 0L,
 
-        payoutOptions = data.interest_rates
-            .map { it.payout_frequency }
-            .distinct()
-            .map { it.toReadablePayout() },
+        payoutOptions = payouts,
 
         applicableFor = data.interest_rates
             .map { it.customer_type }
@@ -45,7 +49,7 @@ fun FDDetailsDto.toDomain(): FDDetailsDomain {
                 interestRate = it.interest_rate.toDoubleOrNull() ?: 0.0,
                 annualYield = it.annualized_yield.toDoubleOrNull() ?: 0.0,
                 isDefault = it.is_default_selection,
-                payoutFrequency = it.payout_frequency
+                payoutFrequency = PayoutType.fromId(it.payout_frequency)
             )
         }.sortedBy { it.tenureDays }, // IMPORTANT → UI order
 
@@ -68,14 +72,59 @@ fun FDDetailsDto.toDomain(): FDDetailsDomain {
     )
 }
 
-fun String.toReadablePayout(): String {
-    return when (this.uppercase()) {
-        "CUMULATIVE" -> "Maturity"
-        "MONTHLY" -> "Monthly"
-        "QUARTERLY" -> "Quarterly"
-        "HALF_YEARLY" -> "Half Yearly"
-        "YEARLY" -> "Yearly"
-        else -> this.lowercase().replaceFirstChar { it.uppercase() }
+sealed interface PayoutType {
+    val id: String
+    val displayName: String
+
+    data object Cumulative : PayoutType {
+        override val id = "CUMULATIVE"
+        override val displayName = "Maturity"
+    }
+
+    data object Monthly : PayoutType {
+        override val id = "MONTHLY"
+        override val displayName = "Monthly"
+    }
+
+    data object Quarterly : PayoutType {
+        override val id = "QUARTERLY"
+        override val displayName = "Quarterly"
+    }
+
+    data object HalfYearly : PayoutType {
+        override val id = "HALF_YEARLY"
+        override val displayName = "Half Yearly"
+    }
+
+    data object Yearly : PayoutType {
+        override val id = "YEARLY"
+        override val displayName = "Yearly"
+    }
+
+    data class Custom(
+        override val id: String
+    ) : PayoutType {
+        override val displayName: String =
+            id.lowercase().replace("_", " ")
+                .replaceFirstChar { it.uppercase() }
+    }
+
+    companion object {
+        fun fromId(id: String): PayoutType {
+            return when (id.uppercase()) {
+                Cumulative.id -> Cumulative
+                Monthly.id -> Monthly
+                Quarterly.id -> Quarterly
+                HalfYearly.id -> HalfYearly
+                Yearly.id -> Yearly
+                else -> Custom(id)
+            }
+        }
+
+        fun defaultSelection(payouts: List<PayoutType>): PayoutType? {
+            return payouts.firstOrNull { it is Cumulative }
+                ?: payouts.firstOrNull()
+        }
     }
 }
 

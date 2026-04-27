@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,9 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sharad.velvetinvestment.utils.theme.Poppins
@@ -37,6 +42,8 @@ fun MoneyTextField(
     placeHolder:String,
     label:String?=null,
     mandatory: Boolean=false,
+    showWarning: Boolean= false,
+    warningText: String= "",
     modifier: Modifier = Modifier
 ){
 
@@ -65,13 +72,14 @@ fun MoneyTextField(
 
         BasicTextField(
             value = value,
-            onValueChange = {it-> onValueChange(it) },
+            onValueChange = onValueChange,
             singleLine = true,
             textStyle = TextStyle(
                 fontFamily = Poppins,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
             ),
+            visualTransformation = IndianCurrencyVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = modifier.fillMaxWidth()
                 .height(54.dp)
@@ -81,7 +89,7 @@ fun MoneyTextField(
                 .border(
                     width = 0.7.dp,
                     shape = RoundedCornerShape(15.dp),
-                    color = Color(0xFFC5A572)
+                    color = if (showWarning) Color.Red else Color(0xFFC5A572)
                 ),
         ) {
             Row(
@@ -114,5 +122,70 @@ fun MoneyTextField(
                 }
             }
         }
+
+        AnimatedVisibility(showWarning){
+            Text(
+                text = warningText,
+                style = MaterialTheme.typography.displaySmall,
+                color = Color.Red
+            )
+        }
+
+    }
+}
+
+class IndianCurrencyVisualTransformation : VisualTransformation {
+
+    override fun filter(text: AnnotatedString): TransformedText {
+
+        val input = text.text.filter { it.isDigit() }
+
+        if (input.isEmpty()) {
+            return TransformedText(
+                AnnotatedString(""),
+                OffsetMapping.Identity
+            )
+        }
+
+        val formatted = formatIndianNumber(input)
+
+        val offsetMapping = object : OffsetMapping {
+
+            override fun originalToTransformed(offset: Int): Int {
+                val originalText = input.take(offset)
+                return formatIndianNumber(originalText).length
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                var digitCount = 0
+
+                formatted.take(offset).forEach {
+                    if (it.isDigit()) digitCount++
+                }
+
+                return digitCount.coerceAtMost(input.length)
+            }
+        }
+
+        return TransformedText(
+            AnnotatedString(formatted),
+            offsetMapping
+        )
+    }
+
+    private fun formatIndianNumber(input: String): String {
+
+        if (input.length <= 3) return input
+
+        val lastThree = input.takeLast(3)
+        val remaining = input.dropLast(3)
+
+        val formattedRemaining = remaining
+            .reversed()
+            .chunked(2)
+            .joinToString(",")
+            .reversed()
+
+        return "$formattedRemaining,$lastThree"
     }
 }

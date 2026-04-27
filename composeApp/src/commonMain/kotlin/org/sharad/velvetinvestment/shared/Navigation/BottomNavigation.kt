@@ -39,7 +39,11 @@ fun BottomNavigation(
     navigateToTermInsurance: () -> Unit,
     navigateToOtherInsurance: () -> Unit,
     onSignOut: () -> Unit,
-    navigateToAddGoal: () -> Unit
+    navigateToAddGoal: () -> Unit,
+    navigateToSpecificGoalProjection: (String) -> Unit,
+    navigateToMutualFundList: () -> Unit,
+    navigateToFD: () -> Unit,
+    navigateToTradingAccountSetup: () -> Unit
 ) {
 
     val navController= rememberNavController()
@@ -106,7 +110,24 @@ fun BottomNavigation(
                     navigateToKYCScreen=navigateToKYCScreen,
                     navigateToGoalScreen=navigateToGoalScreen,
                     navigateToNotification=navigateToNotification,
-                    navigateToAddGoal=navigateToAddGoal
+                    navigateToAddGoal=navigateToAddGoal,
+                    navigateToSpecificGoalProjection=navigateToSpecificGoalProjection,
+                    navigateToMutualFund= {
+                        navigateToMutualFundList()
+                    },
+                    navigateToFd={
+                        navigateToFD()
+                    },
+                    navigateToInsurance={
+                            navController.navigate(Route.Insurance) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                    },
+                    navigateToTradingAccountSetup=navigateToTradingAccountSetup
                 )
             }
             composable<Route.FundScreener> {

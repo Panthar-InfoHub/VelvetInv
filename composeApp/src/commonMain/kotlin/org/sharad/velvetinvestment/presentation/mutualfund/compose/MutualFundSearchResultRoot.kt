@@ -37,9 +37,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
@@ -59,7 +59,6 @@ import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_filter
-import velvet.composeapp.generated.resources.mf_placeholder
 
 @Composable
 fun MutualFundSearchScreenRoot(
@@ -67,9 +66,12 @@ fun MutualFundSearchScreenRoot(
     onFundClick: (String) -> Unit,
     heading: String,
     pv: PaddingValues,
+    searchText: String,
 ) {
 
-    val viewModel: MutualFundSearchResultViewModel = koinViewModel()
+    val viewModel: MutualFundSearchResultViewModel = koinViewModel{
+        parametersOf(searchText)
+    }
     val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
     val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
     val sortedFunds by viewModel.sortedFunds.collectAsStateWithLifecycle()
@@ -77,8 +79,6 @@ fun MutualFundSearchScreenRoot(
     val showFilterScreen by viewModel.showFilterScreen.collectAsStateWithLifecycle()
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
-
-
 
 
     Box(modifier = Modifier.fillMaxSize())
@@ -191,7 +191,7 @@ fun MutualFundSearchScreen(
         }
         item{Spacer(Modifier.height(20.dp))}
         item {
-            FundFilterRow(
+            FundFilterRowMF(
                 filters = defaultFilters,
                 selectedFilter = selectedFilter,
                 onFilterSelected = onFilterSelected,
@@ -246,13 +246,9 @@ fun MutualFundListCard(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model=fund.icon,
-            contentDescription = null,
-            placeholder = painterResource(Res.drawable.mf_placeholder),
-            error = painterResource(Res.drawable.mf_placeholder),
-            fallback = painterResource(Res.drawable.mf_placeholder),
-            modifier = Modifier.size(38.dp)
+        MutualFundIcon(
+            schemeName = fund.name,
+            size = 38.dp
         )
         Column(
             modifier=Modifier.weight(1f)
@@ -381,7 +377,7 @@ fun YearRow(
 }
 
 @Composable
-fun FundFilterRow(
+private fun FundFilterRowMF(
     filters: List<LabelFilter>,
     selectedFilter: LabelFilter?,
     onFilterSelected: (LabelFilter) -> Unit,

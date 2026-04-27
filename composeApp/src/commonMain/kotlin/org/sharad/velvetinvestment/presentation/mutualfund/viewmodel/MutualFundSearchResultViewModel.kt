@@ -20,6 +20,7 @@ import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class MutualFundSearchResultViewModel(
+    private val search: String,
     private val getMutualFundSearchResultUseCase: GetMutualFundSearchResultUseCase
 ) : ViewModel() {
 
@@ -29,7 +30,7 @@ class MutualFundSearchResultViewModel(
     private val _mutualFunds = MutableStateFlow<List<MutualFundDomain>>(emptyList())
     val mutualFunds= _mutualFunds.asStateFlow()
 
-    private val _selectedYear = MutableStateFlow<SelectedReturnRatePeriod>(SelectedReturnRatePeriod.THREE_YEAR)
+    private val _selectedYear = MutableStateFlow<SelectedReturnRatePeriod>(SelectedReturnRatePeriod.ONE_YEAR)
     val selectedYear = _selectedYear.asStateFlow()
 
     val sortedFunds: StateFlow<List<MutualFundDomain>> =
@@ -63,7 +64,9 @@ class MutualFundSearchResultViewModel(
     private fun loadFunds() {
         viewModelScope.launch {
             _loadingState.value = LoadingState.Loading
-            getMutualFundSearchResultUseCase()
+            getMutualFundSearchResultUseCase(
+                search = search,
+            )
                 .onSuccess { data ->
                     _mutualFunds.value =
                         data.items
