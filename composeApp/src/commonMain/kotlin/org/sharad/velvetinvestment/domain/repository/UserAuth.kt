@@ -9,6 +9,8 @@ import org.sharad.velvetinvestment.data.remote.model.updateuserdata.LoanUpdateDt
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.ProfileUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.useedata.UserDataDto
 import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
+import org.sharad.velvetinvestment.domain.models.tradingaccount.TradingAccountFormDomain
+import org.sharad.velvetinvestment.domain.models.user.PANVerifyDomain
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 
@@ -32,4 +34,9 @@ interface UserAuth {
     suspend fun updateGoals(data: GoalsUpdateDto): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun getUserData(): NetworkResponse<UserDataDto, ErrorDomain>
+
+    suspend fun  verifyPAN(pan: String): NetworkResponse<PANVerifyDomain, ErrorDomain>
+
+    suspend fun submitTradingAccountForm(data: TradingAccountFormDomain) : NetworkResponse<String, ErrorDomain>
+    suspend fun tradingAccountConfirmation() : NetworkResponse<Unit, ErrorDomain>
 }

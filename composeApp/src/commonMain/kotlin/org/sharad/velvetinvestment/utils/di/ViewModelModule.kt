@@ -22,6 +22,7 @@ import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderS
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KycContractViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.CartScreenViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.BundleResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
@@ -38,11 +39,12 @@ import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScr
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.CheckKYCViewModel
 import org.sharad.velvetinvestment.presentation.settingscreens.viewmodels.SettingViewModel
-import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.NotificationCentreViewModel
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.NotificationCentreViewModel
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.PersonalInfoViewModel
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 
 val viewModelModule= module {
-    viewModel { LoginScreenViewModel(get()) }
+    viewModel { LoginScreenViewModel(get(), get()) }
 
     viewModel {(idx:Int)-> PersonalDetailsScreenViewModel(idx,get(),get()) }
     viewModel { FinancialFlowScreenViewModel() }
@@ -53,6 +55,7 @@ val viewModelModule= module {
     viewModel { GoalScreenOnboardingViewModel() }
 
     viewModel { HomeScreenViewModel(get()) }
+    viewModel { PersonalInfoViewModel(get()) }
 
     viewModel {
         PortfolioScreenViewModel(
@@ -83,9 +86,9 @@ val viewModelModule= module {
     viewModel { FDCategoryViewModel(get()) }
     viewModel {(search:String)->FDSearchResultViewModel(search=search,get()) }
     viewModel { NotificationCentreViewModel() }
-    viewModel { CheckKYCViewModel() }
+    viewModel { CheckKYCViewModel(get()) }
     viewModel { SettingViewModel() }
-    viewModel{ TradingAccountViewModel() }
+    viewModel{ TradingAccountViewModel(get(),get(),get(),get(),get()) }
     viewModel { OnBoardingConfirmationViewModel(get()) }
     viewModel{ KYCScreenViewModel(get(), get()) }
     viewModel{ KYCFormScreenViewModel(get(),get(),get()) }
@@ -96,8 +99,9 @@ val viewModelModule= module {
     viewModel { CartScreenViewModel(get(),get(),get(),get(),get()) }
     viewModel { SingleGoalViewModel(get(), get()) }
     viewModel { (id: String) -> ProjectionImpactViewModel(get(), get(),id) }
-    viewModel { FinancialFlowEditScreenViewModel(get()) }
-    viewModel { InsuranceCoverageEditViewModel(get()) }
-    viewModel { CurrentAssetEditViewModel(get()) }
+    viewModel { FinancialFlowEditScreenViewModel(get(), get()) }
+    viewModel { InsuranceCoverageEditViewModel(get(), get()) }
+    viewModel { CurrentAssetEditViewModel(get(), get()) }
     viewModel { InsuranceScreenViewModel(get()) }
+    viewModel { (bundleKey: String) -> BundleResultViewModel(bundleKey = bundleKey, get(),get(), get())}
 }

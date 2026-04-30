@@ -8,6 +8,9 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toPaginatedDomain
+import org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleLumpsumRequest
+import org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleSipRequest
+import org.sharad.velvetinvestment.data.remote.model.bundledfundbyid.BundledFundByIdDto
 import org.sharad.velvetinvestment.data.remote.model.bundledfunds.BundledFundsDto
 import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumRequest
 import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumResponseDto
@@ -259,6 +262,64 @@ class MutualFundRepo(
 
             is NetworkResponse.Success -> {
                 NetworkResponse.Success(response.data.toDomain())
+            }
+        }
+    }
+
+    override suspend fun getBundleFunds(bundleKey: String): NetworkResponse<BundledMutualFundDomain, ErrorDomain> {
+        val response = safeRequest<BundledFundByIdDto> {
+            client.get(getUrl("/bundles/$bundleKey"))
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.toDomain())
+            }
+        }
+    }
+
+    override suspend fun addBundleToCartLumpsum(
+        bundleId: String,
+        amount: Long
+    ): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeUnitRequest {
+            client.post(getUrl("/mf/bundle-cart")) {
+                setBody(
+                    AddBundleLumpsumRequest(
+                        bundle_id = bundleId,
+                        amount = amount
+                    )
+                )
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
+    override suspend fun addBundleToCartSip(
+        request: AddBundleSipRequest
+    ): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeUnitRequest {
+            client.post(getUrl("/mf/bundle-cart")) {
+                setBody(request)
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
             }
         }
     }

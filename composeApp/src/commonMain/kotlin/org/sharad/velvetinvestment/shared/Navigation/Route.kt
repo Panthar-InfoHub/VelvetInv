@@ -99,6 +99,12 @@ object Route {
     data class KYCCompleteScreen(val name:String,val verifiedDate:String)
 
     @Serializable
+    data object CheckKYC
+
+    @Serializable
+    data object CheckKYCAnimation
+
+    @Serializable
     data object GoalsScreen
 
     @Serializable
@@ -107,6 +113,8 @@ object Route {
     data object Notifications
     @Serializable
     data object PersonalInformation
+    @Serializable
+    data object PrivacyPolicy
 
     @Serializable
     data object FixedDepositCategory
@@ -146,4 +154,6 @@ object Route {
     data object MutualFundTypeSelectionScreen
     @Serializable
     data class GoalProjectionImpact(val id:String)
+    @Serializable
+    data class BundleResultScreen(val bundleKey: String)
 }

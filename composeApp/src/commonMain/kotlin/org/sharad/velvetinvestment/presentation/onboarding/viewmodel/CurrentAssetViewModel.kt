@@ -13,7 +13,6 @@ import org.sharad.velvetinvestment.data.remote.model.casreport.CASResponseDto
 import org.sharad.velvetinvestment.data.remote.repository.CASRepo
 import org.sharad.velvetinvestment.presentation.onboarding.models.AssetFlowDetails
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.parseSafeLong

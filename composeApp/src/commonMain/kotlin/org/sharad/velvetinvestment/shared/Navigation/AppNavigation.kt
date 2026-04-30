@@ -36,10 +36,14 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellatio
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.BundleResultScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CartScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentMethodScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.CheckKYCScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCheckAnimationScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.PrivacyPolicyScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.FundTypeSelector
@@ -58,7 +62,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
             // Forward navigation animation
             enterTransition = {
                 slideInHorizontally(
-                    initialOffsetX = { it }, // From Right
+                    initialOffsetX = { it },
                     animationSpec = tween(
                         durationMillis = 350,
                         easing = FastOutSlowInEasing
@@ -68,7 +72,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             exitTransition = {
                 slideOutHorizontally(
-                    targetOffsetX = { -it }, // To Left
+                    targetOffsetX = { -it },
                     animationSpec = tween(
                         durationMillis = 350,
                         easing = FastOutSlowInEasing
@@ -126,7 +130,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     navigateToKYCScreen = {
-                        navController.navigate(Route.KYCScreen) {
+                        navController.navigate(Route.CheckKYC) {
                             launchSingleTop = true
                         }
                     },
@@ -191,6 +195,16 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             Route.FixedDepositSearchResult()
                         ){
                             launchSingleTop=true
+                        }
+                    },
+                    navigateToPrivacyPolicy = {
+                        navController.navigate(Route.PrivacyPolicy) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToKYC = {
+                        navController.navigate(Route.CheckKYC) {
+                            launchSingleTop = true
                         }
                     },
                     onSignOut = onSignOut
@@ -262,6 +276,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
+                    onBundledFundClick={
+                        navController.navigate(Route.BundleResultScreen(it))
+                    }
                 )
             }
             composable<Route.MutualFundSearchResult> {
@@ -274,7 +291,10 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
-                    searchText= it.toRoute<Route.MutualFundSearchResult>().search
+                    searchText= it.toRoute<Route.MutualFundSearchResult>().search,
+                    onSearchClick = {search->
+                        navController.navigate(Route.MutualFundSearchResult(search = search))
+                    }
                 )
             }
             composable<Route.MutualFundDetails> {
@@ -299,12 +319,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         navController.navigate(Route.CartScreen)
                     },
                     onKycClick={
-                        navController.navigate(Route.KYCScreen){
+                        navController.navigate(Route.CheckKYC){
                             launchSingleTop=true
                         }
                     },
                     onTradingAccountClick={
-                        navController.navigate(Route.KYCScreen){
+                        navController.navigate(Route.CheckKYC){
                             launchSingleTop=true
                         }
                     }
@@ -374,6 +394,22 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
 
 
+            composable<Route.CheckKYC> {
+                CheckKYCScreen(
+                    onBackClick = { navController.popBackStack() },
+                    navigateToMutualFundKYC = {
+                        navController.navigate(Route.KYCScreen) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToTradingAccountKYC = {
+                        navController.navigate(Route.TradingAccountNavigation) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+
             composable<Route.KYCScreen> {
                 KYCScreen(
                     onBackClick = { navController.popBackStack() },
@@ -389,7 +425,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.KYCFormScreen> {
                 KYCFormScreen(
                     onBack = { navController.popBackStack() },
-                    onNext = { it ->
+                    onNext = {
                         navController.navigate(Route.KYCImageUploadScreen(it)) {
                             launchSingleTop = true
 
@@ -413,7 +449,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
             }
             composable<Route.KYCContractScreen> {
                 val name = it.toRoute<Route.KYCContractScreen>().name
-                val date = DateTimeUtils.epochMillisToDate(DateTimeUtils.getCurrentEpochMillis())
+                val date = DateTimeUtils.epochMillisToSlashDate(DateTimeUtils.getCurrentEpochMillis())
                 KycContractScreen(
                     onBack = { navController.popBackStack() },
                     onSuccessfulUpload = {
@@ -439,7 +475,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 KYCCompletedScreen(name=name, verifiedDate = date, onBackClick ={
                     navController.popBackStack()
                 },
-                    onStartInvestingClick = {
+                    buttonClick = {
                         navController.navigate(Route.MutualFundSearchResult()) {
                             popUpTo(Route.MutualFundSearchResult()) {
                                 inclusive = false
@@ -484,6 +520,22 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 PersonalInformationScreen(
                     onBack = { navController.popBackStack() },
                     pv = pv,
+                )
+            }
+            composable<Route.PrivacyPolicy> {
+                PrivacyPolicyScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable<Route.CheckKYCAnimation> {
+                KYCCheckAnimationScreen(
+                    onButtonClick = {
+                        navController.navigate(Route.MutualFundTypeSelectionScreen){
+                            launchSingleTop= true
+                        }
+                    },
+                    buttonText = "Start Investing"
                 )
             }
 
@@ -555,6 +607,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.TradingAccountNavigation> {
                 TradingAccountNavigation(
                     onBackClick = { navController.popBackStack() },
+                    onCompletion = { navController.navigate(Route.CheckKYCAnimation){
+                        popUpTo(Route.BottomNav) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    } }
                 )
             }
 
@@ -578,6 +636,21 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }},
                     onBackClick = { navController.popBackStack() },
+                )
+            }
+
+            composable<Route.BundleResultScreen> {
+                BundleResultScreenRoot(
+                    bundleKey = it.toRoute<Route.BundleResultScreen>().bundleKey,
+                    heading = "Bundle Funds",
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onFundClick = {
+                        navController.navigate(Route.MutualFundDetails(it)) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
 

@@ -1,5 +1,7 @@
 package org.sharad.velvetinvestment.presentation.kyc.viewmodels
 
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
@@ -14,15 +16,14 @@ import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetDigiLockerDe
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.SubmitKycFormUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
 import org.sharad.velvetinvestment.presentation.kyc.uistate.KycFormUiState
-import org.sharad.velvetinvestment.presentation.kyc.uistate.OccupationType
 import org.sharad.velvetinvestment.presentation.kyc.uistate.toDomain
 import org.sharad.velvetinvestment.presentation.kyc.uistate.toFormState
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
+import org.sharad.velvetinvestment.utils.tradingaccount.OccupationType
 
 class KYCFormScreenViewModel(
     private val getDigiDetails: GetDigiLockerDetailsUseCase,
@@ -67,7 +68,7 @@ class KYCFormScreenViewModel(
     }
 
     fun updatePANNumber(value: String) {
-        _formState.value = _formState.value.copy(panNumber = value)
+        _formState.value = _formState.value.copy(panNumber = value.trim().toUpperCase(Locale.current))
     }
 
     fun updateFatherTitle(value: String) {
@@ -155,9 +156,7 @@ class KYCFormScreenViewModel(
                 }
                 .onError {
                     _formSubmissionLoading.value=false
-                    SnackBarController.showSnackBar(
-                        SnackBarType.Error(it.message)
-                    )
+                    SnackBarController.showError(it.message)
                 }
         }
     }
@@ -184,9 +183,7 @@ class KYCFormScreenViewModel(
     ) {
         _isLoading.value = false
 
-        SnackBarController.showSnackBar(
-            SnackBarType.Error(error.message)
-        )
+        SnackBarController.showError(error.message)
 
         onFailure()
     }

@@ -1,6 +1,5 @@
 package org.sharad.velvetinvestment.presentation.kyc.viewmodels
 
-import androidx.compose.material3.Snackbar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.ismoy.imagepickerkmp.domain.models.PhotoResult
@@ -17,7 +16,6 @@ import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageUseC
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadSignatureUseCase
 import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 
 class KYCImageUploaderScreenViewModel(
@@ -97,9 +95,7 @@ class KYCImageUploaderScreenViewModel(
                 signatureResult is NetworkResponse.Error
             ) {
                 _loading.value = false
-                SnackBarController.showSnackBar(
-                    SnackBarType.Error("Error uploading images")
-                )
+                SnackBarController.showError("Error uploading images")
                 return@launch
             }
 
@@ -127,17 +123,13 @@ class KYCImageUploaderScreenViewModel(
                 signatureUploadResult is NetworkResponse.Error
             ) {
                 _loading.value = false
-                SnackBarController.showSnackBar(
-                    SnackBarType.Error("Error submitting data")
-                )
+                SnackBarController.showError("Error submitting data")
                 return@launch
             }
 
             _loading.value = false
 
-            SnackBarController.showSnackBar(
-                SnackBarType.Success("KYC data uploaded successfully")
-            )
+            SnackBarController.showSuccess("KYC data uploaded successfully")
 
             onSuccessfulUpload()
         }

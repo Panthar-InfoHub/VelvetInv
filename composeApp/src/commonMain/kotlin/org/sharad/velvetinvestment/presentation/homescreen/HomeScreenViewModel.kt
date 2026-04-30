@@ -7,14 +7,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.mapper.toHomeScreenUiData
-import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class HomeScreenViewModel(
-    private val repo: UserAuth
+    private val getUserDataUseCase: GetUserDataUseCase
 ) : ViewModel() {
 
     private val _homeState =
@@ -30,7 +30,7 @@ class HomeScreenViewModel(
 
             _homeState.value = UiState.Loading
 
-            repo.getUserData()
+            getUserDataUseCase()
                 .onSuccess {
                     _homeState.value = UiState.Success(it.toHomeScreenUiData())
                 }

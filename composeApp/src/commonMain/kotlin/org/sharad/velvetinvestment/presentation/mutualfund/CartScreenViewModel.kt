@@ -19,7 +19,6 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseLumpsumF
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseSipFundUseCase
 import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -104,7 +103,7 @@ class CartScreenViewModel(
                     .onError {
                         _loading.value = false
                         _uiState.value = UiState.Success(data)
-                        SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                        SnackBarController.showError(it.message)
                     }
             }
         }
@@ -139,7 +138,7 @@ class CartScreenViewModel(
                     )
                 }
                 .onError {
-                    SnackBarController.showSnackBar(SnackBarType.Info(it.message))
+                    SnackBarController.showInfo(it.message)
                 }
         }
     }
@@ -167,7 +166,7 @@ class CartScreenViewModel(
                 .onError {
                     _loading.value = false
                     Log("SNACK", "ERROR: ${it.message}")
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                 }
         }
     }
@@ -183,7 +182,7 @@ class CartScreenViewModel(
                 .onError {
                     _loading.value = false
                     Log("SNACK", "ERROR: ${it.message}")
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                 }
         }
 

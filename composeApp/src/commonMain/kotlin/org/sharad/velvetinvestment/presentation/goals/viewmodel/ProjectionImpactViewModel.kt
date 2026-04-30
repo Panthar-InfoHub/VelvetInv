@@ -6,12 +6,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.model.useedata.UserGoal
-import org.sharad.velvetinvestment.domain.repository.UserAuth
 import org.sharad.velvetinvestment.domain.repository.UserFinance
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.utils.AppEvents
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -31,7 +30,7 @@ data class ProjectionImpactUiData(
 )
 
 class ProjectionImpactViewModel(
-    private val repo: UserAuth,
+    private val getUserDataUseCase: GetUserDataUseCase,
     private val deleteRepo: UserFinance,
     private val goalId: String
 ) : ViewModel() {
@@ -46,7 +45,7 @@ class ProjectionImpactViewModel(
     fun loadGoalDetails() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
-            repo.getUserData()
+            getUserDataUseCase()
                 .onSuccess { userData ->
                     val userGoal = userData.data.user_goals.find { it.id == goalId }
                     if (userGoal != null) {
@@ -121,7 +120,7 @@ class ProjectionImpactViewModel(
                 }
                 .onError {
                     _uiState.value = currentData
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                     AppEvents.sendGoalRefreshEvent()
                     AppEvents.sendHomeRefreshEvent()
                 }

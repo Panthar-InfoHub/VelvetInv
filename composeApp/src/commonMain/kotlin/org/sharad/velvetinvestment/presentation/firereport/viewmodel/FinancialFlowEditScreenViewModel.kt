@@ -13,12 +13,12 @@ import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.mapper.toFinanceDto
 import org.sharad.velvetinvestment.data.remote.mapper.toFinancialFlowDetails
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
-import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateFinanceUseCase
 import org.sharad.velvetinvestment.presentation.onboarding.models.ExpensePercentages
 import org.sharad.velvetinvestment.presentation.onboarding.models.FinancialFlowDetails
 import org.sharad.velvetinvestment.presentation.onboarding.models.FinancialSummary
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -26,7 +26,8 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.parseSafeLong
 
 class FinancialFlowEditScreenViewModel(
-    private val userAuth: UserAuth
+    private val getUserDataUseCase: GetUserDataUseCase,
+    private val updateFinanceUseCase: UpdateFinanceUseCase
 ): ViewModel() {
 
     private val _financialInfo= MutableStateFlow<UiState<FinancialFlowDetails>>(UiState.Loading)
@@ -111,7 +112,7 @@ class FinancialFlowEditScreenViewModel(
         viewModelScope.launch {
             _financialInfo.value = UiState.Loading
 
-            userAuth.getUserData()
+            getUserDataUseCase()
                 .onError {
                     _financialInfo.value = UiState.Error(it.message)
                 }
@@ -196,10 +197,10 @@ class FinancialFlowEditScreenViewModel(
         )
         viewModelScope.launch {
             _loading.value=true
-            userAuth.updateFinance(dto)
+            updateFinanceUseCase(dto)
                 .onError {
                     _loading.value=false
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                 }
                 .onSuccess {
                     _loading.value=false

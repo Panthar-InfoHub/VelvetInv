@@ -11,16 +11,17 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
-import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.domain.usecases.user.LoginWithNumberUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.VerifyOtpUseCase
 import org.sharad.velvetinvestment.utils.AuthMode
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.isValidEmail
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class LoginScreenViewModel(
-    private val repo: UserAuth
+    private val loginWithNumberUseCase: LoginWithNumberUseCase,
+    private val verifyOtpUseCase: VerifyOtpUseCase
 ): ViewModel() {
 
     private val _authState= MutableStateFlow<AuthMode>(AuthMode.Login.OTP)
@@ -112,7 +113,7 @@ class LoginScreenViewModel(
     ){
         viewModelScope.launch {
             _loadingLogin.value=true
-            repo.loginWithNumber(_phoneNumber.value)
+            loginWithNumberUseCase(_phoneNumber.value)
                 .onSuccess {
                     _loadingLogin.value=false
                     _otp.value=""
@@ -123,7 +124,7 @@ class LoginScreenViewModel(
                 .onError {
                    _loadingLogin.value=false
                     onFailure(it.message)
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                 }
         }
     }
@@ -134,7 +135,7 @@ class LoginScreenViewModel(
     ){
         viewModelScope.launch {
             _loadingOtp.value=true
-            repo.verifyOTP(_phoneNumber.value, _otp.value)
+            verifyOtpUseCase(_phoneNumber.value, _otp.value)
                 .onSuccess {
                     _loadingOtp.value=false
                     onSuccess(it)
@@ -142,7 +143,7 @@ class LoginScreenViewModel(
                 .onError {
                     _loadingOtp.value=false
                     onFailure(it.message)
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                 }
         }
     }

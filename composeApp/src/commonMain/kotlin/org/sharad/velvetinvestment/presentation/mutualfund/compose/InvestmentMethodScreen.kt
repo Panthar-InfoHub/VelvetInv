@@ -115,7 +115,7 @@ fun InvestmentMethodScreen(
                 InvestmentOptionCard(
                     title = stringResource(Res.string.start_an_sip),
                     description = stringResource(Res.string.sip_description),
-                    buttonText = stringResource(Res.string.start_sip_setup),
+                    buttonText ="SIP",
                     icon = Res.drawable.ic_callended_filled,
                     onButtonClick = onStartSipClick
                 )
@@ -125,7 +125,7 @@ fun InvestmentMethodScreen(
                 InvestmentOptionCard(
                     title = stringResource(Res.string.invest_as_lumpsum),
                     description = stringResource(Res.string.lumpsum_description),
-                    buttonText = stringResource(Res.string.start_sip_setup),
+                    buttonText = "Lumpsum",
                     icon = Res.drawable.ic_ruppee_filled,
                     onButtonClick = onLumpsumClick
                 )

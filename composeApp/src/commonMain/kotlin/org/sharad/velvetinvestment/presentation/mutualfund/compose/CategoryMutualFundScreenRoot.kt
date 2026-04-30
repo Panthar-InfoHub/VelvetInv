@@ -59,10 +59,11 @@ import velvet.composeapp.generated.resources.mf_haeder_icon
 fun CategoryMutualFundScreenRoot(
     onBackClick: () -> Unit,
     onIconClick: () -> Unit,
-    onFundClick:(String)->Unit,
+    onFundClick: (String) -> Unit,
     pv: PaddingValues,
-    onSearchClick:(String)->Unit,
-    onCategoryClick:(String)->Unit
+    onSearchClick: (String) -> Unit,
+    onCategoryClick: (String) -> Unit,
+    onBundledFundClick: (String) -> Unit
 ){
 
     val viewModel: CategoryMutualFundViewModel = koinViewModel()
@@ -99,7 +100,8 @@ fun CategoryMutualFundScreenRoot(
                         searchText =searchText,
                         onTextChange = { viewModel.onSearchTextChange(it) },
                         pv =pv,
-                        onSearchClick = {onSearchClick(searchText)}
+                        onSearchClick = {onSearchClick(searchText)},
+                        onBundledFundClick = {onBundledFundClick(it)}
                     )
                 }
             }
@@ -116,7 +118,8 @@ fun CategoryMutualFundScreen(
     onTextChange: (String) -> Unit,
     pv: PaddingValues,
     onSearchClick: (String) -> Unit,
-    funds: List<CategoryMutualFundDomain>
+    funds: List<CategoryMutualFundDomain>,
+    onBundledFundClick: (String) -> Unit
 ) {
 
     LazyVerticalGrid(
@@ -138,7 +141,7 @@ fun CategoryMutualFundScreen(
                 BarHeader(
                     heading = category.categoryName,
                     showArrow = true,
-                    onArrowClick = {onCategoryClick(category.key)}
+                    onArrowClick = {onBundledFundClick(category.key)}
                 )
             }
 

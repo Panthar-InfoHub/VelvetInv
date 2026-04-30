@@ -13,7 +13,6 @@ import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUs
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
 import org.sharad.velvetinvestment.presentation.firereport.uimodels.toUiModel
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -101,15 +100,15 @@ class FireReportViewModel(
             downloadFirePdfUseCase(
                 onSuccess = {
                     _downloadingReport.value = false
-                    viewModelScope.launch { SnackBarController.showSnackBar(SnackBarType.Success("Report Downloaded")) }
+                    viewModelScope.launch { SnackBarController.showSuccess("Report Downloaded") }
                 },
                 onFailed = {
                     _downloadingReport.value = false
-                    viewModelScope.launch { SnackBarController.showSnackBar(SnackBarType.Error(it)) }
+                    viewModelScope.launch { SnackBarController.showError(it) }
                 }
             ).onError {
                 _downloadingReport.value = false
-                SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                SnackBarController.showError(it.message)
             }
         }
     }

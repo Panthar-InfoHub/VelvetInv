@@ -7,11 +7,14 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toLoginDto
+import org.sharad.velvetinvestment.data.remote.model.TradingAccountSubmissionDto.TradingAccountResultDto
 import org.sharad.velvetinvestment.data.remote.model.auth.sendotp.SendOtpDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpBodyDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
+import org.sharad.velvetinvestment.data.remote.model.panverification.PANVerifyDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.GoalsUpdateDto
@@ -20,6 +23,8 @@ import org.sharad.velvetinvestment.data.remote.model.updateuserdata.LoanUpdateDt
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.ProfileUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.useedata.UserDataDto
 import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
+import org.sharad.velvetinvestment.domain.models.tradingaccount.TradingAccountFormDomain
+import org.sharad.velvetinvestment.domain.models.user.PANVerifyDomain
 import org.sharad.velvetinvestment.domain.repository.UserAuth
 import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.deviceinfoprovider.DeviceInfoRetriever
@@ -152,6 +157,54 @@ class UserAuthenticationRepo(
             )
         }
         return  response
+    }
+
+    override suspend fun verifyPAN(pan: String): NetworkResponse<PANVerifyDomain, ErrorDomain> {
+        val response= safeRequest<PANVerifyDto> {
+            client.get(
+                getUrl("/kyc/pan-verify")
+            ) {
+                parameter("pan_number", pan)
+            }
+        }
+
+        when(response){
+            is NetworkResponse.Error -> {
+                return NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success-> {
+                return NetworkResponse.Success(response.data.toDomain())
+            }
+        }
+
+    }
+
+    override suspend fun submitTradingAccountForm(data: TradingAccountFormDomain): NetworkResponse<String, ErrorDomain> {
+        val response= safeRequest<TradingAccountResultDto> {
+            client.post(
+                getUrl("/kyc/trading-account")
+            ) {
+                setBody(data)
+            }
+        }
+
+        when(response){
+            is NetworkResponse.Error -> {
+                return NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success-> {
+                return NetworkResponse.Success(response.data.data.short_url)
+            }
+        }
+    }
+
+    override suspend fun tradingAccountConfirmation(): NetworkResponse<Unit, ErrorDomain> {
+        val response= safeUnitRequest {
+            client.post(
+                getUrl("/kyc/trading-confirmation")
+            )
+        }
+        return response
     }
 
     override suspend fun updateAssets(

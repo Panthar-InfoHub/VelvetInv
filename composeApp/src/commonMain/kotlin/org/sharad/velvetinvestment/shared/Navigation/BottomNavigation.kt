@@ -20,7 +20,7 @@ import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMai
 import org.sharad.velvetinvestment.presentation.insurance.InsuranceNavigationScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.PortfolioScreenMain
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.ProfileScreen
 import org.sharad.velvetinvestment.shared.BottomNavBar
 
 @Composable
@@ -43,7 +43,9 @@ fun BottomNavigation(
     navigateToSpecificGoalProjection: (String) -> Unit,
     navigateToMutualFundList: () -> Unit,
     navigateToFD: () -> Unit,
-    navigateToTradingAccountSetup: () -> Unit
+    navigateToTradingAccountSetup: () -> Unit,
+    navigateToPrivacyPolicy: () -> Unit,
+    navigateToKYC: () -> Unit
 ) {
 
     val navController= rememberNavController()
@@ -153,6 +155,8 @@ fun BottomNavigation(
                 ProfileScreen(
                     navigateToNotification=navigateToNotification,
                     navigateToPersonalInfo=navigateToPersonalInfo,
+                    navigateToKYC = navigateToKYC,
+                    navigateToPrivacyPolicy=navigateToPrivacyPolicy,
                     onSignOut=onSignOut,
                     viewModel=homeViewModel
                 )

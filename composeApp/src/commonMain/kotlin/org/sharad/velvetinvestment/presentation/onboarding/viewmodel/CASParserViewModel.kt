@@ -9,7 +9,6 @@ import org.sharad.velvetinvestment.data.remote.model.casreport.CASResponseDto
 import org.sharad.velvetinvestment.data.remote.repository.CASRepo
 import org.sharad.velvetinvestment.utils.SharedDocument
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
@@ -41,7 +40,7 @@ class CASParserViewModel(
         val byteArray= casFile.value?.toByteArray()
         if (byteArray==null){
             viewModelScope.launch{
-                SnackBarController.showSnackBar(SnackBarType.Error("No File Selected"))
+                SnackBarController.showError("No File Selected")
             }
             return
         }
@@ -54,11 +53,11 @@ class CASParserViewModel(
                     _casFile.value=null
                     _password.value=""
                     onSuccess(it)
-                    SnackBarController.showSnackBar(SnackBarType.Success("Data Updated Successfully"))
+                    SnackBarController.showSuccess("Data Updated Successfully")
                 }
                 .onError {
                     _casLoading.value=false
-                    SnackBarController.showSnackBar(SnackBarType.Error("Incorrect Password"))
+                    SnackBarController.showError("Incorrect Password")
                 }
         }
     }

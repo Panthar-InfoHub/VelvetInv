@@ -17,13 +17,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.presentation.kyc.uistate.Gender
 import org.sharad.velvetinvestment.presentation.kyc.uistate.MaritalStatus
-import org.sharad.velvetinvestment.presentation.kyc.uistate.OccupationType
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCFormScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.DropDownSelector
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.utils.tradingaccount.OccupationType
 
 @Composable
 fun KYCFormScreen(pv: PaddingValues, onNext: (String) -> Unit, onBack: () -> Unit){

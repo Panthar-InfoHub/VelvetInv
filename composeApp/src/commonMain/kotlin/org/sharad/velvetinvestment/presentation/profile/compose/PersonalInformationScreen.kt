@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.presentation.profile.compose
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -9,170 +10,151 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.jetbrains.compose.resources.painterResource
-import org.sharad.emify.core.ui.theme.Secondary
+import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.UImodel.PersonalInfoUiData
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.PersonalInfoViewModel
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.theme.Poppins
-import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.penvector
 
 @Composable
-fun PersonalInformationScreen(onBack: () -> Unit, pv: PaddingValues) {
-    var name by remember { mutableStateOf("Pooja Sharma") }
-    var dateOfBirth by remember { mutableStateOf("**/**/2002") }
-    var mobileNumber by remember { mutableStateOf("*****90909") }
-    var emailAddress by remember { mutableStateOf("poo*****01@gmail.com") }
-    var panNumber by remember { mutableStateOf("******701H") }
-    var incomeRange by remember { mutableStateOf("Below 1 Lac") }
+fun PersonalInformationScreen(
+    onBack: () -> Unit,
+    pv: PaddingValues,
+    viewModel: PersonalInfoViewModel = koinViewModel()
+) {
+    val state by viewModel.personalInfoState.collectAsState()
+
     Column(
-        modifier = Modifier.fillMaxSize(),
-    ){
+        modifier = Modifier.fillMaxSize()
+            .background(Color.White),
+    ) {
         BackHeader(
             heading = "Personal Information",
             showBack = true,
             onBackClick = onBack
         )
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
 
-            item {
-                CommonFormField(
-                    label = "Full Name (as on PAN card)",
-                    value = name,
-                    onValueChange = { name = it }
-                )
-            }
-            item {
-                CommonFormField(
-                    label = "Date of Birth",
-                    value = dateOfBirth,
-                    onValueChange = { dateOfBirth = it },
-                    keyboardType = KeyboardType.Number
-                )
+        when (val uiState = state) {
+            is UiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Primary)
+                }
             }
 
-            item {
-                CommonFormField(
-                    label = "Mobile Number",
-                    value = mobileNumber,
-                    onValueChange = { mobileNumber = it },
-                    keyboardType = KeyboardType.Phone,
-                    showTrailingIcon = true
-                )
+            is UiState.Success -> {
+                PersonalInfoContent(uiState.data)
             }
 
-            item {
-                CommonFormField(
-                    label = "Email Address",
-                    value = emailAddress,
-                    onValueChange = { emailAddress = it },
-                    keyboardType = KeyboardType.Email,
-                    showTrailingIcon = true
-                )
-            }
-
-            item {
-                CommonFormField(
-                    label = "PAN Number",
-                    value = panNumber,
-                    onValueChange = { panNumber = it }
-                )
-            }
-
-            item {
-                CommonFormField(
-                    label = "Income Range",
-                    value = incomeRange,
-                    onValueChange = { incomeRange = it },
-                    showTrailingIcon = true
-                )
+            is UiState.Error -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = uiState.message, color = Color.Red, fontFamily = Poppins)
+                }
             }
         }
     }
-
 }
 
 @Composable
-fun CommonFormField(
+fun PersonalInfoContent(data: PersonalInfoUiData) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp)
+    ) {
+        item { Spacer(modifier = Modifier.height(16.dp)) }
+        
+        item {
+            InfoSectionHeader(title = "Profile Details")
+        }
+
+        item {
+            DisplayRow(label = "Full Name", value = data.fullName)
+        }
+        item {
+            DisplayRow(label = "Date of Birth", value = data.dob)
+        }
+        item {
+            DisplayRow(label = "Email", value = data.email)
+        }
+        item {
+            DisplayRow(label = "Mobile Number", value = data.mobileNumber)
+        }
+        item {
+            DisplayRow(label = "City", value = data.city)
+        }
+
+        item { Spacer(modifier = Modifier.height(24.dp)) }
+
+        item {
+            InfoSectionHeader(title = "Identity & Status")
+        }
+
+        item {
+            DisplayRow(label = "Trading Account Status", value = data.kycStatusTrading)
+        }
+        item {
+            DisplayRow(label = "KYC Status", value = data.kycStatusMf)
+        }
+
+        item { Spacer(modifier = Modifier.height(32.dp)) }
+    }
+}
+
+@Composable
+fun InfoSectionHeader(title: String) {
+    Column {
+        Text(
+            text = title,
+            fontFamily = Poppins,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            color = Primary
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        HorizontalDivider(thickness = 1.dp, color = Color.LightGray.copy(alpha = 0.5f))
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+fun DisplayRow(
     label: String,
     value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    showTrailingIcon: Boolean = false
+    modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
-
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
+    ) {
         Text(
             text = label,
             fontFamily = Poppins,
+            fontWeight = FontWeight.Normal,
+            fontSize = 13.sp,
+            color = Color.Gray
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = value.ifBlank { "Not Provided" },
+            fontFamily = Poppins,
             fontWeight = FontWeight.Medium,
-            fontSize = 16.sp
+            fontSize = 16.sp,
+            color = Color.Black
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            enabled = enabled,
-            textStyle = TextStyle(
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Medium,
-                fontSize = 18.sp
-            ),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType
-            ),
-            trailingIcon = {
-                if (showTrailingIcon) {
-                    Icon(
-                        painter = painterResource(Res.drawable.penvector),
-                        contentDescription = "Edit Icon"
-                    )
-                }
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .genericDropShadow(RoundedCornerShape(14.dp))
-                .border(
-                    1.dp,
-                    color = Secondary,
-                    shape = RoundedCornerShape(14.dp)
-                )
-                .clip(RoundedCornerShape(14.dp))
-        )
-
-        Spacer(modifier = Modifier.height(18.dp))
     }
 }

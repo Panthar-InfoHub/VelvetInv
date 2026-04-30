@@ -12,7 +12,6 @@ import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.FinalizeKycUseC
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetESingKycUseCase
 import org.sharad.velvetinvestment.utils.AppEvents
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -64,7 +63,7 @@ class KycContractViewModel(
                 }
                 .onError {
                     _submitLoading.value = false
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                 }
         }
     }
@@ -82,7 +81,7 @@ class KycContractViewModel(
                 }
                 .onError {
                     _contractPdfUrl.value = data
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                 }
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
@@ -46,6 +48,8 @@ import org.sharad.velvetinvestment.presentation.mutualfund.Duration
 import org.sharad.velvetinvestment.presentation.mutualfund.MFPurchaseTypes
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.TwoWaySwitch
+import org.sharad.velvetinvestment.utils.FundTypeSelector
+import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
@@ -68,8 +72,7 @@ fun CartPopup(
     showDurationDropDown: () -> Unit,
 
     ) {
-
-
+    val fundType by FundTypeSelector.fundType.collectAsStateWithLifecycle()
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         modifier = Modifier.fillMaxWidth(),
@@ -85,15 +88,27 @@ fun CartPopup(
                 modifier=Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text="Add to Cart",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black,
-                    modifier = Modifier.padding(top=8.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        text = "Add to Cart",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black,
+                        modifier = Modifier.padding(top = 8.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    FundBadge(
+                        text = when(fundType){
+                            SelectedFundType.SIP -> "SIP"
+                            SelectedFundType.LUMSUM -> "Lump Sum"
+                        }
+                    )
+                }
 
                 Text(
                     text= detailState.data.scheme_name,
@@ -104,16 +119,16 @@ fun CartPopup(
                 )
             }
 
-            TwoWaySwitch(
-                isFirstSelected = cartState.selectedType== MFPurchaseTypes.LUMP_SUM,
-                firstText = "Lumpsum",
-                secondText = "SIP",
-                onFirstClick = {onTypeChange(MFPurchaseTypes.LUMP_SUM)},
-                onSecondClick = {onTypeChange(MFPurchaseTypes.SIP)}
-            )
+//            TwoWaySwitch(
+//                isFirstSelected = cartState.selectedType== MFPurchaseTypes.LUMP_SUM,
+//                firstText = "Lumpsum",
+//                secondText = "SIP",
+//                onFirstClick = {onTypeChange(MFPurchaseTypes.LUMP_SUM)},
+//                onSecondClick = {onTypeChange(MFPurchaseTypes.SIP)}
+//            )
 
-            when(cartState.selectedType){
-                MFPurchaseTypes.LUMP_SUM -> LumpSumCart(
+            when(fundType){
+                SelectedFundType.LUMSUM -> LumpSumCart(
                     amount = cartState.amount,
                     onAmountChange = onAmountChange,
                     onChipClick = { onAmountChange(it.toString()) },
@@ -123,7 +138,7 @@ fun CartPopup(
 
 
                 )
-                MFPurchaseTypes.SIP -> SIPCart(
+                SelectedFundType.SIP -> SIPCart(
                     amount = cartState.amount,
                     onAmountChange = onAmountChange,
                     onChipClick = { onAmountChange(it.toString()) },
@@ -497,5 +512,21 @@ fun DropDownField(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun FundBadge(text: String){
+    Box(
+        modifier = Modifier.clip(CircleShape).background(Primary)
+    ){
+        Text(
+            text = text,
+            fontSize = 12.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Medium,
+            fontFamily = Poppins,
+            modifier = Modifier.padding(vertical = 2.dp, horizontal = 12.dp)
+        )
     }
 }

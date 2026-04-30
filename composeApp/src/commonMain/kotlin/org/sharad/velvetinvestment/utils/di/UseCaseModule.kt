@@ -6,9 +6,12 @@ import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDPortFolioDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFixedDepositTopPicksUseCase
+import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetBundleFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFixedDepositsSearchResultUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetTopPickFDUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.PurchaseFDUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddBundleToCartLumpsumUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddBundleToCartSipUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartLumpsumUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.DeleteCartItemUseCase
@@ -36,11 +39,42 @@ import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.SubmitKycFormUs
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageAndSignatureDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadSignatureUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
+import org.sharad.velvetinvestment.domain.usecases.user.LoginWithNumberUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.LoginWithPasswordUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.OnBoardUserUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.SignOutUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateAssetsUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateFinanceUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateGoalsUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateInsuranceUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateLoansUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateProfileUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.SubmitTradingAccountFormUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.TradingAccountConfirmationUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.VerifyOtpUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.VerifyPANUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
 
 val useCaseModule= module {
+    factory { LoginWithNumberUseCase(get()) }
+    factory { VerifyOtpUseCase(get()) }
+    factory { LoginWithPasswordUseCase(get()) }
+    factory { SignOutUseCase(get()) }
+    factory { OnBoardUserUseCase(get()) }
+    factory { UpdateAssetsUseCase(get()) }
+    factory { UpdateFinanceUseCase(get()) }
+    factory { UpdateInsuranceUseCase(get()) }
+    factory { UpdateLoansUseCase(get()) }
+    factory { UpdateProfileUseCase(get()) }
+    factory { UpdateGoalsUseCase(get()) }
+    factory { GetUserDataUseCase(get()) }
+    factory { VerifyPANUseCase(get()) }
+    factory { SubmitTradingAccountFormUseCase(get()) }
+    factory { TradingAccountConfirmationUseCase(get()) }
+
     factory { GetUserWorthCardUseCase(get()) }
 
     factory { GetFireReportSummaryUseCase(get()) }
@@ -126,6 +160,8 @@ val useCaseModule= module {
     factory { PurchaseSipFundUseCase(get()) }
     factory { AddToCartSipUseCase(get()) }
     factory { AddToCartLumpsumUseCase(get()) }
-
+    factory { AddBundleToCartLumpsumUseCase(get()) }
+    factory { AddBundleToCartSipUseCase(get()) }
+    factory { GetBundleFundsUseCase(get()) }
 
 }

@@ -28,8 +28,9 @@ import org.sharad.velvetinvestment.presentation.mutualfund.MFPurchaseTypes
 import org.sharad.velvetinvestment.presentation.mutualfund.MutualFundScreenState
 import org.sharad.velvetinvestment.presentation.mutualfund.StableMetricUi
 import org.sharad.velvetinvestment.presentation.mutualfund.toSipRequest
+import org.sharad.velvetinvestment.utils.FundTypeSelector
+import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.networking.ErrorType
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -214,8 +215,8 @@ class MutualFundDetailsScreenViewModel(
     }
 
     fun addToCart(){
-        when(_cartSheetState.value.selectedType){
-            MFPurchaseTypes.LUMP_SUM -> {
+        when(FundTypeSelector.fundType.value){
+            SelectedFundType.LUMSUM -> {
                 val amount= _cartSheetState.value.amount
                 if (amount== null || amount < _cartSheetState.value.minAmount)
                     return
@@ -228,7 +229,7 @@ class MutualFundDetailsScreenViewModel(
                         stopCartSheetLoading()
                         hideBottomSheet()
                         resetCartSheet()
-                        SnackBarController.showSnackBar(SnackBarType.Success("Fund Added to the cart"))
+                        SnackBarController.showSuccess("Fund Added to the cart")
                     }.onError {
                         stopCartSheetLoading()
                         if (it.type == ErrorType.MF_KYC_REQUIRED){
@@ -236,11 +237,11 @@ class MutualFundDetailsScreenViewModel(
                             return@onError
                         }
                         hideBottomSheet()
-                        SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                        SnackBarController.showError(it.message)
                     }
                 }
             }
-            MFPurchaseTypes.SIP -> {
+            SelectedFundType.SIP -> {
                 val state = _cartSheetState.value
                 val request = state.toSipRequest(id) ?: return
                 viewModelScope.launch {
@@ -251,7 +252,7 @@ class MutualFundDetailsScreenViewModel(
                         stopCartSheetLoading()
                         hideBottomSheet()
                         resetCartSheet()
-                        SnackBarController.showSnackBar(SnackBarType.Success("Fund Added to the cart"))
+                        SnackBarController.showSuccess("Fund Added to the cart")
                     }.onError {
                         stopCartSheetLoading()
                         if (it.type == ErrorType.MF_KYC_REQUIRED){
@@ -259,7 +260,7 @@ class MutualFundDetailsScreenViewModel(
                             return@onError
                         }
                         hideBottomSheet()
-                        SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                        SnackBarController.showError(it.message)
                     }
                 }
             }

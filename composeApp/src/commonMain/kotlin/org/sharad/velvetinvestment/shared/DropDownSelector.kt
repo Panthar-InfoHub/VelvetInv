@@ -25,9 +25,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
@@ -54,20 +57,34 @@ fun<T> DropDownSelector(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row{
-            Text(
-                text = label,
-                style = subHeadingMedium,
-                color = Color.Black
-            )
-            if (mandatory){
-                Text(
-                    text = " *",
-                    style = subHeadingMedium,
-                    color = Color.Red
-                )
-            }
-        }
+        Text(
+            text = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Black,
+                        fontSize = subHeadingMedium.fontSize,
+                        fontWeight = subHeadingMedium.fontWeight,
+                        fontFamily = subHeadingMedium.fontFamily
+                    )
+                ) {
+                    append(label)
+                }
+
+                if (mandatory) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.Red,
+                            fontSize = subHeadingMedium.fontSize,
+                            fontWeight = subHeadingMedium.fontWeight,
+                            fontFamily = subHeadingMedium.fontFamily
+                        )
+                    ) {
+                        append(" *")
+                    }
+                }
+            },
+            style = subHeadingMedium
+        )
         Column(
             modifier=Modifier
                 .shadow(elevation = 8.dp,RoundedCornerShape(15.dp), spotColor = Color.Black.copy(alpha = 0.4f))

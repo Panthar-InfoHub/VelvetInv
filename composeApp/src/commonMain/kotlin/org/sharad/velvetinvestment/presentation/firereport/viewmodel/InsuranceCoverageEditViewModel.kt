@@ -8,11 +8,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.sharad.velvetinvestment.data.remote.model.onboarding.Insurance
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.InsuranceUpdateDto
-import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateInsuranceUseCase
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -24,7 +23,8 @@ data class InsuranceFlowDetails(
 )
 
 class InsuranceCoverageEditViewModel(
-    private val userAuth: UserAuth
+    private val getUserDataUseCase: GetUserDataUseCase,
+    private val updateInsuranceUseCase: UpdateInsuranceUseCase
 ) : ViewModel() {
 
     private val _insuranceInfo =
@@ -53,7 +53,7 @@ class InsuranceCoverageEditViewModel(
         viewModelScope.launch {
             _insuranceInfo.value = UiState.Loading
 
-            userAuth.getUserData()
+            getUserDataUseCase()
                 .onError {
                     _insuranceInfo.value = UiState.Error(it.message)
                 }
@@ -117,7 +117,7 @@ class InsuranceCoverageEditViewModel(
         val data = current.data
 
         val dto = InsuranceUpdateDto(
-            insurance = Insurance(
+            insurance = org.sharad.velvetinvestment.data.remote.model.onboarding.Insurance(
                 health_insurance = data.healthInsurance ?: 0L,
                 life_insurance = data.lifeInsurance ?: 0L
             )
@@ -126,12 +126,10 @@ class InsuranceCoverageEditViewModel(
         viewModelScope.launch {
             _loading.value = true
 
-            userAuth.updateInsurance(dto)
+            updateInsuranceUseCase(dto)
                 .onError {
                     _loading.value = false
-                    SnackBarController.showSnackBar(
-                        SnackBarType.Error(it.message)
-                    )
+                    SnackBarController.showError(it.message)
                 }
                 .onSuccess {
                     _loading.value = false

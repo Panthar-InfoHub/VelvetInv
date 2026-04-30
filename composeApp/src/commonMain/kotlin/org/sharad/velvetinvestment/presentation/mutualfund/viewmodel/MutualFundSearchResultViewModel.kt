@@ -28,17 +28,13 @@ class MutualFundSearchResultViewModel(
     val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
     private val _mutualFunds = MutableStateFlow<List<MutualFundDomain>>(emptyList())
-    val mutualFunds= _mutualFunds.asStateFlow()
+    val mutualFunds = _mutualFunds.asStateFlow()
 
     private val _selectedYear = MutableStateFlow<SelectedReturnRatePeriod>(SelectedReturnRatePeriod.ONE_YEAR)
     val selectedYear = _selectedYear.asStateFlow()
 
-    val sortedFunds: StateFlow<List<MutualFundDomain>> =
-        combine(_mutualFunds) { funds->
-
-            funds[0]
-
-        }.stateIn(
+    val sortedFunds: StateFlow<List<MutualFundDomain>> = _mutualFunds
+        .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             emptyList()
@@ -50,32 +46,64 @@ class MutualFundSearchResultViewModel(
     private val _showFilterScreen = MutableStateFlow(false)
     val showFilterScreen: StateFlow<Boolean> = _showFilterScreen
 
-
     private val _filterState = MutableStateFlow<InvestmentFilter>(createInitialInvestmentFilter())
     val filterState: StateFlow<InvestmentFilter> = _filterState
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText
 
+    private var currentPage = 1
+    private var hasNextPage = true
+    private val _isLoadingNext = MutableStateFlow(false)
+    val isLoadingNext = _isLoadingNext.asStateFlow()
+
     init {
         loadFunds()
     }
 
-    private fun loadFunds() {
+    fun loadFunds() {
         viewModelScope.launch {
             _loadingState.value = LoadingState.Loading
             getMutualFundSearchResultUseCase(
                 search = search,
+                page = 1,
+                limit = 20
             )
                 .onSuccess { data ->
-                    _mutualFunds.value =
-                        data.items
+                    currentPage = data.page
+                    hasNextPage = data.hasNextPage
+                    _mutualFunds.value = data.items
                     _loadingState.value = LoadingState.Success
                 }
                 .onError { error ->
-                    _loadingState.value =
-                        LoadingState.Error(error.message)
+                    _loadingState.value = LoadingState.Error(error.message)
                 }
+        }
+    }
+
+    fun loadNext() {
+        if (!hasNextPage || _isLoadingNext.value) return
+
+        viewModelScope.launch {
+            _isLoadingNext.value = true
+
+            val nextPage = currentPage + 1
+            getMutualFundSearchResultUseCase(
+                search = search,
+                page = nextPage,
+                limit = 20
+            )
+                .onSuccess { data ->
+                    currentPage = data.page
+                    hasNextPage = data.hasNextPage
+                    _mutualFunds.value += data.items
+                }
+                .onError {
+                    // We don't change loading state to error for next page failure
+                    // just show a snackbar or log it
+                }
+
+            _isLoadingNext.value = false
         }
     }
 
@@ -106,10 +134,16 @@ class MutualFundSearchResultViewModel(
 
     fun applyFilter(newFilter: InvestmentFilter) {
         _filterState.value = newFilter
+        currentPage = 1
+        hasNextPage = true
+        loadFunds()
     }
 
     fun clearFilter() {
         _filterState.value = createInitialInvestmentFilter()
+        currentPage = 1
+        hasNextPage = true
+        loadFunds()
     }
 
     fun toggleFilterScreen() {

@@ -103,30 +103,30 @@ fun CredentialBox(
                 loading = loading
             )
 
-            if (authMode is AuthMode.Login){
-                Text(
-                    text= when(authMode){
-                        AuthMode.Login.OTP -> "Continue with password"
-                        AuthMode.Login.Password -> "Continue with number"
-                    },
-                    style = buttonTextStyle,
-                    color = Primary,
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            when(authMode) {
-                                AuthMode.Login.OTP -> {
-                                    onLoginPasswordTabClick()
-                                }
-                                AuthMode.Login.Password -> {
-                                    onLoginClick()
-                                }
-                            }
-                        },
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    )
-                )
-            }
+//            if (authMode is AuthMode.Login){
+//                Text(
+//                    text= when(authMode){
+//                        AuthMode.Login.OTP -> "Continue with password"
+//                        AuthMode.Login.Password -> "Continue with number"
+//                    },
+//                    style = buttonTextStyle,
+//                    color = Primary,
+//                    modifier = Modifier.clickable(
+//                        onClick = {
+//                            when(authMode) {
+//                                AuthMode.Login.OTP -> {
+//                                    onLoginPasswordTabClick()
+//                                }
+//                                AuthMode.Login.Password -> {
+//                                    onLoginClick()
+//                                }
+//                            }
+//                        },
+//                        indication = null,
+//                        interactionSource = remember { MutableInteractionSource() }
+//                    )
+//                )
+//            }
 
         }
     }

@@ -31,7 +31,6 @@ import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScree
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.OtpGrid
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 
 @Composable
@@ -114,11 +113,11 @@ fun OtpScreen(
                                 viewModel.onSendOtpClick(
                                     onSuccess = {
                                         scope.launch{
-                                            SnackBarController.showSnackBar(SnackBarType.Success("OTP sent successfully"))
+                                            SnackBarController.showSuccess("OTP sent successfully")
                                         }
                                                 },
                                     onFailure = {
-                                        scope.launch{ SnackBarController.showSnackBar(SnackBarType.Error(it)) }
+                                        scope.launch{ SnackBarController.showError(it) }
                                     }
                                 )
                             }

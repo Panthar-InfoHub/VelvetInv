@@ -9,7 +9,6 @@ import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetDigiLockerDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.InitiateKycUseCase
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
@@ -35,9 +34,7 @@ class KYCScreenViewModel(
             }
             .onError {
                 _isLoading.value = false
-                SnackBarController.showSnackBar(
-                    SnackBarType.Error(it.message)
-                )
+                SnackBarController.showError(it.message)
             }
     }
 }

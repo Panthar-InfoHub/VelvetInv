@@ -12,7 +12,25 @@ object SnackBarController {
         _snackBars.emit(snackBarType)
     }
 
+    suspend fun showSuccess(message: String) {
+        _snackBars.emit(SnackBarType.Success(message))
+    }
 
+    suspend fun showError(message: String) {
+        _snackBars.emit(SnackBarType.Error(message))
+    }
+
+    suspend fun showWarning(message: String) {
+        _snackBars.emit(SnackBarType.Warning(message))
+    }
+
+    suspend fun showInfo(message: String) {
+        _snackBars.emit(SnackBarType.Info(message))
+    }
+
+    suspend fun showNeutral(message: String) {
+        _snackBars.emit(SnackBarType.Neutral(message))
+    }
 }
 
 sealed class SnackBarType{

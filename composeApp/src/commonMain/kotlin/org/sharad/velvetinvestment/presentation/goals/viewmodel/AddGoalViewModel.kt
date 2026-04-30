@@ -9,13 +9,12 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.sharad.velvetinvestment.domain.GoalType
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
-import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 import org.sharad.velvetinvestment.presentation.goals.uimodels.GoalOption
 import org.sharad.velvetinvestment.utils.AppEvents
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -52,7 +51,7 @@ data class GoalFormState(
 )
 
 class SingleGoalViewModel(
-    private val userAuth: UserAuth,
+    private val getUserDataUseCase: GetUserDataUseCase,
     private val userFinance: UserFinance
 ) : ViewModel() {
 
@@ -70,7 +69,7 @@ class SingleGoalViewModel(
     // ---------- LOAD USER ----------
      fun loadUserData() {
         viewModelScope.launch {
-            userAuth.getUserData()
+            getUserDataUseCase()
                 .onSuccess { res ->
 
                     val data = res.data
@@ -268,17 +267,13 @@ class SingleGoalViewModel(
             result
                 .onSuccess {
                     onSuccess()
-                    SnackBarController.showSnackBar(
-                        SnackBarType.Success(message = "Goal added successfully")
-                    )
+                    SnackBarController.showSuccess(message = "Goal added successfully")
                     AppEvents.sendGoalRefreshEvent()
                     AppEvents.sendHomeRefreshEvent()
                     _loading.value=false
                 }
                 .onError { error ->
-                    SnackBarController.showSnackBar(
-                        SnackBarType.Error(message = error.message)
-                    )
+                    SnackBarController.showError(message = error.message)
                     _loading.value=false
                 }
         }

@@ -14,7 +14,8 @@ import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.presentation.goals.uimodels.GoalOption
 import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
 import org.sharad.velvetinvestment.utils.trimDoubleTo
-import org.sharad.velvetinvestment.utils.trimTo
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.UImodel.PersonalInfoUiData
+import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 
 fun UserDataDto.toHomeScreenUiData(): HomeScreenUiData {
     return HomeScreenUiData(
@@ -24,6 +25,18 @@ fun UserDataDto.toHomeScreenUiData(): HomeScreenUiData {
         goals = data.user_goals.take(5).map { it.toGoalSummary() },
         kycCompletion = data.toKycCompletion(),
         tradingAccountCompletion = data.toTradingCompletion(),
+    )
+}
+
+fun UserDataDto.toPersonalInfoUiData(): PersonalInfoUiData {
+    return PersonalInfoUiData(
+        fullName = data.full_name,
+        dob = data.dob.isoUtcToDisplayDate(),
+        mobileNumber = data.phone_no,
+        email = data.email,
+        city = data.city,
+        kycStatusMf = data.kyc_types.mf?.status ?: "Unknown",
+        kycStatusTrading = data.kyc_types.trading?.status ?: "Unknown",
     )
 }
 

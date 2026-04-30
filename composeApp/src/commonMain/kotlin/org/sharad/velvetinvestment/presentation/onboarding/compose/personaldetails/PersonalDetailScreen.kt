@@ -102,7 +102,7 @@ fun PersonalDetailScreen(
                 }
                 item(key = "dob") {
                     OnBoardingDateField(
-                        value = DateTimeUtils.epochMillisToDate(details.dob),
+                        value = DateTimeUtils.epochMillisToSlashDate(details.dob),
                         placeHolder = "dd/mm/yy",
                         label = "DOB ",
                         mandatory = true,

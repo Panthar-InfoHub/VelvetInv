@@ -186,7 +186,7 @@ object DateTimeUtils {
         return Clock.System.now().toLocalDateTime(timeZone).date
     }
 
-    fun epochMillisToDate(epochMillis: Long?): String {
+    fun epochMillisToSlashDate(epochMillis: Long?): String {
         if (epochMillis==null) return ""
         val instant = Instant.fromEpochMilliseconds(epochMillis)
 
@@ -197,6 +197,56 @@ object DateTimeUtils {
         val year = dateTime.date.year
 
         return "$day/$month/$year"
+    }
+
+    fun slashDateToIsoUtc(date: String?): String {
+        if (date.isNullOrBlank()) return ""
+
+        return try {
+            val parts = date.split("/")
+
+            if (parts.size != 3) return ""
+
+            val day = parts[0].toInt()
+            val month = parts[1].toInt()
+            val year = parts[2].toInt()
+
+            val localDate = LocalDate(year = year,
+                month = month,
+                day = day
+            )
+
+            localDate
+                .atStartOfDayIn(TimeZone.UTC)
+                .toString()
+
+        } catch (_: Exception) {
+            ""
+        }
+    }
+
+    fun slashDateToEpochMillis(date: String): Long? {
+        return try {
+            val parts = date.split("/")
+
+            if (parts.size != 3) return null
+
+            val day = parts[0].toInt()
+            val month = parts[1].toInt()
+            val year = parts[2].toInt()
+
+            val localDate = LocalDate(year = year,
+                month = month,
+                day = day
+            )
+
+            localDate
+                .atStartOfDayIn(TimeZone.currentSystemDefault())
+                .toEpochMilliseconds()
+
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun epochToYYYYMMdd(epochMillis: Long?): String {
@@ -210,6 +260,30 @@ object DateTimeUtils {
         return localDate.toString()
     }
 
+    fun epochMillisToIsoUtc(epochMillis: Long?): String? {
+        if (epochMillis == null) return null
+        return Instant
+            .fromEpochMilliseconds(epochMillis)
+            .toString()
+    }
+
+    fun isoUtcToSlashDate(isoUtc: String?): String {
+        if (isoUtc.isNullOrBlank()) return ""
+
+        return try {
+            val instant = Instant.parse(isoUtc)
+
+            val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+
+            val day = dateTime.date.day.toString().padStart(2, '0')
+            val month = dateTime.date.month.number.toString().padStart(2, '0')
+            val year = dateTime.date.year
+
+            "$day/$month/$year"
+        } catch (_: Exception) {
+            ""
+        }
+    }
     fun dobToEpochMillis(dob: String): Long {
         return Instant.parse(dob).toEpochMilliseconds()
     }

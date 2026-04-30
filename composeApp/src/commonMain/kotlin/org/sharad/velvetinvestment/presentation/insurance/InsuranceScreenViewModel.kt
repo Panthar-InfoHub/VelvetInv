@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.InsuranceFlowDetails
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.calculateRecommendedHealthInsurance
@@ -15,7 +15,7 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 
 class InsuranceScreenViewModel(
-    private val userAuth: UserAuth
+    private val getUserDataUseCase: GetUserDataUseCase
 ): ViewModel() {
 
     private val _recommendedHealth = MutableStateFlow(0L)
@@ -36,7 +36,7 @@ class InsuranceScreenViewModel(
         viewModelScope.launch {
             _insuranceInfo.value = UiState.Loading
 
-            userAuth.getUserData()
+            getUserDataUseCase()
                 .onError { error ->
                     _insuranceInfo.value = UiState.Error(error.message)
                 }

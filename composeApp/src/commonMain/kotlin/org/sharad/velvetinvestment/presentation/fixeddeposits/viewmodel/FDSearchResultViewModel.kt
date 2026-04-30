@@ -12,7 +12,6 @@ import org.sharad.velvetinvestment.utils.FDLabel
 import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.fundfiltersystem.FDFilterIds
 import org.sharad.velvetinvestment.utils.fundfiltersystem.InvestmentFilter
 import org.sharad.velvetinvestment.utils.fundfiltersystem.createInitialFDFilters
@@ -107,7 +106,7 @@ class FDSearchResultViewModel(
                     _fixedDeposits.value += data.items
                 }
                 .onError {
-                    SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                    SnackBarController.showError(it.message)
                 }
 
             _isLoadingNext.value = false

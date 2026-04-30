@@ -22,12 +22,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -46,7 +51,6 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
-import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.defaultFilters
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
@@ -67,6 +71,7 @@ fun MutualFundSearchScreenRoot(
     heading: String,
     pv: PaddingValues,
     searchText: String,
+    onSearchClick: (String) -> Unit,
 ) {
 
     val viewModel: MutualFundSearchResultViewModel = koinViewModel{
@@ -79,6 +84,7 @@ fun MutualFundSearchScreenRoot(
     val showFilterScreen by viewModel.showFilterScreen.collectAsStateWithLifecycle()
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
+    val isLoadingNext by viewModel.isLoadingNext.collectAsStateWithLifecycle()
 
 
     Box(modifier = Modifier.fillMaxSize())
@@ -95,7 +101,7 @@ fun MutualFundSearchScreenRoot(
             ) {
                 when (uiState) {
                     is LoadingState.Error -> {
-                        ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
+                        ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = { viewModel.loadFunds() })
                     }
 
                     LoadingState.Loading -> {
@@ -107,8 +113,8 @@ fun MutualFundSearchScreenRoot(
                             result = sortedFunds,
                             onFundClick = onFundClick,
                             pv = pv,
-//                            incrementYear = viewModel::incrementYear,
-//                            decrementYear = viewModel::decrementYear,
+                            isLoadingNext = isLoadingNext,
+                            loadNext = viewModel::loadNext,
                             toggleRateYear =viewModel::cycleReturnRatePeriod,
                             selectedYear = selectedYear,
                             selectedFilter = selectedFilter,
@@ -116,7 +122,7 @@ fun MutualFundSearchScreenRoot(
                             toggleFilterScreen = viewModel::toggleFilterScreen,
                             searchText = searchText,
                             onTextChange = viewModel::onSearchTextChange,
-                            onSearchClick ={}
+                            onSearchClick =onSearchClick
                         )
                     }
                 }
@@ -167,39 +173,54 @@ fun MutualFundSearchScreen(
     onFundClick: (String) -> Unit,
     pv: PaddingValues,
     selectedYear: SelectedReturnRatePeriod,
-//    incrementYear: () -> Unit,
-//    decrementYear: () -> Unit,
+    isLoadingNext: Boolean,
+    loadNext: () -> Unit,
     selectedFilter: LabelFilter?,
     onFilterSelected: (LabelFilter) -> Unit,
     toggleFilterScreen: () -> Unit,
     searchText: String,
     onTextChange: (String) -> Unit,
-    onSearchClick: () -> Unit,
+    onSearchClick: (String) -> Unit,
     toggleRateYear: () -> Unit
 ) {
 
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(result) {
+        snapshotFlow {
+            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+        }
+            .distinctUntilChanged()
+            .collect {
+                if (it == result.lastIndex) {
+                    loadNext()
+                }
+            }
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top=4.dp),
+        state = lazyListState
     ) {
         item {
             AppSearchBar(
                 value = searchText,
                 onTextChange = { onTextChange(it) },
-                onSearchClick = { onSearchClick() },
+                onSearchClick = { onSearchClick(searchText) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
         }
         item{Spacer(Modifier.height(20.dp))}
-        item {
-            FundFilterRowMF(
-                filters = defaultFilters,
-                selectedFilter = selectedFilter,
-                onFilterSelected = onFilterSelected,
-                toggleFilterScreen=toggleFilterScreen
-            )
-        }
-
-        item{Spacer(Modifier.height(20.dp))}
+//        item {
+//            FundFilterRowMF(
+//                filters = defaultFilters,
+//                selectedFilter = selectedFilter,
+//                onFilterSelected = onFilterSelected,
+//                toggleFilterScreen=toggleFilterScreen
+//            )
+//        }
+//
+//        item{Spacer(Modifier.height(20.dp))}
 
         item{
             YearRow(
@@ -225,9 +246,16 @@ fun MutualFundSearchScreen(
                 )
             }
         }
-
-
-        item { Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp)) }
+        if (isLoadingNext) {
+            item {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.LightGray
+                    )
+                }
+            }
+        }
 
     }
 

@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.profile.compose
+package org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,7 +39,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.domain.usecases.user.SignOutUseCase
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
 import org.sharad.velvetinvestment.shared.compose.BarHeader
@@ -47,7 +47,6 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -55,10 +54,10 @@ import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
 import velvet.composeapp.generated.resources.fd_icon
+import velvet.composeapp.generated.resources.kyc_icon
 import velvet.composeapp.generated.resources.notification_icon
 import velvet.composeapp.generated.resources.profile_icon
 import velvet.composeapp.generated.resources.security
-import velvet.composeapp.generated.resources.settings_icon
 import velvet.composeapp.generated.resources.signupelement
 import velvet.composeapp.generated.resources.termcondition
 
@@ -66,12 +65,14 @@ import velvet.composeapp.generated.resources.termcondition
 fun ProfileScreen(
     navigateToNotification: () -> Unit,
     navigateToPersonalInfo: () -> Unit,
+    navigateToKYC: () -> Unit = {},
+    navigateToPrivacyPolicy: () -> Unit = {},
     onSignOut: () -> Unit,
     viewModel: HomeScreenViewModel
 ) {
 
     val state by viewModel.homeState.collectAsStateWithLifecycle()
-    val authRepo = koinInject<UserAuth>()
+    val signOutUseCase = koinInject<SignOutUseCase>()
     val scope= rememberCoroutineScope()
     when(state){
         is UiState.Error -> {
@@ -98,11 +99,9 @@ fun ProfileScreen(
                     ProfileTopBar()
                 }
 
-                item {
-                    ProfileHeader("", name=data.name)
-                }
-
-                item{ Spacer(Modifier) }
+//                item {
+//                    ProfileHeader("", name=data.name)
+//                }
 
                 item {
                     BarHeader(
@@ -139,24 +138,42 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
+                        "KYC"
+                    )
+                }
+
+                item {
+                    KYCCard(
+                        status = if (data.kycCompletion && data.tradingAccountCompletion) "Verified" else "Pending verification",
+                        onKYCClick = navigateToKYC
+                    )
+                }
+
+                item {
+                    BarHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         "Legal"
                     )
                 }
 
                 item {
-                    LegalCard()
+                    LegalCard(
+                        onPrivacyPolicyClick = navigateToPrivacyPolicy
+                    )
                 }
 
                 item {
                     SignOutButton(
                         onClick={
                             scope.launch {
-                                authRepo.signOut()
+                                signOutUseCase()
                                     .onSuccess {
                                         onSignOut()
                                     }
                                     .onError {
-                                        SnackBarController.showSnackBar(SnackBarType.Error(it.message))
+                                        SnackBarController.showError(it.message)
                                     }
                             }
                         }
@@ -185,19 +202,19 @@ fun ProfileTopBar() {
             color = Color(0xFF273E71)
         )
 
-        ShadowCard(
-            modifier = Modifier
-                .size(52.dp)
-                .align( Alignment.CenterEnd ),
-            shape = CircleShape,
-            onClick = {}
-        ) {
-            Icon(
-                painter = painterResource(Res.drawable.settings_icon),
-                contentDescription = "Setting Icon",
-                tint = Color(0xFFD8AF6B)
-            )
-        }
+//        ShadowCard(
+//            modifier = Modifier
+//                .size(52.dp)
+//                .align( Alignment.CenterEnd ),
+//            shape = CircleShape,
+//            onClick = {}
+//        ) {
+//            Icon(
+//                painter = painterResource(Res.drawable.settings_icon),
+//                contentDescription = "Setting Icon",
+//                tint = Color(0xFFD8AF6B)
+//            )
+//        }
     }
 }
 
@@ -258,18 +275,20 @@ fun AccountSettingsCard(onPersonalInfoClick: () -> Unit) {
             RowItem(
                 icon = Res.drawable.profile_icon,
                 title = "Personal Information",
-                subtitle = "Your details and contact info",
+                subtitle = "Edit your details and contact info",
                 onCLick = onPersonalInfoClick
             )
 
+            // Bank Account
+            /*
             HorizontalDivider(color = Color.LightGray)
 
-            // Bank Account
             RowItem(
                 icon = Res.drawable.fd_icon,
                 title = "Bank Account",
-                subtitle = "Manage Linked funding source"
+                subtitle = "Manage Linked funding sources"
             )
+            */
         }
     }
 }
@@ -291,7 +310,23 @@ fun PreferencesCard(onNotificationClick: () -> Unit) {
 }
 
 @Composable
-fun LegalCard() {
+fun KYCCard(status: String, onKYCClick: () -> Unit) {
+    ShadowCard(
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        Column(modifier = Modifier) {
+            RowItem(
+                icon = Res.drawable.kyc_icon,
+                title = "KYC Status",
+                subtitle = status,
+                onCLick = onKYCClick
+            )
+        }
+    }
+}
+
+@Composable
+fun LegalCard(onPrivacyPolicyClick: () -> Unit = {}) {
     ShadowCard(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
@@ -306,7 +341,8 @@ fun LegalCard() {
 
             RowItem(
                 icon = Res.drawable.security,
-                title = "Privacy Policy"
+                title = "Privacy Policy",
+                onCLick = onPrivacyPolicyClick
             )
         }
     }

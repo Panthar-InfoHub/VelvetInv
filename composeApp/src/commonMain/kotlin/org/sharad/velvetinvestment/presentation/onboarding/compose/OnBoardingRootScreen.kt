@@ -27,11 +27,10 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDet
 import org.sharad.velvetinvestment.shared.Navigation.OnBoardingNavigation
 import org.sharad.velvetinvestment.shared.Navigation.Route
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
 @Composable
-fun             OnboardingScreenRoot(
+fun OnboardingScreenRoot(
     onBoardingStep: Int = 1,
     onLoginSuccessNavigation: () -> Unit,
     onSignOut: () -> Unit
@@ -40,7 +39,7 @@ fun             OnboardingScreenRoot(
     val authPrefs: AuthPrefs = koinInject()
     LaunchedEffect(Unit){
        if (authPrefs.getPhoneNumber()==null){
-           SnackBarController.showSnackBar(SnackBarType.Warning("Data Expired. Login Again."))
+           SnackBarController.showWarning("Data Expired. Login Again.")
            authPrefs.clearAuth()
            onSignOut()
        }

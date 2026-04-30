@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.presentation.tradingaccount.uimodel
 
-import org.sharad.velvetinvestment.presentation.tradingaccount.compose.Holding
+import org.sharad.velvetinvestment.utils.tradingaccount.Holding
+
 
 data class FinancialTradingDetailsModel (
     val occupation :String = "",

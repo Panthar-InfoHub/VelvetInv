@@ -44,7 +44,6 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.image_icon
@@ -76,7 +75,7 @@ fun FileUploadScreen(
             onSelected = {
                 it.fileSize?.let {size->
                     if (size>5_242_880L) {
-                        scope.launch { SnackBarController.showSnackBar(SnackBarType.Error("File exceeds 5MB limit")) }
+                        scope.launch { SnackBarController.showError("File exceeds 5MB limit") }
                         viewModel.hideSignatureSelector()
                         return@ImageUploader
                     }
@@ -95,7 +94,7 @@ fun FileUploadScreen(
             onSelected = {
                 it.fileSize?.let {size->
                     if (size>5_242_880L) {
-                        scope.launch { SnackBarController.showSnackBar(SnackBarType.Error("File exceeds 5MB limit")) }
+                        scope.launch { SnackBarController.showError("File exceeds 5MB limit") }
                         viewModel.hidePhotoSelector()
                         return@ImageUploader
                     }

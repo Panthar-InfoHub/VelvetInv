@@ -61,5 +61,16 @@ interface MutualFundRepository {
 
     suspend fun getCombinedCategoryMutualFunds(): NetworkResponse<CombinedFundsDomain, ErrorDomain>
 
+    suspend fun getBundleFunds(bundleKey: String): NetworkResponse<BundledMutualFundDomain, ErrorDomain>
+
+    suspend fun addBundleToCartLumpsum(
+        bundleId: String,
+        amount: Long
+    ): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun addBundleToCartSip(
+        request: org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleSipRequest
+    ): NetworkResponse<Unit, ErrorDomain>
+
 }
 

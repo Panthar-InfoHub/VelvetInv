@@ -7,17 +7,18 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.mapper.toAssetsDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
-import org.sharad.velvetinvestment.domain.repository.UserAuth
+import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.UpdateAssetsUseCase
 import org.sharad.velvetinvestment.presentation.onboarding.models.AssetFlowDetails
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.parseSafeLong
 
 class CurrentAssetEditViewModel(
-    private val userAuth: UserAuth
+    private val getUserDataUseCase: GetUserDataUseCase,
+    private val updateAssetsUseCase: UpdateAssetsUseCase
 ) : ViewModel() {
 
     private val _assetInfo =
@@ -50,7 +51,7 @@ class CurrentAssetEditViewModel(
         viewModelScope.launch {
             _assetInfo.value = UiState.Loading
 
-            userAuth.getUserData()
+            getUserDataUseCase()
                 .onError {
                     _assetInfo.value = UiState.Error(it.message)
                 }
@@ -125,12 +126,10 @@ class CurrentAssetEditViewModel(
         viewModelScope.launch {
             _loading.value = true
 
-            userAuth.updateAssets(dto)
+            updateAssetsUseCase(dto)
                 .onError {
                     _loading.value = false
-                    SnackBarController.showSnackBar(
-                        SnackBarType.Error(it.message)
-                    )
+                    SnackBarController.showError(it.message)
                 }
                 .onSuccess {
                     _loading.value = false

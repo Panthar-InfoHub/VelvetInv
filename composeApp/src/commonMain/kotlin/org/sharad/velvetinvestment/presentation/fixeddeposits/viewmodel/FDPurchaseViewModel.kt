@@ -18,7 +18,6 @@ import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFDDet
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.PurchaseFDUseCase
 import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FDPurchaseUiModel
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.SnackBarType
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
@@ -209,7 +208,7 @@ class FDPurchaseViewModel(
                         } else it
                     }
 
-                    SnackBarController.showSnackBar(SnackBarType.Error(error.message))
+                    SnackBarController.showError(error.message)
 
                 }
         }
