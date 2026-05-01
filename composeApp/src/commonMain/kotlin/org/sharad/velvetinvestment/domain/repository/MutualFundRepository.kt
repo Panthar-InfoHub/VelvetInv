@@ -63,6 +63,8 @@ interface MutualFundRepository {
 
     suspend fun getBundleFunds(bundleKey: String): NetworkResponse<BundledMutualFundDomain, ErrorDomain>
 
+    suspend fun getAllBundledFunds(): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain>
+
     suspend fun addBundleToCartLumpsum(
         bundleId: String,
         amount: Long

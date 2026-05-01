@@ -22,6 +22,7 @@ import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderS
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KycContractViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.CartScreenViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.AllBundlesViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.BundleResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
@@ -59,14 +60,12 @@ val viewModelModule= module {
 
     viewModel {
         PortfolioScreenViewModel(
-            get(), // GetMutualFundsUseCase
-            get(), // GetMutualFundDashboardUseCase
-            get()  // GetFDListUseCase
+            get(),
         )
     }
 
     viewModel { SIPDetailsViewModel() }
-    viewModel {(id:String)-> FDPortFolioDetailsViewModel(get(), fdId = id) }
+    viewModel {(id:String)-> FDPortFolioDetailsViewModel(get(), get(),get(), fdId = id) }
     viewModel { ExploreFundScreenViewModel(get(), get()) }
     viewModel { CategoryMutualFundViewModel(get()) }
     viewModel {(search:String)-> MutualFundSearchResultViewModel(search=search,getMutualFundSearchResultUseCase = get()) }
@@ -104,4 +103,5 @@ val viewModelModule= module {
     viewModel { CurrentAssetEditViewModel(get(), get()) }
     viewModel { InsuranceScreenViewModel(get()) }
     viewModel { (bundleKey: String) -> BundleResultViewModel(bundleKey = bundleKey, get(),get(), get())}
+    viewModel { AllBundlesViewModel(get()) }
 }

@@ -166,8 +166,8 @@ val defaultFilters: List<LabelFilter> = listOf(
 
 
 enum class SelectedReturnRatePeriod(val displayText: String){
-    THREE_MONTH("3 M"),
-    SIX_MONTH("6 M"),
-    ONE_YEAR("1 Y"),
-    THREE_YEAR("3 Y")
+    THREE_MONTH("3M"),
+    SIX_MONTH("6M"),
+    ONE_YEAR("1Y"),
+    THREE_YEAR("3Y")
 }

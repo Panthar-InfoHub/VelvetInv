@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class BundleFunds(
     val items: List<Item>,
     val key: String,
-    val title: String
+    val title: String,
 )

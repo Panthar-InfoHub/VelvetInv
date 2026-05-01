@@ -91,4 +91,46 @@
     <string name="pp_contact_phone">+91 999 001 777, +91 999 001 888</string>
     <string name="pp_contact_office_label">Office</string>
     <string name="pp_contact_office">5th Floor, One Horizon Centre, DLF Phase 5, Golf Course Road, Gurugram, India.</string>
+
+    <string name="terms_conditions_title">Terms &amp; Conditions</string>
+    <string name="terms_conditions_header">Welcome to VELVET</string>
+    <string name="terms_conditions_intro">These Terms &amp; Conditions govern your use of our application platform, and services. By accessing or using the Platform, you agree to be bound by these Terms. If you do not agree, you must not use the Platform.</string>
+
+    <string name="tc_section_1_title">1. Eligibility</string>
+    <string name="tc_section_1_content">You must be at least 18 years old and legally able to enter binding contracts to use the Platform. By using the Platform, you confirm you meet these requirements.</string>
+
+    <string name="tc_section_2_title">2. Account Registration</string>
+    <string name="tc_section_2_intro">To access certain features, you may need to create an account. You agree to:</string>
+    <string name="tc_account_item_1">Provide accurate, complete, and up-to-date information;</string>
+    <string name="tc_account_item_2">Keep your login details secure; and</string>
+    <string name="tc_account_item_3">Accept responsibility for all activity under your account.</string>
+    <string name="tc_section_2_footer">We may suspend or terminate accounts that breach these Terms.</string>
+
+    <string name="tc_section_3_title">3. Licence to Use the Platform</string>
+    <string name="tc_section_3_intro">VELVET grants you a limited, non-exclusive, revocable, non-transferable licence to use the Platform for personal or business purposes in accordance with these Terms. You must not:</string>
+    <string name="tc_licence_item_1">Copy, distribute, or exploit the Platform or its content;</string>
+    <string name="tc_licence_item_2">Use automated tools (bots, scrapers) to access the Platform; or</string>
+    <string name="tc_licence_item_3">Interfere with the Platform's functionality.</string>
+
+    <string name="tc_section_4_title">4. Intellectual Property</string>
+    <string name="tc_section_4_content">All content, branding, design, software, and materials on the Platform are owned by VELVET or our licensors. You must not copy, modify, or use our intellectual property without written permission.</string>
+
+    <string name="tc_section_5_title">5. User Content</string>
+    <string name="tc_section_5_intro">By posting, uploading, or sharing content on the Platform ("User Content"), you:</string>
+    <string name="tc_user_content_item_1">Retain ownership of your content;</string>
+    <string name="tc_user_content_item_2">Grant VELVET a worldwide, royalty-free, transferable licence to use, reproduce, modify, distribute, display, and communicate your content to operate and promote the Platform; and</string>
+    <string name="tc_user_content_item_3">Waive any "moral rights" you may have, meaning you agree not to assert rights against us for adapting or using your content.</string>
+    <string name="tc_section_5_footer">You are solely responsible for your User Content. VELVET may remove or disable access to content that breaches these Terms or the law.</string>
+
+    <string name="tc_section_6_title">6. Prohibited Conduct</string>
+    <string name="tc_section_6_intro">You must not use the Platform to:</string>
+    <string name="tc_prohibited_item_1">Engage in unlawful, harmful, or fraudulent activity;</string>
+    <string name="tc_prohibited_item_2">Harass, threaten, or abuse others;</string>
+    <string name="tc_prohibited_item_3">Post defamatory, obscene, or misleading content;</string>
+    <string name="tc_prohibited_item_4">Disrupt, interfere with, or harm the Platform or its users;</string>
+    <string name="tc_prohibited_item_5">Impersonate another person or misrepresent your affiliation; or</string>
+    <string name="tc_prohibited_item_6">Violate any laws or third-party rights.</string>
+
+    <string name="tc_section_12_title">12. Breach &amp; Termination</string>
+    <string name="tc_section_12_content">We may, at our discretion and without notice, suspend, restrict, or terminate your access to the Platform if you breach these Terms, misuse the Platform, or act in a way that harms VELVET or other users. You may stop using the Platform at any time.</string>
 </resources>

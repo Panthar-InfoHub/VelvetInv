@@ -5,21 +5,22 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDashboardUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetPortfolioMutualFundsUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardPortfolioData
 import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
 import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
 import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class PortfolioScreenViewModel(
-    private val getPortfolioMutualFundsUseCase: GetPortfolioMutualFundsUseCase,
-    private val getMutualFundDashboardUseCase: GetMutualFundDashboardUseCase,
-    private val getFDListUseCase: GetFDListUseCase
+    private val getPortfolioUseCase: GetPortfolioUseCase
 ) : ViewModel() {
 
 
@@ -29,64 +30,24 @@ class PortfolioScreenViewModel(
     val selectedTab = _selectedTab.asStateFlow()
 
     private val _loadingState =
-        MutableStateFlow<LoadingState>(LoadingState.Loading)
+        MutableStateFlow<UiState<PortfolioDomain>>(UiState.Loading)
     val uiState = _loadingState.asStateFlow()
-
-
-    private val _mutualFunds =
-        MutableStateFlow<List<FundListCardData>>(emptyList())
-    val mutualFunds = _mutualFunds.asStateFlow()
-
-    private val _dashboard =
-        MutableStateFlow<MutualFundDashBoardData?>(null)
-    val dashboard = _dashboard.asStateFlow()
-
-    private val _fds =
-        MutableStateFlow<List<FDCardPortfolioData>>(emptyList())
-    val fds = _fds.asStateFlow()
 
     init {
         loadPortfolio()
     }
 
 
-    private fun loadPortfolio() {
+     fun loadPortfolio() {
         viewModelScope.launch {
-
-            _loadingState.value = LoadingState.Loading
-
-            val mfResult = getPortfolioMutualFundsUseCase()
-            val dashboardResult = getMutualFundDashboardUseCase()
-            val fdResult = getFDListUseCase()
-
-            var hasError = false
-
-            mfResult
+            _loadingState.value= UiState.Loading
+            getPortfolioUseCase()
                 .onSuccess {
-                    _mutualFunds.value = it
+                    _loadingState.value= UiState.Success(it)
                 }
                 .onError {
-                    hasError = true
-                    _loadingState.value = LoadingState.Error(it.message)
+                    _loadingState.value= UiState.Error(it.message)
                 }
-
-            dashboardResult
-                .onSuccess { _dashboard.value = it }
-                .onError {
-                    hasError = true
-                    _loadingState.value = LoadingState.Error(it.message)
-                }
-
-            fdResult
-                .onSuccess { _fds.value = it }
-                .onError {
-                    hasError = true
-                    _loadingState.value = LoadingState.Error(it.name)
-                }
-
-            if (!hasError) {
-                _loadingState.value = LoadingState.Success
-            }
         }
     }
 

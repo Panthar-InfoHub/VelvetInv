@@ -36,6 +36,7 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellatio
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.AllBundlesScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.BundleResultScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CartScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentMethodScreen
@@ -44,6 +45,7 @@ import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformat
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.CheckKYCScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCheckAnimationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.PrivacyPolicyScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.TermsAndConditionsScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.FundTypeSelector
@@ -104,8 +106,24 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             composable<Route.BottomNav> {
                 BottomNavigation(
-                    navigateToSIPDetailsScreen = { id ->
-                        navController.navigate(Route.SIPDetails(id)) {
+                    navigateToSIPDetailsScreen = { it ->
+                        navController.navigate(
+                            Route.SIPDetails(
+                                id = it.id,
+                                title = it.title,
+                                category = it.category,
+                                amount = it.amount,
+                                isSip = it.isSip,
+                                startDate = it.startDate,
+                                returnPercentage = it.returnPercentage,
+                                returnAmount = it.returnAmount,
+                                xirr = it.xirr,
+                                currentNav = it.currentNav,
+                                avgNav = it.avgNav,
+                                folio = it.folio,
+                                balanceUnits = it.balanceUnits
+                            )
+                        ) {
                             launchSingleTop = true
                         }
                     },
@@ -115,8 +133,8 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     navigateToCategoryMutualFundScreen = {
-                        navController.navigate(Route.MutualFundTypeSelectionScreen){
-                            launchSingleTop=true
+                        navController.navigate(Route.MutualFundTypeSelectionScreen) {
+                            launchSingleTop = true
                         }
                     },
                     navigateToCategoryFDScreen = {
@@ -202,6 +220,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
+                    navigateToTermsAndConditions = {
+                        navController.navigate(Route.TermsAndConditions) {
+                            launchSingleTop = true
+                        }
+                    },
                     navigateToKYC = {
                         navController.navigate(Route.CheckKYC) {
                             launchSingleTop = true
@@ -212,7 +235,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
             }
 
             composable<Route.SIPDetails> {
-                val id = it.toRoute<Route.SIPDetails>().id
+                val data = it.toRoute<Route.SIPDetails>()
                 SIPDetailsScreen(
                     onBackClick = { navController.popBackStack() },
                     onCancelClick = {
@@ -220,7 +243,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
-                    id = id,
+                    data = data,
                     pv = pv
                 )
             }
@@ -278,6 +301,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     },
                     onBundledFundClick={
                         navController.navigate(Route.BundleResultScreen(it))
+                    },
+                    onBundleClick = {
+                        navController.navigate(Route.AllBundleScreen)
                     }
                 )
             }
@@ -527,6 +553,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     onBack = { navController.popBackStack() }
                 )
             }
+            composable<Route.TermsAndConditions> {
+                TermsAndConditionsScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
 
             composable<Route.CheckKYCAnimation> {
                 KYCCheckAnimationScreen(
@@ -651,6 +682,18 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     }
+                )
+            }
+
+            composable<Route.AllBundleScreen> {
+                AllBundlesScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onBundleClick = { bundleKey ->
+                        navController.navigate(Route.BundleResultScreen(bundleKey)){
+                            launchSingleTop=true
+                        }
+                    },
+                    pv = pv
                 )
             }
 

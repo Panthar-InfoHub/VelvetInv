@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,9 +27,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardPortfolioData
-import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
-import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
+import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDomain
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
 import org.sharad.velvetinvestment.presentation.portfolio.models.label
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
@@ -39,9 +40,9 @@ import org.sharad.velvetinvestment.shared.compose.FixedDepositCard
 import org.sharad.velvetinvestment.shared.compose.GenericTabSwitcher
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
-import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
@@ -50,16 +51,15 @@ import org.sharad.velvetinvestment.utils.trimTo
 @Composable
 fun PortfolioScreenMain(
     viewModel: PortfolioScreenViewModel,
-    onSIPClick: (id: String) -> Unit,
+    onSIPClick: (MutualFundPortfolioDomain) -> Unit,
     onFDClick: (String) -> Unit,
-    pv: PaddingValues
+    pv: PaddingValues,
+    navigateToCategoryMutualFundScreen: () -> Unit,
+    navigateToCategoryFDScreen: () -> Unit
 ) {
 
     val screenState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
-    val mutualFunds by viewModel.mutualFunds.collectAsStateWithLifecycle()
-    val dashBoardData by viewModel.dashboard.collectAsStateWithLifecycle()
-    val fixedDeposits by viewModel.fds.collectAsStateWithLifecycle()
 
     Box(
         modifier=Modifier.fillMaxSize(),
@@ -71,25 +71,30 @@ fun PortfolioScreenMain(
             BackHeader("Portfolio" )
             Box(modifier=Modifier.weight(1f).fillMaxWidth()){
                 when (screenState) {
-                    is LoadingState.Error -> {
+                    is UiState.Error -> {
                         ErrorScreen(
-                            "Error"
+                            errorMessage = (screenState as UiState.Error).message,
+                            onRetryClick = viewModel::loadPortfolio
                         )
                     }
 
-                    LoadingState.Loading -> {
+                    UiState.Loading -> {
                         LoaderScreen()
                     }
 
-                    LoadingState.Success -> {
+                    is UiState.Success -> {
+                        val data = (screenState as UiState.Success).data
                         PortfolioScreen(
                             selectedTab = selectedTab,
-                            mutualFunds = mutualFunds,
-                            dashBoardData = dashBoardData,
-                            fixedDeposits = fixedDeposits,
-                            changeTab=viewModel::onTabSelected,
-                            onSIPClick=onSIPClick,
-                            onFDClick=onFDClick
+                            mutualFunds = data.mutualFunds,
+                            dashBoardData = data.dashboard,
+                            fixedDeposits = data.fixedDeposits,
+                            changeTab =viewModel::onTabSelected,
+                            onSIPClick =onSIPClick,
+                            onFDClick =onFDClick,
+                            navigateToCategoryFDScreen=navigateToCategoryFDScreen,
+                            navigateToCategoryMutualFundScreen=navigateToCategoryMutualFundScreen,
+                            reload= viewModel::loadPortfolio
                         )
                     }
                 }
@@ -102,12 +107,15 @@ fun PortfolioScreenMain(
 @Composable
 fun PortfolioScreen(
     selectedTab: SelectedPortfolio,
-    mutualFunds: List<FundListCardData>,
-    dashBoardData: MutualFundDashBoardData?,
-    fixedDeposits: List<FDCardPortfolioData>,
+    mutualFunds: List<MutualFundPortfolioDomain>,
+    dashBoardData: PortfolioDashboardDomain,
+    fixedDeposits: List<FixedDepositPortfolioDomain>,
     changeTab: (SelectedPortfolio) -> Unit,
-    onSIPClick: (String) -> Unit,
-    onFDClick: (String) -> Unit
+    onSIPClick: (MutualFundPortfolioDomain) -> Unit,
+    onFDClick: (String) -> Unit,
+    navigateToCategoryFDScreen: () -> Unit,
+    navigateToCategoryMutualFundScreen: () -> Unit,
+    reload: () -> Unit
 ) {
 
     Column(
@@ -131,11 +139,11 @@ fun PortfolioScreen(
         Box(modifier=Modifier.weight(1f)){
             when (selectedTab) {
                 SelectedPortfolio.FixedDeposits -> {
-                    FixedDepositPortFolio(fixedDeposits, onFDClick=onFDClick)
+                    FixedDepositPortFolio(fixedDeposits, onFDClick =onFDClick, onEmptyButtonClick=navigateToCategoryFDScreen, reload=reload)
                 }
 
                 SelectedPortfolio.MutualFunds -> {
-                    MutualFundPortFolio(mutualFunds, dashBoardData, onSIPClick=onSIPClick)
+                    MutualFundPortFolio(mutualFunds, dashBoardData, onFundClick =onSIPClick, onEmptyButtonClick=navigateToCategoryMutualFundScreen, reload=reload)
                 }
             }
         }
@@ -145,32 +153,39 @@ fun PortfolioScreen(
 
 @Composable
 fun MutualFundPortFolio(
-    mutualFund: List<FundListCardData>,
-    dashBoardData: MutualFundDashBoardData?,
-    onSIPClick: (String) -> Unit
+    mutualFund: List<MutualFundPortfolioDomain>,
+    dashBoardData: PortfolioDashboardDomain,
+    onFundClick: (MutualFundPortfolioDomain) -> Unit,
+    onEmptyButtonClick: () -> Unit,
+    reload: () -> Unit
 ) {
     if (mutualFund.isEmpty()){
-        EmptyFundScreen(onBrowseClick = {}, text = "Invest a little each month and watch your wealth grow with SIP!", buttonText = "Browse SIP")
+        EmptyFundScreen(onBrowseClick = onEmptyButtonClick, text = "Grow your wealth with Mutual Funds through SIPs for steady investing or Lumpsum for one-time opportunities.", buttonText = "Browse SIP")
     }else{
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            item { Spacer(modifier = Modifier.height(4.dp)) }
-            item{ DashBoardCard(dashBoardData) }
-            item { BarHeader(heading="Your Investments") }
-            items(mutualFund, key = {it.id}){item->
-                MutualFundsCard(fundItem=item, onClick={
-                    onSIPClick(item.id)
-                })
+        PullToRefreshBox(
+            isRefreshing = false,
+            onRefresh = reload
+        ){
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                item { Spacer(modifier = Modifier.height(4.dp)) }
+                item { DashBoardCard(dashBoardData) }
+                item { BarHeader(heading = "Your Investments") }
+                items(mutualFund, key = { it.id }) { item ->
+                    MutualFundsCard(fundItem = item, onClick = {
+                        onFundClick(item)
+                    })
+                }
+                item { Spacer(modifier = Modifier) }
             }
-            item { Spacer(modifier = Modifier) }
         }
     }
 }
 
 @Composable
-fun DashBoardCard(dashBoardData: MutualFundDashBoardData?) {
+fun DashBoardCard(dashBoardData: PortfolioDashboardDomain) {
     Box(
         modifier = Modifier.fillMaxWidth()
             .genericDropShadow(RoundedCornerShape(15.dp))
@@ -185,7 +200,7 @@ fun DashBoardCard(dashBoardData: MutualFundDashBoardData?) {
         ) {
 
             Text(
-                text = if (dashBoardData!=null) "Total Investment (${dashBoardData.total})" else "Total Investment (-)",
+                text = "Total Investment (${dashBoardData.investedAmount})",
                 style = subHeadingMedium,
                 color = titleColor
             )
@@ -206,8 +221,8 @@ fun DashBoardCard(dashBoardData: MutualFundDashBoardData?) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("₹" + formatMoneyAfterL(dashBoardData?.currentValue), style = subHeading, color = Color.Black)
-                    Text("+₹" + formatMoneyAfterL(dashBoardData?.totalReturns) + " (" + (dashBoardData?.totalReturnsPercentage?.trimTo(1)?:"0")+"%)", style = subHeading, color = appGreen)
+                    Text("₹" + formatMoneyAfterL(dashBoardData.currentValue.toLong()), style = subHeading, color = Color.Black)
+                    Text("+₹" + formatMoneyAfterL(dashBoardData.totalReturns.toLong()) + " (" + dashBoardData.returnPercent.trimTo(1) +"%)", style = subHeading, color = appGreen)
                 }
             }
             Column(
@@ -220,14 +235,12 @@ fun DashBoardCard(dashBoardData: MutualFundDashBoardData?) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Invested Amount", fontFamily = Poppins, fontSize = 14.sp, color = titleColor)
-                    Text("1D returns", fontFamily = Poppins, fontSize = 14.sp, color = titleColor)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("₹" + formatMoneyAfterL(dashBoardData?.investedAmount), style = subHeading, color = Color.Black)
-                    Text("+₹" + formatMoneyAfterL(dashBoardData?.oneDayReturns) + " (" + (dashBoardData?.oneDayReturnsPercentage?.trimTo(1)?:"0")+"%)", style = subHeading, color = appGreen)
+                    Text("₹" + formatMoneyAfterL(dashBoardData.investedAmount.toLong()), style = subHeading, color = Color.Black)
                 }
             }
 
@@ -238,17 +251,27 @@ fun DashBoardCard(dashBoardData: MutualFundDashBoardData?) {
 
 
 @Composable
-fun FixedDepositPortFolio(fixedDeposits: List<FDCardPortfolioData>, onFDClick: (String) -> Unit) {
+fun FixedDepositPortFolio(
+    fixedDeposits: List<FixedDepositPortfolioDomain>,
+    onFDClick: (String) -> Unit,
+    onEmptyButtonClick: () -> Unit,
+    reload: () -> Unit
+) {
     if (fixedDeposits.isEmpty()){
-        EmptyFundScreen(onBrowseClick = {}, text = "Invest a little each month and watch your wealth grow with SIP!", buttonText = "Browse FD")
+        EmptyFundScreen(onBrowseClick = onEmptyButtonClick, text = "Lock in your savings with Fixed Deposits and earn stable, guaranteed returns over time.", buttonText = "Browse FD")
     }else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            item { Spacer(modifier = Modifier.height(4.dp)) }
-            items(fixedDeposits, key = {it.id}) {fd->
-                FixedDepositCard(fdData = fd, onClick = {onFDClick(fd.id)})
+        PullToRefreshBox(
+            isRefreshing = false,
+            onRefresh = reload
+        ){
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                item { Spacer(modifier = Modifier.height(4.dp)) }
+                items(fixedDeposits, key = { it.id }) { fd ->
+                    FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
+                }
             }
         }
     }

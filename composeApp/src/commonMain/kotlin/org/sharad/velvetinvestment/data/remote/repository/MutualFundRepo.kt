@@ -8,6 +8,8 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toPaginatedDomain
+import org.sharad.velvetinvestment.data.remote.model.allbundles.AllBundlesDto
+import org.sharad.velvetinvestment.data.remote.model.allbundles.toDomain
 import org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleLumpsumRequest
 import org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleSipRequest
 import org.sharad.velvetinvestment.data.remote.model.bundledfundbyid.BundledFundByIdDto
@@ -277,6 +279,23 @@ class MutualFundRepo(
             }
 
             is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.toDomain())
+            }
+        }
+    }
+
+    override suspend fun getAllBundledFunds(): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain> {
+        val response = safeRequest<AllBundlesDto> {
+            client.get(getUrl("/bundles")){
+                parameter("page",1)
+                parameter("limit", 20)
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success->{
                 NetworkResponse.Success(response.data.toDomain())
             }
         }

@@ -39,6 +39,7 @@ import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.SubmitKycFormUs
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageAndSignatureDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadSignatureUseCase
+import org.sharad.velvetinvestment.domain.usecases.mutualfunds.GetAllBundledFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
 import org.sharad.velvetinvestment.domain.usecases.user.LoginWithNumberUseCase
@@ -56,7 +57,10 @@ import org.sharad.velvetinvestment.domain.usecases.user.TradingAccountConfirmati
 import org.sharad.velvetinvestment.domain.usecases.user.VerifyOtpUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.VerifyPANUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDPortfolioByIdUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDRedirectUrlUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
 
 val useCaseModule= module {
     factory { LoginWithNumberUseCase(get()) }
@@ -118,6 +122,9 @@ val useCaseModule= module {
     factory {
         GetFireReportUseCase(get())
     }
+    factory { GetPortfolioUseCase(get()) }
+    factory { GetFDPortfolioByIdUseCase(get()) }
+    factory { GetFDRedirectUrlUseCase(get()) }
     factory { DownloadFirePdfUseCase(get(),get()) }
 
     factory { GetTopPickFDUseCase(get()) }
@@ -163,5 +170,6 @@ val useCaseModule= module {
     factory { AddBundleToCartLumpsumUseCase(get()) }
     factory { AddBundleToCartSipUseCase(get()) }
     factory { GetBundleFundsUseCase(get()) }
+    factory { GetAllBundledFundsUseCase(get()) }
 
 }

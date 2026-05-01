@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.presentation.explorefunds.compose.ExploreFundScreen
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
@@ -25,7 +26,7 @@ import org.sharad.velvetinvestment.shared.BottomNavBar
 
 @Composable
 fun BottomNavigation(
-    navigateToSIPDetailsScreen: (String) -> Unit,
+    navigateToSIPDetailsScreen: (MutualFundPortfolioDomain) -> Unit,
     navigateToFDDetailsScreen: (String) -> Unit,
     navigateToCategoryMutualFundScreen: () -> Unit,
     navigateToFireReportScreen: () -> Unit,
@@ -45,6 +46,7 @@ fun BottomNavigation(
     navigateToFD: () -> Unit,
     navigateToTradingAccountSetup: () -> Unit,
     navigateToPrivacyPolicy: () -> Unit,
+    navigateToTermsAndConditions: () -> Unit,
     navigateToKYC: () -> Unit
 ) {
 
@@ -144,11 +146,13 @@ fun BottomNavigation(
             composable<Route.PortFolio> {
                 PortfolioScreenMain(
                     viewModel = portfolioViewModel,
-                    onSIPClick = {
+                    onSIPClick = {it->
                         navigateToSIPDetailsScreen(it)
                     },
                     onFDClick = navigateToFDDetailsScreen,
-                    pv=pv
+                    pv=pv,
+                    navigateToCategoryMutualFundScreen=navigateToCategoryMutualFundScreen,
+                    navigateToCategoryFDScreen=navigateToCategoryFDScreen
                 )
             }
             composable<Route.Profile> {
@@ -157,6 +161,7 @@ fun BottomNavigation(
                     navigateToPersonalInfo=navigateToPersonalInfo,
                     navigateToKYC = navigateToKYC,
                     navigateToPrivacyPolicy=navigateToPrivacyPolicy,
+                    navigateToTermsAndConditions=navigateToTermsAndConditions,
                     onSignOut=onSignOut,
                     viewModel=homeViewModel
                 )

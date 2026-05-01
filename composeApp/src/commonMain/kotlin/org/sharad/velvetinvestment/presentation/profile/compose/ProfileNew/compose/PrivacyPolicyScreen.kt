@@ -307,7 +307,7 @@ fun PrivacyPolicyScreen(
     }
 }
 
-@Composable
+private @Composable
 fun SectionTitle(title: String) {
     Text(
         text = title,
@@ -319,7 +319,7 @@ fun SectionTitle(title: String) {
     )
 }
 
-@Composable
+private @Composable
 fun SubSection(title: String, content: String) {
     Text(
         text = buildAnnotatedString {
@@ -337,7 +337,7 @@ fun SubSection(title: String, content: String) {
     )
 }
 
-@Composable
+private @Composable
 fun BulletItem(text: String) {
     Row(modifier = Modifier.padding(bottom = 6.dp, start = 8.dp)) {
         Text(
@@ -357,7 +357,7 @@ fun BulletItem(text: String) {
     }
 }
 
-@Composable
+private @Composable
 fun ContactItem(label: String, value: String) {
     Column(modifier = Modifier.padding(bottom = 12.dp, start = 16.dp)) {
         Text(

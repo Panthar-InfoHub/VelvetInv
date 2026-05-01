@@ -11,6 +11,8 @@ import org.sharad.velvetinvestment.domain.TransactionStatus
 import org.sharad.velvetinvestment.domain.models.portfolio.BankDetails
 import org.sharad.velvetinvestment.domain.models.portfolio.SIPDetailsDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.TransactionHistoryDomain
+import org.sharad.velvetinvestment.presentation.portfolio.compose.RedemptionInputType
+import org.sharad.velvetinvestment.presentation.portfolio.compose.RedemptionType
 import org.sharad.velvetinvestment.utils.LoadingState
 
 class SIPDetailsViewModel: ViewModel() {
@@ -21,67 +23,56 @@ class SIPDetailsViewModel: ViewModel() {
     private val _sipDetails = MutableStateFlow<SIPDetailsDomain?>(null)
     val sipDetails: StateFlow<SIPDetailsDomain?> = _sipDetails.asStateFlow()
 
-    init {
-        loadSIPDetails()
+    private val _showRedemptionSheet = MutableStateFlow(false)
+    val showRedemptionSheet = _showRedemptionSheet.asStateFlow()
+
+    private val _selectedRedemptionType = MutableStateFlow(RedemptionType.PARTIAL)
+    val selectedRedemptionType = _selectedRedemptionType.asStateFlow()
+
+    private val _selectedInputType = MutableStateFlow(RedemptionInputType.UNITS)
+    val selectedInputType = _selectedInputType.asStateFlow()
+
+    private val _redemptionUnits = MutableStateFlow("")
+    val redemptionUnits = _redemptionUnits.asStateFlow()
+
+    private val _redemptionAmount = MutableStateFlow("")
+    val redemptionAmount = _redemptionAmount.asStateFlow()
+
+    private val _isSubmitting = MutableStateFlow(false)
+    val isSubmitting = _isSubmitting.asStateFlow()
+
+
+    fun onRedemptionTypeChange(type: RedemptionType) {
+        _selectedRedemptionType.value = type
     }
 
-    fun loadSIPDetails() {
+    fun onInputTypeChange(type: RedemptionInputType) {
+        _selectedInputType.value = type
+    }
+
+    fun onUnitsChange(units: String) {
+        _redemptionUnits.value = units
+    }
+
+    fun onAmountChange(amount: String) {
+        _redemptionAmount.value = amount
+    }
+
+    fun onDismissRedemptionSheet() {
+        _showRedemptionSheet.value = false
+    }
+
+    fun onShowRedemptionSheet() {
+        _showRedemptionSheet.value = true
+    }
+
+    fun submitRedemption() {
         viewModelScope.launch {
-            _loadingState.value = LoadingState.Loading
-
-            delay(1500) // simulate API delay
-
-            try {
-
-                val fakeData = SIPDetailsDomain(
-                    id = "1",
-                    icon = "",
-                    fundName = "Axis Small Cap Fund",
-                    fundCategory = "Equity • Small Cap",
-                    amount = "₹5,000",
-                    metadata = listOf(
-                        "Total Returns" to "-60 (6.00%)",
-                        "Day returns" to "-40.05 (4.09%)",
-                        "XIRR" to "-19.11%",
-                        "Current NAV" to "137.42",
-                        "Avg NAV" to "146.32",
-                        "Folio no." to "22265704/95",
-                        "Balance Units" to "6.834"
-                    ),
-                    nextInstallment = "05 Feb 2026",
-                    sipId = "SIP123456",
-                    autopayId = "AUTO987654",
-                    transactionHistory = listOf(
-                        TransactionHistoryDomain(
-                            title = "6 Installment",
-                            date = "10 Feb 2026 at 10:30 am",
-                            type = TransactionStatus.SUCCESS
-                        ),
-                        TransactionHistoryDomain(
-                            title = "7 Installment",
-                            date = "10 Jan 2026 at 10:30 am",
-                            type = TransactionStatus.SUCCESS
-                        ),
-                        TransactionHistoryDomain(
-                            title = "Failed",
-                            date = "10 Dec 2025 at 10:30 am",
-                            type = TransactionStatus.FAILED
-                        )
-                    ),
-                    bankDetails = BankDetails(
-                        bankName = "HDFC Bank",
-                        accountNumber = "XXXXXX4598",
-                        bankIcon = ""
-                    )
-                )
-
-                _sipDetails.value = fakeData
-                _loadingState.value = LoadingState.Success
-
-            } catch (e: Exception) {
-                _loadingState.value = LoadingState.Error("Failed to load SIP details")
-            }
+            _isSubmitting.value = true
+            delay(2000) // Simulate API call
+            _isSubmitting.value = false
+            _showRedemptionSheet.value = false
+            // Handle success/error as needed
         }
     }
-
 }

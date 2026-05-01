@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.data.remote.model.bundledfundbyid
+package org.sharad.velvetinvestment.data.remote.model.allbundles
 
 import kotlinx.serialization.Serializable
 
@@ -15,7 +15,6 @@ data class MfProduct(
     val latest_nav_date: String,
     val mapping_code: String,
     val maturity_date: String?,
-    val metrics: Metrics,
     val nfo_end_date: String?,
     val nse_scheme_code: String,
     val platform_code: String,

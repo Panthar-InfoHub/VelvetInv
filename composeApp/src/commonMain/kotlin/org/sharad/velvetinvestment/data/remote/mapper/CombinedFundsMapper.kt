@@ -17,14 +17,15 @@ fun CombinedFundsDto.toDomain(): CombinedFundsDomain {
             BundledMutualFundDomain(
                 categoryName = item.bundle_name,
                 key = item.id,
-                mutualFunds = item.bundle_products.map { it.toDomain() }
+                mutualFunds = item.bundle_products.map { it.toDomain() },
+                minAmount = item.accumulated_min_amount
             )
         },
         categoryMutualFundDomain = data.normal_funds.items.map { itemX ->
             CategoryMutualFundDomain(
                 categorySearchReference = itemX.key,
                 categoryName = itemX.title,
-                mutualFunds = itemX.items.map { it.toDomain() }
+                mutualFunds = itemX.items.map { it.toDomain() },
             )
         }
     )

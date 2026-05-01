@@ -61,7 +61,22 @@ object Route {
 
 
     @Serializable
-    data class SIPDetails(val id:String)
+
+    data class SIPDetails(
+        val id: Int,
+        val title: String,
+        val category: String,
+        val amount: Double,
+        val isSip: Boolean,
+        val startDate: String,
+        val returnPercentage: String,
+        val returnAmount: Int,
+        val xirr: String,
+        val currentNav: Double,
+        val avgNav: Double,
+        val folio: String,
+        val balanceUnits: Double
+    )
     @Serializable
     data class SIPCancellationScreen(val id:String)
     @Serializable
@@ -115,6 +130,8 @@ object Route {
     data object PersonalInformation
     @Serializable
     data object PrivacyPolicy
+    @Serializable
+    data object TermsAndConditions
 
     @Serializable
     data object FixedDepositCategory
@@ -156,4 +173,6 @@ object Route {
     data class GoalProjectionImpact(val id:String)
     @Serializable
     data class BundleResultScreen(val bundleKey: String)
+    @Serializable
+    data object AllBundleScreen
 }

@@ -49,6 +49,7 @@ import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -63,6 +64,7 @@ fun CategoryMutualFundScreenRoot(
     pv: PaddingValues,
     onSearchClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
+    onBundleClick:() -> Unit,
     onBundledFundClick: (String) -> Unit
 ){
 
@@ -101,7 +103,8 @@ fun CategoryMutualFundScreenRoot(
                         onTextChange = { viewModel.onSearchTextChange(it) },
                         pv =pv,
                         onSearchClick = {onSearchClick(searchText)},
-                        onBundledFundClick = {onBundledFundClick(it)}
+                        onBundledFundClick = {onBundledFundClick(it)},
+                        onBundleClick = {onBundleClick()}
                     )
                 }
             }
@@ -119,7 +122,8 @@ fun CategoryMutualFundScreen(
     pv: PaddingValues,
     onSearchClick: (String) -> Unit,
     funds: List<CategoryMutualFundDomain>,
-    onBundledFundClick: (String) -> Unit
+    onBundledFundClick: (String) -> Unit,
+    onBundleClick: () -> Unit
 ) {
 
     LazyVerticalGrid(
@@ -136,25 +140,24 @@ fun CategoryMutualFundScreen(
                 onSearchClick = { onSearchClick(searchText) }
             )
         }
-        bundles.forEach { category ->
+
+        if (bundles.isNotEmpty()){
             item(span = { GridItemSpan(maxLineSpan) }) {
                 BarHeader(
-                    heading = category.categoryName,
+                    heading = "Curated Bundles",
                     showArrow = true,
-                    onArrowClick = {onBundledFundClick(category.key)}
+                    onArrowClick = {onBundleClick()}
                 )
             }
 
             items(
-                items = category.mutualFunds,
-                key = { category.key+it.id }
-            ) { fund ->
-
-                MutualFundGridCard(
-                    onClick = { onFundClick(fund.id) },
-                    schemeName = fund.scheme_name,
-                    assetType = fund.asset_type,
-                    latestNav = fund.latest_nav,
+                items = bundles,
+                key = {it.key}
+            ){bundle->
+                BundleCard(
+                    title = bundle.categoryName,
+                    minAmount = "₹" + formatMoneyAfterL(bundle.minAmount.toLong()),
+                    onClick = {onBundledFundClick(bundle.key)}
                 )
             }
         }

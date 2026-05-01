@@ -21,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,6 +68,7 @@ fun ProfileScreen(
     navigateToPersonalInfo: () -> Unit,
     navigateToKYC: () -> Unit = {},
     navigateToPrivacyPolicy: () -> Unit = {},
+    navigateToTermsAndConditions: () -> Unit = {},
     onSignOut: () -> Unit,
     viewModel: HomeScreenViewModel
 ) {
@@ -88,96 +90,101 @@ fun ProfileScreen(
         }
         is UiState.Success-> {
             val data=(state as UiState.Success<HomeScreenUiData>).data
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                contentPadding = PaddingValues(bottom = 60.dp)
-            ) {
+            Scaffold(
+                containerColor = Color.White
+            ){pv->
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(pv),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    contentPadding = PaddingValues(bottom = 60.dp),
+                ) {
 
 
-                item {
-                    ProfileTopBar()
-                }
+                    item {
+                        ProfileTopBar()
+                    }
 
 //                item {
 //                    ProfileHeader("", name=data.name)
 //                }
 
-                item {
-                    BarHeader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        "Account Setting"
-                    )
-                }
+                    item {
+                        BarHeader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            "Account Setting"
+                        )
+                    }
 
-                item {
-                    AccountSettingsCard(
-                        onPersonalInfoClick=navigateToPersonalInfo
-                    )
-                }
+                    item {
+                        AccountSettingsCard(
+                            onPersonalInfoClick = navigateToPersonalInfo
+                        )
+                    }
 
-                item {
-                    BarHeader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        "Preferences"
-                    )
-                }
+                    item {
+                        BarHeader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            "Preferences"
+                        )
+                    }
 
-                item {
-                    PreferencesCard(
-                        onNotificationClick = navigateToNotification
-                    )
-                }
+                    item {
+                        PreferencesCard(
+                            onNotificationClick = navigateToNotification
+                        )
+                    }
 
-                item {
-                    BarHeader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        "KYC"
-                    )
-                }
+                    item {
+                        BarHeader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            "KYC"
+                        )
+                    }
 
-                item {
-                    KYCCard(
-                        status = if (data.kycCompletion && data.tradingAccountCompletion) "Verified" else "Pending verification",
-                        onKYCClick = navigateToKYC
-                    )
-                }
+                    item {
+                        KYCCard(
+                            status = if (data.kycCompletion && data.tradingAccountCompletion) "Verified" else "Pending verification",
+                            onKYCClick = navigateToKYC
+                        )
+                    }
 
-                item {
-                    BarHeader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        "Legal"
-                    )
-                }
+                    item {
+                        BarHeader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            "Legal"
+                        )
+                    }
 
-                item {
-                    LegalCard(
-                        onPrivacyPolicyClick = navigateToPrivacyPolicy
-                    )
-                }
+                    item {
+                        LegalCard(
+                            onPrivacyPolicyClick = navigateToPrivacyPolicy,
+                            onTermsAndConditionsClick = navigateToTermsAndConditions
+                        )
+                    }
 
-                item {
-                    SignOutButton(
-                        onClick={
-                            scope.launch {
-                                signOutUseCase()
-                                    .onSuccess {
-                                        onSignOut()
-                                    }
-                                    .onError {
-                                        SnackBarController.showError(it.message)
-                                    }
+                    item {
+                        SignOutButton(
+                            onClick = {
+                                scope.launch {
+                                    signOutUseCase()
+                                        .onSuccess {
+                                            onSignOut()
+                                        }
+                                        .onError {
+                                            SnackBarController.showError(it.message)
+                                        }
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -275,7 +282,6 @@ fun AccountSettingsCard(onPersonalInfoClick: () -> Unit) {
             RowItem(
                 icon = Res.drawable.profile_icon,
                 title = "Personal Information",
-                subtitle = "Edit your details and contact info",
                 onCLick = onPersonalInfoClick
             )
 
@@ -326,7 +332,10 @@ fun KYCCard(status: String, onKYCClick: () -> Unit) {
 }
 
 @Composable
-fun LegalCard(onPrivacyPolicyClick: () -> Unit = {}) {
+fun LegalCard(
+    onPrivacyPolicyClick: () -> Unit = {},
+    onTermsAndConditionsClick: () -> Unit = {}
+) {
     ShadowCard(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
@@ -334,7 +343,8 @@ fun LegalCard(onPrivacyPolicyClick: () -> Unit = {}) {
 
             RowItem(
                 icon = Res.drawable.termcondition,
-                title = "Terms & Condition"
+                title = "Terms & Condition",
+                onCLick = onTermsAndConditionsClick
             )
 
             HorizontalDivider(color = Color.LightGray)

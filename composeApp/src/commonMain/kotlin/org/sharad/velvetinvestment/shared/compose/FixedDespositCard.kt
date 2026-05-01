@@ -23,7 +23,7 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardPortfolioData
+import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.theme.subHeading
@@ -33,7 +33,7 @@ import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.fd_placeholder
 
 @Composable
-fun FixedDepositCard(fdData: FDCardPortfolioData, onClick: () -> Unit){
+fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
     Box(
         modifier = Modifier.fillMaxWidth()
             .genericDropShadow(RoundedCornerShape(15.dp))
@@ -56,7 +56,7 @@ fun FixedDepositCard(fdData: FDCardPortfolioData, onClick: () -> Unit){
             ) {
                 AsyncImage(
                     modifier = Modifier.size(44.dp),
-                    model = fdData.icon,
+                    model = fdData.issuerLogoUrl,
                     contentDescription = null,
                     placeholder = painterResource(Res.drawable.fd_placeholder),
                     fallback = painterResource(Res.drawable.fd_placeholder),
@@ -64,14 +64,9 @@ fun FixedDepositCard(fdData: FDCardPortfolioData, onClick: () -> Unit){
                 )
                 Column {
                     Text(
-                        text = fdData.fundName,
+                        text = fdData.issuerDisplayName,
                         style = subHeading,
                         color = Primary
-                    )
-                    Text(
-                        text=fdData.fundNumber,
-                        style = titlesStyle,
-                        color = titleColor
                     )
                 }
             }
@@ -91,7 +86,7 @@ fun FixedDepositCard(fdData: FDCardPortfolioData, onClick: () -> Unit){
                         color = titleColor
                     )
                     Text(
-                        text = "₹"+ formatMoneyAfterL(fdData.principle),
+                        text = "₹"+ formatMoneyAfterL(fdData.amount.toLong()),
                         style = subHeading,
                         color = Primary
                     )
@@ -105,7 +100,7 @@ fun FixedDepositCard(fdData: FDCardPortfolioData, onClick: () -> Unit){
                         color = titleColor
                     )
                     Text(
-                        text = fdData.rate.trimTo(1)+"%",
+                        text = fdData.roiAtBooking+"%",
                         style = subHeading,
                         color = Secondary
                     )
@@ -119,7 +114,7 @@ fun FixedDepositCard(fdData: FDCardPortfolioData, onClick: () -> Unit){
                         color = titleColor
                     )
                     Text(
-                        text = "₹"+ formatMoneyAfterL(fdData.maturity),
+                        text = fdData.maturityAmount?.let { "₹"+ formatMoneyAfterL(it.toLong()) } ?: "Action Pending",
                         style = subHeading,
                         color = appGreen
                     )

@@ -7,70 +7,81 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.portfolio.FDDetailsDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDPortFolioDetailsUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDPortfolioByIdUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDRedirectUrlUseCase
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDDetailsUiModel
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiModel
+import org.sharad.velvetinvestment.utils.BrowserLauncher
 import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.PendingAction
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class FDPortFolioDetailsViewModel(
-    private val getFDPortFolioDetailsUseCase: GetFDPortFolioDetailsUseCase,
+    private val getFDPortfolioByIdUseCase: GetFDPortfolioByIdUseCase,
+    private val getFDRedirectUrlUseCase: GetFDRedirectUrlUseCase,
+    private val openBrowserLauncher: BrowserLauncher,
     private val fdId: String
 ) : ViewModel() {
 
-    private val _loadingState = MutableStateFlow<LoadingState>(value = LoadingState.Loading)
-    val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
-
-    private val _fdDetails = MutableStateFlow<FDDetailsUiModel?>(null)
-    val fdDetails: StateFlow<FDDetailsUiModel?> = _fdDetails
+    private val _loadingState = MutableStateFlow<UiState<FixedDepositTransactionDomain>>(UiState.Loading)
+    val loadingState = _loadingState.asStateFlow()
 
     init {
-        loadFDDetails(fdId)
+        loadFDDetails()
     }
-
-    fun loadFDDetails(fdId: String) {
+    fun loadFDDetails() {
         viewModelScope.launch {
-
-            _loadingState.value = LoadingState.Loading
-
-            getFDPortFolioDetailsUseCase(fdId)
+            _loadingState.value = UiState.Loading
+            getFDPortfolioByIdUseCase(fdId)
                 .onSuccess { domain ->
-                    _fdDetails.value = domain.toUiModel()
-                    _loadingState.value = LoadingState.Success
+                    _loadingState.value = UiState.Success(domain)
                 }
                 .onError { error ->
-                    _loadingState.value = LoadingState.Error(error.name)
+                    _loadingState.value = UiState.Error(error.message)
                 }
         }
     }
-}
 
-private fun FDDetailsDomain.toUiModel(): FDDetailsUiModel {
+    fun completeKYC(){
+        val data=loadingState.value
+        if (_loadingState.value !is UiState.Success) return
+        viewModelScope.launch {
+            val currentData = (_loadingState.value as UiState.Success).data
+            _loadingState.value = UiState.Loading
+            getFDRedirectUrlUseCase(id=currentData.id, event = PendingAction.VKYC.name)
+                .onSuccess { url ->
+                    _loadingState.value = data
+                    openBrowserLauncher.launchBrowser(url)
+                }
+                .onError { error ->
+                    _loadingState.value = data
+                    SnackBarController.showError(error.message)
+                }
+        }
+    }
+    fun breakFD(){
+        val data=loadingState.value
+        if (_loadingState.value !is UiState.Success) return
+        viewModelScope.launch {
+            val currentData = (_loadingState.value as UiState.Success).data
+            _loadingState.value = UiState.Loading
+            getFDRedirectUrlUseCase(id=currentData.id, event = PendingAction.PAYMENT.name)
+                .onSuccess { url ->
+                    _loadingState.value = data
+                    openBrowserLauncher.launchBrowser(url)
+                }
+                .onError { error ->
+                    _loadingState.value = data
+                    SnackBarController.showError(error.message)
+                }
+        }
+    }
 
-    return FDDetailsUiModel(
-        bankName = bankInfo.bankName,
-        fdAccountNumber = bankInfo.fdAccountNumber,
-
-        principalAmount = "₹ "+formatMoneyAfterL(investmentDetails.principalAmount),
-        interestRate = "${investmentDetails.interestRate}%",
-        tenure = "${investmentDetails.tenureMonths} months",
-        maturityAmount = "₹ "+formatMoneyAfterL(investmentDetails.maturityAmount),
-        interestEarnedTillDate = "₹ "+formatMoneyAfterL(investmentDetails.interestEarnedTillDate),
-
-        nominees = nomineeDetails.map {
-            FDNomineeUiModel(
-                fullName = it.fullName,
-                relationship = it.relationship,
-                dateOfBirth = it.dateOfBirth.isoUtcToDisplayDate(),
-                nomineeId = it.id
-            )
-        },
-
-        startDate = timelineDetails.startDate.isoUtcToDisplayDate(),
-        maturityDate = timelineDetails.maturityDate.isoUtcToDisplayDate(),
-        daysRemaining = "${timelineDetails.daysRemaining} days"
-    )
 }

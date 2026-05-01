@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,14 +41,14 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.portfolio.models.FDDetailsUiModel
+import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioDetailsViewModel
-import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
@@ -67,31 +66,37 @@ fun FDDetailsScreen(
     val viewModel: FDPortFolioDetailsViewModel = koinViewModel{ parametersOf(id) }
 
     val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
-    val details by viewModel.fdDetails.collectAsStateWithLifecycle()
 
     when(uiState){
-        is LoadingState.Error -> {
-            ErrorScreen((uiState as LoadingState.Error).error)
+        is UiState.Error -> {
+            ErrorScreen(errorMessage = (uiState as UiState.Error).message,
+                onRetryClick = viewModel::loadFDDetails)
         }
-        LoadingState.Loading -> {
+        UiState.Loading -> {
             LoaderScreen()
         }
-        LoadingState.Success ->{
-            if (details != null)
+        is UiState.Success ->{
+            val data = (uiState as UiState.Success).data
                 FDDetailsMain(
-                    details = details!!,
+                    details = data,
                     onBackClick = onBackClick,
-                    pv=pv
+                    onBreakClick= viewModel::breakFD,
+                    onKycClick = viewModel::completeKYC,
+                    pv =pv
                 )
-            else
-                ErrorScreen("Something went wrong")
         }
     }
 
 }
 
 @Composable
-fun FDDetailsMain(details: FDDetailsUiModel, onBackClick: () -> Unit, pv: PaddingValues) {
+fun FDDetailsMain(
+    details: FixedDepositTransactionDomain,
+    onBackClick: () -> Unit,
+    pv: PaddingValues,
+    onBreakClick: () -> Unit,
+    onKycClick: () -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()){
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -100,44 +105,59 @@ fun FDDetailsMain(details: FDDetailsUiModel, onBackClick: () -> Unit, pv: Paddin
             stickyHeader {
                 FDDetailsHeader(
                     onBackClick = onBackClick,
-                    bankName = details.bankName,
-                    fdId = details.fdAccountNumber
+                    bankName = details.issuerDisplayName,
+                    fdId = details.fdAccountNumber?:""
                 )
             }
             item {
                 InvestmentDetailsCard(details)
             }
-            item { BarHeader(heading = "Nominee Details") }
-            items(details.nominees, key = { it.fullName }) {
-                NomineeDetailsCard(nominee = it)
+//            item { BarHeader(heading = "Nominee Details") }
+//
+//            item {
+//                OrderTimelineCard(details.startDate, details.maturityDate, details.daysRemaining)
+//            }
+            if (details.isVkycPending){
+                item {
+                    Text(
+                        text="Your KYC is pending. Click on the button to complete the process.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Primary,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
-            item {
-                OrderTimelineCard(details.startDate, details.maturityDate, details.daysRemaining)
-            }
-            item {
-                Spacer(Modifier.height(pv.calculateBottomPadding() + 64.dp))
+            item{
+                BreakFDButton(
+                    onClick = {
+                        if (details.isVkycPending) onKycClick() else onBreakClick()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = if (details.isVkycPending) "Complete KYC" else "Break FD"
+                )
             }
         }
 
-        BreakFDButton(onClick={}, modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(0.9f).padding(bottom = pv.calculateBottomPadding()+16.dp))
+
     }
 }
 
 @Composable
-fun BreakFDButton( onClick: () -> Unit,modifier:Modifier=Modifier) {
+fun BreakFDButton( onClick: () -> Unit,modifier:Modifier=Modifier, text: String) {
     Button(
         onClick=onClick,
         modifier=modifier.fillMaxWidth().height(50.dp),
         enabled = true,
         colors = ButtonDefaults.buttonColors(
-            containerColor = appRed,
+            containerColor = Color(0xFFE53935),
             contentColor = Color.White,
             disabledContentColor = Color.White ,
             disabledContainerColor = appRed.copy(alpha = 0.5f)
         )
     ){
         Text(
-            text = "Break FD",
+            text = text,
             style = buttonTextStyle
         )
     }
@@ -237,7 +257,7 @@ fun NomineeDetailsCard(nominee: FDNomineeUiModel) {
 }
 
 @Composable
-fun InvestmentDetailsCard(details: FDDetailsUiModel) {
+fun InvestmentDetailsCard(details: FixedDepositTransactionDomain) {
     ShadowCard {
         Column(
             modifier=Modifier.fillMaxWidth().padding(16.dp),
@@ -248,7 +268,7 @@ fun InvestmentDetailsCard(details: FDDetailsUiModel) {
 
             InfoTextColumn(
                 title = "Principal Amount",
-                value = details.principalAmount,
+                value = formatMoneyAfterL(details.amount.toLong()),
                 valueColor = Primary,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -260,14 +280,14 @@ fun InvestmentDetailsCard(details: FDDetailsUiModel) {
 
                 InfoTextColumn(
                     title = "Interest Rate",
-                    value = details.interestRate,
+                    value = details.roiAtBooking+ "%",
                     valueColor = Secondary,
                     modifier = Modifier.weight(1f)
                 )
 
                 InfoTextColumn(
                     title = "Maturity Amount",
-                    value = details.maturityAmount,
+                    value = details.maturityAmount?.let { formatMoneyAfterL(it.toLong()) }?: "N/A",
                     valueColor = appGreen,
                     modifier = Modifier.weight(1f),
                 )
@@ -275,17 +295,17 @@ fun InvestmentDetailsCard(details: FDDetailsUiModel) {
 
             InfoTextColumn(
                 title = "Tenure",
-                value = details.tenure,
+                value = details.tenureAtBooking.toString() + " Days",
                 valueColor = Primary,
                 modifier = Modifier.fillMaxWidth()
             )
-
-            InfoTextColumn(
-                title = "Interest Earned Till Date",
-                value = details.interestEarnedTillDate,
-                valueColor = appGreen,
-                modifier = Modifier.fillMaxWidth()
-            )
+//
+//            InfoTextColumn(
+//                title = "Interest Earned Till Date",
+//                value = details.inte,
+//                valueColor = appGreen,
+//                modifier = Modifier.fillMaxWidth()
+//            )
 
         }
     }

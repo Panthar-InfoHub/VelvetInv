@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.mutualfund.CartBottomSheetState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
@@ -191,8 +193,18 @@ fun SIPCart(
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                if (amount != null && amount < minAmount) {
+                    Text(
+                        text = "Amount less than min ₹$minAmount",
+                        color = appRed,
+                        style = titlesStyle.copy(fontSize = 12.sp),
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
                 Text(
                     text = "Min ₹$minAmount",
                     style = titlesStyle.copy(fontSize = 14.sp),
@@ -244,7 +256,7 @@ fun SIPCart(
                 onAddClick()
             },
             loading = loading,
-            enabled = amount!=null
+            enabled = amount != null && amount >= minAmount
         )
     }
 }
@@ -277,8 +289,18 @@ fun LumpSumCart(
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                if (amount != null && amount < minAmount) {
+                    Text(
+                        text = "Amount less than min ₹$minAmount",
+                        color = appRed,
+                        style = titlesStyle.copy(fontSize = 12.sp),
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
                 Text(
                     text = "Min ₹$minAmount",
                     style = titlesStyle.copy(fontSize = 14.sp),
@@ -300,7 +322,7 @@ fun LumpSumCart(
                 onAddClick()
             },
             loading = loading,
-            enabled = amount!=null
+            enabled = amount != null && amount >= minAmount
         )
     }
 }

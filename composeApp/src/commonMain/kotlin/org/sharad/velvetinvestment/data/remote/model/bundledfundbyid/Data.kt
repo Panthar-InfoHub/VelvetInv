@@ -4,6 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Data(
+    val accumulated_min_amount: Double,
+    val allowed_dates: List<Int>,
+    val allowed_frequencies: List<String>,
     val bundle_name: String,
     val bundle_products: List<BundleProduct>,
     val id: String

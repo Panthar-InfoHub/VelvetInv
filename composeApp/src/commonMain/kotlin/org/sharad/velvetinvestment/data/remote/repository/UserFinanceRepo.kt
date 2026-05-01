@@ -10,9 +10,15 @@ import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.model.addgoals.ChildGoalBodyDto
 import org.sharad.velvetinvestment.data.remote.model.addgoals.RetirementGoalBodyDto
 import org.sharad.velvetinvestment.data.remote.model.addgoals.WealthBuildingGoalBodyDto
+import org.sharad.velvetinvestment.data.remote.model.casreport.RedirectBody
+import org.sharad.velvetinvestment.data.remote.model.fdportfoliobyid.FDPortFolioById
+import org.sharad.velvetinvestment.data.remote.model.fdredirect.FDRedirectDto
 import org.sharad.velvetinvestment.data.remote.model.firereport.FireReportDto
+import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
+import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -126,6 +132,67 @@ class UserFinanceRepo(
     override suspend fun deleteGoal(goalId: String): NetworkResponse<Unit, ErrorDomain> {
         return safeRequest<Unit> {
             client.delete(getUrl("/user-goal/$goalId"))
+        }
+    }
+
+    override suspend fun getPortfolio(): NetworkResponse<PortfolioDomain, ErrorDomain> {
+        val response= safeRequest<UserPortFolioDto> {
+            client.get(getUrl("/user/portfolio"))
+        }
+
+        return when(response){
+            is NetworkResponse.Error->{
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success ->{
+                NetworkResponse.Success(
+                    response.data.toDomain()
+                )
+            }
+        }
+    }
+
+    override suspend fun getFDPortfolioById(id: String): NetworkResponse<FixedDepositTransactionDomain, ErrorDomain> {
+        val response = safeRequest<FDPortFolioById> {
+            client.get(getUrl("/fd/transactions/$id"))
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(
+                    response.data.toDomain()
+                )
+            }
+        }
+    }
+
+    override suspend fun getFDRedirectUrl(
+        id: String,
+        event: String
+    ): NetworkResponse<String, ErrorDomain> {
+        val response = safeRequest<FDRedirectDto> {
+            client.post(
+                getUrl("/fd/redirect-url")
+            ) {
+                setBody(
+                    RedirectBody(
+                        fd_trans_id = id,
+                        event = event
+                    )
+                )
+            }
+        }
+        return when(response){
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.data.data.redirectionUrl)
+            }
         }
     }
 }

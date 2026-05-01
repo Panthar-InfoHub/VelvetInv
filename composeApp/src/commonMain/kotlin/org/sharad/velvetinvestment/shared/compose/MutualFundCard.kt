@@ -20,15 +20,17 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
+import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.rectangle_19
 
 @Composable
-fun MutualFundsCard(fundItem: FundListCardData, onClick: () -> Unit) {
+fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -45,14 +47,9 @@ fun MutualFundsCard(fundItem: FundListCardData, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            AsyncImage(
-                modifier = Modifier.size(44.dp)
-                    .clip(RoundedCornerShape(15.dp)),
-                model = fundItem.icon,
-                contentDescription = null,
-                fallback = painterResource(Res.drawable.rectangle_19),
-                error = painterResource(Res.drawable.rectangle_19),
-                placeholder = painterResource(Res.drawable.rectangle_19)
+            MutualFundIcon(
+                size = 44.dp,
+                schemeName = fundItem.title
             )
 
             Column(
@@ -65,13 +62,13 @@ fun MutualFundsCard(fundItem: FundListCardData, onClick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text=fundItem.fundName,
+                        text=fundItem.title,
                         color = Color.Black,
                         style = subHeading
                     )
 
                     Text(
-                        text=(fundItem.amount),
+                        text= formatMoneyAfterL(fundItem.amount.toLong()),
                         color = Color.Black,
                         style = subHeading
                     )
@@ -82,26 +79,17 @@ fun MutualFundsCard(fundItem: FundListCardData, onClick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ){
                     Text(
-                        text=fundItem.fundCategory,
+                        text=fundItem.category,
                         color = titleColor,
                         style = titlesStyle
                     )
-                    fundItem.fundType?.let{
-                        Text(
-                            text = fundItem.fundType,
-                            color = titleColor,
-                            style = titlesStyle
-                        )
-                    }
                 }
 
-                fundItem.fundRemark?.let {
-                    Text(
-                        text = fundItem.fundRemark,
-                        color = titleColor,
-                        style = titlesStyle
-                    )
-                }
+                Text(
+                    text="Start Date : "+fundItem.startDate,
+                    color = titleColor,
+                    style = titlesStyle
+                )
             }
 
         }

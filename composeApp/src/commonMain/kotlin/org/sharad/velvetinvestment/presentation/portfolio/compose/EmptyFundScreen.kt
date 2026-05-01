@@ -40,7 +40,7 @@ fun EmptyFundScreen(onBrowseClick: () -> Unit, text:String, buttonText:String) {
             Image(
                 painter = painterResource(Res.drawable.graphics_portfolio_empty),
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 contentScale = ContentScale.FillWidth
             )
 

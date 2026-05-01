@@ -7,6 +7,8 @@ import org.sharad.velvetinvestment.data.remote.model.getmf.MutualFundDto
 import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundItemDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.FundMetricsDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
 
@@ -47,13 +49,18 @@ fun MutualFundDto.toPaginatedDomain(): PaginatedData<MutualFundDomain> {
         hasNextPage = paginationData.page < paginationData.totalPages
     )
 }
-
 fun BundledFundByIdDto.toDomain(): BundledMutualFundDomain {
     return BundledMutualFundDomain(
         categoryName = data.bundle_name,
         key = data.id,
+        allowedFrequencies = data.allowed_frequencies.mapNotNull {
+            InvestmentFrequency.fromCode(it)
+        },
+        minAmount = data.accumulated_min_amount.toDouble(),
+        sipDates = data.allowed_dates,
         mutualFunds = data.bundle_products.map { bundleProduct ->
             val mf = bundleProduct.mf_product
+
             BundledMutualFundItemDomain(
                 id = mf.id,
                 scheme_id = mf.scheme_id,
@@ -81,7 +88,13 @@ fun BundledFundByIdDto.toDomain(): BundledMutualFundDomain {
                 createdAt = mf.createdAt,
                 updatedAt = mf.updatedAt,
                 allocation_percentage = bundleProduct.allocation_percentage,
-                minAmount = bundleProduct.min_amount
+                minAmount = bundleProduct.min_amount,
+                metrics = FundMetricsDomain(
+                    return1Y = mf.metrics.return_1y,
+                    return3Y = mf.metrics.return_3y,
+                    return6M = mf.metrics.return_6m,
+                    return90D = mf.metrics.return_90d
+                )
             )
         }
     )

@@ -3,7 +3,10 @@ package org.sharad.velvetinvestment.domain.models.mutualfunds
 data class BundledMutualFundDomain(
     val categoryName:String,
     val key:String,
-    val mutualFunds:List<BundledMutualFundItemDomain>
+    val mutualFunds:List<BundledMutualFundItemDomain>,
+    val sipDates:List<Int> = emptyList(),
+    val minAmount:Double=0.0,
+    val allowedFrequencies:List<InvestmentFrequency> = emptyList()
 )
 
 data class BundledMutualFundItemDomain(
@@ -33,5 +36,13 @@ data class BundledMutualFundItemDomain(
     val createdAt: String,
     val updatedAt: String,
     val allocation_percentage: Int,
-    val minAmount: String
+    val minAmount: String,
+    val metrics: FundMetricsDomain? = null
+)
+
+data class FundMetricsDomain(
+    val return1Y: Double?,
+    val return3Y: Double?,
+    val return6M: Double?,
+    val return90D: Double?
 )
