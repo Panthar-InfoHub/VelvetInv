@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 data class AddCartSipRequest(
     val amount: Long,
     val mf_product_id: String,
-    val sip_start_date: String,
-    val sip_end_date: String,
-    val sip_frequency: String,
+    val sip_st_date: String,
+    val sip_en_date: String,
+    val sip_freq: String,
     val sip_day: Int,
-    val sip_amount: Long
+    val sip_amt: Long
 )

@@ -31,7 +31,7 @@ import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutua
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundDetailsScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundSearchScreenRoot
 import org.sharad.velvetinvestment.presentation.portfolio.compose.CancelSIPConfirmationScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.FDDetailsScreen
+import org.sharad.velvetinvestment.presentation.portfolio.compose.FDPortfolioDetailsScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
@@ -106,7 +106,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             composable<Route.BottomNav> {
                 BottomNavigation(
-                    navigateToSIPDetailsScreen = { it ->
+                    navigateToSIPDetailsScreen = {
                         navController.navigate(
                             Route.SIPDetails(
                                 id = it.id,
@@ -128,7 +128,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     navigateToFDDetailsScreen = { id ->
-                        navController.navigate(Route.FDDetailsScreen(id)) {
+                        navController.navigate(Route.FixedDepositDetails(id)) {
                             launchSingleTop = true
                         }
                     },
@@ -270,9 +270,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
 
-            composable<Route.FDDetailsScreen> {
-                val id = it.toRoute<Route.FDDetailsScreen>().id
-                FDDetailsScreen(
+            composable<Route.FDPortfolioDetailsScreen> {
+                val id = it.toRoute<Route.FDPortfolioDetailsScreen>().id
+                FDPortfolioDetailsScreen(
                     id = id,
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
@@ -295,7 +295,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     onCategoryClick = { id ->
-                        navController.navigate(Route.MutualFundSearchResult(search = id)) {
+                        navController.navigate(Route.MutualFundSearchResult(fundCategory = id)) {
                             launchSingleTop = true
                         }
                     },
@@ -318,6 +318,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     searchText= it.toRoute<Route.MutualFundSearchResult>().search,
+                    category = it.toRoute<Route.MutualFundSearchResult>().fundCategory,
                     onSearchClick = {search->
                         navController.navigate(Route.MutualFundSearchResult(search = search))
                     }
@@ -532,6 +533,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     onBack = { navController.popBackStack() },
                     onInvestNow = {
                         navController.navigate(Route.MutualFundSearchResult())
+                    },
+                    navigateToAllBundles = {
+                        navController.navigate(Route.AllBundleScreen)
+                    },
+                    navigateToSpecificBundle = {
+                        navController.navigate(Route.BundleResultScreen(it))
                     }
                 )
             }

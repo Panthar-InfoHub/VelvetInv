@@ -1,6 +1,11 @@
 package org.sharad.velvetinvestment.domain.models.fire
 
 data class FireReportDomain(
+    val actual: FireScenarioDomain,
+    val projected: FireScenarioDomain
+)
+
+data class FireScenarioDomain(
     val startYear: Int,
     val endYear: Int,
     val portfolioChart: List<PortfolioProjectionPointDomain>,

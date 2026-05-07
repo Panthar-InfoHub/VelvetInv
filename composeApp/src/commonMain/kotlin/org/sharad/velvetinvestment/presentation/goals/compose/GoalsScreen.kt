@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
@@ -20,12 +19,10 @@ import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalInfoScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.compose.homeGoalsInfo
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.AppEvents
 import org.sharad.velvetinvestment.utils.RefreshEvents
-import org.sharad.velvetinvestment.utils.UiState
 
 @Composable
 fun GoalScreen(
@@ -60,22 +57,14 @@ fun GoalScreen(
 
         BackHeader(heading = "Your Goals", showBack = true, onBackClick = onBack)
         Box(
-            modifier=Modifier.weight(1f).fillMaxSize(),
+            modifier = Modifier.weight(1f).fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
-            when(uiState){
-                is UiState.Error -> {
-                    ErrorScreen(errorMessage = (uiState as UiState.Error).message, onRetryClick = {
-                        viewModel.loadGoals()
-                    })
-                }
-                UiState.Loading -> {
-                    LoaderScreen()
-                }
-                is UiState.Success -> {
-                    val data= (uiState as UiState.Success<List<GoalsSummaryDomain>>).data
-                    GoalScreenContent(data=data, onGoalClick=onGoalClick)
-                }
+        ) {
+            UiStateContainer(
+                uiState = uiState,
+                onRetry = { viewModel.loadGoals() }
+            ) { data ->
+                GoalScreenContent(data = data, onGoalClick = onGoalClick)
             }
         }
         NextButtonFooter(

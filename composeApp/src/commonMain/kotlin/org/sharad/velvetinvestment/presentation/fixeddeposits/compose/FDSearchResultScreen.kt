@@ -44,14 +44,14 @@ import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentFilterScreen
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.FilterChip
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.FDLabel
 import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.UiState
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_filter
 
@@ -91,31 +91,24 @@ fun FDSearchScreenRoot(
                 modifier = Modifier.weight(1f)
                     .fillMaxSize()
             ) {
-                when (uiState) {
-                    is LoadingState.Error -> {
-                        ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {viewModel.loadFunds()})
-                    }
-
-                    LoadingState.Loading -> {
-                        LoaderScreen()
-                    }
-
-                    LoadingState.Success -> {
-                        FDSearchScreen(
-                            result = sortedFD,
-                            onFDClick = onFDClick,
-                            pv = pv,
-                            isLoadingNext =isLoadingNext,
-                            loadNext =viewModel::loadNext,
-                            selectedYear = selectedYear,
-                            selectedFilter = selectedFilter,
-                            onFilterSelected = viewModel::onFilterSelected,
-                            toggleFilterScreen = viewModel::toggleFilterScreen,
-                            searchText =searchText,
-                            onTextChange = viewModel::onSearchTextChange,
-                            onSearchClick = onSearchClick
-                        )
-                    }
+                UiStateContainer(
+                    uiState = uiState.toUiState(),
+                    onRetry = { viewModel.loadFunds() }
+                ) {
+                    FDSearchScreen(
+                        result = sortedFD,
+                        onFDClick = onFDClick,
+                        pv = pv,
+                        isLoadingNext =isLoadingNext,
+                        loadNext =viewModel::loadNext,
+                        selectedYear = selectedYear,
+                        selectedFilter = selectedFilter,
+                        onFilterSelected = viewModel::onFilterSelected,
+                        toggleFilterScreen = viewModel::toggleFilterScreen,
+                        searchText =searchText,
+                        onTextChange = viewModel::onSearchTextChange,
+                        onSearchClick = onSearchClick
+                    )
                 }
             }
 
@@ -153,6 +146,14 @@ fun FDSearchScreenRoot(
             )
         }
 
+    }
+}
+
+fun LoadingState.toUiState(): UiState<Unit> {
+    return when (this) {
+        is LoadingState.Loading -> UiState.Loading
+        is LoadingState.Success -> UiState.Success(Unit)
+        is LoadingState.Error -> UiState.Error(this.error)
     }
 }
 

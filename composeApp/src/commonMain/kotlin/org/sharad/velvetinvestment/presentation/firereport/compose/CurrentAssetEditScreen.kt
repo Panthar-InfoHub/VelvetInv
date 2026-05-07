@@ -14,8 +14,8 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.onboarding.models.AssetFlowDetails
 
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.*
-import org.sharad.velvetinvestment.utils.UiState
 
 @Composable
 fun CurrentAssetEditScreen(
@@ -29,75 +29,60 @@ fun CurrentAssetEditScreen(
     val loading by viewModel.loading.collectAsStateWithLifecycle()
     val showDialog by viewModel.showCASDialog.collectAsStateWithLifecycle()
 
-    when (state) {
+    UiStateContainer(
+        uiState = state,
+        onRetry = { viewModel.loadData() },
+        modifier = Modifier.fillMaxSize()
+    ) { data ->
+        Column(modifier = Modifier.fillMaxSize()) {
 
-        is UiState.Error -> {
-            ErrorScreen(
-                errorMessage = (state as UiState.Error).message,
-                onRetryClick = { viewModel.loadData() }
+            BackHeader(
+                heading = "Update Assets",
+                onBackClick = onBackClick,
+                showBack = true
             )
-        }
 
-        is UiState.Loading -> {
-            LoaderScreen()
-        }
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
 
-        is UiState.Success -> {
-
-            val data = (state as UiState.Success<AssetFlowDetails>).data
-
-            Column(modifier = Modifier.fillMaxSize()) {
-
-                BackHeader(
-                    heading = "Update Assets",
-                    onBackClick = onBackClick,
-                    showBack = true
-                )
-
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-
-                    item {
-                        InfoHeader(onClick = viewModel::showCASDialog)
-                    }
-
-                    item {
-                        AssetHolding(
-                            assetInfo = data,
-                            onMutualFundsUpdate = viewModel::onMutualFundsUpdate,
-                            onStocksAndSharesUpdate = viewModel::onStocksAndSharesUpdate,
-                            onFixedDepositsUpdate = viewModel::onFixedDepositsUpdate,
-                            onRealEstateUpdate = viewModel::onRealEstateUpdate,
-                            onGoldAndCommoditiesUpdate = viewModel::onGoldAndCommoditiesUpdate,
-                            onCashUpdate = viewModel::onCashUpdate
-                        )
-                    }
-
-                    item {
-                        TotalAssets(totalAssets = totalAssets)
-                    }
-
-                    item {
-                        Spacer(
-                            modifier = Modifier.height(80.dp + pv.calculateBottomPadding())
-                        )
-                    }
+                item {
+                    InfoHeader(onClick = viewModel::showCASDialog)
                 }
 
-                NextButtonFooter(
-                    onClick = { viewModel.onSubmit { onBackClick() } },
-                    pv = pv,
-                    value = "Submit Changes",
-                    loading = loading
-                )
+                item {
+                    AssetHolding(
+                        assetInfo = data,
+                        onMutualFundsUpdate = viewModel::onMutualFundsUpdate,
+                        onStocksAndSharesUpdate = viewModel::onStocksAndSharesUpdate,
+                        onFixedDepositsUpdate = viewModel::onFixedDepositsUpdate,
+                        onRealEstateUpdate = viewModel::onRealEstateUpdate,
+                        onGoldAndCommoditiesUpdate = viewModel::onGoldAndCommoditiesUpdate,
+                        onCashUpdate = viewModel::onCashUpdate
+                    )
+                }
+
+                item {
+                    TotalAssets(totalAssets = totalAssets)
+                }
+
+                item {
+                    Spacer(
+                        modifier = Modifier.height(80.dp + pv.calculateBottomPadding())
+                    )
+                }
             }
 
-
+            NextButtonFooter(
+                onClick = { viewModel.onSubmit { onBackClick() } },
+                pv = pv,
+                value = "Submit Changes",
+                loading = loading
+            )
         }
     }
     if (showDialog) {

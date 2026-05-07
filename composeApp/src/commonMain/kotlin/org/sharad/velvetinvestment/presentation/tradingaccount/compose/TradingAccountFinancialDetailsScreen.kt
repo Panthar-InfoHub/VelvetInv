@@ -57,14 +57,12 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.DatePickerSelector
 import org.sharad.velvetinvestment.shared.DropDownSelector
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.DateTimeUtils
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.tradingaccount.Country
@@ -97,274 +95,226 @@ fun TradingAccountFinancialDetailsScreen(
             onBackClick = { onBackClick() }
         )
 
-        when (state) {
-            is UiState.Error -> {
-                ErrorScreen(
-                    errorMessage = (state as UiState.Error).message,
-                    onRetryClick = {
-                        viewModel.getUserData()
+        UiStateContainer(
+            uiState = state,
+            onRetry = { viewModel.getUserData() }
+        ) { baseResponse ->
+            val data = baseResponse.data
+            Column(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                "Financial & Trading Details",
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                            Text(
+                                "Help us to understand your trading profile",
+                                style = titlesStyle,
+                                color = titleColor
+                            )
+                        }
                     }
-                )
-            }
 
-            UiState.Loading -> {
-                LoaderScreen()
-            }
-
-            is UiState.Success -> {
-
-                val data = (state as UiState.Success).data.data
-                Column(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-
-                        item {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                Text(
-                                    "Financial & Trading Details",
-                                    style = MaterialTheme.typography.headlineLarge
-                                )
-                                Text(
-                                    "Help us to understand your trading profile",
-                                    style = titlesStyle,
-                                    color = titleColor
-                                )
+                    item {
+                        DropDownSelector(
+                            value = OccupationType.getDisplayNameFromCode(data.occupation_code)
+                                ?: "",
+                            onValueChange = {
+                                viewModel.onOccupationChange(it.code)
+                            },
+                            placeHolder = "Select Occupation",
+                            mandatory = true,
+                            label = "Occupation",
+                            modifier = Modifier.fillMaxWidth(),
+                            list = OccupationType.entries,
+                            textConvertor = {
+                                it.displayName
                             }
+                        )
+                    }
+
+                    item {
+                        HolderNature(
+                            Selected = holderNature,
+                            onHolderNatureChange = viewModel::onHolderNatureChangeUi
+                        )
+                    }
+
+                    if (holderNature == Holding.JOINT) {
+                        item {
+                            JointHolder(
+                                jointHolder = "Second Holder",
+
+                                secondHolderFirstName = data.second_holder_first_name,
+                                onSecondHolderFirstNameChange = viewModel::onSecondFirstNameChange,
+
+                                secondHolderPan = data.second_holder_pan,
+                                onSecondHolderPanChange = viewModel::onSecondPanChange,
+
+                                secondHolderEmail = data.second_holder_email,
+                                onSecondHolderEmailChange = viewModel::onSecondEmailChange,
+
+                                secondHolderMobile = data.second_holder_mobile,
+                                onSecondHolderMobileChange = viewModel::onSecondMobileChange,
+
+                                secondHolderDOB = data.second_holder_dob,
+                                onSecondHolderDOBClick = viewModel::onSecondDobChange,
+                            )
                         }
 
                         item {
-                            DropDownSelector(
-                                value = OccupationType.getDisplayNameFromCode(data.occupation_code)
-                                    ?: "",
-                                onValueChange = {
-                                    viewModel.onOccupationChange(it.code)
-                                },
-                                placeHolder = "Select Occupation",
-                                mandatory = true,
-                                label = "Occupation",
-                                modifier = Modifier.fillMaxWidth(),
-                                list = OccupationType.entries,
-                                textConvertor = {
-                                    it.displayName
+                            CheckBoxComp(
+                                heading = "Add Another Holder",
+                                checked = thirdHolderEnabled,
+                                onCheckedChange = {
+                                    if (it) viewModel.addThirdHolder()
+                                    else viewModel.removeThirdHolder()
                                 }
                             )
                         }
-
-                        item {
-                            HolderNature(
-                                Selected = holderNature,
-                                onHolderNatureChange = viewModel::onHolderNatureChangeUi
-                            )
-                        }
-
-                        if (holderNature == Holding.JOINT) {
+                        if (thirdHolderEnabled) {
                             item {
                                 JointHolder(
-                                    jointHolder = "Second Holder",
+                                    jointHolder = "Third Holder",
 
-                                    secondHolderFirstName = data.second_holder_first_name,
-                                    onSecondHolderFirstNameChange = viewModel::onSecondFirstNameChange,
+                                    secondHolderFirstName = data.third_holder_first_name,
+                                    onSecondHolderFirstNameChange = viewModel::onThirdFirstNameChange,
 
-                                    secondHolderPan = data.second_holder_pan,
-                                    onSecondHolderPanChange = viewModel::onSecondPanChange,
+                                    secondHolderPan = data.third_holder_pan,
+                                    onSecondHolderPanChange = viewModel::onThirdPanChange,
 
-                                    secondHolderEmail = data.second_holder_email,
-                                    onSecondHolderEmailChange = viewModel::onSecondEmailChange,
+                                    secondHolderEmail = data.third_holder_email,
+                                    onSecondHolderEmailChange = viewModel::onThirdEmailChange,
 
-                                    secondHolderMobile = data.second_holder_mobile,
-                                    onSecondHolderMobileChange = viewModel::onSecondMobileChange,
+                                    secondHolderMobile = data.third_holder_mobile,
+                                    onSecondHolderMobileChange = viewModel::onThirdMobileChange,
 
-                                    secondHolderDOB = data.second_holder_dob,
-                                    onSecondHolderDOBClick = viewModel::onSecondDobChange,
-                                )
-                            }
-
-                            item {
-                                CheckBoxComp(
-                                    heading = "Add Another Holder",
-                                    checked = thirdHolderEnabled,
-                                    onCheckedChange = {
-                                        if (it) viewModel.addThirdHolder()
-                                        else viewModel.removeThirdHolder()
-                                    }
-                                )
-                            }
-                            if(thirdHolderEnabled){
-                                item {
-                                    JointHolder(
-                                        jointHolder = "Third Holder",
-
-                                        secondHolderFirstName = data.third_holder_first_name,
-                                        onSecondHolderFirstNameChange = viewModel::onThirdFirstNameChange,
-
-                                        secondHolderPan = data.third_holder_pan,
-                                        onSecondHolderPanChange = viewModel::onThirdPanChange,
-
-                                        secondHolderEmail = data.third_holder_email,
-                                        onSecondHolderEmailChange = viewModel::onThirdEmailChange,
-
-                                        secondHolderMobile = data.third_holder_mobile,
-                                        onSecondHolderMobileChange = viewModel::onThirdMobileChange,
-
-                                        secondHolderDOB = data.third_holder_dob,
-                                        onSecondHolderDOBClick = viewModel::onThirdDobChange
-                                    )
-                                }
-                            }
-                        }
-
-                        item {
-                            BarHeader(heading = "Nomination Details")
-                        }
-                        item {
-                            DropDownSelector(
-                                value = NominationAuthentication.fromCode(data.nomination_authentication)?.displayName
-                                    ?: "",
-                                onValueChange = { viewModel.onNominationAuthChange(it.code) },
-                                placeHolder = "Nominee authentication",
-                                mandatory = true,
-                                label = "Nominee Authentication",
-                                modifier = Modifier.fillMaxWidth(),
-                                list = NominationAuthentication.getAllowedOptions(data.nomination_opt),
-                                textConvertor = {
-                                    it.displayName
-                                }
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.nominee_1_name,
-                                onValueChange = viewModel::onNominee1NameChange,
-                                placeHolder = "Nominee Name",
-                                label = "Nomination Name",
-                                mandatory = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardType = KeyboardType.Text,
-                            )
-                        }
-
-                        item {
-                            DropDownSelector(
-                                value = NomineeRelationship.getDisplayNameFromCode(data.nominee_1_relationship)
-                                    ?: "",
-                                onValueChange = { viewModel.onNominee1RelationChange(it.code) },
-                                placeHolder = "Nomination Relation",
-                                mandatory = true,
-                                label = "Relationship",
-                                modifier = Modifier.fillMaxWidth(),
-                                list = NomineeRelationship.entries,
-                                textConvertor = {
-                                    it.displayName
-                                }
-                            )
-                        }
-
-                        item {
-                            DropDownSelector(
-                                value = NomineeIdentityType.getDisplayNameFromCode(data.nominee_1_identity_type)
-                                    ?: "",
-                                onValueChange = { selection ->
-                                    viewModel.onNominee1IdentityTypeChange(selection.code)
-                                },
-                                placeHolder = "Nominee identity",
-                                mandatory = true,
-                                label = "Nomination Identity type",
-                                modifier = Modifier.fillMaxWidth(),
-                                list = NomineeIdentityType.entries,
-                                textConvertor = { it.displayName }
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.nominee_1_identity_number,
-                                onValueChange = viewModel::onNominee1IdentityNumberChange,
-                                placeHolder = "xxxx xxxx 1234",
-                                label = "Nomination Identity number " + if (data.nominee_1_identity_type == NomineeIdentityType.AADHAR.code) "(Last 4 Digits)" else {
-                                    ""
-                                },
-                                mandatory = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardType = if (data.nominee_1_identity_type == NomineeIdentityType.PAN.code) KeyboardType.Text else KeyboardType.Number,
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.nominee_1_email,
-                                onValueChange = viewModel::onNominee1EmailChange,
-                                placeHolder = "Nominee Email",
-                                label = "Nominee Email",
-                                mandatory = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardType = KeyboardType.Email,
-                            )
-                        }
-
-                        item {
-                            OnBoardingDateField(
-                                value = data.nominee_1_dob,
-                                placeHolder = "Select DOB",
-                                label = "Nomination DOB",
-                                mandatory = true,
-                                onClick = {
-                                    viewModel.showCalender()
-                                }
-                            )
-                        }
-
-                        if (data.nominee_1_minor_flag=="Y"){
-                            item{
-                                OnBoardingTextField(
-                                    value = data.nominee_1_guardian,
-                                    onValueChange = { viewModel.onNominee1GuardianChange(it) },
-                                    placeHolder = "Enter Guardian Name",
-                                    label = "Nominee Guardian Name",
-                                    mandatory = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    keyboardType = KeyboardType.Text,
-                                )
-                            }
-
-                            item{
-                                OnBoardingTextField(
-                                    value = data.nominee_1_guardian_pan,
-                                    onValueChange = viewModel::onNominee1GuardianPanChange,
-                                    placeHolder = "Enter Guardian PAN",
-                                    label = "Nominee Guardian PAN",
-                                    mandatory = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    keyboardType = KeyboardType.Text,
+                                    secondHolderDOB = data.third_holder_dob,
+                                    onSecondHolderDOBClick = viewModel::onThirdDobChange
                                 )
                             }
                         }
-                        item {
-                            OnBoardingTextField(
-                                value = data.nominee_1_mobile,
-                                onValueChange = viewModel::onNominee1MobileChange,
-                                placeHolder = "Nominee Mobile number",
-                                label = "Nominee Mobile number",
-                                mandatory = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardType = KeyboardType.Number,
-                            )
-                        }
+                    }
 
+                    item {
+                        BarHeader(heading = "Nomination Details")
+                    }
+                    item {
+                        DropDownSelector(
+                            value = NominationAuthentication.fromCode(data.nomination_authentication)?.displayName
+                                ?: "",
+                            onValueChange = { viewModel.onNominationAuthChange(it.code) },
+                            placeHolder = "Nominee authentication",
+                            mandatory = true,
+                            label = "Nominee Authentication",
+                            modifier = Modifier.fillMaxWidth(),
+                            list = NominationAuthentication.getAllowedOptions(data.nomination_opt),
+                            textConvertor = {
+                                it.displayName
+                            }
+                        )
+                    }
+
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_name,
+                            onValueChange = viewModel::onNominee1NameChange,
+                            placeHolder = "Nominee Name",
+                            label = "Nomination Name",
+                            mandatory = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = KeyboardType.Text,
+                        )
+                    }
+
+                    item {
+                        DropDownSelector(
+                            value = NomineeRelationship.getDisplayNameFromCode(data.nominee_1_relationship)
+                                ?: "",
+                            onValueChange = { viewModel.onNominee1RelationChange(it.code) },
+                            placeHolder = "Nomination Relation",
+                            mandatory = true,
+                            label = "Relationship",
+                            modifier = Modifier.fillMaxWidth(),
+                            list = NomineeRelationship.entries,
+                            textConvertor = {
+                                it.displayName
+                            }
+                        )
+                    }
+
+                    item {
+                        DropDownSelector(
+                            value = NomineeIdentityType.getDisplayNameFromCode(data.nominee_1_identity_type)
+                                ?: "",
+                            onValueChange = { selection ->
+                                viewModel.onNominee1IdentityTypeChange(selection.code)
+                            },
+                            placeHolder = "Nominee identity",
+                            mandatory = true,
+                            label = "Nomination Identity type",
+                            modifier = Modifier.fillMaxWidth(),
+                            list = NomineeIdentityType.entries,
+                            textConvertor = { it.displayName }
+                        )
+                    }
+
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_identity_number,
+                            onValueChange = viewModel::onNominee1IdentityNumberChange,
+                            placeHolder = "xxxx xxxx 1234",
+                            label = "Nomination Identity number " + if (data.nominee_1_identity_type == NomineeIdentityType.AADHAR.code) "(Last 4 Digits)" else {
+                                ""
+                            },
+                            mandatory = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = if (data.nominee_1_identity_type == NomineeIdentityType.PAN.code) KeyboardType.Text else KeyboardType.Number,
+                        )
+                    }
+
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_email,
+                            onValueChange = viewModel::onNominee1EmailChange,
+                            placeHolder = "Nominee Email",
+                            label = "Nominee Email",
+                            mandatory = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = KeyboardType.Email,
+                        )
+                    }
+
+                    item {
+                        OnBoardingDateField(
+                            value = data.nominee_1_dob,
+                            placeHolder = "Select DOB",
+                            label = "Nomination DOB",
+                            mandatory = true,
+                            onClick = {
+                                viewModel.showCalender()
+                            }
+                        )
+                    }
+
+                    if (data.nominee_1_minor_flag == "Y") {
                         item {
                             OnBoardingTextField(
-                                value = data.nominee_1_address1,
-                                onValueChange = viewModel::onNominee1Address1Change,
-                                placeHolder = "House/Flat No.,Building Name",
-                                label = "Nominee Address 1",
+                                value = data.nominee_1_guardian,
+                                onValueChange = { viewModel.onNominee1GuardianChange(it) },
+                                placeHolder = "Enter Guardian Name",
+                                label = "Nominee Guardian Name",
                                 mandatory = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 keyboardType = KeyboardType.Text,
@@ -373,62 +323,98 @@ fun TradingAccountFinancialDetailsScreen(
 
                         item {
                             OnBoardingTextField(
-                                value = data.nominee_1_address2,
-                                onValueChange = viewModel::onNominee1Address2Change,
-                                placeHolder = "Street Name,Area",
-                                label = "Nominee Address 2 (optional)",
-                                mandatory = false,
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardType = KeyboardType.Text,
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.nominee_1_address3,
-                                onValueChange = viewModel::onNominee1Address3Change,
-                                placeHolder = "Landmark",
-                                label = "Nominee Address 3 (optional)",
-                                mandatory = false,
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardType = KeyboardType.Text,
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.nominee_1_city,
-                                onValueChange = viewModel::onNominee1CityChange,
-                                placeHolder = "Enter City",
-                                label = "City",
+                                value = data.nominee_1_guardian_pan,
+                                onValueChange = viewModel::onNominee1GuardianPanChange,
+                                placeHolder = "Enter Guardian PAN",
+                                label = "Nominee Guardian PAN",
                                 mandatory = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 keyboardType = KeyboardType.Text,
                             )
                         }
+                    }
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_mobile,
+                            onValueChange = viewModel::onNominee1MobileChange,
+                            placeHolder = "Nominee Mobile number",
+                            label = "Nominee Mobile number",
+                            mandatory = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = KeyboardType.Number,
+                        )
+                    }
 
-                        item {
-                            OnBoardingTextField(
-                                value = data.nominee_1_pin,
-                                onValueChange = viewModel::onNominee1PincodeChange,
-                                placeHolder = "6-digit pincode",
-                                label = "Pincode",
-                                mandatory = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardType = KeyboardType.Number,
-                            )
-                        }
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_address1,
+                            onValueChange = viewModel::onNominee1Address1Change,
+                            placeHolder = "House/Flat No.,Building Name",
+                            label = "Nominee Address 1",
+                            mandatory = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = KeyboardType.Text,
+                        )
+                    }
 
-                        item {
-                            OnBoardingTextField(
-                                value = data.nominee_1_country,
-                                onValueChange = viewModel::onNominee1CountryChange,
-                                placeHolder = "Select Country",
-                                mandatory = true,
-                                label = "Country",
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        }
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_address2,
+                            onValueChange = viewModel::onNominee1Address2Change,
+                            placeHolder = "Street Name,Area",
+                            label = "Nominee Address 2 (optional)",
+                            mandatory = false,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = KeyboardType.Text,
+                        )
+                    }
+
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_address3,
+                            onValueChange = viewModel::onNominee1Address3Change,
+                            placeHolder = "Landmark",
+                            label = "Nominee Address 3 (optional)",
+                            mandatory = false,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = KeyboardType.Text,
+                        )
+                    }
+
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_city,
+                            onValueChange = viewModel::onNominee1CityChange,
+                            placeHolder = "Enter City",
+                            label = "City",
+                            mandatory = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = KeyboardType.Text,
+                        )
+                    }
+
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_pin,
+                            onValueChange = viewModel::onNominee1PincodeChange,
+                            placeHolder = "6-digit pincode",
+                            label = "Pincode",
+                            mandatory = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardType = KeyboardType.Number,
+                        )
+                    }
+
+                    item {
+                        OnBoardingTextField(
+                            value = data.nominee_1_country,
+                            onValueChange = viewModel::onNominee1CountryChange,
+                            placeHolder = "Select Country",
+                            mandatory = true,
+                            label = "Country",
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
 
 //                        item {
 //                            DropDownSelector(
@@ -444,30 +430,29 @@ fun TradingAccountFinancialDetailsScreen(
 //                        }
 
 
-                        item {
-                            Spacer(modifier = Modifier.height(pv.calculateBottomPadding() + 16.dp))
+                    item {
+                        Spacer(modifier = Modifier.height(pv.calculateBottomPadding() + 16.dp))
+                    }
+                }
+
+                NextButtonFooter(
+                    onClick = onClick,
+                    pv = pv,
+                    value = "Next",
+                    enabled = buttonEnabled
+                )
+            }
+            if (showDateDialog) {
+                DatePickerSelector(
+                    show = showDateDialog,
+                    selectedDate = DateTimeUtils.slashDateToEpochMillis(data.nominee_1_dob),
+                    onDismiss = { viewModel.hideCalender() },
+                    onDateSelected = { dob ->
+                        dob?.let {
+                            viewModel.onDobChange(it)
                         }
                     }
-
-                    NextButtonFooter(
-                        onClick = onClick,
-                        pv = pv,
-                        value = "Next",
-                        enabled = buttonEnabled
-                    )
-                }
-                if (showDateDialog){
-                    DatePickerSelector(
-                        show = showDateDialog,
-                        selectedDate = DateTimeUtils.slashDateToEpochMillis( data.nominee_1_dob),
-                        onDismiss = { viewModel.hideCalender() },
-                        onDateSelected = {dob->
-                            dob?.let {
-                                viewModel.onDobChange(it)
-                            }
-                        }
-                    )
-                }
+                )
             }
         }
     }

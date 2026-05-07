@@ -82,12 +82,12 @@ object Route {
     @Serializable
     data class CancelSIPReason(val id:String)
     @Serializable
-    data class FDDetailsScreen(val id:String)
+    data class FDPortfolioDetailsScreen(val id:String)
 
     @Serializable
     data object CategoryMutualFund
     @Serializable
-    data class MutualFundSearchResult(val search:String="")
+    data class MutualFundSearchResult(val search:String="", val fundCategory:String?=null)
     @Serializable
     data class MutualFundDetails(val id:String)
     @Serializable

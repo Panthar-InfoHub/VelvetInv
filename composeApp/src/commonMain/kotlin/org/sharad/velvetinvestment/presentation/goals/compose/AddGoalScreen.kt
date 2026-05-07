@@ -20,7 +20,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.domain.GoalType
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalFormState
-import org.sharad.velvetinvestment.presentation.goals.viewmodel.GoalUiState
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.SingleGoalViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.MoneyTextField
@@ -28,11 +27,8 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.GoalEnt
 import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.GoalSelectionDropDown
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.goalOptions
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.compose.BarHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.utils.UiState
 
 
 @Composable
@@ -47,71 +43,56 @@ fun SingleGoalScreen(
     val loading by vm.loading.collectAsStateWithLifecycle()
 
 
+    UiStateContainer(
+        uiState = state,
+        onRetry = { vm.loadUserData() }
+    ) { data ->
+        Column(modifier = Modifier.fillMaxSize()) {
+            BackHeader(
+                heading = "Add Goal",
+                showBack = true,
+                onBackClick = onBack
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
 
-    Column(modifier = Modifier.fillMaxSize()) {
-
-        when (state) {
-
-            is UiState.Loading -> {
-                LoaderScreen()
-            }
-
-            is UiState.Error -> {
-                ErrorScreen((state as UiState.Error).message){
-                    vm.loadUserData()
+                item {
+                    GoalFormSection(
+                        form = data.form,
+                        onChange = vm::updateForm
+                    )
                 }
-            }
 
-            is UiState.Success -> {
-
-                val data = (state as UiState.Success<GoalUiState>).data
-                BackHeader(
-                    heading = "Add Goal",
-                    showBack = true,
-                    onBackClick = onBack
-                )
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-
+                data.preview?.let {
                     item {
-                        GoalFormSection(
-                            form = data.form,
-                            onChange = vm::updateForm
+                        GoalEntry(
+                            goalInfo = it,
+                            dob = data.dob,
+                            showDelete = false,
+                            onDeleteClick = {}
                         )
                     }
-
-                    data.preview?.let {
-                        item {
-                            GoalEntry(
-                                goalInfo = it,
-                                dob = data.dob,
-                                showDelete = false,
-                                onDeleteClick = {}
-                            )
-                        }
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(pv.calculateBottomPadding()+16.dp))
-                    }
                 }
-
-                // ---------- CTA ----------
-                NextButtonFooter(
-                    value = "Save Goal",
-                    onClick = {
-                        vm.submit {
-                            onBack()
-                        }
-                    },
-                    pv = pv,
-                    enabled = data.isValid,
-                    loading = loading
-                )
+                item {
+                    Spacer(modifier = Modifier.height(pv.calculateBottomPadding() + 16.dp))
+                }
             }
+
+            NextButtonFooter(
+                value = "Save Goal",
+                onClick = {
+                    vm.submit {
+                        onBack()
+                    }
+                },
+                pv = pv,
+                enabled = data.isValid,
+                loading = loading
+            )
         }
     }
 }

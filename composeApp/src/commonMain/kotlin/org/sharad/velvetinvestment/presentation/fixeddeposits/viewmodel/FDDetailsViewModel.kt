@@ -14,6 +14,7 @@ import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
+import org.sharad.velvetinvestment.utils.trimDoubleTo
 import kotlin.math.pow
 
 class FDDetailsViewModel(
@@ -116,43 +117,36 @@ fun calculateMaturity(
     frequency: PayoutType
 ): Double {
 
-    val years = days / 365.0
+    val years = days / 360.0
 
-    val compoundsPerYear = when (frequency) {
-        PayoutType.Cumulative -> 1
-        PayoutType.Yearly -> 1
-        PayoutType.HalfYearly -> 2
-        PayoutType.Quarterly -> 4
-        PayoutType.Monthly -> 12
-        is PayoutType.Custom -> 1
+    return when (frequency) {
+
+        PayoutType.Cumulative -> {
+            val n = 4
+
+            val base = 1 + (rate / 100) / n
+            val exponent = n * years
+
+            val maturity = principal * base.pow(exponent)
+
+            Log("FD_CALC", "CUMULATIVE maturity=$maturity")
+
+            maturity.trimDoubleTo(2)
+        }
+
+        PayoutType.Monthly,
+        PayoutType.Quarterly,
+        PayoutType.HalfYearly,
+        PayoutType.Yearly,
+        is PayoutType.Custom -> {
+
+            val totalInterest = principal * (rate / 100) * years
+
+            val maturity = principal + totalInterest
+
+            Log("FD_CALC", "NON_CUMULATIVE maturity=$maturity")
+
+            maturity.trimDoubleTo(2)
+        }
     }
-
-    Log(
-        "FD_CALC",
-        """
-        principal=$principal
-        rate=$rate
-        days=$days
-        years=$years
-        frequency=${frequency.id}
-        compoundsPerYear=$compoundsPerYear
-        """.trimIndent()
-    )
-
-    val base = 1 + (rate / 100) / compoundsPerYear
-    val exponent = compoundsPerYear * years
-
-    Log(
-        "FD_CALC",
-        "base=$base exponent=$exponent"
-    )
-
-    val maturity = principal * base.pow(exponent)
-
-    Log(
-        "FD_CALC",
-        "maturity=$maturity"
-    )
-
-    return maturity
 }

@@ -140,7 +140,9 @@ fun BottomNavigation(
                     onMFClick={navigateToCategoryMutualFundScreen()},
                     onFDClick=navigateToCategoryFDScreen,
                     navigateToSpecificMF = {mf->navigateToMutualFundDetailScreen(mf)},
-                    navigateToSpecificFD = {}
+                    navigateToSpecificFD = {fd->
+                        navigateToFDDetailsScreen(fd)
+                    }
                 )
             }
             composable<Route.PortFolio> {

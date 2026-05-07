@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,6 +35,7 @@ import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.blueColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.CheckKYCViewModel
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
@@ -43,10 +43,6 @@ import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.fixed_deposits
 import velvet.composeapp.generated.resources.moveforward
 import velvet.composeapp.generated.resources.upgrade
-
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.utils.UiState
 
 @Composable
 fun CheckKYCScreen(
@@ -60,70 +56,68 @@ fun CheckKYCScreen(
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         BackHeader("Check KYC", true, onBackClick = onBackClick)
 
-        when (val state = kycState) {
-            is UiState.Loading -> LoaderScreen()
-            is UiState.Error -> ErrorScreen(state.message, onRetryClick = { viewModel.loadKycStatus() })
-            is UiState.Success -> {
-                val data = state.data
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(top = 16.dp)
-                ) {
-                    item {
-                        CheckKYC1Box(
-                            heading = "Mutual Funds",
-                            body = "Check your KYC status for mutual fund investments",
-                            status = data.mutualFundKYC,
-                            icon = Res.drawable.upgrade,
-                            color = blueColor,
-                            onClick = {
+        UiStateContainer(
+            uiState = kycState,
+            onRetry = { viewModel.loadKycStatus() }
+        ) { data ->
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(top = 16.dp)
+            ) {
+                item {
+                    CheckKYC1Box(
+                        heading = "Mutual Funds",
+                        body = "Check your KYC status for mutual fund investments",
+                        status = data.mutualFundKYC,
+                        icon = Res.drawable.upgrade,
+                        color = blueColor,
+                        onClick = {
+                            if (!data.mutualFundKYC) {
+                                navigateToMutualFundKYC()
+                            }
+                        }
+                    )
+                }
+                item {
+                    CheckKYC1Box(
+                        heading = "Trading Account",
+                        body = "Check your trading account status for purchases.",
+                        status = data.tradingAccountKYC,
+                        icon = Res.drawable.fixed_deposits,
+                        color = appRed,
+                        onClick = {
+                            if (!data.tradingAccountKYC) {
                                 if (!data.mutualFundKYC) {
                                     navigateToMutualFundKYC()
+                                } else {
+                                    navigateToTradingAccountKYC()
                                 }
                             }
-                        )
-                    }
-                    item {
-                        CheckKYC1Box(
-                            heading = "Trading Account",
-                            body = "Check your trading account status for purchases.",
-                            status = data.tradingAccountKYC,
-                            icon = Res.drawable.fixed_deposits,
-                            color = appRed,
-                            onClick = {
-                                if (!data.tradingAccountKYC) {
-                                    if (!data.mutualFundKYC) {
-                                        navigateToMutualFundKYC()
-                                    } else {
-                                        navigateToTradingAccountKYC()
-                                    }
-                                }
-                            }
-                        )
-                    }
+                        }
+                    )
+                }
 
-                    item {
-                        Box(
-                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
-                                .background(color = Color(0xffEFF6FF)).padding(16.dp)
-                        ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(
-                                    "Why KYC?",
-                                    fontSize = 16.sp,
-                                    lineHeight = 16.sp,
-                                    fontFamily = Poppins,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Text(
-                                    "KYC (Know Your Customer) is mandatory for all financial transactions to ensure security and compliance with regulatory requirements.",
-                                    fontSize = 14.sp,
-                                    lineHeight = 14.sp,
-                                    fontFamily = Poppins,
-                                    color = Color(0xff4A5565)
-                                )
-                            }
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+                            .background(color = Color(0xffEFF6FF)).padding(16.dp)
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                "Why KYC?",
+                                fontSize = 16.sp,
+                                lineHeight = 16.sp,
+                                fontFamily = Poppins,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                "KYC (Know Your Customer) is mandatory for all financial transactions to ensure security and compliance with regulatory requirements.",
+                                fontSize = 14.sp,
+                                lineHeight = 14.sp,
+                                fontFamily = Poppins,
+                                color = Color(0xff4A5565)
+                            )
                         }
                     }
                 }

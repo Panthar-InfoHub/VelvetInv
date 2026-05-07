@@ -51,7 +51,7 @@ fun OtherInsuranceScreen(
             }
 
             item {
-                BarHeader(heading="Disability Insurance")
+                BarHeader(heading="General Insurance")
             }
 
             item {

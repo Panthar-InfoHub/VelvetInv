@@ -45,10 +45,8 @@ import org.sharad.emify.core.ui.theme.backgroundGray
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KycContractViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.pdfutils.PdfViewer
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
@@ -89,37 +87,25 @@ fun KycContractScreen(
         }
     }
 
-    when(uiState)
-    {
-        is UiState.Error ->{
-            ErrorScreen(
-                errorMessage = (uiState as UiState.Error).message,
-                onRetryClick = {
-                    viewModel.getContractPdf()
-                }
-            )
-        }
-        UiState.Loading -> {
-            LoaderScreen()
-        }
-        is UiState.Success -> {
-            val data=(uiState as UiState.Success<String>).data
-            KycContactScreenMain(
-                onBack = onBack,
-                pv = pv,
-                pfd=data,
-                finalizeLoading = finalizeLoading,
-                isChecked = checked,
-                toggleCheck=viewModel::toggleMark,
-                onFinalizeClick={
-                    viewModel.getESignUrl(
-                        onSuccess={
-                            hasLaunchedBrowser=true
-                        }
-                    )
-                }
-            )
-        }
+    UiStateContainer(
+        uiState = uiState,
+        onRetry = { viewModel.getContractPdf() }
+    ) { data ->
+        KycContactScreenMain(
+            onBack = onBack,
+            pv = pv,
+            pfd = data,
+            finalizeLoading = finalizeLoading,
+            isChecked = checked,
+            toggleCheck = viewModel::toggleMark,
+            onFinalizeClick = {
+                viewModel.getESignUrl(
+                    onSuccess = {
+                        hasLaunchedBrowser = true
+                    }
+                )
+            }
+        )
     }
 }
 

@@ -32,6 +32,9 @@ class FireReportViewModel(
     private val _emiIncluded= MutableStateFlow(false)
     val emiIncluded= _emiIncluded.asStateFlow()
 
+    private val _showProjected = MutableStateFlow(false)
+    val showProjected = _showProjected.asStateFlow()
+
     private val _downloadingReport= MutableStateFlow(false)
     val downloadingReport= _downloadingReport.asStateFlow()
 
@@ -39,8 +42,9 @@ class FireReportViewModel(
     val fireReportUiModel = combine(
         uiState,
         selectedYear,
-        emiIncluded
-    ) { state, yearSelection, includeEmi ->
+        emiIncluded,
+        showProjected
+    ) { state, yearSelection, includeEmi, projected ->
 
         when (state) {
 
@@ -56,7 +60,8 @@ class FireReportViewModel(
                 UiState.Success(
                     domain.toUiModel(
                         includeEmi = includeEmi,
-                        yearLimit = limit
+                        yearLimit = limit,
+                        showProjected = projected
                     )
                 )
             }
@@ -93,6 +98,11 @@ class FireReportViewModel(
     ){
         _selectedYear.value = selectedYear
     }
+
+    fun toggleProjected(){
+        _showProjected.value = !_showProjected.value
+    }
+
 
     fun downloadFireReport(){
         viewModelScope.launch {

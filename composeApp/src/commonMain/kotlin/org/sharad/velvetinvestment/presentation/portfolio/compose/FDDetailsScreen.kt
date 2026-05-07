@@ -44,10 +44,8 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioDetailsViewModel
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
 import org.sharad.velvetinvestment.utils.theme.subHeading
@@ -57,7 +55,7 @@ import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 
 @Composable
-fun FDDetailsScreen(
+fun FDPortfolioDetailsScreen(
     onBackClick: () -> Unit,
     id: String,
     pv: PaddingValues
@@ -67,30 +65,23 @@ fun FDDetailsScreen(
 
     val uiState by viewModel.loadingState.collectAsStateWithLifecycle()
 
-    when(uiState){
-        is UiState.Error -> {
-            ErrorScreen(errorMessage = (uiState as UiState.Error).message,
-                onRetryClick = viewModel::loadFDDetails)
-        }
-        UiState.Loading -> {
-            LoaderScreen()
-        }
-        is UiState.Success ->{
-            val data = (uiState as UiState.Success).data
-                FDDetailsMain(
-                    details = data,
-                    onBackClick = onBackClick,
-                    onBreakClick= viewModel::breakFD,
-                    onKycClick = viewModel::completeKYC,
-                    pv =pv
-                )
-        }
+    UiStateContainer(
+        uiState = uiState,
+        onRetry = viewModel::loadFDDetails
+    ) { data ->
+        FDPortfolioDetailsMain(
+            details = data,
+            onBackClick = onBackClick,
+            onBreakClick = viewModel::breakFD,
+            onKycClick = viewModel::completeKYC,
+            pv = pv
+        )
     }
 
 }
 
 @Composable
-fun FDDetailsMain(
+fun FDPortfolioDetailsMain(
     details: FixedDepositTransactionDomain,
     onBackClick: () -> Unit,
     pv: PaddingValues,

@@ -32,10 +32,8 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTex
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.DropDownSelector
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
@@ -54,28 +52,18 @@ fun TradingAccountBasicDetailsScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         BackHeader("Trading account", showBack = true, onBackClick = { onBackClick() })
-        when (state) {
-            is UiState.Error -> {
-                ErrorScreen(
-                    errorMessage = (state as UiState.Error).message,
-                    onRetryClick = {
-                        viewModel.getUserData()
-                    }
+        UiStateContainer(
+            uiState = state,
+            onRetry = { viewModel.getUserData() },
+            modifier = Modifier.fillMaxSize()
+        ) { uiData ->
+            val data = uiData.data
+            Column(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f).fillMaxSize().padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 )
-            }
-
-            UiState.Loading -> {
-                LoaderScreen()
-            }
-
-            is UiState.Success -> {
-                val data = (state as UiState.Success).data.data
-                Column(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f).fillMaxSize().padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    )
-                    {
+                {
                         item {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
@@ -208,7 +196,6 @@ fun TradingAccountBasicDetailsScreen(
                         enabled = buttonEnabled
                     )
                 }
-            }
         }
     }
 }

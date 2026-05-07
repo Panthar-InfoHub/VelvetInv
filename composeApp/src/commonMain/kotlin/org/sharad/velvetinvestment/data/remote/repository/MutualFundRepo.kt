@@ -88,6 +88,7 @@ class MutualFundRepo(
         sort: String?,
         risk: Int?,
         category: String?,
+        fundCategory: String?
     ):NetworkResponse<PaginatedData<MutualFundDomain>, ErrorDomain> {
         val response = safeRequest<MutualFundDto> {
             client.get(getUrl("/mf")) {
@@ -96,6 +97,8 @@ class MutualFundRepo(
                 limit?.let { parameter("limit", it) }
                 sort?.let { parameter("sort", it) }
                 risk?.let { parameter("risk", it) }
+                category?.let { parameter("category", it) }
+                fundCategory?.let { parameter("fund_category", it) }
             }
         }
         return when (response) {

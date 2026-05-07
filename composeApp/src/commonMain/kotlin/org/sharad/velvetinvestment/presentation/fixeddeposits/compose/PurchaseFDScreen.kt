@@ -43,11 +43,9 @@ import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.calculat
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.MoneyTextField
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.DropDownSelector
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeading
@@ -74,35 +72,23 @@ fun FDPurchaseScreenRoot(
 
             BackHeader("Set Investment Details", showBack = true, onBackClick = onBackClick)
 
-            Box(
-                modifier = Modifier.weight(1f)
-                    .fillMaxSize()
-            ) {
-                when (uiState) {
-                    is UiState.Error -> {
-                        ErrorScreen((uiState as UiState.Error).message, onRetryClick = {})
-
-                    }
-                    UiState.Loading ->{
-                        LoaderScreen()
-                    }
-                    is UiState.Success-> {
-                        val data= (uiState as UiState.Success<FDPurchaseUiModel>).data
-                        FDPurchaseScreen(
-                            data=data,
-                            onAmountChange=viewModel::updateAmount,
-                            onTenureChange=viewModel::updateTenure,
-                            onFrequencyChange=viewModel::updateFrequency,
-                            pv=pv,
-                            buttonEnabled = buttonEnabled,
-                            onButtonClick = { viewModel.purchaseFD(){
-                                onBackClick()
-                            } }
-                        )
-                    }
-                }
+            UiStateContainer(
+                uiState = uiState,
+                onRetry = { viewModel.loadFDDetails() },
+                modifier = Modifier.weight(1f).fillMaxSize()
+            ) { data ->
+                FDPurchaseScreen(
+                    data=data,
+                    onAmountChange=viewModel::updateAmount,
+                    onTenureChange=viewModel::updateTenure,
+                    onFrequencyChange=viewModel::updateFrequency,
+                    pv=pv,
+                    buttonEnabled = buttonEnabled,
+                    onButtonClick = { viewModel.purchaseFD(){
+                        onBackClick()
+                    } }
+                )
             }
-
         }
     }
 }

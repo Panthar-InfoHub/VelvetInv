@@ -33,16 +33,14 @@ import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDom
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
 import org.sharad.velvetinvestment.presentation.portfolio.models.label
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.FixedDepositCard
 import org.sharad.velvetinvestment.shared.compose.GenericTabSwitcher
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
@@ -69,34 +67,23 @@ fun PortfolioScreenMain(
             modifier=Modifier.fillMaxSize()
         ){
             BackHeader("Portfolio" )
-            Box(modifier=Modifier.weight(1f).fillMaxWidth()){
-                when (screenState) {
-                    is UiState.Error -> {
-                        ErrorScreen(
-                            errorMessage = (screenState as UiState.Error).message,
-                            onRetryClick = viewModel::loadPortfolio
-                        )
-                    }
-
-                    UiState.Loading -> {
-                        LoaderScreen()
-                    }
-
-                    is UiState.Success -> {
-                        val data = (screenState as UiState.Success).data
-                        PortfolioScreen(
-                            selectedTab = selectedTab,
-                            mutualFunds = data.mutualFunds,
-                            dashBoardData = data.dashboard,
-                            fixedDeposits = data.fixedDeposits,
-                            changeTab =viewModel::onTabSelected,
-                            onSIPClick =onSIPClick,
-                            onFDClick =onFDClick,
-                            navigateToCategoryFDScreen=navigateToCategoryFDScreen,
-                            navigateToCategoryMutualFundScreen=navigateToCategoryMutualFundScreen,
-                            reload= viewModel::loadPortfolio
-                        )
-                    }
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                UiStateContainer(
+                    uiState = screenState,
+                    onRetry = viewModel::loadPortfolio
+                ) { data ->
+                    PortfolioScreen(
+                        selectedTab = selectedTab,
+                        mutualFunds = data.mutualFunds,
+                        dashBoardData = data.dashboard,
+                        fixedDeposits = data.fixedDeposits,
+                        changeTab = viewModel::onTabSelected,
+                        onSIPClick = onSIPClick,
+                        onFDClick = onFDClick,
+                        navigateToCategoryFDScreen = navigateToCategoryFDScreen,
+                        navigateToCategoryMutualFundScreen = navigateToCategoryMutualFundScreen,
+                        reload = viewModel::loadPortfolio
+                    )
                 }
             }
         }

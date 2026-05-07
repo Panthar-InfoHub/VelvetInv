@@ -43,18 +43,15 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.usecases.user.SignOutUseCase
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BarHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
-import velvet.composeapp.generated.resources.fd_icon
 import velvet.composeapp.generated.resources.kyc_icon
 import velvet.composeapp.generated.resources.notification_icon
 import velvet.composeapp.generated.resources.profile_icon
@@ -75,121 +72,105 @@ fun ProfileScreen(
 
     val state by viewModel.homeState.collectAsStateWithLifecycle()
     val signOutUseCase = koinInject<SignOutUseCase>()
-    val scope= rememberCoroutineScope()
-    when(state){
-        is UiState.Error -> {
-            ErrorScreen(
-                errorMessage = (state as UiState.Error).message,
-                onRetryClick = {
-                    viewModel.loadHome()
+    val scope = rememberCoroutineScope()
+
+    UiStateContainer(
+        uiState = state,
+        onRetry = { viewModel.loadHome() }
+    ) { data: HomeScreenUiData ->
+        Scaffold(
+            containerColor = Color.White
+        ) { pv ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(pv),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                contentPadding = PaddingValues(bottom = 60.dp),
+            ) {
+                item {
+                    ProfileTopBar()
                 }
-            )
-        }
-        UiState.Loading -> {
-            LoaderScreen()
-        }
-        is UiState.Success-> {
-            val data=(state as UiState.Success<HomeScreenUiData>).data
-            Scaffold(
-                containerColor = Color.White
-            ){pv->
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(pv),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = PaddingValues(bottom = 60.dp),
-                ) {
 
+                item {
+                    BarHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        "Account Setting"
+                    )
+                }
 
-                    item {
-                        ProfileTopBar()
-                    }
+                item {
+                    AccountSettingsCard(
+                        onPersonalInfoClick = navigateToPersonalInfo
+                    )
+                }
 
-//                item {
-//                    ProfileHeader("", name=data.name)
-//                }
+                item {
+                    BarHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        "Preferences"
+                    )
+                }
 
-                    item {
-                        BarHeader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            "Account Setting"
-                        )
-                    }
+                item {
+                    PreferencesCard(
+                        onNotificationClick = navigateToNotification
+                    )
+                }
 
-                    item {
-                        AccountSettingsCard(
-                            onPersonalInfoClick = navigateToPersonalInfo
-                        )
-                    }
+                item {
+                    BarHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        "KYC"
+                    )
+                }
 
-                    item {
-                        BarHeader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            "Preferences"
-                        )
-                    }
+                item {
+                    KYCCard(
+                        status = if (data.kycCompletion && data.tradingAccountCompletion) "Verified" else "Pending verification",
+                        onKYCClick = navigateToKYC
+                    )
+                }
 
-                    item {
-                        PreferencesCard(
-                            onNotificationClick = navigateToNotification
-                        )
-                    }
+                item {
+                    BarHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        "Legal"
+                    )
+                }
 
-                    item {
-                        BarHeader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            "KYC"
-                        )
-                    }
+                item {
+                    LegalCard(
+                        onPrivacyPolicyClick = navigateToPrivacyPolicy,
+                        onTermsAndConditionsClick = navigateToTermsAndConditions
+                    )
+                }
 
-                    item {
-                        KYCCard(
-                            status = if (data.kycCompletion && data.tradingAccountCompletion) "Verified" else "Pending verification",
-                            onKYCClick = navigateToKYC
-                        )
-                    }
-
-                    item {
-                        BarHeader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            "Legal"
-                        )
-                    }
-
-                    item {
-                        LegalCard(
-                            onPrivacyPolicyClick = navigateToPrivacyPolicy,
-                            onTermsAndConditionsClick = navigateToTermsAndConditions
-                        )
-                    }
-
-                    item {
-                        SignOutButton(
-                            onClick = {
-                                scope.launch {
-                                    signOutUseCase()
-                                        .onSuccess {
-                                            onSignOut()
-                                        }
-                                        .onError {
-                                            SnackBarController.showError(it.message)
-                                        }
-                                }
+                item {
+                    SignOutButton(
+                        onClick = {
+                            scope.launch {
+                                signOutUseCase()
+                                    .onSuccess {
+                                        onSignOut()
+                                    }
+                                    .onError {
+                                        SnackBarController.showError(it.message)
+                                    }
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }
     }
-  }
+}
 
 @Composable
 fun ProfileTopBar() {

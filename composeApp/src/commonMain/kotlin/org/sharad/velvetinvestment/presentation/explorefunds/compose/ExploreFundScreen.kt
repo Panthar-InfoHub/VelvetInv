@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.presentation.explorefunds.compose
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,29 +33,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.bgColor5
 import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.FixedTopPicksUiModel
 import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.MutualFundTopPicksUiModel
 import org.sharad.velvetinvestment.presentation.explorefunds.viewmodel.ExploreFundScreenViewModel
+import org.sharad.velvetinvestment.presentation.explorefunds.viewmodel.TopPickCombinedUiModel
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.expenses_icon
 import velvet.composeapp.generated.resources.icon_fd
-import velvet.composeapp.generated.resources.sbi_placeholder
 
 @Composable
 fun ExploreFundScreen(
@@ -66,61 +70,84 @@ fun ExploreFundScreen(
 ) {
 
     val viewModel: ExploreFundScreenViewModel = koinViewModel()
-    val topFunds by viewModel.mutualFunds.collectAsStateWithLifecycle()
-    val topFixedDeposits by viewModel.fixedDeposits.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
 
 
     Column(
-        modifier=Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
 
         BackHeader("Explore Funds")
-        ExploreFundScreenContent(topFunds, topFixedDeposits, onMFClick, onFDClick,pv,navigateToSpecificFD,navigateToSpecificMF, uiState)
+        ExploreFundScreenContent(
+            onMFClick = onMFClick,
+            onFDClick = onFDClick,
+            pv = pv,
+            navigateToSpecificFD = navigateToSpecificFD,
+            navigateToSpecificMF = navigateToSpecificMF,
+            uiState = uiState,
+            retry = viewModel::loadExploreData
+        )
 
     }
 }
 
 @Composable
 fun ExploreFundScreenContent(
-    topFunds: List<MutualFundTopPicksUiModel>,
-    topFixedDeposits: List<FixedTopPicksUiModel>,
     onMFClick: () -> Unit,
     onFDClick: () -> Unit,
     pv: PaddingValues,
     navigateToSpecificFD: (String) -> Unit,
     navigateToSpecificMF: (String) -> Unit,
-    loadingState: LoadingState
+    uiState: UiState<TopPickCombinedUiModel>,
+    retry: () -> Unit,
 ) {
     LazyColumn(
-        modifier=Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
 
-        item { BarHeader(heading ="Want to Invest", modifier = Modifier.padding(horizontal = 16.dp)) }
+        item {
+            BarHeader(
+                heading = "Want to Invest",
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }
 
         item { InvestmentOptions(onMFClick, onFDClick) }
 
-//        when(loadingState){
-//            is LoadingState.Error -> {
-//                item { ErrorScreen(loadingState.error, onRetryClick = {}) }
-//            }
-//            LoadingState.Loading -> {
-//                item { LoaderScreen() }
-//            }
-//            LoadingState.Success -> {
-//                item { BarHeader(heading ="Top Picks Mutual Funds", modifier = Modifier.padding(horizontal = 16.dp)) }
-//
-//                item { MFTopPicks(topFunds,navigateToSpecificMF) }
-//
-//                item { BarHeader(heading ="Top Picks Fixed Deposit", modifier = Modifier.padding(horizontal = 16.dp)) }
-//
-//                item { FDTopPicks(topFd =topFixedDeposits, onClick =navigateToSpecificFD) }
-//
-//                item { Spacer(modifier = Modifier.padding(bottom = pv.calculateBottomPadding())) }
-//            }
-//        }
+        when (uiState) {
+            is UiState.Error -> {
+                item { ErrorScreen(uiState.message, onRetryClick = retry) }
+            }
+
+            UiState.Loading -> {
+                item { LoaderScreen() }
+            }
+
+            is UiState.Success -> {
+                val data = uiState.data
+                item {
+                    BarHeader(
+                        heading = "Top Picks Mutual Funds",
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+
+                item { MFTopPicks(data.funds, navigateToSpecificMF) }
+
+                item {
+                    BarHeader(
+                        heading = "Top Picks Fixed Deposit",
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+
+                item { FDTopPicks(topFd = data.fixedDeposits, onClick = navigateToSpecificFD) }
+
+                item { Spacer(modifier = Modifier.padding(bottom = pv.calculateBottomPadding())) }
+            }
+        }
 
     }
 }
@@ -131,8 +158,8 @@ fun FDTopPicks(topFd: List<FixedTopPicksUiModel>, onClick: (String) -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        items(topFd, key = {it.id}){
-            TopPicksCardFD(it, onClick = {onClick(it.id)})
+        items(topFd, key = { it.id }) {
+            TopPicksCardFD(it, onClick = { onClick(it.id) })
         }
     }
 }
@@ -146,44 +173,55 @@ fun MFTopPicks(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        items(topFunds, key = {it.id}){
-            TopPicksCardMF(it, onClick = {navigateToSpecificMF(it.id)})
+        items(topFunds, key = { it.id }) {
+            TopPicksCardMF(it, onClick = { navigateToSpecificMF(it.id) })
         }
     }
 }
 
 @Composable
 fun TopPicksCardMF(fund: MutualFundTopPicksUiModel, onClick: () -> Unit) {
-    ShadowCard {
+    ShadowCard(
+        modifier = Modifier.border(1.dp, bgColor4.copy(0.1f), RoundedCornerShape(15.dp))
+    ) {
         Column(
             modifier = Modifier.width(300.dp).padding(16.dp),
         ) {
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                AsyncImage(
-                    modifier = Modifier.size(44.dp),
-                    model = fund.icon,
-                    contentDescription = null,
-                    placeholder = painterResource(Res.drawable.sbi_placeholder),
-                    error = painterResource(Res.drawable.sbi_placeholder),
-                    fallback = painterResource(Res.drawable.sbi_placeholder)
-                )
+                SubcomposeAsyncImage(
+                    modifier = Modifier.size(44.dp), model = fund.icon, contentDescription = null,
+
+                    loading = {
+                        MutualFundIcon(
+                            schemeName = fund.name, size = 44.dp
+                        )
+                    },
+
+                    error = {
+                        MutualFundIcon(
+                            schemeName = fund.name, size = 44.dp
+                        )
+                    },
+
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    })
                 Column(
                     horizontalAlignment = Alignment.End,
                 ) {
 
                     Text(
-                        text= fund.returnYears.toString()+"Y Returns",
+                        text = fund.returnYears.toString() + "Y Returns",
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
                         color = Color.Black
                     )
 
                     Text(
-                        text= fund.percentage.toString()+"%"+" p.a.",
+                        text = fund.percentage.toString() + "%" + " p.a.",
                         style = MaterialTheme.typography.headlineSmall,
                         maxLines = 1,
                         color = appGreen
@@ -198,34 +236,31 @@ fun TopPicksCardMF(fund: MutualFundTopPicksUiModel, onClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text= fund.name,
+                    text = fund.name,
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.Black,
                     maxLines = 1,
                 )
                 Text(
-                    text= fund.metadata,
-                    maxLines = 1,
-                    style = titlesStyle,
-                    color = Color.Black
+                    text = fund.metadata, maxLines = 1, style = titlesStyle, color = Color.Black
                 )
             }
 
             Spacer(Modifier.height(16.dp))
 
             Button(
-                modifier=Modifier.fillMaxWidth()
-                    .height(44.dp),
-                onClick={
+                modifier = Modifier.fillMaxWidth().height(44.dp),
+                onClick = {
                     onClick()
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Primary),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Primary
+                ),
                 border = BorderStroke(1.dp, Primary)
-            ){
+            ) {
                 Text(
-                    text="Invest Now",
-                    style = buttonTextStyle,
-                    color = Primary
+                    text = "Invest Now", style = buttonTextStyle, color = Primary
                 )
             }
         }
@@ -234,36 +269,47 @@ fun TopPicksCardMF(fund: MutualFundTopPicksUiModel, onClick: () -> Unit) {
 
 @Composable
 fun TopPicksCardFD(item: FixedTopPicksUiModel, onClick: () -> Unit) {
-    ShadowCard {
+    ShadowCard(
+        modifier = Modifier.border(1.dp, bgColor4.copy(0.1f), RoundedCornerShape(15.dp))
+    ) {
         Column(
             modifier = Modifier.width(300.dp).padding(16.dp),
         ) {
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                AsyncImage(
-                    modifier = Modifier.size(44.dp),
-                    model = item.icon,
-                    contentDescription = null,
-                    placeholder = painterResource(Res.drawable.sbi_placeholder),
-                    error = painterResource(Res.drawable.sbi_placeholder),
-                    fallback = painterResource(Res.drawable.sbi_placeholder)
-                )
+                SubcomposeAsyncImage(
+                    modifier = Modifier.size(44.dp), model = item.icon, contentDescription = null,
+
+                    loading = {
+                        MutualFundIcon(
+                            schemeName = item.name, size = 44.dp
+                        )
+                    },
+
+                    error = {
+                        MutualFundIcon(
+                            schemeName = item.name, size = 44.dp
+                        )
+                    },
+
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    })
                 Column(
                     horizontalAlignment = Alignment.End,
                 ) {
 
                     Text(
-                        text= item.returnYears+"Y Returns",
+                        text = "Max Returns",
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
                         color = Color.Black
                     )
 
                     Text(
-                        text= item.percentage.toString()+"%",
+                        text = item.percentage.toString() + "%",
                         style = MaterialTheme.typography.headlineSmall,
                         maxLines = 1,
                         color = appGreen
@@ -278,34 +324,31 @@ fun TopPicksCardFD(item: FixedTopPicksUiModel, onClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text= item.name,
+                    text = item.name,
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.Black,
                     maxLines = 1,
                 )
                 Text(
-                    text= item.metadata,
-                    maxLines = 1,
-                    style = titlesStyle,
-                    color = Color.Black
+                    text = item.metadata, maxLines = 1, style = titlesStyle, color = Color.Black
                 )
             }
 
             Spacer(Modifier.height(16.dp))
 
             Button(
-                modifier=Modifier.fillMaxWidth()
-                    .height(44.dp),
-                onClick={
+                modifier = Modifier.fillMaxWidth().height(44.dp),
+                onClick = {
                     onClick()
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Primary),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Primary
+                ),
                 border = BorderStroke(1.dp, Primary)
-            ){
+            ) {
                 Text(
-                    text="Invest Now",
-                    style = buttonTextStyle,
-                    color = Primary
+                    text = "Invest Now", style = buttonTextStyle, color = Primary
                 )
             }
         }
@@ -319,35 +362,41 @@ fun InvestmentOptions(onMFClick: () -> Unit, onFDClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        OptionCard(modifier = Modifier.weight(1f), onClick = onMFClick, icon= Res.drawable.expenses_icon,tint= appGreen,text="Mutual\nFunds")
-        OptionCard(modifier = Modifier.weight(1f), onClick = onFDClick, icon= Res.drawable.icon_fd,tint= bgColor5,text="Fixed\nDeposits")
+        OptionCard(
+            modifier = Modifier.weight(1f),
+            onClick = onMFClick,
+            icon = Res.drawable.expenses_icon,
+            tint = appGreen,
+            text = "Mutual\nFunds"
+        )
+        OptionCard(
+            modifier = Modifier.weight(1f),
+            onClick = onFDClick,
+            icon = Res.drawable.icon_fd,
+            tint = bgColor5,
+            text = "Fixed\nDeposits"
+        )
     }
 }
 
 @Composable
 fun OptionCard(
-    modifier: Modifier,
-    onClick: () -> Unit,
-    icon: DrawableResource,
-    tint: Color,
-    text: String
+    modifier: Modifier, onClick: () -> Unit, icon: DrawableResource, tint: Color, text: String
 ) {
     ShadowCard(
-        modifier=modifier,
+        modifier = modifier.border(1.dp, bgColor4.copy(0.1f), RoundedCornerShape(15.dp)),
         onClick = onClick,
         clickable = true
     ) {
         Column(
-            modifier= Modifier.padding(vertical = 32.dp),
+            modifier = Modifier.padding(vertical = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Box(
-                modifier=Modifier.size(44.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(tint.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.size(44.dp).clip(RoundedCornerShape(10.dp))
+                    .background(tint.copy(alpha = 0.1f)), contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(icon),
@@ -358,10 +407,7 @@ fun OptionCard(
             }
 
             Text(
-                text = text,
-                color = Color.Black,
-                style = subHeading,
-                textAlign = TextAlign.Center
+                text = text, color = Color.Black, style = subHeading, textAlign = TextAlign.Center
             )
 
         }

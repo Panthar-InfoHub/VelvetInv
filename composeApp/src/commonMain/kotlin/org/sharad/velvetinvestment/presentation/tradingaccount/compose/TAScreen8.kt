@@ -41,14 +41,13 @@ import org.sharad.emify.core.ui.theme.grayColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.notice
+
 @Composable
 fun TAScreen8(
     pv: PaddingValues,
@@ -65,246 +64,236 @@ fun TAScreen8(
             showBack = true,
             onBackClick = onBackClick
         )
-        when (state) {
-            is UiState.Error -> {
-                ErrorScreen(
-                    errorMessage = (state as UiState.Error).message,
-                    onRetryClick = {
-                        viewModel.getUserData()
-                    }
-                )
-            }
-            UiState.Loading -> {
-                LoaderScreen()
-            }
-            is UiState.Success -> {
-                val data = (state as UiState.Success).data.data
-                Column(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        item {
-                            Column(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    "Guardian PAN Verification",
-                                    style = MaterialTheme.typography.headlineLarge
-                                )
-                                Text(
-                                    "Verify guardian PAN for minor account compliance",
-                                    fontFamily = Poppins,
-                                    fontSize = 14.sp,
-                                    color = Color(0xff4A5565)
-                                )
-                            }
+        UiStateContainer(
+            uiState = state,
+            onRetry = { viewModel.getUserData() }
+        ) { baseResponse ->
+            val data = baseResponse.data
+            Column(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                "Guardian PAN Verification",
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                            Text(
+                                "Verify guardian PAN for minor account compliance",
+                                fontFamily = Poppins,
+                                fontSize = 14.sp,
+                                color = Color(0xff4A5565)
+                            )
                         }
-                        ///////////////////////////////////////////////////////
-                        // GUARDIAN PAN CARD
-                        ///////////////////////////////////////////////////////
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .border(
-                                        0.7.dp,
-                                        shape = RoundedCornerShape(10.dp),
-                                        color = Color(0xffFEE685)
-                                    )
-                                    .clip(RoundedCornerShape(24.dp))
-                                    .background(Color(0xffFFFBEB))
-                                    .padding(16.dp)
+                    }
+                    ///////////////////////////////////////////////////////
+                    // GUARDIAN PAN CARD
+                    ///////////////////////////////////////////////////////
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    0.7.dp,
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = Color(0xffFEE685)
+                                )
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(Color(0xffFFFBEB))
+                                .padding(16.dp)
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    Icon(
+                                        painter = painterResource(Res.drawable.notice),
+                                        contentDescription = "notice icon",
+                                        tint = Color(0xffE17100)
+                                    )
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Icon(
-                                            painter = painterResource(Res.drawable.notice),
-                                            contentDescription = "notice icon",
-                                            tint = Color(0xffE17100)
-                                        )
-                                        Column(
-                                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                                        ) {
-                                            Text(
-                                                "Guardian PAN Required",
-                                                fontFamily = Poppins,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 16.sp,
-                                                color = Color(0xff7B3306)
-                                            )
-                                            Text(
-                                                "Guardian PAN is mandatory for minor trading accounts",
-                                                fontFamily = Poppins,
-                                                fontSize = 14.sp,
-                                                color = Color(0xffBB4D00)
-                                            )
-                                        }
-                                    }
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Row(verticalAlignment = Alignment.Top) {
                                         Text(
-                                            text = "Guardian PAN Number",
+                                            "Guardian PAN Required",
                                             fontFamily = Poppins,
-                                            fontWeight = FontWeight.Medium,
-                                            fontSize = 15.sp,
-                                            color = Color.Black
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            color = Color(0xff7B3306)
                                         )
                                         Text(
-                                            text = "*",
-                                            color = Color.Red,
-                                            fontSize = 15.sp
+                                            "Guardian PAN is mandatory for minor trading accounts",
+                                            fontFamily = Poppins,
+                                            fontSize = 14.sp,
+                                            color = Color(0xffBB4D00)
                                         )
                                     }
-                                    BasicTextField(
-                                        value = data.guardian_pan,
-                                        onValueChange = {
-                                            viewModel.onGuardianPanChange(
-                                                it.toUpperCase(Locale.current)
-                                            )
-                                        },
-                                        singleLine = true,
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Text
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Row(verticalAlignment = Alignment.Top) {
+                                    Text(
+                                        text = "Guardian PAN Number",
+                                        fontFamily = Poppins,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 15.sp,
+                                        color = Color.Black
+                                    )
+                                    Text(
+                                        text = "*",
+                                        color = Color.Red,
+                                        fontSize = 15.sp
+                                    )
+                                }
+                                BasicTextField(
+                                    value = data.guardian_pan,
+                                    onValueChange = {
+                                        viewModel.onGuardianPanChange(
+                                            it.toUpperCase(Locale.current)
+                                        )
+                                    },
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Text
+                                    ),
+                                    textStyle = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(54.dp)
+                                        .clip(RoundedCornerShape(15.dp))
+                                        .background(Color.White)
+                                        .border(
+                                            width = 0.7.dp,
+                                            color = Color(0xFFC5A572),
+                                            shape = RoundedCornerShape(15.dp)
                                         ),
-                                        textStyle = MaterialTheme.typography.bodySmall,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(54.dp)
-                                            .clip(RoundedCornerShape(15.dp))
-                                            .background(Color.White)
-                                            .border(
-                                                width = 0.7.dp,
-                                                color = Color(0xFFC5A572),
-                                                shape = RoundedCornerShape(15.dp)
-                                            ),
-                                        decorationBox = { innerTextField ->
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .padding(horizontal = 16.dp),
-                                                contentAlignment = Alignment.CenterStart
+                                    decorationBox = { innerTextField ->
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = 16.dp),
+                                            contentAlignment = Alignment.CenterStart
+                                        ) {
+                                            if (data.guardian_pan.isEmpty()) {
+                                                Text(
+                                                    text = "ABCDE1234F",
+                                                    color = Color(0xffC5C5C5),
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                            innerTextField()
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.End,
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                if (data.guardian_pan.isEmpty()) {
-                                                    Text(
-                                                        text = "ABCDE1234F",
-                                                        color = Color(0xffC5C5C5),
-                                                        style = MaterialTheme.typography.bodySmall
-                                                    )
-                                                }
-                                                innerTextField()
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.End,
-                                                    verticalAlignment = Alignment.CenterVertically
+                                                if (
+                                                    !panVerified ||
+                                                    verifiedPanNumber != data.guardian_pan
                                                 ) {
-                                                    if (
-                                                        !panVerified ||
-                                                        verifiedPanNumber != data.guardian_pan
-                                                    ) {
-                                                        TextButton(
-                                                            onClick = {
-                                                                viewModel.verifyPan(data.guardian_pan)
-                                                            }
-                                                        ) {
-                                                            Text(
-                                                                text = "Verify",
-                                                                color = darkBlue,
-                                                                fontWeight = FontWeight.SemiBold,
-                                                                fontFamily = Poppins,
-                                                                fontSize = 16.sp
-                                                            )
+                                                    TextButton(
+                                                        onClick = {
+                                                            viewModel.verifyPan(data.guardian_pan)
                                                         }
-                                                    } else {
+                                                    ) {
                                                         Text(
-                                                            text = "Verified",
-                                                            color = appGreen,
+                                                            text = "Verify",
+                                                            color = darkBlue,
                                                             fontWeight = FontWeight.SemiBold,
                                                             fontFamily = Poppins,
                                                             fontSize = 16.sp
                                                         )
                                                     }
+                                                } else {
+                                                    Text(
+                                                        text = "Verified",
+                                                        color = appGreen,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        fontFamily = Poppins,
+                                                        fontSize = 16.sp
+                                                    )
                                                 }
                                             }
                                         }
-                                    )
-                                    Text(
-                                        "Enter guardian PAN in 10-character format",
-                                        fontFamily = Poppins,
-                                        fontSize = 13.sp,
-                                        color = Color(0xff7B3306)
-                                    )
-                                }
+                                    }
+                                )
+                                Text(
+                                    "Enter guardian PAN in 10-character format",
+                                    fontFamily = Poppins,
+                                    fontSize = 13.sp,
+                                    color = Color(0xff7B3306)
+                                )
                             }
                         }
-                        ///////////////////////////////////////////////////////
-                        // REGULATORY DISCLOSURE
-                        ///////////////////////////////////////////////////////
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .genericDropShadow(RoundedCornerShape(24.dp))
-                                    .clip(RoundedCornerShape(24.dp))
-                                    .background(bgColor3.copy(0.1f))
-                                    .padding(16.dp)
-                            ) {
-                                Column {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    }
+                    ///////////////////////////////////////////////////////
+                    // REGULATORY DISCLOSURE
+                    ///////////////////////////////////////////////////////
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .genericDropShadow(RoundedCornerShape(24.dp))
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(bgColor3.copy(0.1f))
+                                .padding(16.dp)
+                        ) {
+                            Column {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.notice),
+                                        contentDescription = "notice icon",
+                                        tint = Secondary
+                                    )
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Icon(
-                                            painter = painterResource(Res.drawable.notice),
-                                            contentDescription = "notice icon",
-                                            tint = Secondary
+                                        Text(
+                                            "Regulatory Disclosure",
+                                            fontFamily = Poppins,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = grayColor
                                         )
-                                        Column(
-                                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                                        ) {
-                                            Text(
-                                                "Regulatory Disclosure",
-                                                fontFamily = Poppins,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 14.sp,
-                                                color = grayColor
-                                            )
-                                            Text(
-                                                "Guardian PAN mismatch or invalid PAN may cause account rejection.",
-                                                fontFamily = Poppins,
-                                                fontSize = 14.sp,
-                                                lineHeight = 15.sp,
-                                                color = titleColor
-                                            )
-                                        }
+                                        Text(
+                                            "Guardian PAN mismatch or invalid PAN may cause account rejection.",
+                                            fontFamily = Poppins,
+                                            fontSize = 14.sp,
+                                            lineHeight = 15.sp,
+                                            color = titleColor
+                                        )
                                     }
                                 }
                             }
                         }
-                        item {
-                            Spacer(
-                                modifier = Modifier.height(
-                                    pv.calculateBottomPadding()
-                                )
-                            )
-                        }
                     }
-                    NextButtonFooter(
-                        onClick = onClick,
-                        pv = pv,
-                        value = "Next",
-                        enabled = panVerified &&
-                                verifiedPanNumber == data.guardian_pan
-                    )
+                    item {
+                        Spacer(
+                            modifier = Modifier.height(
+                                pv.calculateBottomPadding()
+                            )
+                        )
+                    }
                 }
+                NextButtonFooter(
+                    onClick = onClick,
+                    pv = pv,
+                    value = "Next",
+                    enabled = panVerified &&
+                            verifiedPanNumber == data.guardian_pan
+                )
             }
         }
     }

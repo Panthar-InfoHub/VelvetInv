@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,8 +30,8 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.shared.compose.MeshSquareBackground
-import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeading
@@ -43,6 +42,7 @@ import velvet.composeapp.generated.resources.expenses_icon
 import velvet.composeapp.generated.resources.icon_eye_closed
 import velvet.composeapp.generated.resources.icone_eye_open
 import velvet.composeapp.generated.resources.worth_img
+
 @Composable
 fun UserWorthCard(
     netWorth: UserWorthCardDomain?,
@@ -61,9 +61,9 @@ fun UserWorthCard(
     val investingRateFormatted =
         "${netWorth?.investingRate ?: 0}%"
 
-    val totalNetWorthMasked = maskAmount(totalNetWorthFormatted)
-    val growthMasked = maskAmount(growthFormatted)
-    val investingRateMasked = maskAmount(investingRateFormatted)
+    val totalNetWorthMasked = "₹"+" XX,XXX"
+    val growthMasked = "Hidden"
+    val investingRateMasked = "Hidden"
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -200,7 +200,7 @@ fun UserWorthCard(
 fun maskAmount(amount: String): String {
 
     return amount.map { char ->
-        if (char.isDigit()) '*' else if (char=='+'|| char=='-') "" else char
+        if (char.isDigit()) '*' else if (char=='+'|| char=='-'|| char=='.' ) "" else char
     }.joinToString("")
 }
 

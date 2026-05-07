@@ -55,12 +55,10 @@ import org.sharad.velvetinvestment.presentation.firereport.uimodels.toFireMapPoi
 import org.sharad.velvetinvestment.presentation.firereport.uimodels.toMapPoints
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.FireReportViewModel
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.SelectedYear
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BarHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.ToggleSwitch
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -79,6 +77,7 @@ fun FireReportScreen(
     val emiIncluded by viewModel.emiIncluded.collectAsStateWithLifecycle()
     val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
     val downloading by viewModel.downloadingReport.collectAsStateWithLifecycle()
+    val showProjected by viewModel.showProjected.collectAsStateWithLifecycle()
 
 
 
@@ -94,34 +93,27 @@ fun FireReportScreen(
             onIconClick = { viewModel.downloadFireReport() },
             downloading = downloading
         )
-        Box(
-            modifier=Modifier.weight(1f).fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ){
-            when(uiState){
-                is UiState.Error -> {
-                    ErrorScreen(errorMessage = (uiState as UiState.Error).message, onRetryClick = {
-                        viewModel.loadData()
-                    })
-                }
-                UiState.Loading -> {
-                    LoaderScreen()
-                }
-                is UiState.Success -> {
-                    FireReportContent(
-                        fireState = (uiState as UiState.Success<FireReportUiModel>).data,
-                        emiIncluded =emiIncluded,
-                        selectedYear =selectedYear,
-                        onEmiSwitchClick = {
-                            viewModel.toggleEmi()
-                        },
-                        selectedYearChange = {
-                            viewModel.onSelectedYearChange(it)
-                        },
-                        onUpdateClick=onUpdateClick
-                    )
-                }
-            }
+        UiStateContainer(
+            modifier = Modifier.weight(1f).fillMaxSize(),
+            uiState = uiState,
+            onRetry = { viewModel.loadData() }
+        ) { data ->
+            FireReportContent(
+                fireState = data,
+                emiIncluded = emiIncluded,
+                showProjected = showProjected,
+                selectedYear = selectedYear,
+                onEmiSwitchClick = {
+                    viewModel.toggleEmi()
+                },
+                onProjectedSwitchClick = {
+                    viewModel.toggleProjected()
+                },
+                selectedYearChange = {
+                    viewModel.onSelectedYearChange(it)
+                },
+                onUpdateClick = onUpdateClick
+            )
         }
     }
 
@@ -134,7 +126,9 @@ fun FireReportContent(
     onEmiSwitchClick: () -> Unit,
     selectedYear: SelectedYear,
     selectedYearChange: (SelectedYear) -> Unit,
-    onUpdateClick: () -> Unit
+    onUpdateClick: () -> Unit,
+    showProjected: Boolean,
+    onProjectedSwitchClick: () -> Unit
 ) {
 
     val progressAnim = remember { Animatable(0f) }
@@ -163,7 +157,9 @@ fun FireReportContent(
                 selectedYear = selectedYear,
                 onSelectedYearChange=selectedYearChange,
                 onEmiIncludedClick = onEmiSwitchClick,
-                onUpdateClick=onUpdateClick
+                onUpdateClick=onUpdateClick,
+                onProjectedClick = onProjectedSwitchClick,
+                showProjected = showProjected
             )
         }
         item() {
@@ -319,7 +315,9 @@ fun FireReportHeadSwitcher(
     emiIncluded: Boolean,
     selectedYear: SelectedYear,
     onSelectedYearChange: (SelectedYear) -> Unit,
-    onUpdateClick: () -> Unit
+    onUpdateClick: () -> Unit,
+    onProjectedClick: () -> Unit,
+    showProjected: Boolean
 ) {
     ShadowCard {
         Column(
@@ -353,7 +351,8 @@ fun FireReportHeadSwitcher(
                 )
             }
             YearSelector(selectedYear,onSelectedYearChange)
-            IncludeEmi(emiIncluded,onEmiIncludedClick)
+            FireToggle(text="Include EMI",emiIncluded,onEmiIncludedClick)
+            FireToggle(text="Projected",showProjected,onProjectedClick)
         }
     }
 }
@@ -468,22 +467,22 @@ fun YearSelector(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun IncludeEmi(emiIncluded: Boolean, onEmiIncludedClick: () -> Unit) {
+fun FireToggle(text:String, value: Boolean, onToggle: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Include EMI",
+            text = text,
             style = titlesStyle.copy(fontWeight = FontWeight.SemiBold),
             color = Color(0xff314158)
 
         )
 
         ToggleSwitch(
-            checked = emiIncluded,
-            onCheckedChange = { onEmiIncludedClick() },
+            checked = value,
+            onCheckedChange = { onToggle() },
             width = 48.dp,
             height = 24.dp,
             thumbSize = 20.dp,

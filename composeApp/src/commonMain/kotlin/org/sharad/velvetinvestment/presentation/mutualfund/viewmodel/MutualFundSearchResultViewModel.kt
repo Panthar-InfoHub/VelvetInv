@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
@@ -20,7 +19,8 @@ import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class MutualFundSearchResultViewModel(
-    private val search: String,
+    private val search: String?,
+    private val fundCategory: String?,
     private val getMutualFundSearchResultUseCase: GetMutualFundSearchResultUseCase
 ) : ViewModel() {
 
@@ -66,6 +66,7 @@ class MutualFundSearchResultViewModel(
             _loadingState.value = LoadingState.Loading
             getMutualFundSearchResultUseCase(
                 search = search,
+                fundCategory = fundCategory,
                 page = 1,
                 limit = 20
             )

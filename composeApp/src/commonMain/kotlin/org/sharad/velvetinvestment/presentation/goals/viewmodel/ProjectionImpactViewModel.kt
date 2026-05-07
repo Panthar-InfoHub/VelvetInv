@@ -6,7 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.model.useedata.UserGoal
+import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.repository.UserFinance
+import org.sharad.velvetinvestment.domain.usecases.mutualfunds.GetAllBundledFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.utils.AppEvents
 import org.sharad.velvetinvestment.utils.DateTimeUtils
@@ -31,6 +33,7 @@ data class ProjectionImpactUiData(
 
 class ProjectionImpactViewModel(
     private val getUserDataUseCase: GetUserDataUseCase,
+    private val getAllBundledFundsUseCase: GetAllBundledFundsUseCase,
     private val deleteRepo: UserFinance,
     private val goalId: String
 ) : ViewModel() {
@@ -38,8 +41,12 @@ class ProjectionImpactViewModel(
     private val _uiState = MutableStateFlow<UiState<ProjectionImpactUiData>>(UiState.Loading)
     val uiState = _uiState.asStateFlow()
 
+    private val _bundleData =  MutableStateFlow<UiState<List<BundledMutualFundDomain>>>(UiState.Loading)
+    val bundleData= _bundleData.asStateFlow()
+
     init {
         loadGoalDetails()
+        loadBundles()
     }
 
     fun loadGoalDetails() {
@@ -56,6 +63,19 @@ class ProjectionImpactViewModel(
                 }
                 .onError {
                     _uiState.value = UiState.Error(it.message)
+                }
+        }
+    }
+
+    fun loadBundles() {
+        viewModelScope.launch {
+            _uiState.value = UiState.Loading
+            getAllBundledFundsUseCase()
+                .onSuccess { data ->
+                    _bundleData.value = UiState.Success(data)
+                }
+                .onError { error ->
+                    _bundleData.value = UiState.Error(error.message)
                 }
         }
     }

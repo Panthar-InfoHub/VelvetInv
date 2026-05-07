@@ -10,7 +10,7 @@ data class Goal(
     val id: String,
     val life_expectancy: Int?,
     val name: String,
-    val required_monthly_sip: Int,
-    val target_amount: Int,
+    val required_monthly_sip: Double,
+    val target_amount: Double,
     val target_year: Int
 )

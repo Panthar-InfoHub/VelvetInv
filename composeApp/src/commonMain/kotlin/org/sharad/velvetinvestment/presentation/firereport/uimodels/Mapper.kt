@@ -7,14 +7,17 @@ import org.sharad.velvetinvestment.utils.trimTo
 
 fun FireReportDomain.toUiModel(
     includeEmi: Boolean,
+    showProjected: Boolean,
     yearLimit: Int
 ): FireReportUiModel {
 
-    return FireReportUiModel(
-        startYear = startYear,
-        endYear = endYear,
+    val scenario = if (showProjected) projected else actual
 
-        portfolioChart = portfolioChart
+    return FireReportUiModel(
+        startYear = scenario.startYear,
+        endYear = scenario.endYear,
+
+        portfolioChart = scenario.portfolioChart
             .take(yearLimit)
             .map {
                 PortfolioProjectionPointUiModel(
@@ -25,7 +28,7 @@ fun FireReportDomain.toUiModel(
                 )
             },
 
-        firePercentageChart = firePercentageChart
+        firePercentageChart = scenario.firePercentageChart
             .take(yearLimit)
             .map {
                 FirePercentagePointUiModel(
@@ -36,12 +39,13 @@ fun FireReportDomain.toUiModel(
                 )
             },
 
-        projectionRows = projectionRows
+        projectionRows = scenario.projectionRows
             .take(yearLimit)
             .map { row ->
 
                 FireProjectionRowUiModel(
                     year = row.year,
+
                     income = row.income,
 
                     expenses =
@@ -66,14 +70,14 @@ fun FireReportDomain.toUiModel(
 
                     firePercentage =
                         if (includeEmi) row.firePercentage.includeEmi
-                        else row.firePercentage.excludeEmi,
+                        else row.firePercentage.excludeEmi
                 )
             }
     )
 }
 
-fun List<PortfolioProjectionPointUiModel>.toMapPoints():List<LineChartData>{
-    return this.map {
+fun List<PortfolioProjectionPointUiModel>.toMapPoints(): List<LineChartData> {
+    return map {
         LineChartData(
             floatingLabel = "₹ ${formatMoneyWithUnits(it.portfolioValue)}",
             value = it.portfolioValue.toDouble(),
@@ -82,10 +86,10 @@ fun List<PortfolioProjectionPointUiModel>.toMapPoints():List<LineChartData>{
     }
 }
 
-fun List<FirePercentagePointUiModel>.toFireMapPoints():List<LineChartData>{
-    return this.map {
+fun List<FirePercentagePointUiModel>.toFireMapPoints(): List<LineChartData> {
+    return map {
         LineChartData(
-            floatingLabel = "${ it.percentage.trimTo(1) }%",
+            floatingLabel = "${it.percentage.trimTo(1)}%",
             value = it.percentage,
             axisLabel = it.year.toString()
         )

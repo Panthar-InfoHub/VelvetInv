@@ -98,7 +98,7 @@ fun CartBottomSheetState.toSipRequest(
         .toLocalDateTime(TimeZone.currentSystemDefault())
         .date
 
-    val startDate = today.plus(DatePeriod(days = 30))
+    val startDate = today.plus(DatePeriod(days = 31))
 
     val maxEndDate = LocalDate(2099, 12, 31)
 
@@ -114,10 +114,10 @@ fun CartBottomSheetState.toSipRequest(
     return AddCartSipRequest(
         amount = amount,
         mf_product_id = productId,
-        sip_start_date = startDate.toString(),
-        sip_end_date = endDate.toString(),
-        sip_frequency = frequency.code,
+        sip_st_date = startDate.toString(),
+        sip_en_date = endDate.toString(),
+        sip_freq = frequency.code,
         sip_day = day,
-        sip_amount = amount
+        sip_amt = amount
     )
 }

@@ -6,30 +6,26 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFixedDepositTopPicksUseCase
+import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetTopPickFDUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundTopPicksUseCase
 import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.FixedTopPicksUiModel
 import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.MutualFundTopPicksUiModel
-import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.toUi
-import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.toTopPickUi
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
+data class TopPickCombinedUiModel(
+    val funds: List<MutualFundTopPicksUiModel> = emptyList(),
+    val fixedDeposits: List<FixedTopPicksUiModel> = emptyList()
+)
 class ExploreFundScreenViewModel(
     private val getMutualFundTopPicksUseCase: GetMutualFundTopPicksUseCase,
-    private val getFixedDepositTopPicksUseCase: GetFixedDepositTopPicksUseCase
+    private val getFixedDepositTopPicksUseCase: GetTopPickFDUseCase
 ) : ViewModel() {
 
-    private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Loading)
+    private val _loadingState = MutableStateFlow<UiState<TopPickCombinedUiModel>>(UiState.Loading)
     val uiState = _loadingState.asStateFlow()
-
-    private val _mutualFunds =
-        MutableStateFlow<List<MutualFundTopPicksUiModel>>(emptyList())
-    val mutualFunds = _mutualFunds.asStateFlow()
-
-    private val _fixedDeposits =
-        MutableStateFlow<List<FixedTopPicksUiModel>>(emptyList())
-    val fixedDeposits = _fixedDeposits.asStateFlow()
 
     init {
         loadExploreData()
@@ -37,37 +33,60 @@ class ExploreFundScreenViewModel(
 
     fun loadExploreData() {
 
-        _loadingState.value = LoadingState.Loading
+        _loadingState.value = UiState.Loading
 
         viewModelScope.launch {
 
-            val mutualResponse = async{ getMutualFundTopPicksUseCase() }
-            val fdResponse = async{ getFixedDepositTopPicksUseCase() }
+            val mutualResponse = async {
+                getMutualFundTopPicksUseCase()
+            }
 
-            var hasError = false
-            var errorMessage = ""
+            val fdResponse = async {
+                getFixedDepositTopPicksUseCase()
+            }
 
-            mutualResponse.await()
-                .onSuccess { list ->
-                    _mutualFunds.value = list.map { it.toUi() }
+            val mutualResult = mutualResponse.await()
+            val fdResult = fdResponse.await()
+
+            var mutualFunds: List<MutualFundTopPicksUiModel> = emptyList()
+            var fixedDeposits: List<FixedTopPicksUiModel> = emptyList()
+
+            var hasAnySuccess = false
+            var errorMessage = "Something went wrong"
+
+            mutualResult
+                .onSuccess { funds ->
+                    hasAnySuccess = true
+                    mutualFunds = funds.map { it.toTopPickUi() }
                 }
-                .onError {
-                    hasError = true
-                    errorMessage = it.message
+                .onError { error ->
+                    errorMessage = error.message
                 }
 
-            fdResponse.await()
-                .onSuccess { list ->
-                    _fixedDeposits.value = list.map { it.toUi() }
+            fdResult
+                .onSuccess { fds ->
+                    hasAnySuccess = true
+                    fixedDeposits = fds.map { it.toTopPickUi() }
                 }
-                .onError {
-                    hasError = true
-                    errorMessage = it.name
+                .onError { error ->
+                    errorMessage = error.message
                 }
 
-            _loadingState.value =
-                if (hasError) LoadingState.Error(errorMessage)
-                else LoadingState.Success
+            if (hasAnySuccess) {
+
+                _loadingState.value = UiState.Success(
+                    TopPickCombinedUiModel(
+                        funds = mutualFunds,
+                        fixedDeposits = fixedDeposits
+                    )
+                )
+
+            } else {
+
+                _loadingState.value = UiState.Error(
+                    errorMessage
+                )
+            }
         }
     }
 }

@@ -48,8 +48,7 @@ import org.sharad.velvetinvestment.domain.models.usercart.CartItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
 import org.sharad.velvetinvestment.presentation.mutualfund.CartScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.Poppins
@@ -78,66 +77,59 @@ fun CartScreen(
         }
     }
 
-    when(uiState){
-        is UiState.Error ->{
-            ErrorScreen((uiState as UiState.Error).message) {
-                viewModel.loadCart()
-            }
-        }
-        UiState.Loading -> {
-            LoaderScreen()
-        }
-        is UiState.Success-> {
-            val data = (uiState as UiState.Success).data
-            Column(
-                modifier=Modifier.fillMaxSize()
+    UiStateContainer(
+        uiState = uiState,
+        onRetry = { viewModel.loadCart() },
+        modifier = Modifier.fillMaxSize()
+    ) { data ->
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            CartHeader(
+                onBack = onBack
+            )
+
+            MFTypeSelector(
+                selected = data.selectedCartType,
+                lumpsumSize = data.cartData.lumpSumItems.size,
+                sipSize = data.cartData.sipItems.size,
+                onSelect = viewModel::onCartTypeSelected
+            )
+
+            HorizontalDivider(
+                thickness = 0.7.dp,
+                color = titleColor.copy(0.2f),
+                modifier = Modifier.padding(top = 16.dp)
+            )
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
             ) {
-                CartHeader(
-                    onBack = onBack
-                )
-
-                MFTypeSelector(
-                    selected= data.selectedCartType,
-                    lumpsumSize=data.cartData.lumpSumItems.size,
-                    sipSize=data.cartData.sipItems.size,
-                    onSelect=viewModel::onCartTypeSelected
-                )
-
-                HorizontalDivider(
-                    thickness = 0.7.dp,
-                    color = titleColor.copy(0.2f),
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize()
-                ) {
-                    CartScreenContent(
-                        items = visibleItems,
-                        onRemoveClick = viewModel::removeItem,
-                        onRefresh = { viewModel.loadCart() }
-                    )
-                }
-
-                NextButtonFooter(
-                    onClick = {
-                        viewModel.showPopup()
-                    },
-                    pv = pv,
-                    value = if (total == 0L) "No Fund Added to the Cart" else "Pay ₹${formatMoneyAfterL(total)}",
-                    loading=loading,
-                    enabled = total != 0L
+                CartScreenContent(
+                    items = visibleItems,
+                    onRemoveClick = viewModel::removeItem,
+                    onRefresh = { viewModel.loadCart() }
                 )
             }
-            if (popupVisible){
-                CartCutOffPopup(
-                    visible = popupVisible,
-                    onDismiss = { viewModel.hidePopup() },
-                    onPurchase = { viewModel.purchase() }
-                )
-            }
+
+            NextButtonFooter(
+                onClick = {
+                    viewModel.showPopup()
+                },
+                pv = pv,
+                value = if (total == 0L) "No Fund Added to the Cart" else "Pay ₹${formatMoneyAfterL(total)}",
+                loading = loading,
+                enabled = total != 0L
+            )
+        }
+        if (popupVisible) {
+            CartCutOffPopup(
+                visible = popupVisible,
+                onDismiss = { viewModel.hidePopup() },
+                onPurchase = { viewModel.purchase() }
+            )
         }
     }
 

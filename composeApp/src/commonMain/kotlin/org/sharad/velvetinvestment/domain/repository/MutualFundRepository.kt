@@ -36,7 +36,8 @@ interface MutualFundRepository {
         limit:Int?,
         sort:String?,
         risk:Int?,
-        category:String?
+        category:String?,
+        fundCategory:String?
     ): NetworkResponse<PaginatedData<MutualFundDomain>, ErrorDomain>
 
 

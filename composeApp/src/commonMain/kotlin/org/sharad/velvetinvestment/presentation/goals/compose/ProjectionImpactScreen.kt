@@ -1,60 +1,109 @@
 package org.sharad.velvetinvestment.presentation.goals.compose
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import org.sharad.emify.core.ui.theme.*
+import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.appOrange
+import org.sharad.emify.core.ui.theme.bgColor3
+import org.sharad.emify.core.ui.theme.bgColor4
+import org.sharad.emify.core.ui.theme.greenColor
+import org.sharad.emify.core.ui.theme.orangeColor
+import org.sharad.emify.core.ui.theme.redColor
+import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
+import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.MutualFundTopPicksUiModel
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.ProjectionImpactUiData
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.ProjectionImpactViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.BundleCard
+import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.CustomProgressFillBar
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.shared.UiStateContainer
+import org.sharad.velvetinvestment.shared.compose.BarHeader
+import org.sharad.velvetinvestment.shared.compose.VelvetLoader
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.MutualFundTopPicksUiModel
-import org.sharad.velvetinvestment.utils.formatWithCommas
-import coil3.compose.AsyncImage
-import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
+import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.utils.theme.VelvetTheme
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.*
+import velvet.composeapp.generated.resources.back_arrow
+import velvet.composeapp.generated.resources.feasibility_score
+import velvet.composeapp.generated.resources.future_value
+import velvet.composeapp.generated.resources.increased_by
+import velvet.composeapp.generated.resources.invest_now
+import velvet.composeapp.generated.resources.monthly_sip
+import velvet.composeapp.generated.resources.progress
+import velvet.composeapp.generated.resources.projected_impact
+import velvet.composeapp.generated.resources.projection_impact
+import velvet.composeapp.generated.resources.rectangle_19
+import velvet.composeapp.generated.resources.remove
+import velvet.composeapp.generated.resources.req_monthly
+import velvet.composeapp.generated.resources.returns_3y
+import velvet.composeapp.generated.resources.target
+import velvet.composeapp.generated.resources.todays_cost
 
 @Composable
 fun ProjectionImpactScreen(
     goalId: String,
     onBack: () -> Unit = {},
     onInvestNow: () -> Unit = {},
+    navigateToAllBundles : () -> Unit = {},
+    navigateToSpecificBundle: (String) -> Unit = {},
     onEditGoal: (String) -> Unit = {},
     onRemoveGoal: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val viewModel: ProjectionImpactViewModel = koinViewModel { parametersOf(goalId) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val bundleState by viewModel.bundleData.collectAsStateWithLifecycle()
 
     var showMenu by remember { mutableStateOf(false) }
 
@@ -82,31 +131,38 @@ fun ProjectionImpactScreen(
                 value = "Invest Now",
             )
         },
-        containerColor = Color(0xFFF8F9FE)
+        containerColor = Color.White
     ) { paddingValues ->
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (val state = uiState) {
-                is UiState.Loading -> LoaderScreen()
-                is UiState.Error -> ErrorScreen(
-                    errorMessage = state.message,
-                    onRetryClick = { viewModel.loadGoalDetails() }
-                )
-                is UiState.Success -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(bottom = 16.dp)
-                    ) {
-                        ProjectedImpactCard(data = state.data)
-
-//                        ExploreBundleGoalsSection(
-//                            onInvestNow = onInvestNow
-//                        )
+            UiStateContainer(
+                uiState = uiState,
+                onRetry = { viewModel.loadGoalDetails() }
+            ) { data ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 16.dp)
+                ) {
+                    item {
+                        HorizontalDivider(
+                            modifier= Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            thickness = 2.dp,
+                            color = bgColor3
+                        )
+                    }
+                    item{
+                        ProjectedImpactCard(data = data)
+                    }
+                    item{
+                        ExploreBundleGoalsSection(
+                            onArrowClick = navigateToAllBundles,
+                            onBundleClick = navigateToSpecificBundle,
+                            state = bundleState
+                        )
                     }
                 }
             }
@@ -138,15 +194,14 @@ fun ProjectionImpactHeader(
                 painter = painterResource(Res.drawable.back_arrow),
                 contentDescription = "Back",
                 modifier = Modifier.size(24.dp),
-                tint = Primary
+                tint = Color.Black
             )
         }
 
         Text(
             text = stringResource(Res.string.projection_impact),
-            style = MaterialTheme.typography.headlineSmall,
-            color = Primary,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.headlineLarge,
+            color = Primary
         )
 
         Box(modifier = Modifier.align(Alignment.CenterEnd)) {
@@ -369,86 +424,49 @@ private fun formatCurrency(amount: Long): String {
 
 @Composable
 fun ExploreBundleGoalsSection(
-    onInvestNow: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onArrowClick: () -> Unit ,
+    onBundleClick: (String) -> Unit,
+    state: UiState<List<BundledMutualFundDomain>>
 ) {
-    val samplePicks = remember {
-        listOf(
-            MutualFundTopPicksUiModel(
-                icon = "",
-                name = "SBI Gold Fund",
-                metadata = "High Risk . Commodities . Gold",
-                returnYears = 3,
-                percentage = 18.5,
-                id = "1"
-            ),
-            MutualFundTopPicksUiModel(
-                icon = "",
-                name = "HDFC Index Fund",
-                metadata = "Moderate Risk . Equity . Large Cap",
-                returnYears = 3,
-                percentage = 15.2,
-                id = "2"
-            ),
-            MutualFundTopPicksUiModel(
-                icon = "",
-                name = "ICICI Prudential Bluechip",
-                metadata = "Moderate Risk . Equity . Large Cap",
-                returnYears = 3,
-                percentage = 16.8,
-                id = "3"
-            )
-        )
-    }
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .height(20.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(Secondary)
-            )
+    when(state){
+        is UiState.Error -> {
             Text(
-                text = stringResource(Res.string.explore_bundle_goals),
-                style = MaterialTheme.typography.titleMedium,
-                color = Primary,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .weight(1f)
-            )
-            Icon(
-                painter = painterResource(Res.drawable.back_arrow),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { },
-                tint = Primary
+                text = "Unable to load bundles",
+                style = MaterialTheme.typography.bodyMedium,
+                color = titleColor,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(samplePicks) { pick ->
-                BundleGoalCard(
-                    data = pick,
-                    onInvestNow = onInvestNow
+        UiState.Loading -> {
+            VelvetLoader()
+        }
+        is UiState.Success -> {
+            val data = state.data
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                BarHeader(
+                    heading = "Explore Bundle Goals",
+                    showArrow = true,
+                    onArrowClick = onArrowClick
                 )
+                data.chunked(2).forEach { chunk->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        chunk.forEach {bundle->
+                            BundleCard(
+                                title = bundle.categoryName,
+                                minAmount = "₹" + formatMoneyAfterL(bundle.minAmount.toLong()),
+                                onClick = { onBundleClick(bundle.key) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
             }
         }
     }

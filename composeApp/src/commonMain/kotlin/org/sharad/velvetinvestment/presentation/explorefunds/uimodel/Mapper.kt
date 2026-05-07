@@ -1,24 +1,23 @@
 package org.sharad.velvetinvestment.presentation.explorefunds.uimodel
 
-import org.sharad.velvetinvestment.domain.models.explore.FixedDepositTopPicksDomain
-import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
+import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 
-fun MutualFundTopPicksDomain.toUi() =
+fun MutualFundDomain.toTopPickUi() =
     MutualFundTopPicksUiModel(
         icon = icon,
         name = name,
-        metadata = metadata,
-        returnYears = returnYears,
-        percentage = percentage,
-        id=id
+        metadata = (riskText?.let { "$it . " } ?:"") + category+" . " + type ,
+        returnYears = 1,
+        percentage = returnYearsRate.year1,
+        id =id
     )
 
-fun FixedDepositTopPicksDomain.toUi() =
+fun FixedDepositDomain.toTopPickUi() =
     FixedTopPicksUiModel(
-        icon = icon,
-        name = name,
-        metadata = metadata,
-        returnYears = returnYears,
-        percentage = percentage,
+        icon = bankLogoUrl,
+        name = bankName,
+        metadata = bankTag,
+        percentage = baseInterest,
         id=id
     )

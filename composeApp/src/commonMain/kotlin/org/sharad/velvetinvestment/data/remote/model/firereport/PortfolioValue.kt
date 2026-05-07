@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PortfolioValue(
-    val emi_exclude: Long,
-    val emi_include: Long
+    val emi_exclude: Double,
+    val emi_include: Double
 )

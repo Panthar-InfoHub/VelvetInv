@@ -61,7 +61,7 @@ class FDPurchaseViewModel(
         loadFDDetails()
     }
 
-    private fun loadFDDetails() {
+    fun loadFDDetails() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
 

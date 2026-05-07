@@ -4,6 +4,7 @@ import org.sharad.velvetinvestment.data.remote.mapper.TenureRangeList
 
 data class FixedDepositTenureDomain(
     val tenure: TenureRangeList,
+    val tenureDays: Int,
     val interestRate: Double,
     val receiveMin: Long,
     val receiveMax: Long

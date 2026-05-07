@@ -42,11 +42,9 @@ import org.sharad.emify.core.ui.theme.grayColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
@@ -72,194 +70,191 @@ fun TradingAccountPANDetailsScreen(
             onBackClick = { onBackClick() }
         )
 
-        when (state) {
-            is UiState.Error -> {
-                ErrorScreen(
-                    errorMessage = (state as UiState.Error).message,
-                    onRetryClick = {
-                        viewModel.getUserData()
+        UiStateContainer(
+            uiState = state,
+            onRetry = { viewModel.getUserData() }
+        ) { baseResponse ->
+            val data = baseResponse.data
+            Column(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                "KYC & PAN Details",
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                            Text(
+                                "Verify your identity documents",
+                                style = titlesStyle,
+                                color = titleColor
+                            )
+                        }
                     }
-                )
-            }
 
-            UiState.Loading -> {
-                LoaderScreen()
-            }
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
 
-            is UiState.Success -> {
-                val data = (state as UiState.Success).data.data
-                Column(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-
-                        item {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
+                            Row(verticalAlignment = Alignment.Top) {
                                 Text(
-                                    "KYC & PAN Details",
-                                    style = MaterialTheme.typography.headlineLarge
+                                    text = "PAN Number",
+                                    style = subHeadingMedium,
+                                    color = Color.Black
                                 )
                                 Text(
-                                    "Verify your identity documents",
-                                    style = titlesStyle,
-                                    color = titleColor
+                                    text = "*",
+                                    color = Color.Red,
+                                    style = subHeadingMedium
                                 )
                             }
-                        }
 
-                        item {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-
-                                Row(verticalAlignment = Alignment.Top) {
-                                    Text(
-                                        text = "PAN Number",
-                                        style = subHeadingMedium,
-                                        color = Color.Black
+                            BasicTextField(
+                                value = data.primary_holder_pan,
+                                onValueChange = {
+                                    viewModel.onPanChange(
+                                        it.toUpperCase(
+                                            Locale.current
+                                        )
                                     )
-                                    Text(
-                                        text = "*",
-                                        color = Color.Red,
-                                        style = subHeadingMedium
-                                    )
-                                }
+                                },
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.bodySmall,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(54.dp)
+                                    .clip(RoundedCornerShape(15.dp))
+                                    .background(Color.White, RoundedCornerShape(15.dp))
+                                    .border(
+                                        width = 0.7.dp,
+                                        shape = RoundedCornerShape(15.dp),
+                                        color = Color(0xFFC5A572)
+                                    ),
+                                decorationBox = { innerTextField ->
 
-                                BasicTextField(
-                                    value = data.primary_holder_pan,
-                                    onValueChange = { viewModel.onPanChange(it.toUpperCase(Locale.current)) },
-                                    singleLine = true,
-                                    textStyle = MaterialTheme.typography.bodySmall,
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(54.dp)
-                                        .clip(RoundedCornerShape(15.dp))
-                                        .background(Color.White, RoundedCornerShape(15.dp))
-                                        .border(
-                                            width = 0.7.dp,
-                                            shape = RoundedCornerShape(15.dp),
-                                            color = Color(0xFFC5A572)
-                                        ),
-                                    decorationBox = { innerTextField ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(horizontal = 16.dp),
+                                        contentAlignment = Alignment.CenterStart
+                                    ) {
 
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(horizontal = 16.dp),
-                                            contentAlignment = Alignment.CenterStart
+                                        if (data.primary_holder_pan.isEmpty()) {
+                                            Text(
+                                                text = "ABCDE1234F",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = Color(0xffC5C5C5),
+                                                maxLines = 1
+                                            )
+                                        }
+
+                                        innerTextField()
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.End
                                         ) {
-
-                                            if (data.primary_holder_pan.isEmpty()) {
-                                                Text(
-                                                    text = "ABCDE1234F",
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = Color(0xffC5C5C5),
-                                                    maxLines = 1
-                                                )
-                                            }
-
-                                            innerTextField()
-
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.End
-                                            ) {
-                                                if (!panVerified || verifiedPanNumber != data.primary_holder_pan){
-                                                    TextButton(onClick = { viewModel.verifyPan(data.primary_holder_pan) }) {
-                                                        Text(
-                                                            text = "Verify",
-                                                            color = darkBlue,
-                                                            fontWeight = FontWeight.SemiBold,
-                                                            fontFamily = Poppins,
-                                                            fontSize = 16.sp
-                                                        )
-                                                    }
-                                                }
-                                                else{
+                                            if (!panVerified || verifiedPanNumber != data.primary_holder_pan) {
+                                                TextButton(onClick = {
+                                                    viewModel.verifyPan(
+                                                        data.primary_holder_pan
+                                                    )
+                                                }) {
                                                     Text(
-                                                        text = "Verified",
-                                                        color = appGreen,
+                                                        text = "Verify",
+                                                        color = darkBlue,
                                                         fontWeight = FontWeight.SemiBold,
                                                         fontFamily = Poppins,
                                                         fontSize = 16.sp
                                                     )
                                                 }
+                                            } else {
+                                                Text(
+                                                    text = "Verified",
+                                                    color = appGreen,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    fontFamily = Poppins,
+                                                    fontSize = 16.sp
+                                                )
                                             }
                                         }
                                     }
-                                )
-                            }
-                        }
-
-                        item {
-                            Text(
-                                "Enter your 10-character PAN card number (5 letters, 4 digits, 1 letter)",
-                                style = titlesStyle,
-                                color = titleColor
+                                }
                             )
                         }
+                    }
 
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .genericDropShadow(RoundedCornerShape(24.dp))
-                                    .clip(RoundedCornerShape(24.dp))
-                                    .background(bgColor3.copy(0.1f))
-                                    .padding(16.dp)
-                            ) {
-                                Column {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(Res.drawable.notice),
-                                            contentDescription = "notice icon",
-                                            tint = Secondary
+                    item {
+                        Text(
+                            "Enter your 10-character PAN card number (5 letters, 4 digits, 1 letter)",
+                            style = titlesStyle,
+                            color = titleColor
+                        )
+                    }
+
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .genericDropShadow(RoundedCornerShape(24.dp))
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(bgColor3.copy(0.1f))
+                                .padding(16.dp)
+                        ) {
+                            Column {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.notice),
+                                        contentDescription = "notice icon",
+                                        tint = Secondary
+                                    )
+                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text(
+                                            "Regulatory Disclosure",
+                                            fontFamily = Poppins,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = grayColor
                                         )
-                                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                            Text(
-                                                "Regulatory Disclosure",
-                                                fontFamily = Poppins,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 14.sp,
-                                                color = grayColor
-                                            )
-                                            Text(
-                                                "UCC will be rejected outright if PAN and KYC identifiers are inconsistent.",
-                                                fontFamily = Poppins,
-                                                fontSize = 14.sp,
-                                                lineHeight = 15.sp,
-                                                color = titleColor
-                                            )
-                                        }
+                                        Text(
+                                            "UCC will be rejected outright if PAN and KYC identifiers are inconsistent.",
+                                            fontFamily = Poppins,
+                                            fontSize = 14.sp,
+                                            lineHeight = 15.sp,
+                                            color = titleColor
+                                        )
                                     }
                                 }
                             }
                         }
-
-                        item {
-                            Spacer(modifier = Modifier.height(pv.calculateBottomPadding()))
-                        }
                     }
 
-                    NextButtonFooter(
-                        onClick = onClick,
-                        pv = pv,
-                        value = "Next",
-                        enabled = panVerified && verifiedPanNumber == data.primary_holder_pan
-                    )
+                    item {
+                        Spacer(modifier = Modifier.height(pv.calculateBottomPadding()))
+                    }
                 }
+
+                NextButtonFooter(
+                    onClick = onClick,
+                    pv = pv,
+                    value = "Next",
+                    enabled = panVerified && verifiedPanNumber == data.primary_holder_pan
+                )
             }
         }
     }

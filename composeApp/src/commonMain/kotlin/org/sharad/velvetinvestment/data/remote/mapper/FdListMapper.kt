@@ -42,6 +42,7 @@ fun FdProduct.toDomain(): FixedDepositDomain {
 fun InterestRate.toDomain(): FixedDepositTenureDomain {
     return FixedDepositTenureDomain(
         tenure = TenureRangeList.fromDays(tenure_days),
+        tenureDays = tenure_days,
         interestRate = interest_rate.toDoubleOrNull() ?: 0.0,
         receiveMin = 0L, // not provided
         receiveMax = 0L

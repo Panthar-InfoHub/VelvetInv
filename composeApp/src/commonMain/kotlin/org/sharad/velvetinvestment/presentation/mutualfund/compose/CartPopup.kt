@@ -44,12 +44,11 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CartBottomSheetState
-import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
 import org.sharad.velvetinvestment.presentation.mutualfund.Duration
 import org.sharad.velvetinvestment.presentation.mutualfund.MFPurchaseTypes
 import org.sharad.velvetinvestment.shared.compose.AppButton
-import org.sharad.velvetinvestment.shared.compose.TwoWaySwitch
 import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
@@ -66,7 +65,7 @@ fun CartPopup(
     onDismiss: () -> Unit,
     onAmountChange: (String) -> Unit,
     onTypeChange: (MFPurchaseTypes) -> Unit,
-    detailState: DetailsState.Success,
+    detailState: MutualFundDetailsDomain,
     cartState: CartBottomSheetState,
     onAddClick: () -> Unit,
     showFrequencyDropDown: () -> Unit,
@@ -113,7 +112,7 @@ fun CartPopup(
                 }
 
                 Text(
-                    text= detailState.data.scheme_name,
+                    text= detailState.scheme_name,
                     style = titlesStyle,
                     color = Color.Black,
 //                    maxLines = 1,
@@ -187,7 +186,7 @@ fun SIPCart(
             ShadowlessTextField(
                 value = amount?.toString() ?: "",
                 onValueChange = onAmountChange,
-                placeHolder = "Enter amount (min. ₹${minAmount})}",
+                placeHolder = "Enter amount (min. ₹${minAmount})",
                 label = "Investment Amount",
                 mandatory = false,
             )
@@ -283,7 +282,7 @@ fun LumpSumCart(
             ShadowlessTextField(
                 value = amount?.toString() ?: "",
                 onValueChange = onAmountChange,
-                placeHolder = "Enter amount (min. ₹${minAmount})}",
+                placeHolder = "Enter amount (min. ₹${minAmount})",
                 label = "Investment Amount",
                 mandatory = false,
             )

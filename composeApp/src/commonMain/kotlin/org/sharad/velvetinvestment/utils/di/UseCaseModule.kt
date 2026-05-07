@@ -5,7 +5,6 @@ import org.sharad.velvetinvestment.domain.models.mfkyc.GetContractPdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDPortFolioDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
-import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFixedDepositTopPicksUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetBundleFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFixedDepositsSearchResultUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetTopPickFDUseCase
@@ -111,7 +110,6 @@ val useCaseModule= module {
     factory { GetFDPortFolioDetailsUseCase(get()) }
 
     factory { GetMutualFundTopPicksUseCase(get()) }
-    factory { GetFixedDepositTopPicksUseCase(get()) }
     factory { GetCategoryMutualFundsUseCase(get()) }
     factory { GetCombinedCategoryMutualFundsUseCase(get()) }
     factory { GetMutualFundSearchResultUseCase(get()) }

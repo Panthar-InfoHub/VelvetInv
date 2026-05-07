@@ -43,13 +43,11 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.CircleButton
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.GoalEntryCard
 import org.sharad.velvetinvestment.shared.compose.GradientBackground
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.AppEvents
@@ -105,41 +103,32 @@ fun HomeScreenMain(
     ) {
         GradientBackground()
 
-        when (val state = homeState) {
-
-            UiState.Loading -> {
-                LoaderScreen()
-            }
-
-            is UiState.Error -> {
-                ErrorScreen(state.message)
-            }
-
-            is UiState.Success -> {
-                val data = state.data
-                HomeScreen(
-                    name = data.name,
-                    netWorth = data.userWorth,
-                    kyc = data.kycCompletion,
-                    tradingKyc= data.tradingAccountCompletion,
-                    fireReport = data.fireReport,
-                    goals = data.goals,
-                    hidden=data.hidden,
-                    onHiddenToggle={viewModel.toggleHidden()},
-                    onNotificationIconClick = {navigateToNotification()},
-                    onSettingsIconClick = navigateToInsurance,
-                    pv = pv,
-                    onFireReportClick = navigateToFireReportScreen,
-                    navigateToKYCScreen = navigateToKYCScreen,
-                    navigateToGoalScreen =navigateToGoalScreen,
-                    navigateToAddGoal=navigateToAddGoal,
-                    navigateToSpecificGoalProjection=navigateToSpecificGoalProjection,
-                    navigateToMutualFund=navigateToMutualFund,
-                    navigateToFd=navigateToFd,
-                    navigateToInsurance=navigateToInsurance,
-                    navigateToTradingAccountSetup=navigateToTradingAccountSetup
-                )
-            }
+        UiStateContainer(
+            uiState = homeState,
+            onRetry = { viewModel.loadHome() }
+        ) { data ->
+            HomeScreen(
+                name = data.name,
+                netWorth = data.userWorth,
+                kyc = data.kycCompletion,
+                tradingKyc = data.tradingAccountCompletion,
+                fireReport = data.fireReport,
+                goals = data.goals,
+                hidden = data.hidden,
+                onHiddenToggle = { viewModel.toggleHidden() },
+                onNotificationIconClick = { navigateToNotification() },
+                onSettingsIconClick = navigateToInsurance,
+                pv = pv,
+                onFireReportClick = navigateToFireReportScreen,
+                navigateToKYCScreen = navigateToKYCScreen,
+                navigateToGoalScreen = navigateToGoalScreen,
+                navigateToAddGoal = navigateToAddGoal,
+                navigateToSpecificGoalProjection = navigateToSpecificGoalProjection,
+                navigateToMutualFund = navigateToMutualFund,
+                navigateToFd = navigateToFd,
+                navigateToInsurance = navigateToInsurance,
+                navigateToTradingAccountSetup = navigateToTradingAccountSetup
+            )
         }
     }
 }
@@ -316,7 +305,7 @@ fun FireReportCard(summary: Double, onClick: () -> Unit) {
                 .fillMaxWidth()
         ){
             Text(
-                text = "Current F.I.R.E Number",
+                text = "Current F.I.R.E Percentage",
                 style = subHeading,
                 color = Primary,
             )
@@ -333,11 +322,6 @@ fun FireReportCard(summary: Double, onClick: () -> Unit) {
                     text="${summary}%",
                     style = titlesStyle,
                     color =if (summary>0) appGreen else appRed,
-                )
-                Text(
-                    text=" annual growth",
-                    style = titlesStyle,
-                    color = Color.Black,
                 )
 
             }

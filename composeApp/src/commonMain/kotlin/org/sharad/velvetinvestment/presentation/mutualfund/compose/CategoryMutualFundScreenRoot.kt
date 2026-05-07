@@ -52,6 +52,7 @@ import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.mf_haeder_icon
@@ -181,6 +182,7 @@ fun CategoryMutualFundScreen(
                     schemeName = fund.name,
                     assetType = fund.type,
                     latestNav = fund.latestNav,
+                    oneYearReturn= fund.returnYearsRate.year1
                 )
             }
         }
@@ -197,7 +199,8 @@ fun MutualFundGridCard(
     assetType: String,
     latestNav: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    oneYearReturn: Double?
 ) {
     ShadowCard(
         modifier = modifier
@@ -235,7 +238,7 @@ fun MutualFundGridCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = assetType,
+                    text = "1Y Return",
                     style = titlesStyle,
                     color = titleColor,
                     maxLines = 1,
@@ -244,7 +247,9 @@ fun MutualFundGridCard(
                 )
 
                 Text(
-                    text = "₹ $latestNav",
+                    text = oneYearReturn?.let {
+                        it.trimTo(2) + "%"
+                    }?: "N/A",
                     style = subHeading,
                     color = appGreen
                 )

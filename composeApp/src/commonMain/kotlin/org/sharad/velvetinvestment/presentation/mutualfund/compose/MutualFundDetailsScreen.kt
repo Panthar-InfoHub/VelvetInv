@@ -66,16 +66,18 @@ import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MFBottomShe
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.AppDialogList
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.NavLineChart
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.VelvetLoader
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.CartInfo
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
@@ -127,146 +129,134 @@ fun MutualFundDetailsScreenRoot(
         }
 
         Box(modifier = Modifier.weight(1f).fillMaxSize()) {
-            when (uiState.detailsState) {
-                is DetailsState.Error -> {
-                    ErrorScreen((uiState.detailsState as DetailsState.Error).error)
-                }
-
-                DetailsState.Loading -> {
-                    LoaderScreen()
-                }
-
-
-                is DetailsState.Success -> {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        containerColor = Color.White,
-                        floatingActionButton = {
-                            CartFab(
-                                onClick = { onCartClick() },
-                                cartAmount = cartAmount,
-                            )
-                        },
-                        bottomBar = {
-                            NextButtonFooter(
-                                onClick = {
-                                    viewModel.showBottomSheet()
-                                },
-                                pv = pv,
-                                value = "Add to Cart"
-                            )
-                        }
-                    ) { it ->
-                        MutualFundDetailsScreen(
-                            modifier = Modifier.padding(bottom = it.calculateBottomPadding()),
-                            detailsState = uiState.detailsState as DetailsState.Success,
-                            graphState = uiState.graphState,
-                            graphPoints = uiState.chartPoints,
-                            selectedYear = selectedYear,
-                            onSelectedYearChange = viewModel::onSelectedYearChange,
-                            displayPercent = displayPercent,
-
-                            calculatorState = calculatorState,
-                            onCalcInvestmentChange = viewModel::onInvestmentChange,
-                            onCalcSipToggle = viewModel::onSipToggle,
-                            onCalcTimeChange = viewModel::onTimeChange
+            UiStateContainer(
+                uiState = uiState.detailsState.toUiState(),
+                onRetry = { viewModel.loadInitial() }
+            ) { data ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.White,
+                    floatingActionButton = {
+                        CartFab(
+                            onClick = { onCartClick() },
+                            cartAmount = cartAmount,
                         )
+                    },
+                    bottomBar = {
+                        NextButtonFooter(
+                            onClick = {
+                                viewModel.showBottomSheet()
+                            },
+                            pv = pv,
+                            value = "Add to Cart"
+                        )
+                    }
+                ) { padding ->
+                    MutualFundDetailsScreen(
+                        modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
+                        detailsState = data,
+                        graphState = uiState.graphState,
+                        graphPoints = uiState.chartPoints,
+                        selectedYear = selectedYear,
+                        onSelectedYearChange = viewModel::onSelectedYearChange,
+                        displayPercent = displayPercent,
 
-                        if (uiState.detailsState is DetailsState.Success) {
-                            val data = uiState.detailsState as DetailsState.Success
-                            if (cartState.dayDropDownExpanded) {
-                                AppDialogList(
-                                    items = data.data.sipAllowedDated,
-                                    textFormatter = {
-                                        it.toString()
-                                    },
-                                    onSelect = {
-                                        viewModel.onCartDateChange(it.toString())
-                                    },
-                                    onDismiss = {
-                                        viewModel.onCartDropDownDismiss()
-                                    },
-                                )
+                        calculatorState = calculatorState,
+                        onCalcInvestmentChange = viewModel::onInvestmentChange,
+                        onCalcSipToggle = viewModel::onSipToggle,
+                        onCalcTimeChange = viewModel::onTimeChange
+                    )
+
+                    if (cartState.dayDropDownExpanded) {
+                        AppDialogList(
+                            items = data.sipAllowedDated,
+                            textFormatter = {
+                                it.toString()
+                            },
+                            onSelect = {
+                                viewModel.onCartDateChange(it.toString())
+                            },
+                            onDismiss = {
+                                viewModel.onCartDropDownDismiss()
+                            },
+                        )
+                    }
+
+                    if (cartState.durationDropDownExpanded) {
+                        AppDialogList(
+                            items = Duration.entries,
+                            textFormatter = {
+                                it.label
+                            },
+                            onSelect = {
+                                viewModel.onCartDurationChange(it)
+                            },
+                            onDismiss = {
+                                viewModel.onCartDropDownDismiss()
+                            },
+                        )
+                    }
+
+                    if (cartState.frequencyDropDownExpanded) {
+                        AppDialogList(
+                            items = data.investmentFrequency,
+                            textFormatter = {
+                                it.label
+                            },
+                            onSelect = {
+                                viewModel.onCartFrequencyChange(it)
+                            },
+                            onDismiss = {
+                                viewModel.onCartDropDownDismiss()
                             }
+                        )
+                    }
 
-                            if (cartState.durationDropDownExpanded) {
-                                AppDialogList(
-                                    items = Duration.entries,
-                                    textFormatter = {
-                                        it.label
-                                    },
-                                    onSelect = {
-                                        viewModel.onCartDurationChange(it)
-                                    },
+                    bottomSheetVisibility?.let {
+                        when (it) {
+                            MFBottomSheetType.KYC -> {
+                                KYCPopup(
+                                    sheetState = sheetState,
                                     onDismiss = {
-                                        viewModel.onCartDropDownDismiss()
+                                        viewModel.hideBottomSheet()
                                     },
-                                )
-                            }
-
-                            if (cartState.frequencyDropDownExpanded) {
-                                AppDialogList(
-                                    items = data.data.investmentFrequency,
-                                    textFormatter = {
-                                        it.label
-                                    },
-                                    onSelect = {
-                                        viewModel.onCartFrequencyChange(it)
-                                    },
-                                    onDismiss = {
-                                        viewModel.onCartDropDownDismiss()
+                                    onClick = {
+                                        onKycClick()
+                                        viewModel.hideBottomSheet()
                                     }
                                 )
                             }
 
-                        }
+                            MFBottomSheetType.TRADING_ACCOUNT -> {
+                                KYCPopup(
+                                    sheetState = sheetState,
+                                    onDismiss = {
+                                        viewModel.hideBottomSheet()
+                                    },
+                                    onClick = {
+                                        onTradingAccountClick()
+                                        viewModel.hideBottomSheet()
+                                    }
+                                )
+                            }
 
-                        bottomSheetVisibility?.let {
-                            when (it) {
-                                MFBottomSheetType.KYC -> {
-                                    KYCPopup(
-                                        sheetState = sheetState,
-                                        onDismiss = {
-                                            viewModel.hideBottomSheet()
-                                        },
-                                        onClick = {
-                                            onKycClick()
-                                            viewModel.hideBottomSheet()
-                                        }
-                                    )
-                                }
-
-                                MFBottomSheetType.TRADING_ACCOUNT -> {
-                                    KYCPopup(
-                                        sheetState = sheetState,
-                                        onDismiss = {
-                                            viewModel.hideBottomSheet()
-                                        },
-                                        onClick = {
-                                            onTradingAccountClick()
-                                            viewModel.hideBottomSheet()
-                                        }
-                                    )
-                                }
-
-                                MFBottomSheetType.CART -> {
-                                    CartPopup(
-                                        detailState = uiState.detailsState as DetailsState.Success,
-                                        sheetState = sheetState,
-                                        cartState = cartState,
-                                        onDismiss = {
-                                            viewModel.hideBottomSheet()
-                                        },
-                                        onAmountChange = viewModel::onCartAmountChange,
-                                        onTypeChange = viewModel::onCartTypeChange,
-                                        onAddClick = {
-                                            viewModel.addToCart()
-                                        },
-                                        showFrequencyDropDown = viewModel::showCartFrequenciesDropDown,
-                                        showDateDropDown = viewModel::showCartDateDropDown,
-                                        showDurationDropDown = viewModel::showCartDurationDropDown,
-                                    )
-                                }
+                            MFBottomSheetType.CART -> {
+                                CartPopup(
+                                    detailState = data,
+                                    sheetState = sheetState,
+                                    cartState = cartState,
+                                    onDismiss = {
+                                        viewModel.hideBottomSheet()
+                                    },
+                                    onAmountChange = viewModel::onCartAmountChange,
+                                    onTypeChange = viewModel::onCartTypeChange,
+                                    onAddClick = {
+                                        viewModel.addToCart()
+                                    },
+                                    showFrequencyDropDown = viewModel::showCartFrequenciesDropDown,
+                                    showDateDropDown = viewModel::showCartDateDropDown,
+                                    showDurationDropDown = viewModel::showCartDurationDropDown,
+                                )
                             }
                         }
                     }
@@ -276,11 +266,17 @@ fun MutualFundDetailsScreenRoot(
     }
 }
 
-
+fun DetailsState.toUiState(): UiState<org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain> {
+    return when (this) {
+        is DetailsState.Loading -> UiState.Loading
+        is DetailsState.Success -> UiState.Success(this.data)
+        is DetailsState.Error -> UiState.Error(this.error)
+    }
+}
 
 @Composable
 fun MutualFundDetailsScreen(
-    detailsState: DetailsState.Success,
+    detailsState: org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain,
     graphState: GraphState,
     selectedYear: GraphDurationSelection,
     onSelectedYearChange: (GraphDurationSelection) -> Unit,
@@ -338,11 +334,11 @@ fun MutualFundDetailsScreen(
             }
             item {
                 FundInfo(
-                    date = detailsState.data.latest_nav_date,
-                    nav = detailsState.data.latest_nav,
-                    assetType = detailsState.data.asset_type,
-                    riskLevel = detailsState.data.risk_level,
-                    navChange = detailsState.data.metrics.nav_change_pct
+                    date = detailsState.latest_nav_date,
+                    nav = detailsState.latest_nav,
+                    assetType = detailsState.asset_type,
+                    riskLevel = detailsState.risk_level,
+                    navChange = detailsState.metrics.nav_change_pct
                 )
             }
 
@@ -354,7 +350,7 @@ fun MutualFundDetailsScreen(
                     expanded =calculatorExpanded,
                     onExpandToggle = {calculatorExpanded=!calculatorExpanded},
                     input = calculatorState,
-                    metrics = detailsState.data.metrics,
+                    metrics = detailsState.metrics,
                     onModeChange = onCalcSipToggle,
                     onInvestmentChange = onCalcInvestmentChange,
                     onTimeChange = onCalcTimeChange
@@ -370,8 +366,8 @@ fun MutualFundDetailsScreen(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     expanded = riskExpanded,
                     onExpandToggle ={ riskExpanded=!riskExpanded},
-                    riskLevel = detailsState.data.risk_level,
-                    riskText = detailsState.data.risk_name
+                    riskLevel = detailsState.risk_level,
+                    riskText = detailsState.risk_name
                 )
             }
 
@@ -387,7 +383,7 @@ fun MutualFundDetailsScreen(
                     isShortTerm = isShortTerm,
                     onShortTermClick = { isShortTerm=true },
                     onLongTermClick = { isShortTerm=false },
-                    metrics = detailsState.data.metrics
+                    metrics = detailsState.metrics
                 )
             }
 
@@ -400,7 +396,7 @@ fun MutualFundDetailsScreen(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     expanded =overviewsExpanded,
                     onExpandToggle = { overviewsExpanded=!overviewsExpanded},
-                    data = detailsState.data
+                    data = detailsState
                 )
             }
 
@@ -608,7 +604,7 @@ fun FundInfo(date: String, nav: String, assetType: String, riskLevel: Int, navCh
                 title = "NAV: ${date.isoUtcToDisplayDate()}",
             ){
                 Text(
-                    text= "₹ $nav",
+                    text= "₹ ${nav.toDouble().trimDoubleTo(2)}",
                     style = MaterialTheme.typography.headlineLarge,
                     color = Color.Black
                 )
@@ -752,7 +748,7 @@ private fun GraphDurationSelectionItemLabel(
 }
 
 @Composable
-fun InfoCard(detailsState: DetailsState.Success, displayPercent: StableMetricUi?) {
+fun InfoCard(detailsState: org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain, displayPercent: StableMetricUi?) {
 
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
@@ -766,7 +762,7 @@ fun InfoCard(detailsState: DetailsState.Success, displayPercent: StableMetricUi?
         {
 
             MutualFundIcon(
-                schemeName = detailsState.data.scheme_name,
+                schemeName = detailsState.scheme_name,
             )
 
             Box(
@@ -789,7 +785,7 @@ fun InfoCard(detailsState: DetailsState.Success, displayPercent: StableMetricUi?
         }
 
         Text(
-            text=detailsState.data.scheme_name,
+            text=detailsState.scheme_name,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.SemiBold,
             color = Color.Black,
@@ -797,7 +793,7 @@ fun InfoCard(detailsState: DetailsState.Success, displayPercent: StableMetricUi?
         )
 
         Text(
-            text= detailsState.data.risk_name +" | " + detailsState.data.scheme_type ,
+            text= detailsState.risk_name +" | " + detailsState.scheme_type ,
             style = titlesStyle,
             color = Color.Black
         )
@@ -831,9 +827,9 @@ fun InfoCard(detailsState: DetailsState.Success, displayPercent: StableMetricUi?
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text= (if (detailsState.data.metrics.nav_change_pct>0) "+" else "") + detailsState.data.metrics.nav_change_pct.toString()+"%",
+                text= (if (detailsState.metrics.nav_change_pct>0) "+" else "") + detailsState.metrics.nav_change_pct.toString()+"%",
                 style = titlesStyle,
-                color = if (detailsState.data.metrics.nav_change_pct>0) appGreen else Color.Red
+                color = if (detailsState.metrics.nav_change_pct>0) appGreen else Color.Red
             )
             Text(
                 text= "1D",

@@ -56,7 +56,7 @@ fun BundledFundByIdDto.toDomain(): BundledMutualFundDomain {
         allowedFrequencies = data.allowed_frequencies.mapNotNull {
             InvestmentFrequency.fromCode(it)
         },
-        minAmount = data.accumulated_min_amount.toDouble(),
+        minAmount = data.accumulated_min_amount,
         sipDates = data.allowed_dates,
         mutualFunds = data.bundle_products.map { bundleProduct ->
             val mf = bundleProduct.mf_product

@@ -8,7 +8,6 @@ import org.sharad.velvetinvestment.presentation.firereport.viewmodel.CurrentAsse
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.FinancialFlowEditScreenViewModel
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.FireReportViewModel
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.InsuranceCoverageEditViewModel
-import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDCategoryViewModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDDetailsViewModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDPurchaseViewModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDSearchResultViewModel
@@ -68,7 +67,7 @@ val viewModelModule= module {
     viewModel {(id:String)-> FDPortFolioDetailsViewModel(get(), get(),get(), fdId = id) }
     viewModel { ExploreFundScreenViewModel(get(), get()) }
     viewModel { CategoryMutualFundViewModel(get()) }
-    viewModel {(search:String)-> MutualFundSearchResultViewModel(search=search,getMutualFundSearchResultUseCase = get()) }
+    viewModel {(search:String?,fundCategory:String?)-> MutualFundSearchResultViewModel(search=search,fundCategory=fundCategory,getMutualFundSearchResultUseCase = get()) }
     viewModel { (id: String) ->
         MutualFundDetailsScreenViewModel(
             id = id,
@@ -82,7 +81,6 @@ val viewModelModule= module {
 
     viewModel { FireReportViewModel(get(),get()) }
     viewModel { GoalInfoScreenViewModel(get()) }
-    viewModel { FDCategoryViewModel(get()) }
     viewModel {(search:String)->FDSearchResultViewModel(search=search,get()) }
     viewModel { NotificationCentreViewModel() }
     viewModel { CheckKYCViewModel(get()) }
@@ -97,7 +95,7 @@ val viewModelModule= module {
     viewModel {(id:String)-> FDPurchaseViewModel(id,get(),get(), get()) }
     viewModel { CartScreenViewModel(get(),get(),get(),get(),get()) }
     viewModel { SingleGoalViewModel(get(), get()) }
-    viewModel { (id: String) -> ProjectionImpactViewModel(get(), get(),id) }
+    viewModel { (id: String) -> ProjectionImpactViewModel(get(),get(), get(),id) }
     viewModel { FinancialFlowEditScreenViewModel(get(), get()) }
     viewModel { InsuranceCoverageEditViewModel(get(), get()) }
     viewModel { CurrentAssetEditViewModel(get(), get()) }

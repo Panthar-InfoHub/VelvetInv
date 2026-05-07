@@ -63,19 +63,17 @@ import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDDetail
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDModalType
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.IconMoneyTextField
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.BarHeader
-import org.sharad.velvetinvestment.shared.compose.ErrorScreen
-import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.UiState
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.arrow_down
+import velvet.composeapp.generated.resources.back_arrow
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.theme.subHeading
 import org.sharad.velvetinvestment.utils.theme.titlesStyle
-import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.arrow_down
-import velvet.composeapp.generated.resources.back_arrow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,64 +100,58 @@ fun FDDetailsScreenRoot(
             )
         }
 
-        Box(modifier = Modifier.weight(1f)) {
-            when (val state = uiState) {
-
-                UiState.Loading -> LoaderScreen()
-
-                is UiState.Error -> ErrorScreen(state.message)
-
-                is UiState.Success -> {
-                    val data= state.data
-                    val sheet by viewModel.activeSheet.collectAsStateWithLifecycle()
-                    if (sheet != null) {
-                        ModalBottomSheet(
-                            onDismissRequest = { viewModel.closeSheet() },
-                            containerColor = Color.White,
-                        ) {
-                            when (sheet) {
-                                FDModalType.PAYOUT -> FDOptionsBottomSheet(
-                                    title="Interest Payout",
-                                    options=data.payoutOptions,
-                                    onOptionCLick = viewModel::updateInterestPayout,
-                                    onDismiss = viewModel::closeSheet,
-                                    selectedOption = data.selectedPayout ?: PayoutType.Custom("UNAVAILABLE"),
-                                    optionDisplayString = {option->
-                                        option.displayName
-                                    }
-                                )
-
-                                FDModalType.APPLICABLE ->   FDOptionsBottomSheet(
-                                    "Applicable For",
-                                    options = data.applicableFor,
-                                    onOptionCLick = viewModel::updateApplicable,
-                                    onDismiss = viewModel::closeSheet,
-                                    selectedOption = data.applicable,
-                                    optionDisplayString = {option->
-                                        option
-                                    }
-                                )
-
-                                FDModalType.INVEST -> {
-                                    InvestAmountBottomSheet(
-                                        invest = state.data.invest,
-                                        onConfirmClick = viewModel::updateInvest
-                                    )
-                                }
-                                null -> {}
+        UiStateContainer(
+            uiState = uiState,
+            onRetry = { viewModel.loadFDDetails() },
+            modifier = Modifier.weight(1f)
+        ) { data ->
+            val sheet by viewModel.activeSheet.collectAsStateWithLifecycle()
+            if (sheet != null) {
+                ModalBottomSheet(
+                    onDismissRequest = { viewModel.closeSheet() },
+                    containerColor = Color.White,
+                ) {
+                    when (sheet) {
+                        FDModalType.PAYOUT -> FDOptionsBottomSheet(
+                            title="Interest Payout",
+                            options=data.payoutOptions,
+                            onOptionCLick = viewModel::updateInterestPayout,
+                            onDismiss = viewModel::closeSheet,
+                            selectedOption = data.selectedPayout ?: PayoutType.Custom("UNAVAILABLE"),
+                            optionDisplayString = {option->
+                                option.displayName
                             }
+                        )
+
+                        FDModalType.APPLICABLE ->   FDOptionsBottomSheet(
+                            "Applicable For",
+                            options = data.applicableFor,
+                            onOptionCLick = viewModel::updateApplicable,
+                            onDismiss = viewModel::closeSheet,
+                            selectedOption = data.applicable,
+                            optionDisplayString = {option->
+                                option
+                            }
+                        )
+
+                        FDModalType.INVEST -> {
+                            InvestAmountBottomSheet(
+                                invest = data.invest,
+                                onConfirmClick = viewModel::updateInvest
+                            )
                         }
+                        null -> {}
                     }
-                    FDDetailsScreen(
-                        data = state.data,
-                        pv = pv,
-                        showPayout = { viewModel.openSheet(FDModalType.PAYOUT) },
-                        showApplicable = { viewModel.openSheet(FDModalType.APPLICABLE) },
-                        showInvestAmount= {viewModel.openSheet(FDModalType.INVEST)},
-                        onPurchaseClick=onPurchaseClick
-                    )
                 }
             }
+            FDDetailsScreen(
+                data = data,
+                pv = pv,
+                showPayout = { viewModel.openSheet(FDModalType.PAYOUT) },
+                showApplicable = { viewModel.openSheet(FDModalType.APPLICABLE) },
+                showInvestAmount= {viewModel.openSheet(FDModalType.INVEST)},
+                onPurchaseClick=onPurchaseClick
+            )
         }
     }
 }

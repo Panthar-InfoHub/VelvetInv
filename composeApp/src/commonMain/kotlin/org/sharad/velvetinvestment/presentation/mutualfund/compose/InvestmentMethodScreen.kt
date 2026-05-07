@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.presentation.mutualfund.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +48,6 @@ import velvet.composeapp.generated.resources.lumpsum_description
 import velvet.composeapp.generated.resources.select_investment_method
 import velvet.composeapp.generated.resources.sip_description
 import velvet.composeapp.generated.resources.start_an_sip
-import velvet.composeapp.generated.resources.start_sip_setup
 
 @Composable
 fun InvestmentMethodScreen(
@@ -149,6 +149,7 @@ fun InvestmentOptionCard(
         modifier = modifier
             .fillMaxWidth()
             .genericDropShadow(RoundedCornerShape(12.dp))
+            .border(width = 1.dp, color = bgColor4.copy(alpha = 0.2f), shape = RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .padding(20.dp)
