@@ -24,7 +24,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.bgColor2
@@ -42,8 +41,8 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFl
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatWithCommas
-import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_food
 import velvet.composeapp.generated.resources.icon_house

@@ -52,9 +52,9 @@ import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 

@@ -35,8 +35,8 @@ import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @Composable
 fun OnBoardingLoanScreen(

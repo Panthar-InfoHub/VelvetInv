@@ -32,7 +32,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.emify.core.ui.theme.grayColor
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.NotificationCentreViewModel
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 
 
 @Preview(showBackground = true)

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.greenColor
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.sbi_tree
 

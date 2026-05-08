@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin

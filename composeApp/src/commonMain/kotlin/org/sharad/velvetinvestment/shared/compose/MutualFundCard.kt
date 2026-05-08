@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,17 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
-import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.rectangle_19
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @Composable
 fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {

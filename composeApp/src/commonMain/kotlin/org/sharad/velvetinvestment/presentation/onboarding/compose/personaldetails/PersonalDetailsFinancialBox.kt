@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
+import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 
 @Composable
 fun PersonalDetailsFinancialBox(

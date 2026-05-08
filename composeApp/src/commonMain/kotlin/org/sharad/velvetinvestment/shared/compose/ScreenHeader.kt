@@ -16,10 +16,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrowback_elements
-@Preview(showBackground = true)
 @Composable
 fun ScreenHeader(heading:String){
     Spacer(modifier = Modifier.height(30.dp))

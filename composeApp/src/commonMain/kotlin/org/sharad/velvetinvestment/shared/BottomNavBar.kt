@@ -29,7 +29,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.shared.Navigation.Route
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.nav_icon_full_screener
 import velvet.composeapp.generated.resources.nav_icon_home

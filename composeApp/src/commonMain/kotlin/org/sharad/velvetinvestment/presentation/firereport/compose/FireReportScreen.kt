@@ -23,8 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -59,8 +57,9 @@ import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.ToggleSwitch
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.download_ic
@@ -70,7 +69,7 @@ import velvet.composeapp.generated.resources.ic_pencil
 fun FireReportScreen(
     onBack: () -> Unit,
     onUpdateClick: () -> Unit
-){
+) {
 
     val viewModel: FireReportViewModel = koinViewModel()
     val uiState by viewModel.fireReportUiModel.collectAsStateWithLifecycle()
@@ -79,40 +78,39 @@ fun FireReportScreen(
     val downloading by viewModel.downloadingReport.collectAsStateWithLifecycle()
     val showProjected by viewModel.showProjected.collectAsStateWithLifecycle()
 
-
-
+    val onBackRemembered = remember(onBack) { onBack }
+    val onUpdateClickRemembered = remember(onUpdateClick) { onUpdateClick }
+    val onEmiSwitchClick = remember(viewModel) { { viewModel.toggleEmi() } }
+    val onProjectedSwitchClick = remember(viewModel) { { viewModel.toggleProjected() } }
+    val selectedYearChange = remember(viewModel) { { it: SelectedYear -> viewModel.onSelectedYearChange(it) } }
+    val onIconClick = remember(viewModel) { { viewModel.downloadFireReport() } }
+    val onRetry = remember(viewModel) { { viewModel.loadData() } }
 
     Column(
         modifier = Modifier.fillMaxSize(),
-    ){
+    ) {
 
         FireBackHeader(
             heading = "F.I.R.E Report",
             showBack = true,
-            onBackClick = onBack,
-            onIconClick = { viewModel.downloadFireReport() },
+            onBackClick = onBackRemembered,
+            onIconClick = onIconClick,
             downloading = downloading
         )
         UiStateContainer(
             modifier = Modifier.weight(1f).fillMaxSize(),
             uiState = uiState,
-            onRetry = { viewModel.loadData() }
+            onRetry = onRetry
         ) { data ->
             FireReportContent(
                 fireState = data,
                 emiIncluded = emiIncluded,
                 showProjected = showProjected,
                 selectedYear = selectedYear,
-                onEmiSwitchClick = {
-                    viewModel.toggleEmi()
-                },
-                onProjectedSwitchClick = {
-                    viewModel.toggleProjected()
-                },
-                selectedYearChange = {
-                    viewModel.onSelectedYearChange(it)
-                },
-                onUpdateClick = onUpdateClick
+                onEmiSwitchClick = onEmiSwitchClick,
+                onProjectedSwitchClick = onProjectedSwitchClick,
+                selectedYearChange = selectedYearChange,
+                onUpdateClick = onUpdateClickRemembered
             )
         }
     }
@@ -144,7 +142,7 @@ fun FireReportContent(
         )
     }
 
-    val progress = progressAnim.value
+    val progressLambda = remember(progressAnim) { { progressAnim.value } }
 
     LazyColumn(
         modifier=Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -162,32 +160,34 @@ fun FireReportContent(
                 showProjected = showProjected
             )
         }
-        item() {
+        item {
             PortFolioProjectionChart(
                 data = fireState.portfolioChart,
                 startYear = fireState.startYear,
                 endYear = fireState.endYear,
                 selectedYear=selectedYear,
-                progress=progress
+                progress=progressLambda
             )
         }
-        item() {
+        item {
             FireProjectionChart(
                 data = fireState.firePercentageChart,
                 startYear = fireState.startYear,
                 endYear = fireState.endYear,
                 selectedYear=selectedYear,
-                progress=progress
+                progress=progressLambda
             )
         }
         item {
-            BarHeader(
-                heading = when(selectedYear){
+            val heading = remember(selectedYear) {
+                val yearPrefix = when(selectedYear){
                     SelectedYear.FIVE_YEARS -> "5"
                     SelectedYear.TEN_YEARS -> "10"
                     SelectedYear.TWENTY_YEARS -> "20"
-                }+" Years Projections"
-            )
+                }
+                "$yearPrefix Years Projections"
+            }
+            BarHeader(heading = heading)
         }
         items(items = fireState.projectionRows, key = {it.year},
             contentType = { "projection_card" }){
@@ -207,7 +207,7 @@ fun PortFolioProjectionChart(
     startYear: Int,
     endYear: Int,
     selectedYear: SelectedYear,
-    progress: Float
+    progress: () -> Float
 ) {
     val chartData = remember(data) { data.toMapPoints() }
     ShadowCard{
@@ -260,7 +260,7 @@ fun FireProjectionChart(
     startYear: Int,
     endYear: Int,
     selectedYear: SelectedYear,
-    progress: Float
+    progress: () -> Float
 ) {
     val chartData = remember(data) { data.toFireMapPoints() }
     ShadowCard{
@@ -338,9 +338,7 @@ fun FireReportHeadSwitcher(
                     )
 
                     UpdateDetailsButton(
-                        onClick={
-                            onUpdateClick()
-                        }
+                        onClick = onUpdateClick
                     )
 
                 }
@@ -359,10 +357,11 @@ fun FireReportHeadSwitcher(
 
 @Composable
 fun UpdateDetailsButton(onClick: () -> Unit) {
+    val shapes = LocalVelvetShapes.current
     val tintColor= Color(0xff0284C7)
     Box(
         modifier = Modifier
-            .clip(CircleShape)
+            .clip(shapes.circle)
             .shadow(2.dp)
             .background(
                 Color(0xffE0F2FE)
@@ -399,7 +398,7 @@ fun YearSelector(
     selectedYear: SelectedYear,
     onSelectedYearChange: (SelectedYear) -> Unit
 ) {
-
+    val shapes = LocalVelvetShapes.current
     val animatedOffset by animateDpAsState(
         targetValue = when (selectedYear) {
             SelectedYear.FIVE_YEARS -> 0.dp
@@ -423,7 +422,7 @@ fun YearSelector(
         Box(
             modifier = Modifier
                 .height(34.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(shapes.roundedDp12)
                 .background(Color(0xffF1F5F9))
         ) {
 
@@ -433,7 +432,7 @@ fun YearSelector(
                     .width(58.dp)
                     .padding(5.dp)
                     .offset(x = animatedOffset)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(shapes.roundedDp8)
                     .background(Secondary)
             )
 
@@ -441,16 +440,18 @@ fun YearSelector(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 SelectedYear.entries.forEach { year ->
+                    val onClick = remember(year, onSelectedYearChange) {
+                        { onSelectedYearChange(year) }
+                    }
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
                             .width(58.dp)
                             .clickable(
                                 indication = null,
-                                interactionSource = remember { MutableInteractionSource() }
-                            ) {
-                                onSelectedYearChange(year)
-                            },
+                                interactionSource = remember { MutableInteractionSource() },
+                                onClick = onClick
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -467,7 +468,8 @@ fun YearSelector(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FireToggle(text:String, value: Boolean, onToggle: () -> Unit) {
+fun FireToggle(text: String, value: Boolean, onToggle: () -> Unit) {
+    val onToggleRemembered = remember(onToggle) { { _: Boolean -> onToggle() } }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -482,14 +484,14 @@ fun FireToggle(text:String, value: Boolean, onToggle: () -> Unit) {
 
         ToggleSwitch(
             checked = value,
-            onCheckedChange = { onToggle() },
+            onCheckedChange = onToggleRemembered,
             width = 48.dp,
             height = 24.dp,
             thumbSize = 20.dp,
             checkedTrackColor = Color(0xff10B981),
             uncheckedTrackColor = Color.White,
             checkedThumbColor = Color.White,
-            uncheckedThumbColor =Color(0xff10B981)
+            uncheckedThumbColor = Color(0xff10B981)
         )
     }
 }
@@ -525,20 +527,19 @@ fun FireBackHeader(
             )
         }
 
-        if (downloading){
+        if (downloading) {
             CircularProgressIndicator(
                 modifier = Modifier.padding(end = 4.dp).size(22.dp)
                     .align(Alignment.CenterEnd),
                 color = Secondary
             )
-        }
-        else{
+        } else {
             Icon(
                 painter = painterResource(Res.drawable.download_ic),
                 contentDescription = null,
                 tint = Secondary,
                 modifier = Modifier.padding(end = 4.dp).size(22.dp).clickable(
-                    onClick = { onIconClick() },
+                    onClick = onIconClick,
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ).align(Alignment.CenterEnd)

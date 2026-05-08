@@ -47,7 +47,8 @@ fun BottomNavigation(
     navigateToTradingAccountSetup: () -> Unit,
     navigateToPrivacyPolicy: () -> Unit,
     navigateToTermsAndConditions: () -> Unit,
-    navigateToKYC: () -> Unit
+    navigateToKYC: () -> Unit,
+    navigateToInvestmentRateScree: () -> Unit
 ) {
 
     val navController= rememberNavController()
@@ -131,7 +132,8 @@ fun BottomNavigation(
                                 restoreState = true
                             }
                     },
-                    navigateToTradingAccountSetup=navigateToTradingAccountSetup
+                    navigateToTradingAccountSetup=navigateToTradingAccountSetup,
+                    navigateToInvestmentRateScreen=navigateToInvestmentRateScree
                 )
             }
             composable<Route.FundScreener> {

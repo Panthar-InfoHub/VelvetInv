@@ -70,9 +70,9 @@ import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.formatWithCommas
-import org.sharad.velvetinvestment.utils.theme.VelvetTheme
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.feasibility_score

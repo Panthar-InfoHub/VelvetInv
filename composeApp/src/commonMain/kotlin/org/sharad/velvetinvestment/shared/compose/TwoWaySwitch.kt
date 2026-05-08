@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @Composable
 fun TwoWaySwitch(

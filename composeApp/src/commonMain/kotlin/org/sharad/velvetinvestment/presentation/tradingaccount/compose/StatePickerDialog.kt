@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.tradingaccount.StateCode
 
 @Composable

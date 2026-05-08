@@ -47,9 +47,9 @@ import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @Composable
 fun FDPurchaseScreenRoot(

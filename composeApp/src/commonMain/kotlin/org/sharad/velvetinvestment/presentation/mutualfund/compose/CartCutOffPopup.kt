@@ -42,13 +42,12 @@ import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.presentation.kyc.compose.ConsentSection
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.utils.AmfiLink
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_cross
 import velvet.composeapp.generated.resources.info_icon
 import velvet.composeapp.generated.resources.link_icon
-import velvet.composeapp.generated.resources.wallet_icon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

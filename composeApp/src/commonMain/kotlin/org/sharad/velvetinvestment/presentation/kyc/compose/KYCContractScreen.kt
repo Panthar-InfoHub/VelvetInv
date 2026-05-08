@@ -48,7 +48,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.utils.pdfutils.PdfViewer
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.sign_icon
 

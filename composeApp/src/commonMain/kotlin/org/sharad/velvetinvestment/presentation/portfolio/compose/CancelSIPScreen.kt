@@ -21,7 +21,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.delete_box
 

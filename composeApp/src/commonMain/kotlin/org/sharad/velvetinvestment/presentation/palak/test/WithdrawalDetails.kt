@@ -33,7 +33,7 @@ import org.sharad.emify.core.ui.theme.greenColor
 import org.sharad.emify.core.ui.theme.orangeColor
 import org.sharad.emify.core.ui.theme.redColor
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.failed
 import velvet.composeapp.generated.resources.icon_clock

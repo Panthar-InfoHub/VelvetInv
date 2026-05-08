@@ -50,8 +50,8 @@ import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow

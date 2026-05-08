@@ -49,7 +49,7 @@ import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
 import velvet.composeapp.generated.resources.kyc_icon

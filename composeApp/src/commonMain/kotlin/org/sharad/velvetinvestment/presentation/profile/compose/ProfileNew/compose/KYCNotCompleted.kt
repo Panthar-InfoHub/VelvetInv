@@ -24,26 +24,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.emify.core.ui.theme.appGreen
-import org.sharad.emify.core.ui.theme.blueColor
 import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.emify.core.ui.theme.grayColor
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrowback_elements
 import velvet.composeapp.generated.resources.camera
 import velvet.composeapp.generated.resources.document_kyc_icon
 import velvet.composeapp.generated.resources.kyc_not_complete_icon
-import velvet.composeapp.generated.resources.kyc_person_icon
 import velvet.composeapp.generated.resources.tick_inside_circle
 import velvet.composeapp.generated.resources.upload_verification
 

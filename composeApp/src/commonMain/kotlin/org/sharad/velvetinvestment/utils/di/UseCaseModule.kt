@@ -59,6 +59,7 @@ import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUs
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDPortfolioByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDRedirectUrlUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetInvestmentRateDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
 
 val useCaseModule= module {
@@ -169,5 +170,6 @@ val useCaseModule= module {
     factory { AddBundleToCartSipUseCase(get()) }
     factory { GetBundleFundsUseCase(get()) }
     factory { GetAllBundledFundsUseCase(get()) }
+    factory { GetInvestmentRateDataUseCase(get()) }
 
 }

@@ -44,7 +44,7 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.image_icon
 import velvet.composeapp.generated.resources.sign_icon

@@ -75,8 +75,8 @@ import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res

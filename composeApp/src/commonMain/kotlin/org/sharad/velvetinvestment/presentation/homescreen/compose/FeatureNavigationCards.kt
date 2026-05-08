@@ -25,8 +25,8 @@ import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.appYellow
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.circe_chart_icon
 import velvet.composeapp.generated.resources.expenses_icon

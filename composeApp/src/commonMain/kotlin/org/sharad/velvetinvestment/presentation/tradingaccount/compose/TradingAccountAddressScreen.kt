@@ -31,7 +31,7 @@ import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.Trading
 import org.sharad.velvetinvestment.shared.DropDownSelector
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.tradingaccount.Country
 import org.sharad.velvetinvestment.utils.tradingaccount.InvestorOnboarding
 import org.sharad.velvetinvestment.utils.tradingaccount.KycType

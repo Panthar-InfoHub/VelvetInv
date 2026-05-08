@@ -1,7 +1,6 @@
 package org.sharad.velvetinvestment.presentation.firereport.compose
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,8 +39,9 @@ import org.sharad.emify.core.ui.theme.appYellow
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.firereport.uimodels.FireProjectionRowUiModel
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.theme.Poppins
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
@@ -108,7 +107,7 @@ fun UnExtendedProjectionPart(
 
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(10.dp))
+                .clip(LocalVelvetShapes.current.roundedDp10)
                 .background(Color(0xffF1F5F9)),
             contentAlignment = Alignment.Center
         ){
@@ -263,7 +262,7 @@ fun ExtendedProjectionPart(
 fun DataCard(value: String, title: String, modifier: Modifier=Modifier, valueColor: Color=Color(0xff1D293D)) {
     Box(
         modifier = modifier.fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(LocalVelvetShapes.current.roundedDp12)
             .background(Color(0xffF8FAFC)),
         contentAlignment = Alignment.CenterStart,
     ) {

@@ -30,7 +30,7 @@ import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScree
 import org.sharad.velvetinvestment.presentation.SplashScreen.LightGradient
 import org.sharad.velvetinvestment.utils.AuthMode
 import org.sharad.velvetinvestment.utils.WindowSize
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.background_mesh
 import velvet.composeapp.generated.resources.bottom_background

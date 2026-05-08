@@ -1,6 +1,5 @@
-package org.sharad.velvetinvestment.utils.theme
+package org.sharad.velvetinvestment.shared.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable

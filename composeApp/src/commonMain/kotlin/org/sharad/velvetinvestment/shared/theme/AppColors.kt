@@ -20,7 +20,7 @@ val appRed=Color(0xffFF0600)
 val appYellow=Color(0xffFF9D00)
 val appGreen=Color(0xff008E23)
 val appOrange=Color(0xffFF0600)
-
+val LightGreen = Color(0xff05DF72)
 
 
 
@@ -43,3 +43,5 @@ val grayColor = Color(0xFF5A5E60)
 val healthColor = Color(0xff2196F3)
 val termColor = Color(0xff9C27B0)
 val otherColor = appGreen
+
+val TextGray = Color(0xff6A7282)

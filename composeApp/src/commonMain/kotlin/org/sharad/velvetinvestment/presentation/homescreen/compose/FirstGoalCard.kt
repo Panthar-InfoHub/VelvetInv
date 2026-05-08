@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.appYellow
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
 import velvet.composeapp.generated.resources.goal_icon

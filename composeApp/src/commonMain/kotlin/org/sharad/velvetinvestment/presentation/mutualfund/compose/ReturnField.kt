@@ -24,7 +24,7 @@ import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
 import org.sharad.velvetinvestment.shared.compose.TwoWaySwitch
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.trimTo
 
 @Composable

@@ -1,6 +1,5 @@
 package org.sharad.velvetinvestment
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -19,14 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
-import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
 import org.sharad.velvetinvestment.shared.Navigation.BaseNavigation
 import org.sharad.velvetinvestment.shared.rememberWindowSize
 import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.SnackBarType
-import org.sharad.velvetinvestment.utils.theme.VelvetTheme
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 
 @Composable
 fun App() {

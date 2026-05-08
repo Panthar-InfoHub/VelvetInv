@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.utils.theme
+package org.sharad.velvetinvestment.shared.theme
 import androidx.compose.ui.graphics.Color
 import org.sharad.emify.core.ui.theme.Primary
 

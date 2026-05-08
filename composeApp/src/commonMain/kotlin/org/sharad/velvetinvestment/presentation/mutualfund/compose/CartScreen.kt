@@ -51,8 +51,8 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.nav_icon_full_screener

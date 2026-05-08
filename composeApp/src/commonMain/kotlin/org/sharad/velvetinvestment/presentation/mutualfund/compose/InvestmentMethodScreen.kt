@@ -36,8 +36,8 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.VelvetTheme
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.choose_how_to_invest

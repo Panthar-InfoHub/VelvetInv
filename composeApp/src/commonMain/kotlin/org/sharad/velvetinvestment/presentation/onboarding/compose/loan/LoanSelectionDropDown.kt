@@ -32,8 +32,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.LoanTypes
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 

@@ -33,7 +33,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.emify.core.ui.theme.grayColor
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrowback_elements
 import velvet.composeapp.generated.resources.document_kyc_icon

@@ -50,7 +50,7 @@ import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.DateTimeUtils.epochToYYYYMMdd
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @Composable
 fun OnBoardingConfirmationScreen(

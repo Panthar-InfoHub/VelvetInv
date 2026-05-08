@@ -24,7 +24,7 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.formatDateParts
 import org.sharad.velvetinvestment.utils.formatMillisDateParts
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 
 
 @Composable

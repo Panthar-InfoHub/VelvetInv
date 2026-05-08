@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.healthColor
 import org.sharad.emify.core.ui.theme.otherColor
 import org.sharad.emify.core.ui.theme.termColor
@@ -30,13 +29,11 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
-import velvet.composeapp.generated.resources.icon_arrow_right
 import velvet.composeapp.generated.resources.icon_heart
-import velvet.composeapp.generated.resources.icon_insurance
 import velvet.composeapp.generated.resources.nav_icon_incurance
 
 @Composable

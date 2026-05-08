@@ -25,6 +25,7 @@ import org.sharad.velvetinvestment.presentation.goals.compose.SingleGoalScreen
 import org.sharad.velvetinvestment.presentation.insurance.HealthInsuranceScreen
 import org.sharad.velvetinvestment.presentation.insurance.OtherInsuranceScreen
 import org.sharad.velvetinvestment.presentation.insurance.TermInsuranceScreen
+import org.sharad.velvetinvestment.presentation.investmentrate.compose.InvestmentRateScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCFormScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
@@ -228,6 +229,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     navigateToKYC = {
                         navController.navigate(Route.CheckKYC) {
                             launchSingleTop = true
+                        }
+                    },
+                    navigateToInvestmentRateScree={
+                        navController.navigate(Route.InvestmentRateScreen){
+                            launchSingleTop=true
                         }
                     },
                     onSignOut = onSignOut
@@ -701,6 +707,14 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     pv = pv
+                )
+            }
+
+            composable<Route.InvestmentRateScreen> {
+                InvestmentRateScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
                 )
             }
 

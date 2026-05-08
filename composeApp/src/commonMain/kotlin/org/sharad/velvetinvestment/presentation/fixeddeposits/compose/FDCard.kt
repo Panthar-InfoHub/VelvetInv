@@ -1,7 +1,5 @@
 package org.sharad.velvetinvestment.presentation.fixeddeposits.compose
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,11 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.capitalize
@@ -31,19 +27,16 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.appYellow
-import org.sharad.emify.core.ui.theme.bgShadowColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.RiskLevel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FDTenureSort
 import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FixedDepositTenureUIModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FixedDepositUIModel
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.fd_placeholder
-import velvet.composeapp.generated.resources.filled_down
-import velvet.composeapp.generated.resources.filled_up
 
 @Composable
 fun FDDetailCard(

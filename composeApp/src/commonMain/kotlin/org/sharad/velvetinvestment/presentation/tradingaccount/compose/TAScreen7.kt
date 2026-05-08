@@ -43,7 +43,7 @@ import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
 import org.sharad.velvetinvestment.utils.DateTimeUtils
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.tradingaccount.GuardianRelation
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.gurdian_icon

@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
-import org.sharad.velvetinvestment.utils.theme.buttonTextStyle
+import org.sharad.velvetinvestment.shared.theme.buttonTextStyle
 
 @Composable
 fun InvertedAppButton(

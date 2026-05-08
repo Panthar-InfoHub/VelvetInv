@@ -90,15 +90,15 @@ class KYCFormScreenViewModel(
     }
 
     fun updateFatherName(value: String) {
-        _formState.value = _formState.value.copy(fatherName = value)
+        _formState.value = _formState.value.copy(fatherName = value.toUpperCase(Locale.current))
     }
 
     fun updateMotherName(value: String) {
-        _formState.value = _formState.value.copy(motherName = value)
+        _formState.value = _formState.value.copy(motherName = value.toUpperCase(Locale.current))
     }
 
     fun updatePlaceOfBirth(value: String) {
-        _formState.value = _formState.value.copy(placeOfBirth = value)
+        _formState.value = _formState.value.copy(placeOfBirth = value.toUpperCase(Locale.current))
     }
 
     fun loadData(

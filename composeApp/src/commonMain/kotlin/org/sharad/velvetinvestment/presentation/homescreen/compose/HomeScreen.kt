@@ -52,8 +52,8 @@ import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.AppEvents
 import org.sharad.velvetinvestment.utils.RefreshEvents
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
 import velvet.composeapp.generated.resources.expenses_icon
@@ -74,7 +74,8 @@ fun HomeScreenMain(
     navigateToInsurance: () -> Unit,
     navigateToFd: () -> Unit,
     navigateToMutualFund: () -> Unit,
-    navigateToTradingAccountSetup: () -> Unit
+    navigateToTradingAccountSetup: () -> Unit,
+    navigateToInvestmentRateScreen: () -> Unit
 ){
 
     LaunchedEffect(Unit){
@@ -127,7 +128,8 @@ fun HomeScreenMain(
                 navigateToMutualFund = navigateToMutualFund,
                 navigateToFd = navigateToFd,
                 navigateToInsurance = navigateToInsurance,
-                navigateToTradingAccountSetup = navigateToTradingAccountSetup
+                navigateToTradingAccountSetup = navigateToTradingAccountSetup,
+                navigateToInvestmentRateScree = navigateToInvestmentRateScreen
             )
         }
     }
@@ -155,7 +157,8 @@ fun HomeScreen(
     navigateToFd: () -> Unit,
     navigateToMutualFund: () -> Unit,
     navigateToInsurance: () -> Unit,
-    navigateToTradingAccountSetup: () -> Unit
+    navigateToTradingAccountSetup: () -> Unit,
+    navigateToInvestmentRateScree: () -> Unit
 ) {
 
     LazyColumn(
@@ -165,7 +168,7 @@ fun HomeScreen(
     ) {
         item { Spacer(modifier=Modifier.height(16.dp,)) }
         item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick) }
-        item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick={}, hidden=hidden, onHiddenToggle=onHiddenToggle)}
+        item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick=navigateToInvestmentRateScree, hidden=hidden, onHiddenToggle=onHiddenToggle)}
         if (!kyc || !tradingKyc){ item { BarHeader(heading = "Finish Setting Up Account") } }
         if (!kyc){
             item { KYCCard(onClick = { navigateToKYCScreen() }, text = "Complete the KYC Process") }

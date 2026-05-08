@@ -25,8 +25,8 @@ import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.TransactionStatus
 import org.sharad.velvetinvestment.domain.models.portfolio.TransactionHistoryDomain
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.tick_icon
 

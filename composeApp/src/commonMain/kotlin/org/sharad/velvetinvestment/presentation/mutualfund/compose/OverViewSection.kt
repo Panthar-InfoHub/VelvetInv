@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.sp
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.data.remote.mapper.toReadableDate
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @Composable
 fun OverviewSection(

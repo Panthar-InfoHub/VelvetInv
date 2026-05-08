@@ -14,11 +14,13 @@ import org.sharad.velvetinvestment.data.remote.model.casreport.RedirectBody
 import org.sharad.velvetinvestment.data.remote.model.fdportfoliobyid.FDPortFolioById
 import org.sharad.velvetinvestment.data.remote.model.fdredirect.FDRedirectDto
 import org.sharad.velvetinvestment.data.remote.model.firereport.FireReportDto
+import org.sharad.velvetinvestment.data.remote.model.investmentratedto.InvestmentRateDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
+import org.sharad.velvetinvestment.domain.models.user.InvestmentRateDomain
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -194,5 +196,23 @@ class UserFinanceRepo(
                 NetworkResponse.Success(response.data.data.data.redirectionUrl)
             }
         }
+    }
+
+    override suspend fun getInvestmentRateData(): NetworkResponse<InvestmentRateDomain, ErrorDomain> {
+        val response = safeRequest<InvestmentRateDto> {
+            client.get(getUrl("/user/investment-rate"))
+        }
+
+        return when(response){
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(
+                    response.data.toDomain()
+                )
+            }
+        }
+
     }
 }

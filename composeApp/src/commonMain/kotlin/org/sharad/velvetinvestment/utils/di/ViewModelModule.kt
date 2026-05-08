@@ -16,6 +16,7 @@ import org.sharad.velvetinvestment.presentation.goals.viewmodel.ProjectionImpact
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.SingleGoalViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.insurance.InsuranceScreenViewModel
+import org.sharad.velvetinvestment.presentation.investmentrate.viewmodel.InvestmentRateScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCFormScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
@@ -102,4 +103,5 @@ val viewModelModule= module {
     viewModel { InsuranceScreenViewModel(get()) }
     viewModel { (bundleKey: String) -> BundleResultViewModel(bundleKey = bundleKey, get(),get(), get())}
     viewModel { AllBundlesViewModel(get()) }
+    viewModel { InvestmentRateScreenViewModel(get()) }
 }

@@ -34,7 +34,7 @@ import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.getPreferredReturn
 import org.sharad.velvetinvestment.shared.compose.TwoWaySwitch
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import kotlin.math.pow
 
 @OptIn(ExperimentalMaterial3Api::class)

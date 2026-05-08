@@ -38,7 +38,7 @@ import org.sharad.velvetinvestment.utils.GoalUtils.GoalCalculator
 import org.sharad.velvetinvestment.utils.GoalUtils.getGoalInputs
 import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.delete_box
 import velvet.composeapp.generated.resources.info_icon

@@ -26,9 +26,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.shared.compose.AppButton
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.icon_user
 import velvet.composeapp.generated.resources.kyc_icon
 
 @OptIn(ExperimentalMaterial3Api::class)

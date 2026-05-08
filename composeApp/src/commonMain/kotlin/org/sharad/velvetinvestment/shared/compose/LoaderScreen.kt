@@ -29,11 +29,9 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.utils.loadingQuotes
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.app_logo_transparent
-import velvet.composeapp.generated.resources.icon_mf
 
 @Composable
 fun LoaderScreen(){

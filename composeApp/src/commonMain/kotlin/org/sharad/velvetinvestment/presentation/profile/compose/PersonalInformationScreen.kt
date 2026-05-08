@@ -25,7 +25,7 @@ import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.UImod
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.PersonalInfoViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 
 @Composable
 fun PersonalInformationScreen(

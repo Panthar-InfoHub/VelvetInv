@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -20,6 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 
 @Composable
 fun ToggleSwitch(
@@ -35,6 +35,7 @@ fun ToggleSwitch(
 )  {
 
 
+    val shapes = LocalVelvetShapes.current
     val thumbOffset by animateDpAsState(
         targetValue = if (checked) width - thumbSize - 2.5.dp else 2.5.dp,
         label = "thumbOffset"
@@ -44,10 +45,10 @@ fun ToggleSwitch(
         modifier = Modifier
             .width(width)
             .height(height)
-            .genericDropShadow(shape = CircleShape)
-            .clip(CircleShape)
+            .genericDropShadow(shape = shapes.circle)
+            .clip(shapes.circle)
             .background(if (checked) checkedTrackColor else uncheckedTrackColor)
-            .border(0.5.dp, uncheckedThumbColor, CircleShape)
+            .border(0.5.dp, uncheckedThumbColor, shapes.circle)
             .clickable { onCheckedChange(!checked) },
         contentAlignment = Alignment.CenterStart
     ) {
@@ -55,7 +56,7 @@ fun ToggleSwitch(
             modifier = Modifier
                 .size(thumbSize)
                 .offset(x = thumbOffset)
-                .clip(CircleShape)
+                .clip(shapes.circle)
                 .background(if (checked) checkedThumbColor else uncheckedThumbColor)
         )
     }

@@ -27,13 +27,16 @@ fun LineChart(
     data: List<LineChartData>,
     color: Color = Color(0xff10B981),
     modifier: Modifier = Modifier.height(140.dp),
-    progress: Float=1f
+    progress: () -> Float = { 1f }
 ) {
 
     val textMeasurer = rememberTextMeasurer()
     val textStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp)
     val pathMeasureLine = remember { PathMeasure() }
 
+    val linePath = remember { Path() }
+    val animatedPath = remember { Path() }
+    val areaAnimated = remember { Path() }
 
 
     Canvas(
@@ -42,6 +45,7 @@ fun LineChart(
             .fillMaxHeight()
     ) {
 
+        val currentProgress = progress()
 
         if (data.size < 2) return@Canvas
 
@@ -75,19 +79,18 @@ fun LineChart(
 
         /* ---------- STRAIGHT LINE PATH ---------- */
 
-        val linePath = Path().apply {
-            moveTo(points.first().x, points.first().y)
-            for (i in 1 until points.size) {
-                lineTo(points[i].x, points[i].y)
-            }
+        linePath.reset()
+        linePath.moveTo(points.first().x, points.first().y)
+        for (i in 1 until points.size) {
+            linePath.lineTo(points[i].x, points[i].y)
         }
 
         pathMeasureLine.setPath(linePath, false)
 
-        val animatedPath = Path()
+        animatedPath.reset()
         pathMeasureLine.getSegment(
             0f,
-            pathMeasureLine.length * progress,
+            pathMeasureLine.length * currentProgress,
             animatedPath,
             true
         )
@@ -106,18 +109,18 @@ fun LineChart(
 //            close()
 //        }
 
-        val areaAnimated = Path()
+        areaAnimated.reset()
 
         pathMeasureLine.getSegment(
             0f,
-            pathMeasureLine.length * progress,
+            pathMeasureLine.length * currentProgress,
             areaAnimated,
             true
         )
 
         /* ---------- GRADIENT FILL ---------- */
 
-        val visibleX = chartStartX + chartWidth * progress
+        val visibleX = chartStartX + chartWidth * currentProgress
 
         areaAnimated.lineTo(visibleX, chartBottom)
         areaAnimated.lineTo(points.first().x, chartBottom)

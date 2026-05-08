@@ -63,8 +63,8 @@ import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.DateTimeUtils
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.tradingaccount.Country
 import org.sharad.velvetinvestment.utils.tradingaccount.Holding
 import org.sharad.velvetinvestment.utils.tradingaccount.NominationAuthentication

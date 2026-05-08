@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.appRed
-import org.sharad.velvetinvestment.domain.models.home.KYCCompletion
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right

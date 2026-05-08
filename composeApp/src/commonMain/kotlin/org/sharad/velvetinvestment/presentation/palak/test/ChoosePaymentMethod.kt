@@ -36,7 +36,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.blueColor
 import org.sharad.emify.core.ui.theme.greenColor
 import org.sharad.velvetinvestment.shared.compose.ScreenHeader
-import org.sharad.velvetinvestment.utils.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources._151upi_main_image_1
 import velvet.composeapp.generated.resources.googlepay

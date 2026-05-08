@@ -41,9 +41,9 @@ import org.sharad.velvetinvestment.shared.compose.GenericTabSwitcher
 import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.utils.trimTo
 
 @Composable

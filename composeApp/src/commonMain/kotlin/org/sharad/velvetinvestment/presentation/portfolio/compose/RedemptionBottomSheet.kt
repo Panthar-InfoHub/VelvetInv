@@ -31,8 +31,8 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.ShadowlessTextField
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.theme.subHeadingMedium
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -175,4 +175,6 @@ object Route {
     data class BundleResultScreen(val bundleKey: String)
     @Serializable
     data object AllBundleScreen
+    @Serializable
+    data object InvestmentRateScreen
 }

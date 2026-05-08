@@ -26,9 +26,8 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.theme.subHeading
-import org.sharad.velvetinvestment.utils.theme.titlesStyle
-import org.sharad.velvetinvestment.utils.trimTo
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.fd_placeholder
 

@@ -42,8 +42,8 @@ import org.sharad.velvetinvestment.utils.fundfiltersystem.FilterGroup
 import org.sharad.velvetinvestment.utils.fundfiltersystem.InvestmentFilter
 import org.sharad.velvetinvestment.utils.fundfiltersystem.SelectionType
 import org.sharad.velvetinvestment.utils.fundfiltersystem.onFilterOptionSelected
-import org.sharad.velvetinvestment.utils.theme.Poppins
-import org.sharad.velvetinvestment.utils.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.subHeading
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_cross
 
