@@ -10,7 +10,7 @@ import org.sharad.velvetinvestment.domain.models.mfkyc.GetContractPdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.FinalizeKycUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetESingKycUseCase
-import org.sharad.velvetinvestment.utils.AppEvents
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -74,7 +74,7 @@ class KycContractViewModel(
             _contractPdfUrl.value = UiState.Loading
             finalizeKycUseCase()
                 .onSuccess {
-                    AppEvents.sendHomeRefreshEvent()
+                    AppEventsController.sendHomeRefreshEvent()
                     onSuccess()
                     _contractPdfUrl.value = data
                     _successState.value = true

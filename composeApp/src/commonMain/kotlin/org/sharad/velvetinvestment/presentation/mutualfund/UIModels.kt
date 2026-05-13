@@ -53,7 +53,7 @@ data class CalculatorInputState(
 data class CartBottomSheetState(
     val selectedType: MFPurchaseTypes= MFPurchaseTypes.LUMP_SUM,
     val amount:Long?=null,
-    val minAmount:Long=500,
+    val minAmount:Long = 500,
     val loading:Boolean=false,
     val selectedFrequency: InvestmentFrequency?=null,
     val selectedSIPDate:String?=null,

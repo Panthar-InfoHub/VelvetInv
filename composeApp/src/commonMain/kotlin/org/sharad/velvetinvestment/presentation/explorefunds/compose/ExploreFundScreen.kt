@@ -73,7 +73,6 @@ fun ExploreFundScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
 
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -208,7 +207,8 @@ fun TopPicksCardMF(fund: MutualFundTopPicksUiModel, onClick: () -> Unit) {
 
                     success = {
                         SubcomposeAsyncImageContent()
-                    })
+                    }
+                )
                 Column(
                     horizontalAlignment = Alignment.End,
                 ) {

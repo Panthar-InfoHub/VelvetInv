@@ -16,5 +16,6 @@ data class MutualFund(
     val return_percentage: String,
     val start_date: String,
     val title: String,
-    val xirr: String
+    val xirr: String,
+    val img_url: String?= null
 )

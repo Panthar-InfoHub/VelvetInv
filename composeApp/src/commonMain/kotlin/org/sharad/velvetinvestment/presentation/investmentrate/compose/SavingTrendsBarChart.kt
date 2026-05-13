@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -41,7 +40,6 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,9 +47,9 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.TextGray
 import org.sharad.velvetinvestment.domain.models.user.SavingTrendsDomain
-import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import kotlin.math.roundToInt
 
 data class SavingTrendBarFraction(
@@ -181,7 +179,6 @@ private fun BarColumn(
                 shape = barShape,
                 chartPosition = chartPosition,
                 animationProgress = animationProgress,
-                minHeight = 2.dp,
                 onSelect = onBarSelected
             )
         }
@@ -207,14 +204,12 @@ private fun TrendBar(
     shape: Shape,
     chartPosition: Offset,
     animationProgress: () -> Float,
-    minHeight: Dp = 0.dp,
     onSelect: (SelectedBarData) -> Unit
 ) {
     var barOffset by remember { mutableStateOf(Offset.Zero) }
     Box(
         modifier = Modifier
             .width(14.dp)
-            .then(if (minHeight > 0.dp) Modifier.heightIn(min = minHeight) else Modifier)
             .fillMaxHeightAnimated(fraction, animationProgress)
             .clip(shape)
             .background(color)

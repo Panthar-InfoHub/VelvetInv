@@ -36,6 +36,8 @@ class CartScreenViewModel(
     private val browserLauncher: LaunchBrowserUseCase
 ) : ViewModel() {
 
+    private var currentCartType = CartType.LUMPSUM
+
     private val _uiState = MutableStateFlow<UiState<CartUiModel>>(UiState.Loading)
     val uiState: StateFlow<UiState<CartUiModel>> = _uiState.asStateFlow()
 
@@ -81,6 +83,7 @@ class CartScreenViewModel(
 
 
     fun onCartTypeSelected(type: CartType) {
+        currentCartType = type
         val current = _uiState.value
         if (current is UiState.Success) {
             _uiState.value = UiState.Success(
@@ -90,8 +93,9 @@ class CartScreenViewModel(
     }
 
     fun removeItem(itemId: String) {
-        if (uiState.value is UiState.Success){
-            val data= (uiState.value as UiState.Success).data
+        val currentState = uiState.value
+        if (currentState is UiState.Success){
+            val data = currentState.data
             viewModelScope.launch {
                 _loading.value = true
                 _uiState.value = UiState.Loading
@@ -118,6 +122,7 @@ class CartScreenViewModel(
                     _uiState.value=UiState.Success(
                         CartUiModel(
                             cartData = it,
+                            selectedCartType = currentCartType
                         )
                     )
                 }
@@ -134,6 +139,7 @@ class CartScreenViewModel(
                     _uiState.value=UiState.Success(
                         CartUiModel(
                             cartData = it,
+                            selectedCartType = currentCartType
                         )
                     )
                 }

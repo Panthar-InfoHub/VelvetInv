@@ -35,6 +35,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -256,9 +258,25 @@ fun BundleMutualFundListCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                MutualFundIcon(
-                    schemeName = fund.scheme_name,
-                    size = 40.dp
+                SubcomposeAsyncImage(
+                    modifier = Modifier.size(48.dp),
+                    model = fund.icon,
+                    contentDescription = null,
+                    loading = {
+                        MutualFundIcon(
+                            schemeName = fund.scheme_name,
+                            size = 40.dp
+                        )
+                    },
+                    error = {
+                        MutualFundIcon(
+                            schemeName = fund.scheme_name,
+                            size = 40.dp
+                        )
+                    },
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    }
                 )
 
                 Column(modifier = Modifier.weight(1f)) {

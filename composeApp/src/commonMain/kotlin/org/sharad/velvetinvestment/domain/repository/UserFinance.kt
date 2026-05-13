@@ -1,6 +1,8 @@
 package org.sharad.velvetinvestment.domain.repository
 
+import org.sharad.velvetinvestment.data.remote.model.goalmapping.GoalMapBodyDto
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
+import org.sharad.velvetinvestment.domain.models.goals.GoalDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
@@ -37,5 +39,9 @@ interface UserFinance {
     suspend fun getFDRedirectUrl(id:String, event: String): NetworkResponse<String, ErrorDomain>
 
     suspend fun getInvestmentRateData(): NetworkResponse<InvestmentRateDomain, ErrorDomain>
+
+    suspend fun getGoalById(id: String): NetworkResponse<GoalDomain, ErrorDomain>
+
+    suspend fun mapGoal(body: GoalMapBodyDto): NetworkResponse<Unit, ErrorDomain>
 
 }

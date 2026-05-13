@@ -62,14 +62,13 @@ fun SIPDetailsScreen(
             heading = "Cancel SIP",
             showBack = true,
             onBackClick = onBackClick,
-            textIcon = "Cancel SIP",
-            onTextClick = { onCancelClick(data.id.toString()) }
+            textIcon = null
         )
 
         Box(modifier = Modifier.weight(1f)) {
             when (screenState) {
                 is LoadingState.Error -> {
-                    ErrorScreen("")
+                    ErrorScreen((screenState as LoadingState.Error).error, onRetryClick = { viewModel.submitRedemption()})
                 }
 
                 LoadingState.Loading -> {
@@ -155,18 +154,19 @@ fun SIPDetailsCard(data: Route.SIPDetails) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = data.title,
                         color = Color.Black,
-                        style = subHeading
+                        style = subHeading,
+                        modifier = Modifier.weight(1f)
                     )
 
                     Text(
                         text = "₹${data.amount}",
                         color = Color.Black,
-                        style = subHeading
+                        style = subHeading,
+                        modifier = Modifier.padding(start = 12.dp)
                     )
                 }
 

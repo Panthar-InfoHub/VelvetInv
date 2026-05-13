@@ -61,7 +61,8 @@ fun BundleProduct.toDomain(): BundledMutualFundItemDomain {
            createdAt = product.createdAt,
            updatedAt = product.updatedAt,
            allocation_percentage = allocation_percentage,
-           minAmount = min_amount
+           minAmount = min_amount,
+           icon = product.img_url?:""
        )
 }
 
@@ -70,7 +71,7 @@ fun ItemXX.toDomain(): MutualFundDomain {
     return MutualFundDomain(
         id = id,
         name = scheme_name,
-        icon = "", // Icon URL not provided in DTO
+        icon = img_url?:"",
         category = asset_type,
         remark = null,
         riskText = risk_name,

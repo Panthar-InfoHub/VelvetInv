@@ -35,6 +35,8 @@ fun MutualFundsDetailDto.toDomain(): MutualFundDetailsDomain {
         switch_allowed = d.switch_allowed,
         sipAllowedDated = d.transaction_rules.sip_allowed_dates,
         investmentFrequency = d.transaction_rules.sip_frequencies.mapNotNull { InvestmentFrequency.fromCode(it) },
-        updatedAt = d.updatedAt
+        updatedAt = d.updatedAt,
+        icon = d.img_url?:"",
+        minAmount = d.transaction_rules.min_investment_amount.toLong()
     )
 }

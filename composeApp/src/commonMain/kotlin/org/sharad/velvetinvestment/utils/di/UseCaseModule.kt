@@ -59,8 +59,10 @@ import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUs
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDPortfolioByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDRedirectUrlUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetGoalByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetInvestmentRateDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.MapGoalUseCase
 
 val useCaseModule= module {
     factory { LoginWithNumberUseCase(get()) }
@@ -171,5 +173,7 @@ val useCaseModule= module {
     factory { GetBundleFundsUseCase(get()) }
     factory { GetAllBundledFundsUseCase(get()) }
     factory { GetInvestmentRateDataUseCase(get()) }
+    factory { GetGoalByIdUseCase(get()) }
+    factory { MapGoalUseCase(get()) }
 
 }

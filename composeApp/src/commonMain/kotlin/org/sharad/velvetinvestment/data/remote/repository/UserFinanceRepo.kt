@@ -6,6 +6,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import org.sharad.velvetinvestment.data.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.model.addgoals.ChildGoalBodyDto
 import org.sharad.velvetinvestment.data.remote.model.addgoals.RetirementGoalBodyDto
@@ -14,9 +15,12 @@ import org.sharad.velvetinvestment.data.remote.model.casreport.RedirectBody
 import org.sharad.velvetinvestment.data.remote.model.fdportfoliobyid.FDPortFolioById
 import org.sharad.velvetinvestment.data.remote.model.fdredirect.FDRedirectDto
 import org.sharad.velvetinvestment.data.remote.model.firereport.FireReportDto
+import org.sharad.velvetinvestment.data.remote.model.goalbyid.GoalByIdDto
+import org.sharad.velvetinvestment.data.remote.model.goalmapping.GoalMapBodyDto
 import org.sharad.velvetinvestment.data.remote.model.investmentratedto.InvestmentRateDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
+import org.sharad.velvetinvestment.domain.models.goals.GoalDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
@@ -214,5 +218,28 @@ class UserFinanceRepo(
             }
         }
 
+    }
+
+    override suspend fun getGoalById(id: String): NetworkResponse<GoalDomain, ErrorDomain> {
+        val response = safeRequest <GoalByIdDto>{ client.get(getUrl("/user-goal/$id")) }
+        return when(response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(
+                    response.data.data.toDomain()
+                )
+            }
+        }
+    }
+
+    override suspend fun mapGoal(body: GoalMapBodyDto): NetworkResponse<Unit, ErrorDomain> {
+        return safeRequest<Unit> {
+            client.post(getUrl("/user-goal/map")) {
+                setBody(body)
+            }
+        }
     }
 }

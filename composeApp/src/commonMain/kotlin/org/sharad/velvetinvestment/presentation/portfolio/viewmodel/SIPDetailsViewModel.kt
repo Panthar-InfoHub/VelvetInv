@@ -7,17 +7,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.sharad.velvetinvestment.domain.TransactionStatus
-import org.sharad.velvetinvestment.domain.models.portfolio.BankDetails
 import org.sharad.velvetinvestment.domain.models.portfolio.SIPDetailsDomain
-import org.sharad.velvetinvestment.domain.models.portfolio.TransactionHistoryDomain
 import org.sharad.velvetinvestment.presentation.portfolio.compose.RedemptionInputType
 import org.sharad.velvetinvestment.presentation.portfolio.compose.RedemptionType
 import org.sharad.velvetinvestment.utils.LoadingState
 
 class SIPDetailsViewModel: ViewModel() {
 
-    private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Loading)
+    private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Success)
     val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
     private val _sipDetails = MutableStateFlow<SIPDetailsDomain?>(null)

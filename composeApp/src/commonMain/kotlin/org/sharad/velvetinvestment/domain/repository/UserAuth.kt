@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.domain.repository
 
+import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
@@ -17,8 +18,10 @@ import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 interface UserAuth {
     suspend fun loginWithNumber(number: String): NetworkResponse<Unit, ErrorDomain>
     suspend fun verifyOTP(number: String,otp:String): NetworkResponse<LoginDomain, ErrorDomain>
-    suspend fun loginWithPassword(userId: String, password: String): NetworkResponse<Unit, ErrorDomain>
+//    suspend fun loginWithPassword(userId: String, password: String): NetworkResponse<Unit, ErrorDomain>
     suspend fun signOut(): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun refreshToken(refreshToken: String): NetworkResponse<RefreshTokenDto, ErrorDomain>
     suspend fun onBoardUser(data: OnBoardingBodyDto): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun updateAssets(data: AssetUpdateDto): NetworkResponse<Unit, ErrorDomain>

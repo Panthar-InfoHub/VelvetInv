@@ -37,7 +37,8 @@ data class BundledMutualFundItemDomain(
     val updatedAt: String,
     val allocation_percentage: Int,
     val minAmount: String,
-    val metrics: FundMetricsDomain? = null
+    val metrics: FundMetricsDomain? = null,
+    val icon: String,
 )
 
 data class FundMetricsDomain(

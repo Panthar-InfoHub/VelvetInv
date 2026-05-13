@@ -13,7 +13,8 @@ data class MutualFundPortfolioDomain(
     val currentNav: Double,
     val avgNav: Double,
     val folio: String,
-    val balanceUnits: Double
+    val balanceUnits: Double,
+    val icon:String
 )
 
 data class FixedDepositPortfolioDomain(

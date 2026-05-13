@@ -50,8 +50,8 @@ import org.sharad.velvetinvestment.shared.compose.GoalEntryCard
 import org.sharad.velvetinvestment.shared.compose.GradientBackground
 import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.AppEvents
-import org.sharad.velvetinvestment.utils.RefreshEvents
+import org.sharad.velvetinvestment.utils.AppEventsController
+import org.sharad.velvetinvestment.utils.AppEvent
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -79,16 +79,16 @@ fun HomeScreenMain(
 ){
 
     LaunchedEffect(Unit){
-        AppEvents.refreshEvents.collect {
+        AppEventsController.appEvent.collect {
             when(it){
-                RefreshEvents.HomeEventRefresh -> {
+                AppEvent.HomeEventRefresh -> {
                     viewModel.loadHome()
-                    AppEvents.clear()
+                    AppEventsController.clear()
                 }
 
-                RefreshEvents.GoalEventRefresh -> {
+                AppEvent.GoalEventRefresh -> {
                     viewModel.loadHome()
-                    AppEvents.clear()
+                    AppEventsController.clear()
                 }
 
                 else -> {}

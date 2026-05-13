@@ -16,13 +16,13 @@ fun MutualFund.toDomain(): MutualFundDomain {
     return MutualFundDomain(
         id = id,
         name = scheme_name,
-        icon = "",
+        icon = img_url?:"",
         category = asset_type,
         remark = null,
         riskText = risk_name,
         type = scheme_type,
         returnYearsRate = metrics.toReturnDomain(),
-        latestNav = latest_nav
+        latestNav = latest_nav,
     )
 }
 
@@ -94,7 +94,8 @@ fun BundledFundByIdDto.toDomain(): BundledMutualFundDomain {
                     return3Y = mf.metrics.return_3y,
                     return6M = mf.metrics.return_6m,
                     return90D = mf.metrics.return_90d
-                )
+                ),
+                icon = mf.img_url?:""
             )
         }
     )

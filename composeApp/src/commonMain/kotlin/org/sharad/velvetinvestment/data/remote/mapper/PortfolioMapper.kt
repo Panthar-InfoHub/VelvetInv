@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.data.remote.mapper
 
 import org.sharad.velvetinvestment.data.remote.model.fdportfoliobyid.FDPortFolioById
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
+import org.sharad.velvetinvestment.domain.models.portfolio.FDStatus
 import org.sharad.velvetinvestment.data.remote.model.portfolio.MutualFund as MutualFundDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.FdTransaction as FdTransactionDto
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
@@ -9,6 +10,7 @@ import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDom
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
+import org.sharad.velvetinvestment.utils.PendingAction
 
 fun UserPortFolioDto.toDomain(): PortfolioDomain {
     val investmentData = data.investment_data
@@ -38,7 +40,8 @@ fun MutualFundDto.toDomain(): MutualFundPortfolioDomain {
         currentNav = current_nav,
         avgNav = avg_nav,
         folio = folio,
-        balanceUnits = balance_units
+        balanceUnits = balance_units,
+        icon = img_url ?: ""
     )
 }
 
@@ -70,7 +73,7 @@ fun FDPortFolioById.toDomain(): FixedDepositTransactionDomain {
         roiAtBooking = data.roi_at_booking,
         tenureAtBooking = data.tenure_at_booking,
         payoutFrequency = data.payout_frequency,
-        status = data.status,
+        status = FDStatus.fromValue(data.status),
         maturityAmount = data.maturity_amount,
         maturityDate = data.maturity_date,
         maturityInstruction = data.maturity_instruction,
@@ -92,6 +95,6 @@ fun FDPortFolioById.toDomain(): FixedDepositTransactionDomain {
         issuerLogoUrl = data.product.issuer.logo_url,
         issuerBannerUrl = data.product.issuer.banner_url,
         issuerRatingText = data.product.issuer.rating_text,
-        pendingAction = data.pending_action
+        pendingAction = PendingAction.fromValue(data.pending_action)
     )
 }

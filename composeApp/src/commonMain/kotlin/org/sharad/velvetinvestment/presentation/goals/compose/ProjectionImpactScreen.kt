@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.presentation.goals.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
@@ -45,11 +47,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.appOrange
-import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.greenColor
 import org.sharad.emify.core.ui.theme.orangeColor
@@ -93,15 +92,16 @@ import velvet.composeapp.generated.resources.todays_cost
 @Composable
 fun ProjectionImpactScreen(
     goalId: String,
+    viewModel: ProjectionImpactViewModel,
     onBack: () -> Unit = {},
     onInvestNow: () -> Unit = {},
-    navigateToAllBundles : () -> Unit = {},
+    navigateToAllBundles: () -> Unit = {},
     navigateToSpecificBundle: (String) -> Unit = {},
     onEditGoal: (String) -> Unit = {},
     onRemoveGoal: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onMapClick: () -> Unit
 ) {
-    val viewModel: ProjectionImpactViewModel = koinViewModel { parametersOf(goalId) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val bundleState by viewModel.bundleData.collectAsStateWithLifecycle()
 
@@ -116,7 +116,7 @@ fun ProjectionImpactScreen(
                 onDismissMenu = { showMenu = false },
                 onEdit = { 
                     showMenu = false
-                    onEditGoal(goalId) 
+                    onEditGoal(goalId)
                 },
                 onRemove = { 
                     showMenu = false
@@ -147,15 +147,8 @@ fun ProjectionImpactScreen(
                         .fillMaxSize()
                         .padding(bottom = 16.dp)
                 ) {
-                    item {
-                        HorizontalDivider(
-                            modifier= Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                            thickness = 2.dp,
-                            color = bgColor3
-                        )
-                    }
                     item{
-                        ProjectedImpactCard(data = data)
+                        ProjectedImpactCard(data = data, onClick=onMapClick)
                     }
                     item{
                         ExploreBundleGoalsSection(
@@ -259,20 +252,51 @@ fun ProjectionImpactHeader(
 @Composable
 fun ProjectedImpactCard(
     data: ProjectionImpactUiData,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(
-            text = stringResource(Res.string.projected_impact),
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.Black,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+            Text(
+                text = stringResource(Res.string.projected_impact),
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(bgColor4.copy(0.1f))
+                    .padding(vertical = 6.dp, horizontal = 12.dp)
+                    .clickable{
+                        onClick()
+                    }
+            ){
+                Text(
+                    text = "Map Scheme",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Primary
+                )
+                Icon(
+                    painter = painterResource(Res.drawable.back_arrow),
+                    contentDescription = null,
+                    tint = Primary,
+                    modifier= Modifier.size(14.dp).rotate(180f)
+                )
+            }
+
+        }
 
         Box(
             modifier = Modifier
@@ -304,7 +328,8 @@ fun ProjectedImpactCard(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.End) {
                         Text(
                             text = stringResource(Res.string.future_value),
                             style = titlesStyle,
@@ -320,7 +345,8 @@ fun ProjectedImpactCard(
                 }
 
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(1f),
+                    ) {
                         Text(
                             text = stringResource(Res.string.target),
                             style = titlesStyle,
@@ -333,7 +359,8 @@ fun ProjectedImpactCard(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.End) {
                         Text(
                             text = stringResource(Res.string.monthly_sip),
                             style = titlesStyle,
@@ -506,7 +533,7 @@ fun BundleGoalCard(
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = stringResource(Res.string.returns_3y), // Note: Using 3y from string resources for now
+                        text = stringResource(Res.string.returns_3y),
                         style = titlesStyle.copy(fontSize = 10.sp),
                         color = titleColor
                     )
@@ -555,7 +582,7 @@ fun BundleGoalCard(
 
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 fun ProjectionImpactScreenPreview() {
     VelvetTheme {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -570,9 +597,11 @@ fun ProjectionImpactScreenPreview() {
                     currentSaved = 200000,
                     targetAmount = 2500000,
                     increasedBy = 1500000.0,
-                    requiredMonthly = 12000.0
-                )
-            )
+                    requiredMonthly = 12000.0,
+                    schemes = emptyList(),
+                    goalId = 123
+                ),
+            ){}
         }
     }
 }

@@ -10,7 +10,9 @@ import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toLoginDto
 import org.sharad.velvetinvestment.data.remote.model.TradingAccountSubmissionDto.TradingAccountResultDto
+import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenBody
 import org.sharad.velvetinvestment.data.remote.model.auth.sendotp.SendOtpDto
+import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpBodyDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
@@ -112,12 +114,12 @@ class UserAuthenticationRepo(
         }
     }
 
-    override suspend fun loginWithPassword(
-        userId: String,
-        password: String,
-    ): NetworkResponse<Unit, ErrorDomain> {
-        TODO("Not yet implemented")
-    }
+//    override suspend fun loginWithPassword(
+//        userId: String,
+//        password: String,
+//    ): NetworkResponse<Unit, ErrorDomain> {
+//        //TODO("Not yet implemented")
+//    }
 
     override suspend fun signOut(): NetworkResponse<Unit, ErrorDomain> {
         Log("Auth Tokens", client.authProviders.toString())
@@ -126,6 +128,16 @@ class UserAuthenticationRepo(
         Log("Auth Tokens", client.authProviders.toString())
         return NetworkResponse.Success(Unit)
     }
+
+    override suspend fun refreshToken(refreshToken: String): NetworkResponse<RefreshTokenDto, ErrorDomain> {
+       return safeRequest<RefreshTokenDto> {
+            client.post(getUrl("/auth/refresh-token")) {
+                setBody(RefreshTokenBody(refreshToken))
+            }
+        }
+
+    }
+
 
     override suspend fun onBoardUser(data: OnBoardingBodyDto): NetworkResponse<Unit, ErrorDomain> {
         val response= safeUnitRequest {

@@ -7,7 +7,7 @@ import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 class LoginWithPasswordUseCase(
     private val userAuth: UserAuth
 ) {
-    suspend operator fun invoke(userId: String, password: String): NetworkResponse<Unit, ErrorDomain> {
-        return userAuth.loginWithPassword(userId, password)
-    }
+//    suspend operator fun invoke(userId: String, password: String): NetworkResponse<Unit, ErrorDomain> {
+//        return userAuth.loginWithPassword(userId, password)
+//    }
 }

@@ -170,7 +170,12 @@ object Route {
     @Serializable
     data object MutualFundTypeSelectionScreen
     @Serializable
+    data class GoalProjectionFlow(val id: String)
+    @Serializable
     data class GoalProjectionImpact(val id:String)
+
+    @Serializable
+    data object GoalMapScreen
     @Serializable
     data class BundleResultScreen(val bundleKey: String)
     @Serializable

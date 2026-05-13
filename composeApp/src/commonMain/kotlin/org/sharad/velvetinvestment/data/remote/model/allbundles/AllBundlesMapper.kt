@@ -51,6 +51,7 @@ fun BundleProduct.toDomain(): BundledMutualFundItemDomain {
         createdAt = mf_product.createdAt,
         updatedAt = mf_product.updatedAt,
         allocation_percentage = allocation_percentage,
-        minAmount = min_amount
+        minAmount = min_amount,
+        icon = mf_product.img_url?:""
     )
 }

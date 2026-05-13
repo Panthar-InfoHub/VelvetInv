@@ -61,6 +61,12 @@ fun InvestmentFilterScreen(
         mutableStateOf(appliedFilter)
     }
 
+    val hasSelectedFilters = remember(editingFilter) {
+        editingFilter.groups.any { group ->
+            group.options.any { it.isSelected }
+        }
+    }
+
     AppBackHandler(
         onBack = onClose,
         enabled = true
@@ -108,18 +114,25 @@ fun InvestmentFilterScreen(
         FilterBottomBar(
             onCancelClick = onCancelClick,
             onApplyClick = { onApplyClick(editingFilter) },
-            pv=pv
+            isApplyEnabled = hasSelectedFilters,
+            pv = pv
         )
     }
 }
 
 @Composable
-fun FilterBottomBar(onCancelClick: () -> Unit, onApplyClick: () -> Unit, pv: PaddingValues) {
+fun FilterBottomBar(
+    onCancelClick: () -> Unit,
+    onApplyClick: () -> Unit,
+    isApplyEnabled: Boolean,
+    pv: PaddingValues
+) {
     ContinueBackButtonFooter(
         continueText = "View Results",
         backText = "Cancel",
         onContinue = onApplyClick,
         onBack = onCancelClick,
+        enabled = isApplyEnabled,
         pv = pv,
     )
 }

@@ -7,9 +7,10 @@ sealed interface LabelFilter {
 
 sealed interface MutualFundLabel : LabelFilter {
 
+
     data object IndexOnly : MutualFundLabel {
-        override val title = "Index Only"
-        override val id = "index_only"
+        override val title = "Index"
+        override val id = "index"
     }
 
     data object FlexiCap : MutualFundLabel {
@@ -17,20 +18,35 @@ sealed interface MutualFundLabel : LabelFilter {
         override val id = "flexi_cap"
     }
 
-    data object Sectoral : MutualFundLabel {
-        override val title = "Sectoral"
-        override val id = "sectoral"
-    }
-
     data object LargeCap : MutualFundLabel {
         override val title = "Large Cap"
         override val id = "large_cap"
     }
 
+    data object MidCap : MutualFundLabel {
+        override val title = "Mid Cap"
+        override val id = "mid_cap"
+    }
+
+    data object SmallCap : MutualFundLabel {
+        override val title = "Small Cap"
+        override val id = "small_cap"
+    }
+
+    data object LargeMidCap : MutualFundLabel {
+        override val title = "Large & Mid Cap"
+        override val id = "large_Mid_cap"
+    }
+
+    data object GlobalOthers : MutualFundLabel {
+        override val title = "Global / Others"
+        override val id = "global_others"
+    }
+
     data class CustomLabel(
         override val title: String,
-        override val id: String
-    ) : LabelFilter
+        override val id: String = "custom"
+    ) : MutualFundLabel
 }
 
 sealed interface FDLabel : LabelFilter {

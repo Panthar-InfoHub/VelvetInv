@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.presentation.portfolio.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -41,6 +43,7 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.portfolio.FDStatus
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioDetailsViewModel
@@ -72,8 +75,7 @@ fun FDPortfolioDetailsScreen(
         FDPortfolioDetailsMain(
             details = data,
             onBackClick = onBackClick,
-            onBreakClick = viewModel::breakFD,
-            onKycClick = viewModel::completeKYC,
+            onClick = viewModel::onClick,
             pv = pv
         )
     }
@@ -85,9 +87,13 @@ fun FDPortfolioDetailsMain(
     details: FixedDepositTransactionDomain,
     onBackClick: () -> Unit,
     pv: PaddingValues,
-    onBreakClick: () -> Unit,
-    onKycClick: () -> Unit
+    onClick: () -> Unit,
 ) {
+    val shouldShowButton = details.status !in listOf(
+        FDStatus.REFUNDED,
+        FDStatus.MATURED,
+        FDStatus.PREMATURE_WITHDRAWN
+    )
     Box(modifier = Modifier.fillMaxSize()){
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -118,19 +124,72 @@ fun FDPortfolioDetailsMain(
                     )
                 }
             }
-            item{
-                BreakFDButton(
-                    onClick = {
-                        if (details.isVkycPending) onKycClick() else onBreakClick()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    text = if (details.isVkycPending) "Complete KYC" else "Break FD"
-                )
+            if (shouldShowButton) {
+
+                item {
+                    BreakFDButton(
+                        onClick = {
+                            onClick()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        text = if (details.isVkycPending)
+                            "Complete KYC"
+                        else if (details.status == FDStatus.FD_CREATED)
+                            "Break FD"
+                        else
+                            "Pending Action"
+                    )
+                }
+
+            } else {
+
+                item {
+
+                    val message = when (details.status) {
+
+                        FDStatus.MATURED ->
+                            "This fixed deposit has matured successfully. The maturity amount has been processed as per your selected payout instructions."
+
+                        FDStatus.REFUNDED ->
+                            "This fixed deposit request was refunded. Any processed payment has been credited back to the original source account."
+
+                        FDStatus.PREMATURE_WITHDRAWN ->
+                            "This fixed deposit has been withdrawn before maturity. Applicable interest adjustments and settlement have been completed."
+
+                        else -> ""
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = Primary.copy(alpha = 0.06f),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = Primary.copy(alpha = 0.15f),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        Text(
+                            text = details.status.label,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Primary
+                        )
+
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = titleColor
+                        )
+                    }
+                }
             }
         }
-
-
     }
 }
 
@@ -278,7 +337,7 @@ fun InvestmentDetailsCard(details: FixedDepositTransactionDomain) {
 
                 InfoTextColumn(
                     title = "Maturity Amount",
-                    value = details.maturityAmount?.let { formatMoneyAfterL(it.toLong()) }?: "N/A",
+                    value = details.maturityAmount?.let { "₹${formatMoneyAfterL(it.toLong())}" }?: "N/A",
                     valueColor = appGreen,
                     modifier = Modifier.weight(1f),
                 )

@@ -180,6 +180,7 @@ class MutualFundDetailsScreenViewModel(
             getDetailsUseCase(id)
                 .onSuccess {
                     _detailsState.value = DetailsState.Success(it)
+                    _cartSheetState.value = _cartSheetState.value.copy(minAmount = it.minAmount)
                 }
                 .onError {
                     _detailsState.value = DetailsState.Error(it.message)
@@ -276,7 +277,16 @@ class MutualFundDetailsScreenViewModel(
     }
 
     private fun resetCartSheet(){
-        _cartSheetState.value = CartBottomSheetState()
+        _cartSheetState.value = _cartSheetState.value.copy(
+            amount = null,
+            selectedFrequency = null,
+            selectedSIPDate = null,
+            selectedDuration = null,
+            frequencyDropDownExpanded = false,
+            dayDropDownExpanded = false,
+            durationDropDownExpanded = false,
+            loading = false,
+        )
     }
 
 

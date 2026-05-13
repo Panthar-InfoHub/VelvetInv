@@ -23,10 +23,9 @@ import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.SubmitTradingAccountFormUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.TradingAccountConfirmationUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.VerifyPANUseCase
-import org.sharad.velvetinvestment.utils.AppEvents
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.BrowserLauncher
 import org.sharad.velvetinvestment.utils.DateTimeUtils
-import org.sharad.velvetinvestment.utils.RefreshEvents
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -145,7 +144,7 @@ class TradingAccountViewModel(
                 .onSuccess { response ->
                     _formState.value = previousState
                     SnackBarController.showSuccess("Account Created Successfully")
-                    AppEvents.sendHomeRefreshEvent()
+                    AppEventsController.sendHomeRefreshEvent()
                     onSuccessfulSubmit()
                 }
                 .onError { error ->

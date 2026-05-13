@@ -12,7 +12,7 @@ import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 import org.sharad.velvetinvestment.presentation.goals.uimodels.GoalOption
-import org.sharad.velvetinvestment.utils.AppEvents
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
@@ -268,8 +268,8 @@ class SingleGoalViewModel(
                 .onSuccess {
                     onSuccess()
                     SnackBarController.showSuccess(message = "Goal added successfully")
-                    AppEvents.sendGoalRefreshEvent()
-                    AppEvents.sendHomeRefreshEvent()
+                    AppEventsController.sendGoalRefreshEvent()
+                    AppEventsController.sendHomeRefreshEvent()
                     _loading.value=false
                 }
                 .onError { error ->

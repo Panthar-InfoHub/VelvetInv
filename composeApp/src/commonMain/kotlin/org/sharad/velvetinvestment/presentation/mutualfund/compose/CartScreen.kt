@@ -49,12 +49,13 @@ import org.sharad.velvetinvestment.domain.models.usercart.CartType
 import org.sharad.velvetinvestment.presentation.mutualfund.CartScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.UiStateContainer
-import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
+import velvet.composeapp.generated.resources.delete_box
 import velvet.composeapp.generated.resources.nav_icon_full_screener
 import velvet.composeapp.generated.resources.wallet_icon
 
@@ -254,13 +255,14 @@ fun CartItem(
                 }
             }
 
-            Text(
-                text = "Remove",
-                color = appRed,
-                style = titlesStyle,
-                modifier = Modifier.padding(start = 8.dp)
+            Icon(
+                painter = painterResource(Res.drawable.delete_box),
+                contentDescription = null,
+                tint = appRed,
+                modifier = Modifier.padding(top=8.dp, start = 8.dp).size(18.dp)
                     .clickable { onRemoveClick(item.id) }
             )
+
         }
 
 

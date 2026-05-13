@@ -39,7 +39,8 @@ fun BundledFundsDto.toDomain(): List<BundledMutualFundDomain> {
                     createdAt = mf.createdAt,
                     updatedAt = mf.updatedAt,
                     allocation_percentage = product.allocation_percentage,
-                    minAmount=product.min_amount
+                    minAmount=product.min_amount,
+                    icon = mf.img_url?:""
                 )
             }
         )

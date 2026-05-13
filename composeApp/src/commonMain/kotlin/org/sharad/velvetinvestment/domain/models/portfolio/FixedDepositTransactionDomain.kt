@@ -1,5 +1,7 @@
 package org.sharad.velvetinvestment.domain.models.portfolio
 
+import org.sharad.velvetinvestment.utils.PendingAction
+
 data class FixedDepositTransactionDomain(
     val id: String,
     val userId: String,
@@ -9,7 +11,7 @@ data class FixedDepositTransactionDomain(
     val roiAtBooking: String,
     val tenureAtBooking: Int,
     val payoutFrequency: String,
-    val status: String,
+    val status: FDStatus,
     val maturityAmount: String?,
     val maturityDate: String?,
     val maturityInstruction: String?,
@@ -31,5 +33,5 @@ data class FixedDepositTransactionDomain(
     val issuerLogoUrl: String,
     val issuerBannerUrl: String,
     val issuerRatingText: String,
-    val pendingAction: String
+    val pendingAction: PendingAction
 )

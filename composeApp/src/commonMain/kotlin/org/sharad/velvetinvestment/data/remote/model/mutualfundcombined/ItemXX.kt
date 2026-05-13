@@ -29,5 +29,6 @@ data class ItemXX(
     val sip_allowed: Boolean,
     val structure: String,
     val switch_allowed: Boolean,
-    val updatedAt: String
+    val updatedAt: String,
+    val img_url: String? = null
 )

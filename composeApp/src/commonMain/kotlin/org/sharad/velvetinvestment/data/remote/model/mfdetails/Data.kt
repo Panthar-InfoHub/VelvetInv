@@ -30,5 +30,6 @@ data class Data(
     val structure: String,
     val switch_allowed: Boolean,
     val transaction_rules: TransactionRules,
-    val updatedAt: String
+    val updatedAt: String,
+    val img_url: String? = null,
 )

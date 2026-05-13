@@ -41,6 +41,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -51,6 +53,7 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.defaultFilters
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
@@ -153,7 +156,6 @@ fun MutualFundSearchScreenRoot(
                     viewModel.toggleFilterScreen()
                 },
                 onCancelClick = {
-                    viewModel.clearFilter()
                     viewModel.toggleFilterScreen()
                 },
                 onApplyClick = {
@@ -212,16 +214,16 @@ fun MutualFundSearchScreen(
             )
         }
         item{Spacer(Modifier.height(20.dp))}
-//        item {
-//            FundFilterRowMF(
-//                filters = defaultFilters,
-//                selectedFilter = selectedFilter,
-//                onFilterSelected = onFilterSelected,
-//                toggleFilterScreen=toggleFilterScreen
-//            )
-//        }
-//
-//        item{Spacer(Modifier.height(20.dp))}
+        item {
+            FundFilterRowMF(
+                filters = defaultFilters,
+                selectedFilter = selectedFilter,
+                onFilterSelected = onFilterSelected,
+                toggleFilterScreen=toggleFilterScreen
+            )
+        }
+
+        item{Spacer(Modifier.height(20.dp))}
 
         item{
             YearRow(
@@ -275,9 +277,25 @@ fun MutualFundListCard(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MutualFundIcon(
-            schemeName = fund.name,
-            size = 38.dp
+        SubcomposeAsyncImage(
+            modifier = Modifier.size(38.dp),
+            model = fund.icon,
+            contentDescription = null,
+            loading = {
+                MutualFundIcon(
+                    schemeName = fund.name,
+                    size = 38.dp
+                )
+            },
+            error = {
+                MutualFundIcon(
+                    schemeName = fund.name,
+                    size = 38.dp
+                )
+            },
+            success = {
+                SubcomposeAsyncImageContent()
+            }
         )
         Column(
             modifier=Modifier.weight(1f)

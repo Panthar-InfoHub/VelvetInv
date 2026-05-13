@@ -48,7 +48,8 @@ fun BottomNavigation(
     navigateToPrivacyPolicy: () -> Unit,
     navigateToTermsAndConditions: () -> Unit,
     navigateToKYC: () -> Unit,
-    navigateToInvestmentRateScree: () -> Unit
+    navigateToInvestmentRateScree: () -> Unit,
+    navigateToPortfolioFdDetailsScreen: (String)-> Unit
 ) {
 
     val navController= rememberNavController()
@@ -150,10 +151,10 @@ fun BottomNavigation(
             composable<Route.PortFolio> {
                 PortfolioScreenMain(
                     viewModel = portfolioViewModel,
-                    onSIPClick = {it->
+                    onSIPClick = {
                         navigateToSIPDetailsScreen(it)
                     },
-                    onFDClick = navigateToFDDetailsScreen,
+                    onFDClick = navigateToPortfolioFdDetailsScreen,
                     pv=pv,
                     navigateToCategoryMutualFundScreen=navigateToCategoryMutualFundScreen,
                     navigateToCategoryFDScreen=navigateToCategoryFDScreen

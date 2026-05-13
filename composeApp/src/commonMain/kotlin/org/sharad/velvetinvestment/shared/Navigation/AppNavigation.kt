@@ -6,6 +6,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,8 +20,8 @@ import org.sharad.velvetinvestment.presentation.firereport.compose.UpdateDetails
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDDetailsScreenRoot
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDPurchaseScreenRoot
 import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDSearchScreenRoot
+import org.sharad.velvetinvestment.presentation.goals.compose.GoalProjectionNavigation
 import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
-import org.sharad.velvetinvestment.presentation.goals.compose.ProjectionImpactScreen
 import org.sharad.velvetinvestment.presentation.goals.compose.SingleGoalScreen
 import org.sharad.velvetinvestment.presentation.insurance.HealthInsuranceScreen
 import org.sharad.velvetinvestment.presentation.insurance.OtherInsuranceScreen
@@ -48,11 +49,27 @@ import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compo
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.PrivacyPolicyScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.TermsAndConditionsScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
+import org.sharad.velvetinvestment.utils.AppEvent
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.FundTypeSelector
+import org.sharad.velvetinvestment.utils.SnackBarController
 
 @Composable
 fun AppNavigation(onSignOut: () -> Unit) {
+
+    LaunchedEffect(Unit){
+        AppEventsController.appEvent.collect {
+            when(it){
+                AppEvent.LogOut -> {
+                    AppEventsController.clear()
+                    onSignOut()
+                    SnackBarController.showInfo("Token Expired. Login Again.")
+                }
+                else -> {}
+            }
+        }
+    }
 
     Scaffold(
         containerColor = Color.White
@@ -195,7 +212,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     navigateToSpecificGoalProjection={id->
-                        navController.navigate(Route.GoalProjectionImpact(id))
+                        navController.navigate(Route.GoalProjectionFlow(id))
                     },
                     navigateToMutualFundList={
                         navController.navigate(
@@ -235,6 +252,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         navController.navigate(Route.InvestmentRateScreen){
                             launchSingleTop=true
                         }
+                    },
+                    navigateToPortfolioFdDetailsScreen={id->
+                      navController.navigate(Route.FDPortfolioDetailsScreen(id)){
+                          launchSingleTop=true
+                      }
                     },
                     onSignOut = onSignOut
                 )
@@ -289,7 +311,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 CategoryMutualFundScreenRoot(
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
-                    onIconClick = {},
+                    onIconClick = {
+                        navController.navigate(Route.CartScreen){
+                            launchSingleTop=true
+                        }
+                    },
                     onFundClick = { id ->
                         navController.navigate(Route.MutualFundDetails(id)) {
                             launchSingleTop = true
@@ -528,14 +554,15 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     },
                     pv = pv,
                     onGoalClick = {id->
-                        navController.navigate(Route.GoalProjectionImpact(id))
+                        navController.navigate(Route.GoalProjectionFlow(id))
                     }
                 )
             }
 
-            composable<Route.GoalProjectionImpact> {
-                ProjectionImpactScreen(
-                    goalId = it.toRoute<Route.GoalProjectionImpact>().id,
+            composable<Route.GoalProjectionFlow> {
+                val id = it.toRoute<Route.GoalProjectionFlow>().id
+                GoalProjectionNavigation(
+                    goalId = id,
                     onBack = { navController.popBackStack() },
                     onInvestNow = {
                         navController.navigate(Route.MutualFundSearchResult())

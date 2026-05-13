@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -55,6 +57,7 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
@@ -164,7 +167,8 @@ fun MutualFundDetailsScreenRoot(
                         calculatorState = calculatorState,
                         onCalcInvestmentChange = viewModel::onInvestmentChange,
                         onCalcSipToggle = viewModel::onSipToggle,
-                        onCalcTimeChange = viewModel::onTimeChange
+                        onCalcTimeChange = viewModel::onTimeChange,
+                        onGraphRetry = { viewModel.loadGraph() }
                     )
 
                     if (cartState.dayDropDownExpanded) {
@@ -276,7 +280,7 @@ fun DetailsState.toUiState(): UiState<org.sharad.velvetinvestment.domain.models.
 
 @Composable
 fun MutualFundDetailsScreen(
-    detailsState: org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain,
+    detailsState: MutualFundDetailsDomain,
     graphState: GraphState,
     selectedYear: GraphDurationSelection,
     onSelectedYearChange: (GraphDurationSelection) -> Unit,
@@ -286,7 +290,8 @@ fun MutualFundDetailsScreen(
     onCalcInvestmentChange: (Long) -> Unit,
     onCalcSipToggle: (Boolean) -> Unit,
     onCalcTimeChange: (Int) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    onGraphRetry: ()-> Unit
 ) {
 
     var calculatorExpanded by remember { mutableStateOf(false) }
@@ -329,7 +334,8 @@ fun MutualFundDetailsScreen(
                     graphPoints = graphPoints,
                     selectedYear = selectedYear,
                     onSelectedYearChange = onSelectedYearChange,
-                    chartAnimationProgress=progress
+                    chartAnimationProgress=progress,
+                    onReload=onGraphRetry
                 )
             }
             item {
@@ -506,88 +512,6 @@ fun InvestmentRiskCard() {
 //    }
 //}
 
-//@Composable
-//fun AssetAllocationCard(assets: AssetsAllocationDomain) {
-//
-//        ShadowCard(
-//            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-//        ) {
-//            Row(
-//                modifier = Modifier.padding(vertical = 32.dp).fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically,
-//            ) {
-//                Box(
-//                    modifier = Modifier.weight(0.6f),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    PieChart(
-//                        modifier = Modifier.size(156.dp),
-//                        data = assets.toPieChartEntries()
-//                    )
-//                }
-//                Box(
-//                    modifier = Modifier.weight(0.4f),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Column(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        verticalArrangement = Arrangement.spacedBy(8.dp),
-//                        horizontalAlignment = Alignment.Start
-//                    ) {
-//                        AssetsAllocationInfoRow(
-//                            Primary,
-//                            "Equity",
-//                            assets.equity.trimDoubleTo(1).toString()
-//                        )
-//                        AssetsAllocationInfoRow(
-//                            Secondary,
-//                            "Debt",
-//                            assets.debt.trimDoubleTo(1).toString()
-//                        )
-//                        AssetsAllocationInfoRow(
-//                            bgColor4,
-//                            "Cash",
-//                            assets.cash.trimDoubleTo(1).toString()
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//}
-
-//@Composable
-//private fun AssetsAllocationInfoRow(
-//    color: Color,
-//    title: String,
-//    value: String
-//){
-//
-//    Row(
-//        modifier = Modifier.fillMaxWidth(),
-//        verticalAlignment = Alignment.CenterVertically,
-//    ) {
-//        Box(
-//            modifier = Modifier
-//                .size(20.dp)
-//                .clip(CircleShape)
-//                .background(color)
-//        )
-//        Spacer(modifier = Modifier.width(12.dp))
-//        Text(
-//            text = title,
-//            style = titlesStyle,
-//            color=Color.Black
-//        )
-//        Spacer(Modifier.width(12.dp))
-//        Text(
-//            text = "$value%",
-//            style = titlesStyle,
-//            color=Color.Black
-//        )
-//    }
-//
-//}
-
 @Composable
 fun FundInfo(date: String, nav: String, assetType: String, riskLevel: Int, navChange: Double) {
 
@@ -682,7 +606,8 @@ fun GraphCard(
     selectedYear: GraphDurationSelection,
     onSelectedYearChange: (GraphDurationSelection) -> Unit,
     chartAnimationProgress: Float,
-    graphPoints: List<MutualFundGraphPointsDomain>
+    graphPoints: List<MutualFundGraphPointsDomain>,
+    onReload: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -695,7 +620,7 @@ fun GraphCard(
         ) {
             when (graphState) {
                 is GraphState.Error -> {
-                    ErrorScreen(graphState.error)
+                    ErrorScreen(graphState.error,onReload)
                 }
 
                 GraphState.Loading -> {
@@ -761,8 +686,25 @@ fun InfoCard(detailsState: org.sharad.velvetinvestment.domain.models.mutualfunds
         )
         {
 
-            MutualFundIcon(
-                schemeName = detailsState.scheme_name,
+            SubcomposeAsyncImage(
+                modifier = Modifier.size(48.dp),
+                model = detailsState.icon,
+                contentDescription = null,
+                loading = {
+                    MutualFundIcon(
+                        schemeName = detailsState.scheme_name,
+                        size = 48.dp
+                    )
+                },
+                error = {
+                    MutualFundIcon(
+                        schemeName = detailsState.scheme_name,
+                        size = 48.dp
+                    )
+                },
+                success = {
+                    SubcomposeAsyncImageContent()
+                }
             )
 
             Box(

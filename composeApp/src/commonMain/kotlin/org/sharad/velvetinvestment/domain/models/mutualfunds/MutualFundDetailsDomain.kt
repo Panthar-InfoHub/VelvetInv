@@ -1,7 +1,6 @@
 package org.sharad.velvetinvestment.domain.models.mutualfunds
 
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
-import org.sharad.velvetinvestment.data.remote.model.mfdetails.TransactionRules
 
 data class MutualFundDetailsDomain(
     val amc_code: String,
@@ -31,7 +30,9 @@ data class MutualFundDetailsDomain(
     val switch_allowed: Boolean,
     val sipAllowedDated: List<Int>,
     val investmentFrequency: List<InvestmentFrequency>,
-    val updatedAt: String
+    val updatedAt: String,
+    val icon: String,
+    val minAmount:Long
 )
 
 enum class InvestmentFrequency(

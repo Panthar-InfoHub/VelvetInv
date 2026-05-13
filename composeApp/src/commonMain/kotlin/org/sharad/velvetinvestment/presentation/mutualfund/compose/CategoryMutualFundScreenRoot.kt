@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
@@ -48,14 +50,14 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.LoadingState
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
-import velvet.composeapp.generated.resources.mf_haeder_icon
+import velvet.composeapp.generated.resources.cart_icon
 
 @Composable
 fun CategoryMutualFundScreenRoot(
@@ -88,7 +90,7 @@ fun CategoryMutualFundScreenRoot(
         ){
             when(uiState){
                 is LoadingState.Error->{
-                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = {})
+                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = { viewModel.loadMutualFunds() })
                 }
                 LoadingState.Loading -> {
                     LoaderScreen()
@@ -182,7 +184,8 @@ fun CategoryMutualFundScreen(
                     schemeName = fund.name,
                     assetType = fund.type,
                     latestNav = fund.latestNav,
-                    oneYearReturn= fund.returnYearsRate.year1
+                    oneYearReturn= fund.returnYearsRate.year1,
+                    icon= fund.icon
                 )
             }
         }
@@ -200,7 +203,8 @@ fun MutualFundGridCard(
     latestNav: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    oneYearReturn: Double?
+    oneYearReturn: Double?,
+    icon: String
 ) {
     ShadowCard(
         modifier = modifier
@@ -219,8 +223,25 @@ fun MutualFundGridCard(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                MutualFundIcon(
-                    schemeName = schemeName
+                SubcomposeAsyncImage(
+                    modifier = Modifier.size(48.dp),
+                    model = icon,
+                    contentDescription = null,
+                    loading = {
+                        MutualFundIcon(
+                            schemeName = schemeName,
+                            size = 48.dp
+                        )
+                    },
+                    error = {
+                        MutualFundIcon(
+                            schemeName = schemeName,
+                            size = 48.dp
+                        )
+                    },
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    }
                 )
 
                 Text(
@@ -293,7 +314,7 @@ private fun ScreenHeader(onIconClick: () -> Unit, onBackClick: () -> Unit) {
                 ).align(Alignment.CenterEnd)
         ){
             Icon(
-                painter = painterResource(Res.drawable.mf_haeder_icon),
+                painter = painterResource(Res.drawable.cart_icon),
                 contentDescription = null,
                 modifier = Modifier.size(24.dp).align(Alignment.Center),
                 tint= Secondary

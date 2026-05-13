@@ -187,7 +187,7 @@ fun DashBoardCard(dashBoardData: PortfolioDashboardDomain) {
         ) {
 
             Text(
-                text = "Total Investment (${dashBoardData.investedAmount})",
+                text = "Total Investment (₹${formatMoneyAfterL(dashBoardData.investedAmount.toLong())})",
                 style = subHeadingMedium,
                 color = titleColor
             )

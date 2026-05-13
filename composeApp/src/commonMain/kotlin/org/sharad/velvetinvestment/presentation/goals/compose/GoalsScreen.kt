@@ -21,8 +21,8 @@ import org.sharad.velvetinvestment.presentation.homescreen.compose.homeGoalsInfo
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.utils.AppEvents
-import org.sharad.velvetinvestment.utils.RefreshEvents
+import org.sharad.velvetinvestment.utils.AppEventsController
+import org.sharad.velvetinvestment.utils.AppEvent
 
 @Composable
 fun GoalScreen(
@@ -35,14 +35,14 @@ fun GoalScreen(
     val uiState by viewModel.goalsInfo.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit){
-        AppEvents.refreshEvents.collect{
+        AppEventsController.appEvent.collect{
             when(it){
-                RefreshEvents.GoalEventRefresh ->{
+                AppEvent.GoalEventRefresh ->{
                     viewModel.loadGoals()
-                    AppEvents.clear()
+                    AppEventsController.clear()
 
                 }
-                RefreshEvents.HomeEventRefresh -> {
+                AppEvent.HomeEventRefresh -> {
 
                 }
 

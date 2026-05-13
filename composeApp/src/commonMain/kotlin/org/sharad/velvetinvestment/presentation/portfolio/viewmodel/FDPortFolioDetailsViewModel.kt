@@ -3,23 +3,14 @@ package org.sharad.velvetinvestment.presentation.portfolio.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.sharad.velvetinvestment.domain.models.portfolio.FDDetailsDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
-import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDPortFolioDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDPortfolioByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDRedirectUrlUseCase
-import org.sharad.velvetinvestment.presentation.portfolio.models.FDDetailsUiModel
-import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiModel
 import org.sharad.velvetinvestment.utils.BrowserLauncher
-import org.sharad.velvetinvestment.utils.LoadingState
-import org.sharad.velvetinvestment.utils.PendingAction
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
@@ -49,30 +40,13 @@ class FDPortFolioDetailsViewModel(
         }
     }
 
-    fun completeKYC(){
+    fun onClick(){
         val data=loadingState.value
         if (_loadingState.value !is UiState.Success) return
         viewModelScope.launch {
             val currentData = (_loadingState.value as UiState.Success).data
             _loadingState.value = UiState.Loading
-            getFDRedirectUrlUseCase(id=currentData.id, event = PendingAction.VKYC.name)
-                .onSuccess { url ->
-                    _loadingState.value = data
-                    openBrowserLauncher.launchBrowser(url)
-                }
-                .onError { error ->
-                    _loadingState.value = data
-                    SnackBarController.showError(error.message)
-                }
-        }
-    }
-    fun breakFD(){
-        val data=loadingState.value
-        if (_loadingState.value !is UiState.Success) return
-        viewModelScope.launch {
-            val currentData = (_loadingState.value as UiState.Success).data
-            _loadingState.value = UiState.Loading
-            getFDRedirectUrlUseCase(id=currentData.id, event = PendingAction.PAYMENT.name)
+            getFDRedirectUrlUseCase(id=currentData.id, event = currentData.pendingAction.name)
                 .onSuccess { url ->
                     _loadingState.value = data
                     openBrowserLauncher.launchBrowser(url)

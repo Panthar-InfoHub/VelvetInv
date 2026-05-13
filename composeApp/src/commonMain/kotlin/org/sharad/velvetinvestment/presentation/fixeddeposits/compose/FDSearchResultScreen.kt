@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -173,14 +174,15 @@ fun FDSearchScreen(
     onSearchClick: (String) -> Unit
 ) {
 
-    val labels: List<LabelFilter> = listOf(
-        FDLabel.PublicBank,
-        FDLabel.PrivateBank,
-        FDLabel.NBFC,
-        FDLabel.SmallStart,
-        FDLabel.WomenSpecial
-    )
-
+    val labels: List<LabelFilter> = remember{
+        listOf(
+            FDLabel.PublicBank,
+            FDLabel.PrivateBank,
+            FDLabel.NBFC,
+            FDLabel.SmallStart,
+            FDLabel.WomenSpecial
+        )
+    }
     val lazyListState= rememberLazyListState()
 
     LaunchedEffect(result){

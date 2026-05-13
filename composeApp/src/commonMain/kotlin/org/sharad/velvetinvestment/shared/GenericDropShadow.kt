@@ -14,7 +14,7 @@ fun Modifier.genericDropShadow(
 ): Modifier = this.then(
     Modifier.dropShadow(
         shadow = Shadow(
-            radius = 24.dp,
+            radius = 20.dp,
             color = shadowColor
         ),
         shape = shape
