@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,8 @@ import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
+import org.sharad.velvetinvestment.utils.AppEvent
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.trimTo
 
 @Composable
@@ -58,6 +61,17 @@ fun PortfolioScreenMain(
 
     val screenState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit){
+        AppEventsController.appEvent.collect {
+            when(it){
+                 AppEvent.PortfolioRefreshEvent -> {
+                    viewModel.loadPortfolio()
+                }
+                else -> {}
+            }
+        }
+    }
 
     Box(
         modifier=Modifier.fillMaxSize(),

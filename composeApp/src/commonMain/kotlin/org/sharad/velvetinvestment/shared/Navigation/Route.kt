@@ -62,7 +62,7 @@ object Route {
 
     @Serializable
 
-    data class SIPDetails(
+    data class SIPPortfolioDetails(
         val id: Int,
         val title: String,
         val category: String,

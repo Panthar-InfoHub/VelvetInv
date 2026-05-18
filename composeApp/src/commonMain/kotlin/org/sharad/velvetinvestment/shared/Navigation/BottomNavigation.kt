@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
@@ -23,6 +24,8 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.PortfolioScree
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.ProfileScreen
 import org.sharad.velvetinvestment.shared.BottomNavBar
+import org.sharad.velvetinvestment.utils.AppEvent
+import org.sharad.velvetinvestment.utils.AppEventsController
 
 @Composable
 fun BottomNavigation(
@@ -55,6 +58,24 @@ fun BottomNavigation(
     val navController= rememberNavController()
     val homeViewModel: HomeScreenViewModel= koinViewModel()
     val portfolioViewModel: PortfolioScreenViewModel=koinViewModel()
+
+    LaunchedEffect(Unit){
+        AppEventsController.appEvent.collect {
+            when(it){
+                AppEvent.HomeEventRefresh -> {
+                    homeViewModel.loadHome()
+                    AppEventsController.clear()
+                }
+
+                AppEvent.GoalEventRefresh -> {
+                    homeViewModel.loadHome()
+                    AppEventsController.clear()
+                }
+
+                else -> {}
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = { BottomNavBar(navController) },

@@ -20,6 +20,9 @@ import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipReques
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipResponseDto
 import org.sharad.velvetinvestment.data.remote.model.cartpurchase.CartPurchaseLumpSumDto
 import org.sharad.velvetinvestment.data.remote.model.cartpurchase.CartPurchaseSIPDto
+import org.sharad.velvetinvestment.data.remote.model.fundredeem.FullRedemptionRequestDto
+import org.sharad.velvetinvestment.data.remote.model.fundredeem.PartialRedemptionRequestDto
+import org.sharad.velvetinvestment.data.remote.model.fundredeem.response.FundRedeemDto
 import org.sharad.velvetinvestment.data.remote.model.getmf.MutualFundDto
 import org.sharad.velvetinvestment.data.remote.model.initiatemfpurchase.InitiateMFPurchaseDto
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.MutualFundsDetailDto
@@ -389,6 +392,36 @@ class MutualFundRepo(
             }
             is NetworkResponse.Success -> {
                 NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
+    override suspend fun redeemPartialFund(data: PartialRedemptionRequestDto): NetworkResponse<String, ErrorDomain> {
+        val response = safeRequest<FundRedeemDto> {
+            client.post(getUrl("/mf/redeem")) { setBody(data) }
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.data.payment_link)
+            }
+        }
+    }
+
+    override suspend fun redeemFullFund(data: FullRedemptionRequestDto): NetworkResponse<String, ErrorDomain> {
+        val response = safeRequest<FundRedeemDto> {
+            client.post(getUrl("/mf/redeem")) { setBody(data) }
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.data.payment_link)
             }
         }
     }

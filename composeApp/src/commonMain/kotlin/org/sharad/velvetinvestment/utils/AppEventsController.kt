@@ -21,6 +21,10 @@ object AppEventsController {
         _appEvent.emit(AppEvent.GoalEventRefresh)
     }
 
+    suspend fun sendPortfolioRefreshEvent(){
+        _appEvent.emit(AppEvent.PortfolioRefreshEvent)
+    }
+
     suspend fun clear() {
         _appEvent.emit(null)
     }
@@ -35,5 +39,7 @@ object AppEventsController {
 sealed interface AppEvent{
     data object HomeEventRefresh: AppEvent
     data object GoalEventRefresh: AppEvent
+
+    data object PortfolioRefreshEvent: AppEvent
     data object LogOut: AppEvent
 }

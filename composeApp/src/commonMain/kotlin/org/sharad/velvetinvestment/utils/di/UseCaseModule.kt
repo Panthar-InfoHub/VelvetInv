@@ -27,6 +27,8 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetUserCartUseCa
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.InitiateSipPurchaseUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseLumpsumFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseSipFundUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.RedeemFullFundUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.RedeemPartialFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetFireReportSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetGoalsSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
@@ -174,10 +176,13 @@ val useCaseModule= module {
     factory { AddToCartLumpsumUseCase(get()) }
     factory { AddBundleToCartLumpsumUseCase(get()) }
     factory { AddBundleToCartSipUseCase(get()) }
+    factory { RedeemPartialFundUseCase(get()) }
+    factory { RedeemFullFundUseCase(get()) }
     factory { GetBundleFundsUseCase(get()) }
     factory { GetAllBundledFundsUseCase(get()) }
     factory { GetInvestmentRateDataUseCase(get()) }
     factory { GetGoalByIdUseCase(get()) }
     factory { MapGoalUseCase(get()) }
+    factory { GetContractPdfUseCase(get()) }
 
 }

@@ -15,35 +15,41 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
-import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioDetailsViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioSideEffects
 import org.sharad.velvetinvestment.shared.Navigation.Route
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.SidedBackHeader
+import org.sharad.velvetinvestment.shared.rememberBrowserReturnLauncher
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.AppEventsController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SIPDetailsScreen(
+fun MFPortfolioDetailsScreen(
     onBackClick: () -> Unit,
     onCancelClick: (String) -> Unit,
     pv: PaddingValues,
-    data: Route.SIPDetails,
+    data: Route.SIPPortfolioDetails,
 ) {
 
-    val viewModel: SIPDetailsViewModel = koinViewModel()
+    val viewModel: MFPortfolioDetailsViewModel = koinViewModel()
     val screenState by viewModel.loadingState.collectAsStateWithLifecycle()
     val showRedemptionSheet by viewModel.showRedemptionSheet.collectAsStateWithLifecycle()
     val selectedRedemptionType by viewModel.selectedRedemptionType.collectAsStateWithLifecycle()
@@ -51,6 +57,23 @@ fun SIPDetailsScreen(
     val redemptionUnits by viewModel.redemptionUnits.collectAsStateWithLifecycle()
     val redemptionAmount by viewModel.redemptionAmount.collectAsStateWithLifecycle()
     val isSubmitting by viewModel.isSubmitting.collectAsStateWithLifecycle()
+    val browserLauncher = rememberBrowserReturnLauncher()
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.sideEffects.collect {
+            when (it) {
+                is MFPortfolioSideEffects.openRedeemptionUrl -> {
+                    browserLauncher.launch(it.url) {
+                        scope.launch {
+                            AppEventsController.sendPortfolioRefreshEvent()
+                            onBackClick()
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -68,7 +91,12 @@ fun SIPDetailsScreen(
         Box(modifier = Modifier.weight(1f)) {
             when (screenState) {
                 is LoadingState.Error -> {
-                    ErrorScreen((screenState as LoadingState.Error).error, onRetryClick = { viewModel.submitRedemption()})
+                    ErrorScreen((screenState as LoadingState.Error).error, onRetryClick = {
+                        viewModel.submitRedemption(
+                            schemeId = data.id,
+                            folioNo = data.folio
+                        )
+                    })
                 }
 
                 LoadingState.Loading -> {
@@ -102,7 +130,12 @@ fun SIPDetailsScreen(
             onInputTypeChange = viewModel::onInputTypeChange,
             onUnitsChange = viewModel::onUnitsChange,
             onAmountChange = viewModel::onAmountChange,
-            onSubmit = viewModel::submitRedemption,
+            onSubmit = {
+                viewModel.submitRedemption(
+                    schemeId = data.id,
+                    folioNo = data.folio
+                )
+            },
             loading = isSubmitting
         )
     }
@@ -110,7 +143,7 @@ fun SIPDetailsScreen(
 
 @Composable
 fun SIPDetailsLoadedScreen(
-    data: Route.SIPDetails,
+    data: Route.SIPPortfolioDetails,
     pv: PaddingValues,
     onWithdrawClick: () -> Unit
 ) {
@@ -138,7 +171,7 @@ fun SIPDetailsLoadedScreen(
 }
 
 @Composable
-fun SIPDetailsCard(data: Route.SIPDetails) {
+fun SIPDetailsCard(data: Route.SIPPortfolioDetails) {
     ShadowCard {
         Column(
             modifier = Modifier

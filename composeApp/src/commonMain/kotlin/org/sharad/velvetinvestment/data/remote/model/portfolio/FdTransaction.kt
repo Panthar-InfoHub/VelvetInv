@@ -4,13 +4,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FdTransaction(
-    val amount: String,
-    val fd_issued_at: String?,
     val id: String,
-    val maturity_amount: String?,
-    val product: Product,
-    val roi_at_booking: String,
+    val title: String,
+    val category: String,
+    val amount: Double,
+    val start_date: String,
+    val `return`: Double,
+    val roi: Double,
+    val tenure_days: Int,
     val status: String,
-    val tenure_at_booking: Int,
-    val user: User
+    val maturity_amount: Double,
+    val issuer_logo: String
 )

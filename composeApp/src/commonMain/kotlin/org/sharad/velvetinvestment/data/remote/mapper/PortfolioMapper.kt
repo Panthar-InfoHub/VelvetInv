@@ -10,19 +10,85 @@ import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDom
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.InvestedAmountBreakdownDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationItemDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.TotalInvestmentsDomain
 import org.sharad.velvetinvestment.utils.PendingAction
 
 fun UserPortFolioDto.toDomain(): PortfolioDomain {
-    val investmentData = data.investment_data
+
+    val totalInvestments = data.total_investments
+    val investedBreakdown = data.invested_amount_breakdown
+
     return PortfolioDomain(
+
         dashboard = PortfolioDashboardDomain(
-            currentValue = investmentData.current_value,
-            investedAmount = investmentData.invested_amount,
-            totalReturns = investmentData.total_returns.toInt(),
-            returnPercent = investmentData.return_percent ?: 0.0
+            currentValue = totalInvestments.current_value,
+            investedAmount = investedBreakdown.invested_amount,
+            totalReturns = totalInvestments.total_returns.toInt(),
+            returnPercent = totalInvestments.return_percent
         ),
-        mutualFunds = data.mutual_funds.map { it.toDomain() },
-        fixedDeposits = data.user_fd.fd_transactions.map { it.toDomain() }
+
+        totalInvestments = TotalInvestmentsDomain(
+            currentValue = totalInvestments.current_value,
+
+            totalReturns = totalInvestments
+                .total_returns,
+
+            returnPercent = totalInvestments.return_percent,
+
+            allocation = PortfolioAllocationDomain(
+
+                mutualFunds = PortfolioAllocationItemDomain(
+                    value = totalInvestments
+                        .allocation
+                        .mutual_funds
+                        .value
+                        .toDouble(),
+
+                    percent = totalInvestments
+                        .allocation
+                        .mutual_funds
+                        .percent
+                ),
+
+                fixedDeposits = PortfolioAllocationItemDomain(
+                    value = totalInvestments
+                        .allocation
+                        .fixed_deposits
+                        .value
+                        .toDouble(),
+
+                    percent = totalInvestments
+                        .allocation
+                        .fixed_deposits
+                        .percent
+                )
+            )
+        ),
+
+        investedAmountBreakdown = InvestedAmountBreakdownDomain(
+            investedAmount = investedBreakdown
+                .invested_amount,
+
+            investedItemsCount = investedBreakdown
+                .invested_items_count,
+
+            returnsAmount = investedBreakdown
+                .returns_amount,
+
+            returnsPercent = investedBreakdown
+                .returns_percent
+        ),
+
+        mutualFunds = data.mutual_funds.map {
+            it.toDomain()
+        },
+
+        fixedDeposits = data.fixed_deposits.map {
+            it.toDomain()
+        }
     )
 }
 
@@ -48,17 +114,17 @@ fun MutualFundDto.toDomain(): MutualFundPortfolioDomain {
 fun FdTransactionDto.toDomain(): FixedDepositPortfolioDomain {
     return FixedDepositPortfolioDomain(
         id = id,
-        amount = amount,
-        roiAtBooking = roi_at_booking,
-        tenureAtBooking = tenure_at_booking,
-        fdIssuedAt = fd_issued_at,
+        amount = amount.toString(),
+        roiAtBooking = roi.toString(),
+        tenureAtBooking = tenure_days,
+        fdIssuedAt = start_date,
         status = status,
-        maturityAmount = maturity_amount,
-        userId = user.id,
-        userFullName = user.full_name,
-        userEmail = user.email,
-        issuerLogoUrl = product.issuer.logo_url,
-        issuerDisplayName = product.issuer.display_name
+        maturityAmount = maturity_amount.toString(),
+        userId = "",
+        userFullName = "",
+        userEmail = "",
+        issuerLogoUrl = issuer_logo,
+        issuerDisplayName = title
     )
 }
 

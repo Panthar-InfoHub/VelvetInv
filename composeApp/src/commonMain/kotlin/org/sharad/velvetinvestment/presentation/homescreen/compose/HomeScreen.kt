@@ -25,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,8 +49,6 @@ import org.sharad.velvetinvestment.shared.compose.GoalEntryCard
 import org.sharad.velvetinvestment.shared.compose.GradientBackground
 import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.AppEventsController
-import org.sharad.velvetinvestment.utils.AppEvent
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
@@ -77,25 +74,6 @@ fun HomeScreenMain(
     navigateToTradingAccountSetup: () -> Unit,
     navigateToInvestmentRateScreen: () -> Unit
 ){
-
-    LaunchedEffect(Unit){
-        AppEventsController.appEvent.collect {
-            when(it){
-                AppEvent.HomeEventRefresh -> {
-                    viewModel.loadHome()
-                    AppEventsController.clear()
-                }
-
-                AppEvent.GoalEventRefresh -> {
-                    viewModel.loadHome()
-                    AppEventsController.clear()
-                }
-
-                else -> {}
-            }
-        }
-    }
-
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
 
     Box(

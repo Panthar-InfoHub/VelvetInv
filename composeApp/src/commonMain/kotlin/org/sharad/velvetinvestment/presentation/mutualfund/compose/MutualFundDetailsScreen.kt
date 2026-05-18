@@ -548,7 +548,7 @@ fun FundInfo(date: String, nav: String, assetType: String, riskLevel: Int, navCh
 
         item{
             FundInfoCard(
-                title = "Fund Size",
+                title = "Risk Level",
             ){
                 Text(
                     text= riskLevel.toString(),

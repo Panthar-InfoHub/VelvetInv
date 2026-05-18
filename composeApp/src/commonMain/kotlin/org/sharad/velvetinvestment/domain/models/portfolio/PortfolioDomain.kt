@@ -14,7 +14,7 @@ data class MutualFundPortfolioDomain(
     val avgNav: Double,
     val folio: String,
     val balanceUnits: Double,
-    val icon:String
+    val icon: String
 )
 
 data class FixedDepositPortfolioDomain(
@@ -39,8 +39,34 @@ data class PortfolioDashboardDomain(
     val returnPercent: Double
 )
 
+data class PortfolioAllocationDomain(
+    val mutualFunds: PortfolioAllocationItemDomain,
+    val fixedDeposits: PortfolioAllocationItemDomain
+)
+
+data class PortfolioAllocationItemDomain(
+    val value: Double,
+    val percent: Double
+)
+
+data class TotalInvestmentsDomain(
+    val currentValue: Double,
+    val totalReturns: Double,
+    val returnPercent: Double,
+    val allocation: PortfolioAllocationDomain
+)
+
+data class InvestedAmountBreakdownDomain(
+    val investedAmount: Double,
+    val investedItemsCount: Int,
+    val returnsAmount: Double,
+    val returnsPercent: Double
+)
+
 data class PortfolioDomain(
     val dashboard: PortfolioDashboardDomain,
+    val totalInvestments: TotalInvestmentsDomain,
+    val investedAmountBreakdown: InvestedAmountBreakdownDomain,
     val mutualFunds: List<MutualFundPortfolioDomain>,
     val fixedDeposits: List<FixedDepositPortfolioDomain>
 )

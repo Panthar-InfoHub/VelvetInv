@@ -35,7 +35,7 @@ import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundSea
 import org.sharad.velvetinvestment.presentation.portfolio.compose.CancelSIPConfirmationScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.FDPortfolioDetailsScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPDetailsScreen
+import org.sharad.velvetinvestment.presentation.portfolio.compose.MFPortfolioDetailsScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.AllBundlesScreen
@@ -126,7 +126,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 BottomNavigation(
                     navigateToSIPDetailsScreen = {
                         navController.navigate(
-                            Route.SIPDetails(
+                            Route.SIPPortfolioDetails(
                                 id = it.id,
                                 title = it.title,
                                 category = it.category,
@@ -262,9 +262,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
 
-            composable<Route.SIPDetails> {
-                val data = it.toRoute<Route.SIPDetails>()
-                SIPDetailsScreen(
+            composable<Route.SIPPortfolioDetails> {
+                val data = it.toRoute<Route.SIPPortfolioDetails>()
+                MFPortfolioDetailsScreen(
                     onBackClick = { navController.popBackStack() },
                     onCancelClick = {
                         navController.navigate(Route.SIPCancellationScreen(it)) {

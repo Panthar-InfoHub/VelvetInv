@@ -1,6 +1,8 @@
 package org.sharad.velvetinvestment.domain.repository
 
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
+import org.sharad.velvetinvestment.data.remote.model.fundredeem.FullRedemptionRequestDto
+import org.sharad.velvetinvestment.data.remote.model.fundredeem.PartialRedemptionRequestDto
 import org.sharad.velvetinvestment.domain.SIPStatus
 import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
@@ -80,6 +82,9 @@ interface MutualFundRepository {
     suspend fun addBundleToCartSip(
         request: org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleSipRequest
     ): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun redeemPartialFund(data: PartialRedemptionRequestDto): NetworkResponse<String, ErrorDomain>
+    suspend fun redeemFullFund(data: FullRedemptionRequestDto): NetworkResponse<String, ErrorDomain>
 
 }
 

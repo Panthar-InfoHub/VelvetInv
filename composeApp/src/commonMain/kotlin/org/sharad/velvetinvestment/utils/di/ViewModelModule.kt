@@ -37,7 +37,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.OnBoardingC
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
-import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.SIPDetailsViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.CheckKYCViewModel
 import org.sharad.velvetinvestment.presentation.settingscreens.viewmodels.SettingViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.NotificationCentreViewModel
@@ -64,7 +64,7 @@ val viewModelModule= module {
         )
     }
 
-    viewModel { SIPDetailsViewModel() }
+    viewModel { MFPortfolioDetailsViewModel(get(),get()) }
     viewModel {(id:String)-> FDPortFolioDetailsViewModel(get(), get(),get(), fdId = id) }
     viewModel { ExploreFundScreenViewModel(get(), get()) }
     viewModel { CategoryMutualFundViewModel(get()) }
