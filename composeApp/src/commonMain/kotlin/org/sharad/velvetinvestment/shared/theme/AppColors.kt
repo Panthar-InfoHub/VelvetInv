@@ -45,3 +45,5 @@ val termColor = Color(0xff9C27B0)
 val otherColor = appGreen
 
 val TextGray = Color(0xff6A7282)
+
+val PathGray = Color(0xffE4E1E7)

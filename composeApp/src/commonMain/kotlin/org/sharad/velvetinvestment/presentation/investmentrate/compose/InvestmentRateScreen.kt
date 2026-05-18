@@ -66,6 +66,7 @@ import velvet.composeapp.generated.resources.icon_house
 import velvet.composeapp.generated.resources.icon_others
 import velvet.composeapp.generated.resources.icon_transport
 import velvet.composeapp.generated.resources.nav_icon_full_screener
+import velvet.composeapp.generated.resources.nav_icon_home
 
 
 @Composable
@@ -85,7 +86,7 @@ fun InvestmentRateScreen(
                 heading = "Saving pattern",
                 showBack = true,
                 onBackClick = onBackClick,
-                modifier = Modifier.background(Color.White)
+                modifier = Modifier.fillMaxWidth().background(Color.White)
             )
         }
     ) {pv->
@@ -198,7 +199,7 @@ fun CategoryBreakdownSection(
         HorizontalDivider(color = borderColor)
 
         BreakdownHeader(
-            icon = Res.drawable.ic_home,
+            icon = Res.drawable.nav_icon_home,
             iconTint = Color(0xff76613D),
             title = "Essentials",
             backgroundColor = Color(0xffFCDFB1).copy(alpha = 0.5f),

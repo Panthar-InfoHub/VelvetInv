@@ -7,47 +7,76 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.sharad.emify.core.ui.theme.PathGray
+import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.InvestedAmountBreakdownDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationItemDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.TotalInvestmentsDomain
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
 import org.sharad.velvetinvestment.presentation.portfolio.models.label
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer
+import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.FixedDepositCard
 import org.sharad.velvetinvestment.shared.compose.GenericTabSwitcher
 import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
+import org.sharad.velvetinvestment.shared.theme.tinyLabel
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.AppEvent
 import org.sharad.velvetinvestment.utils.AppEventsController
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.trimTo
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.ic_jagged_arrow
 
 @Composable
 fun PortfolioScreenMain(
@@ -88,9 +117,7 @@ fun PortfolioScreenMain(
                 ) { data ->
                     PortfolioScreen(
                         selectedTab = selectedTab,
-                        mutualFunds = data.mutualFunds,
-                        dashBoardData = data.dashboard,
-                        fixedDeposits = data.fixedDeposits,
+                        portfolioData = data,
                         changeTab = viewModel::onTabSelected,
                         onSIPClick = onSIPClick,
                         onFDClick = onFDClick,
@@ -108,9 +135,7 @@ fun PortfolioScreenMain(
 @Composable
 fun PortfolioScreen(
     selectedTab: SelectedPortfolio,
-    mutualFunds: List<MutualFundPortfolioDomain>,
-    dashBoardData: PortfolioDashboardDomain,
-    fixedDeposits: List<FixedDepositPortfolioDomain>,
+    portfolioData: PortfolioDomain,
     changeTab: (SelectedPortfolio) -> Unit,
     onSIPClick: (MutualFundPortfolioDomain) -> Unit,
     onFDClick: (String) -> Unit,
@@ -118,33 +143,82 @@ fun PortfolioScreen(
     navigateToCategoryMutualFundScreen: () -> Unit,
     reload: () -> Unit
 ) {
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }
+            .collect { page ->
+                changeTab(SelectedPortfolio.tabs[page])
+            }
+    }
+
 
     Column(
-        modifier=Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
     ) {
 
         GenericTabSwitcher(
             tabs = SelectedPortfolio.tabs,
             selectedTab = selectedTab,
-            onTabSelected = { changeTab(it) }
+            onTabSelected = {
+                changeTab(it)
+                scope.launch {
+                    pagerState.animateScrollToPage(
+                        SelectedPortfolio.tabs.indexOf(it)
+                    )
+                }
+            }
         ) { tab, selected ->
             Text(
                 text = tab.label(),
                 style = subHeadingMedium,
-                color = Color.Black,
+                color = if (selected) Primary else titleColor,
                 softWrap = false,
                 modifier = Modifier.padding(horizontal = 4.dp)
             )
         }
 
-        Box(modifier=Modifier.weight(1f)){
-            when (selectedTab) {
-                SelectedPortfolio.FixedDeposits -> {
-                    FixedDepositPortFolio(fixedDeposits, onFDClick =onFDClick, onEmptyButtonClick=navigateToCategoryFDScreen, reload=reload)
-                }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.weight(1f)
+        ){
+            when(it){
+                0 -> {
+                    DashboardPortfolio(
+                        totalInvestments = portfolioData.totalInvestments,
+                        mutualFunds = portfolioData.mutualFunds,
+                        fixedDeposits = portfolioData.fixedDeposits,
+                        onSeeAllMF = {
+                            changeTab(SelectedPortfolio.MutualFunds)
+                            scope.launch { pagerState.animateScrollToPage(1) }
+                        },
+                        onSeeAllFD = {
+                            changeTab(SelectedPortfolio.FixedDeposits)
+                            scope.launch { pagerState.animateScrollToPage(2) }
 
-                SelectedPortfolio.MutualFunds -> {
-                    MutualFundPortFolio(mutualFunds, dashBoardData, onFundClick =onSIPClick, onEmptyButtonClick=navigateToCategoryMutualFundScreen, reload=reload)
+                        },
+                        onSIPClick = onSIPClick,
+                        onFDClick = onFDClick,
+                        reload = reload
+                    )
+                }
+                1-> {
+                    MutualFundPortfolio(
+                        mutualFund = portfolioData.mutualFunds,
+                        investedBreakdown = portfolioData.investedAmountBreakdown,
+                        onFundClick = onSIPClick,
+                        onEmptyButtonClick = navigateToCategoryMutualFundScreen,
+                        reload = reload
+                    )
+                }
+                2-> {
+                    FixedDepositPortfolio(
+                        fixedDeposits = portfolioData.fixedDeposits,
+                        onFDClick = onFDClick,
+                        onEmptyButtonClick = navigateToCategoryFDScreen,
+                        reload = reload
+                    )
                 }
             }
         }
@@ -153,128 +227,488 @@ fun PortfolioScreen(
 }
 
 @Composable
-fun MutualFundPortFolio(
+fun DashboardPortfolio(
+    totalInvestments: TotalInvestmentsDomain,
+    mutualFunds: List<MutualFundPortfolioDomain>,
+    fixedDeposits: List<FixedDepositPortfolioDomain>,
+    onSeeAllMF: () -> Unit,
+    onSeeAllFD: () -> Unit,
+    onSIPClick: (MutualFundPortfolioDomain) -> Unit,
+    onFDClick: (String) -> Unit,
+    reload: () -> Unit
+) {
+    PullToRefreshBox(
+        isRefreshing = false,
+        onRefresh = reload
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            item { Spacer(modifier = Modifier.height(4.dp)) }
+            item { TotalInvestmentCard(totalInvestments) }
+
+            if (mutualFunds.isNotEmpty()) {
+                item {
+                    BarHeader(
+                        heading = "Mutual Funds",
+                        showArrow = true,
+                        onArrowClick = onSeeAllMF
+                    )
+                }
+                items(mutualFunds.take(2), key = { "mf_${it.id}" }) { item ->
+                    MutualFundsCard(fundItem = item, onClick = { onSIPClick(item) })
+                }
+            }
+
+            if (fixedDeposits.isNotEmpty()) {
+                item {
+                    BarHeader(
+                        heading = "Fixed Deposits",
+                        showArrow = true,
+                        onArrowClick = onSeeAllFD
+                    )
+                }
+                items(fixedDeposits.take(2), key = { "fd_${it.id}" }) { fd ->
+                    FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
+                }
+            }
+            item { Spacer(modifier = Modifier.height(20.dp)) }
+        }
+    }
+}
+
+@Composable
+fun MutualFundPortfolio(
     mutualFund: List<MutualFundPortfolioDomain>,
-    dashBoardData: PortfolioDashboardDomain,
+    investedBreakdown: InvestedAmountBreakdownDomain,
     onFundClick: (MutualFundPortfolioDomain) -> Unit,
     onEmptyButtonClick: () -> Unit,
     reload: () -> Unit
 ) {
-    if (mutualFund.isEmpty()){
-        EmptyFundScreen(onBrowseClick = onEmptyButtonClick, text = "Grow your wealth with Mutual Funds through SIPs for steady investing or Lumpsum for one-time opportunities.", buttonText = "Browse SIP")
-    }else{
+    if (mutualFund.isEmpty()) {
+        EmptyFundScreen(
+            onBrowseClick = onEmptyButtonClick,
+            text = "Grow your wealth with Mutual Funds through SIPs for steady investing or Lumpsum for one-time opportunities.",
+            buttonText = "Browse SIP"
+        )
+    } else {
         PullToRefreshBox(
             isRefreshing = false,
             onRefresh = reload
-        ){
+        ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
-                item { DashBoardCard(dashBoardData) }
-                item { BarHeader(heading = "Your Investments") }
+                item { MFInvestmentsCard(investedBreakdown, onInvestMore = onEmptyButtonClick) }
+                item { BarHeader(heading = "Mutual Funds") }
                 items(mutualFund, key = { it.id }) { item ->
                     MutualFundsCard(fundItem = item, onClick = {
                         onFundClick(item)
                     })
                 }
-                item { Spacer(modifier = Modifier) }
+                item { Spacer(modifier = Modifier.height(20.dp)) }
             }
         }
     }
 }
 
 @Composable
-fun DashBoardCard(dashBoardData: PortfolioDashboardDomain) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-            .genericDropShadow(RoundedCornerShape(15.dp))
-            .clip(RoundedCornerShape(15.dp))
-            .background(Color.White)
-    ){
-
-        Column(
-            modifier = Modifier.fillMaxWidth()
-                .padding(vertical = 20.dp, horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-
-            Text(
-                text = "Total Investment (₹${formatMoneyAfterL(dashBoardData.investedAmount.toLong())})",
-                style = subHeadingMedium,
-                color = titleColor
-            )
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Current Value", fontFamily = Poppins, fontSize = 14.sp, color = titleColor)
-                    Text("Total Returns", fontFamily = Poppins, fontSize = 14.sp, color = titleColor)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("₹" + formatMoneyAfterL(dashBoardData.currentValue.toLong()), style = subHeading, color = Color.Black)
-                    Text("+₹" + formatMoneyAfterL(dashBoardData.totalReturns.toLong()) + " (" + dashBoardData.returnPercent.trimTo(1) +"%)", style = subHeading, color = appGreen)
-                }
-            }
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Invested Amount", fontFamily = Poppins, fontSize = 14.sp, color = titleColor)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("₹" + formatMoneyAfterL(dashBoardData.investedAmount.toLong()), style = subHeading, color = Color.Black)
-                }
-            }
-
-        }
-
-    }
-}
-
-
-@Composable
-fun FixedDepositPortFolio(
+fun FixedDepositPortfolio(
     fixedDeposits: List<FixedDepositPortfolioDomain>,
     onFDClick: (String) -> Unit,
     onEmptyButtonClick: () -> Unit,
     reload: () -> Unit
 ) {
-    if (fixedDeposits.isEmpty()){
-        EmptyFundScreen(onBrowseClick = onEmptyButtonClick, text = "Lock in your savings with Fixed Deposits and earn stable, guaranteed returns over time.", buttonText = "Browse FD")
-    }else {
+    if (fixedDeposits.isEmpty()) {
+        EmptyFundScreen(
+            onBrowseClick = onEmptyButtonClick,
+            text = "Lock in your savings with Fixed Deposits and earn stable, guaranteed returns over time.",
+            buttonText = "Browse FD"
+        )
+    } else {
         PullToRefreshBox(
             isRefreshing = false,
             onRefresh = reload
-        ){
+        ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
+                item { BarHeader(heading = "Fixed Deposits") }
                 items(fixedDeposits, key = { it.id }) { fd ->
                     FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
+                }
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
+                        AppButton(
+                            text = "Invest More",
+                            onClick = onEmptyButtonClick,
+                            modifier = Modifier.width(180.dp),
+                            shape = RoundedCornerShape(50)
+                        )
+                    }
+                }
+                item { Spacer(modifier = Modifier.height(20.dp)) }
+            }
+        }
+    }
+}
+
+@Composable
+fun TotalInvestmentCard(totalInvestments: TotalInvestmentsDomain) {
+    val shapes = LocalVelvetShapes.current
+    val labelColorBlue= Color(0xff00658D)
+    Box(
+        modifier = Modifier.fillMaxWidth()
+            .genericDropShadow(shapes.roundedDp15)
+            .clip(shapes.roundedDp15)
+            .background(Color.White)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Column{
+                Text(text = "Current Value", style = titlesStyle, color = Color.Black)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "₹${formatMoneyAfterL(totalInvestments.currentValue.toLong())}",
+                        style = subHeading.copy(fontSize = 36.sp, fontWeight = FontWeight.ExtraBold),
+                        color = Primary
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.clip(CircleShape)
+                            .background(
+                                if (totalInvestments.returnPercent >= 0) Color(0xffC6E7FF).copy(
+                                    0.3f
+                                ) else appRed.copy(0.1f)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_jagged_arrow),
+                            contentDescription = null,
+                            tint = if (totalInvestments.returnPercent >= 0) labelColorBlue else Color.Red,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Text(
+                            text = "${if (totalInvestments.returnPercent >= 0) "+" else ""}${
+                                totalInvestments.returnPercent.trimTo(
+                                    2
+                                )
+                            }%",
+                            style = tinyLabel,
+                            color = if (totalInvestments.returnPercent >= 0) labelColorBlue else Color.Red,
+                        )
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Allocation", style = tinyLabel)
+                    Text(
+                        text = "Total: ₹${formatMoneyAfterL(totalInvestments.currentValue.toLong())}",
+                        style = tinyLabel,
+                        color = Primary
+                    )
+                }
+
+                val mfPercent = totalInvestments
+                    .allocation
+                    .mutualFunds
+                    .percent
+                    .toFloat()
+
+                val fdPercent = totalInvestments
+                    .allocation
+                    .fixedDeposits
+                    .percent
+                    .toFloat()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(CircleShape)
+                        .background(PathGray)
+                ) {
+
+                    if (mfPercent > 0f) {
+                        Box(
+                            modifier = Modifier
+                                .weight(mfPercent)
+                                .fillMaxHeight()
+                                .background(Primary)
+                        )
+                    }
+
+                    if (fdPercent > 0f) {
+                        Box(
+                            modifier = Modifier
+                                .weight(fdPercent)
+                                .fillMaxHeight()
+                                .background(Secondary)
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Primary))
+                        Text(
+                            text = "Mutual Funds (${totalInvestments.allocation.mutualFunds.percent.trimTo(0)}%)",
+                            style = tinyLabel,
+                            color = Color.Black.copy(alpha = 0.8f)
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Secondary))
+                        Text(
+                            text = "Fixed Deposits (${totalInvestments.allocation.fixedDeposits.percent.trimTo(0)}%)",
+                            color = Color.Black.copy(alpha = 0.8f),
+                            style = tinyLabel
+                        )
+                    }
                 }
             }
         }
     }
 }
+
+@Composable
+fun MFInvestmentsCard(investedBreakdown: InvestedAmountBreakdownDomain, onInvestMore: () -> Unit) {
+    val shapes = LocalVelvetShapes.current
+    Box(
+        modifier = Modifier.fillMaxWidth()
+            .genericDropShadow(shapes.roundedDp15)
+            .clip(shapes.roundedDp15)
+            .background(Color.White)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Column{
+                Text(text = "Total Investments", style = titlesStyle, color = titleColor)
+                Text(
+                    text = "₹${formatMoneyAfterL(investedBreakdown.investedAmount.toLong() + investedBreakdown.returnsAmount.toLong())}",
+                    style = subHeading.copy(fontSize = 24.sp),
+                    color = Primary
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "${if (investedBreakdown.returnsPercent >= 0) "+" else ""}${
+                            investedBreakdown.returnsPercent.trimTo(
+                                2
+                            )
+                        }%",
+                        style = titlesStyle,
+                        color = if (investedBreakdown.returnsPercent >= 0) appGreen else Color.Red
+                    )
+                    Text(
+                        text = "Total Returns (${if (investedBreakdown.returnsAmount < 0) "-₹" else "₹"}${
+                            formatMoneyAfterL(
+                                kotlin.math.abs(
+                                    investedBreakdown.returnsAmount.toLong()
+                                )
+                            )
+                        })",
+                        style = titlesStyle,
+                        color = titleColor
+                    )
+                }
+            }
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
+
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Invested Amount", style = titlesStyle, color = titleColor)
+                    Text(
+                        text = "₹${formatMoneyAfterL(investedBreakdown.investedAmount.toLong())}",
+                        style = subHeading,
+                        color = Color.Black
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Return Percent", style = titlesStyle, color = titleColor)
+                    Text(
+                        text = investedBreakdown.returnsPercent.trimTo(2) + "%",
+                        style = subHeading,
+                        color = if (investedBreakdown.returnsPercent >= 0) appGreen else Color.Red
+                    )
+                }
+            }
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
+            AppButton(
+                text = "INVEST MORE",
+                onClick = onInvestMore,
+                modifier = Modifier.width(160.dp).align(Alignment.End),
+                shape = RoundedCornerShape(12.dp),
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xffffff)
+@Composable
+fun MFInvestmentsCardPreview() {
+    VelvetTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            MFInvestmentsCard(
+                investedBreakdown = previewPortfolioData.investedAmountBreakdown,
+                onInvestMore = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xffffff)
+@Composable
+fun DashboardPortfolioPreview() {
+    VelvetTheme {
+        PortfolioScreen(
+            selectedTab = SelectedPortfolio.Dashboard,
+            portfolioData = previewPortfolioData,
+            changeTab = {},
+            onSIPClick = {},
+            onFDClick = {},
+            navigateToCategoryFDScreen = {},
+            navigateToCategoryMutualFundScreen = {},
+            reload = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xffffff)
+@Composable
+fun MutualFundPortfolioPreview() {
+    VelvetTheme {
+        PortfolioScreen(
+            selectedTab = SelectedPortfolio.MutualFunds,
+            portfolioData = previewPortfolioData,
+            changeTab = {},
+            onSIPClick = {},
+            onFDClick = {},
+            navigateToCategoryFDScreen = {},
+            navigateToCategoryMutualFundScreen = {},
+            reload = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xffffff)
+@Composable
+fun FixedDepositPortfolioPreview() {
+    VelvetTheme {
+        FixedDepositPortfolio(
+            fixedDeposits = previewPortfolioData.fixedDeposits,
+            onFDClick = {},
+            onEmptyButtonClick = {},
+            reload = {}
+        )
+    }
+}
+
+private val previewPortfolioData = PortfolioDomain(
+    dashboard = PortfolioDashboardDomain(
+        currentValue = 1250000.0,
+        investedAmount = 1000000.0,
+        totalReturns = 250000,
+        returnPercent = 25.0
+    ),
+    totalInvestments = TotalInvestmentsDomain(
+        currentValue = 1250000.0,
+        totalReturns = 250000.0,
+        returnPercent = -25.06,
+        allocation = PortfolioAllocationDomain(
+            mutualFunds = PortfolioAllocationItemDomain(value = 750000.0, percent = 60.0),
+            fixedDeposits = PortfolioAllocationItemDomain(value = 500000.0, percent = 40.0)
+        )
+    ),
+    investedAmountBreakdown = InvestedAmountBreakdownDomain(
+        investedAmount = 1000000.0,
+        investedItemsCount = 5,
+        returnsAmount = 250000.0,
+        returnsPercent = 25.0
+    ),
+    mutualFunds = listOf(
+        MutualFundPortfolioDomain(
+            id = 1,
+            title = "Axis Bluechip Fund",
+            category = "Equity",
+            amount = 50000.0,
+            isSip = true,
+            startDate = "2021-01-01",
+            returnPercentage = "15.5",
+            returnAmount = 7500,
+            xirr = "18.2",
+            currentNav = 45.2,
+            avgNav = 38.5,
+            folio = "12345678",
+            balanceUnits = 1298.7,
+            icon = ""
+        ),
+        MutualFundPortfolioDomain(
+            id = 2,
+            title = "SBI Small Cap Fund",
+            category = "Equity",
+            amount = 30000.0,
+            isSip = false,
+            startDate = "2021-06-15",
+            returnPercentage = "22.1",
+            returnAmount = 6630,
+            xirr = "25.4",
+            currentNav = 112.5,
+            avgNav = 92.1,
+            folio = "87654321",
+            balanceUnits = 266.6,
+            icon = ""
+        )
+    ),
+    fixedDeposits = listOf(
+        FixedDepositPortfolioDomain(
+            id = "fd1",
+            amount = "100000",
+            roiAtBooking = "7.5",
+            tenureAtBooking = 12,
+            fdIssuedAt = "2023-10-01",
+            status = "ACTIVE",
+            maturityAmount = "107500",
+            userId = "user1",
+            userFullName = "John Doe",
+            userEmail = "john@example.com",
+            issuerLogoUrl = "",
+            issuerDisplayName = "HDFC Bank",
+            maturityDate = "06 July,2024"
+        )
+    )
+)
 

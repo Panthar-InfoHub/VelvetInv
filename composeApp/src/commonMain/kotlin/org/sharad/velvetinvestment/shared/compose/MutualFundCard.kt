@@ -5,11 +5,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,8 +22,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
@@ -27,6 +34,7 @@ import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @Composable
@@ -41,71 +49,122 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ){
 
-        Row(modifier=Modifier.fillMaxWidth()
-            .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            SubcomposeAsyncImage(
-                modifier = Modifier.size(44.dp), model = fundItem.icon, contentDescription = null,
-
-                loading = {
-                    MutualFundIcon(
-                        schemeName = fundItem.title, size = 44.dp
-                    )
-                },
-
-                error = {
-                    MutualFundIcon(
-                        schemeName = fundItem.title, size = 44.dp
-                    )
-                },
-
-                success = {
-                    SubcomposeAsyncImageContent()
-                }
+        Column(
+            modifier = Modifier.padding(
+                vertical = 24.dp
             )
+        ){
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            Column(
-                modifier = Modifier.weight(1f).padding(end = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ){
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                SubcomposeAsyncImage(
+                    modifier = Modifier.size(44.dp),
+                    model = fundItem.icon,
+                    contentDescription = null,
+
+                    loading = {
+                        MutualFundIcon(
+                            schemeName = fundItem.title, size = 44.dp
+                        )
+                    },
+
+                    error = {
+                        MutualFundIcon(
+                            schemeName = fundItem.title, size = 44.dp
+                        )
+                    },
+
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    }
+                )
+
+                Column(
+                    modifier = Modifier.weight(1f).padding(end = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = fundItem.title,
+                            color = Color.Black,
+                            style = MaterialTheme.typography.labelSmall.copy(lineHeight = 20.sp),
+                            modifier = Modifier.weight(1f),
+                            maxLines = 2
+                        )
+
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = fundItem.category,
+                            color = titleColor,
+                            style = titlesStyle
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier.align(Alignment.Top),
+                    horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text=fundItem.title,
+                        text = "₹" + formatMoneyAfterL(fundItem.amount.toLong()),
                         color = Color.Black,
-                        style = subHeading,
-                        modifier = Modifier.weight(1f)
+                        style = MaterialTheme.typography.labelSmall,
                     )
-
                     Text(
-                        text= "₹"+formatMoneyAfterL(fundItem.amount.toLong()),
-                        color = Color.Black,
-                        style = subHeading
+                        text = fundItem.returnPercentage,
+                        style = tinyLabel,
+                        color = titleColor
                     )
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    Text(
-                        text=fundItem.category,
-                        color = titleColor,
-                        style = titlesStyle
-                    )
-                }
-                Text(
-                    text="Start Date : "+fundItem.startDate,
-                    color = titleColor,
-                    style = titlesStyle
-                )
             }
-
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 20.dp),
+                thickness = 0.5.dp
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column {
+                    Text(
+                        text = "Invested",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = titleColor
+                    )
+                    Text(
+                        text = "₹" + formatMoneyAfterL(fundItem.amount.toLong()),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Black
+                    )
+                }
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "Start Date",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = titleColor
+                    )
+                    Text(
+                        text = fundItem.startDate,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Black
+                    )
+                }
+            }
         }
     }
 }

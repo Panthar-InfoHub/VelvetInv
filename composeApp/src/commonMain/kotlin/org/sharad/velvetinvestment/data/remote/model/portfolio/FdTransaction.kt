@@ -14,5 +14,6 @@ data class FdTransaction(
     val tenure_days: Int,
     val status: String,
     val maturity_amount: Double,
-    val issuer_logo: String
+    val issuer_logo: String,
+    val maturity_date: String? = null,
 )

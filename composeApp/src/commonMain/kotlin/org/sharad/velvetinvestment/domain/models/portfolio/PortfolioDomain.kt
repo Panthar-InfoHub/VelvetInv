@@ -29,7 +29,8 @@ data class FixedDepositPortfolioDomain(
     val userFullName: String,
     val userEmail: String,
     val issuerLogoUrl: String,
-    val issuerDisplayName: String
+    val issuerDisplayName: String,
+    val maturityDate: String?
 )
 
 data class PortfolioDashboardDomain(

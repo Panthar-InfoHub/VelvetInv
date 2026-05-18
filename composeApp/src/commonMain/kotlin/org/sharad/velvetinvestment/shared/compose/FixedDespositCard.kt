@@ -10,26 +10,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import org.jetbrains.compose.resources.painterResource
-import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.emify.core.ui.theme.Secondary
-import org.sharad.emify.core.ui.theme.appGreen
-import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.shared.theme.subHeading
-import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.shared.theme.tinyLabel
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.fd_placeholder
+import velvet.composeapp.generated.resources.ic_callended_filled
 
 @Composable
 fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
@@ -43,7 +47,7 @@ fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 20.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -53,74 +57,98 @@ fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AsyncImage(
+                SubcomposeAsyncImage(
                     modifier = Modifier.size(44.dp),
                     model = fdData.issuerLogoUrl,
                     contentDescription = null,
-                    placeholder = painterResource(Res.drawable.fd_placeholder),
-                    fallback = painterResource(Res.drawable.fd_placeholder),
-                    error = painterResource(Res.drawable.fd_placeholder)
+
+                    loading = {
+                        MutualFundIcon(
+                            schemeName = fdData.issuerDisplayName, size = 44.dp
+                        )
+                    },
+
+                    error = {
+                        MutualFundIcon(
+                            schemeName = fdData.issuerDisplayName, size = 44.dp
+                        )
+                    },
+
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    }
                 )
-                Column {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(
                         text = fdData.issuerDisplayName,
-                        style = subHeading,
-                        color = Primary
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = fdData.roiAtBooking+"% p.a.",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color(0xff00658D)
                     )
                 }
-            }
 
+                Text(
+                    text = formatMoneyAfterL(fdData.amount.toLong()),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = darkBlue
+                )
+
+            }
+            HorizontalDivider(
+                thickness = 0.5.dp
+            )
             Row(
-                modifier=Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
-            ){
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Principal",
-                        style = titlesStyle,
-                        color = titleColor
-                    )
-                    Text(
-                        text = "₹"+ formatMoneyAfterL(fdData.amount.toLong()),
-                        style = subHeading,
-                        color = Primary
-                    )
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Rate",
-                        style = titlesStyle,
-                        color = titleColor
-                    )
-                    Text(
-                        text = fdData.roiAtBooking+"%",
-                        style = subHeading,
-                        color = Secondary
-                    )
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Maturity",
-                        style = titlesStyle,
-                        color = titleColor
-                    )
-                    Text(
-                        text = fdData.maturityAmount?.let { "₹"+ formatMoneyAfterL(it.toLong()) } ?: "Action Pending",
-                        style = subHeading,
-                        color = appGreen
-                    )
-                }
-
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_callended_filled),
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = Color.DarkGray
+                )
+                Text(
+                    text = "Matures "+ (fdData.maturityDate ?: ""),
+                    color = Color.DarkGray,
+                    style = tinyLabel.copy(fontWeight = FontWeight.Normal)
+                )
             }
 
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FixedDepositCardPreview() {
+    val sampleFd = FixedDepositPortfolioDomain(
+        id = "1",
+        amount = "100000",
+        roiAtBooking = "7.5",
+        tenureAtBooking = 12,
+        fdIssuedAt = "2023-10-12",
+        status = "Active",
+        maturityAmount = "107500",
+        userId = "user123",
+        userFullName = "John Doe",
+        userEmail = "john@example.com",
+        issuerLogoUrl = "",
+        issuerDisplayName = "HDFC Bank",
+        maturityDate = "06 July,2025"
+    )
+    VelvetTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            FixedDepositCard(
+                fdData = sampleFd,
+                onClick = {}
+            )
         }
     }
 }

@@ -124,7 +124,8 @@ fun FdTransactionDto.toDomain(): FixedDepositPortfolioDomain {
         userFullName = "",
         userEmail = "",
         issuerLogoUrl = issuer_logo,
-        issuerDisplayName = title
+        issuerDisplayName = title,
+        maturityDate = maturity_date
     )
 }
 
