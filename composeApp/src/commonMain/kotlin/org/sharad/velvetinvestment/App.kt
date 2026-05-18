@@ -20,10 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sharad.velvetinvestment.shared.Navigation.BaseNavigation
 import org.sharad.velvetinvestment.shared.rememberWindowSize
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.SnackBarType
-import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 
 @Composable
 fun App() {

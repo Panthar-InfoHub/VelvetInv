@@ -47,8 +47,10 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.usercart.CartItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
 import org.sharad.velvetinvestment.presentation.mutualfund.CartScreenViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.CartSideEffects
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.UiStateContainer
+import org.sharad.velvetinvestment.shared.rememberBrowserReturnLauncher
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.UiState
@@ -71,6 +73,30 @@ fun CartScreen(
     val visibleItems by viewModel.visibleItems.collectAsStateWithLifecycle()
     val popupVisible by viewModel.confirmationPopupVisible.collectAsStateWithLifecycle()
     val loading by viewModel.loading.collectAsStateWithLifecycle()
+    val browserLauncher = rememberBrowserReturnLauncher()
+
+    LaunchedEffect(Unit){
+        viewModel.cartSideEffect.collect{
+            when(it){
+                is CartSideEffects.OpenForInitiation -> {
+                    browserLauncher.launch(it.url){
+                        viewModel.checkPurchaseStatus(it.mandateId)
+                    }
+                }
+                is CartSideEffects.OpenForPurchase ->{
+                    browserLauncher.launch(it.url){
+                        viewModel.reloadFund()
+                    }
+                }
+
+                is CartSideEffects.OpenForLumpSumPurchase -> {
+                    browserLauncher.launch(it.url){
+                        viewModel.reloadFund()
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit){
         if (uiState is UiState.Success){

@@ -18,12 +18,17 @@ import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpS
 import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumResponseDto
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipResponseDto
-import org.sharad.velvetinvestment.data.remote.model.cartpurchase.CartPurchaseDto
+import org.sharad.velvetinvestment.data.remote.model.cartpurchase.CartPurchaseLumpSumDto
+import org.sharad.velvetinvestment.data.remote.model.cartpurchase.CartPurchaseSIPDto
 import org.sharad.velvetinvestment.data.remote.model.getmf.MutualFundDto
+import org.sharad.velvetinvestment.data.remote.model.initiatemfpurchase.InitiateMFPurchaseDto
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.MutualFundsDetailDto
 import org.sharad.velvetinvestment.data.remote.model.mfgraph.MFGraphDto
+import org.sharad.velvetinvestment.data.remote.model.mfpurchasemandatestatus.CheckMFPurchaseMandateStatusDto
+import org.sharad.velvetinvestment.data.remote.model.mfpurchasemandatestatus.PurchaseBodyDto
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.CombinedFundsDto
 import org.sharad.velvetinvestment.data.remote.model.usercart.UserCartDto
+import org.sharad.velvetinvestment.domain.SIPStatus
 import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
@@ -31,6 +36,7 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
 import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
@@ -228,7 +234,7 @@ class MutualFundRepo(
     }
 
     override suspend fun purchaseLumSumFund(): NetworkResponse<String, ErrorDomain> {
-        val response=safeRequest<CartPurchaseDto> {
+        val response=safeRequest<CartPurchaseLumpSumDto> {
             client.post(getUrl("/mf/purchase-lumpsum"))
         }
         return when(response){
@@ -241,16 +247,57 @@ class MutualFundRepo(
         }
     }
 
-    override suspend fun purchaseSipFund(): NetworkResponse<String, ErrorDomain> {
-        val response=safeRequest<CartPurchaseDto> {
-            client.post(getUrl("/mf/purchase-sip"))
+    override suspend fun initiateSipPurchase(): NetworkResponse<MutualFundPurchaseInitiateDomain, ErrorDomain> {
+        val response = safeRequest<InitiateMFPurchaseDto> {
+            client.post(getUrl("/mf/initiate-sip"))
         }
         return when(response){
             is NetworkResponse.Error -> {
                 NetworkResponse.Error(response.error)
             }
             is NetworkResponse.Success -> {
-                NetworkResponse.Success(response.data.data)
+                NetworkResponse.Success(response.data.data.toDomain())
+            }
+        }
+    }
+
+    override suspend fun checkSipPurchaseStatus(mandateId: String): NetworkResponse<SIPStatus, ErrorDomain> {
+        val response=safeRequest<CheckMFPurchaseMandateStatusDto> {
+            client.get(getUrl("/mf/mandate-status")){
+                parameter("mandate_id", mandateId)
+            }
+        }
+        return when(response){
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                val status= SIPStatus.getStatus(response.data.data.enach_status)
+                if (status != null){
+                    NetworkResponse.Success(status)
+                }else {
+                    NetworkResponse.Error(ErrorDomain(0, "Unknown", ErrorType.UNKNOWN))
+                }
+            }
+        }
+    }
+
+    override suspend fun purchaseSipFund(mandateId: String): NetworkResponse<String, ErrorDomain> {
+        val response=safeRequest<CartPurchaseSIPDto> {
+            client.post(getUrl("/mf/purchase-sip")){
+                setBody(
+                    PurchaseBodyDto(
+                        mandate_id = mandateId
+                    )
+                )
+            }
+        }
+        return when(response){
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.data.xsip_short_url)
             }
         }
     }

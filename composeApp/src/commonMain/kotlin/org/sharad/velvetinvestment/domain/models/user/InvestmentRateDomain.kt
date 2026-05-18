@@ -4,9 +4,9 @@ data class InvestmentRateDomain(
     val currentSavingPercentage: Double,
     val previousMonthSavingPercentage: Double,
     val percentDelta: Double,
-    val savingDelta:Long,
+    val savingDelta: Long,
     val trends: List<SavingTrendsDomain>,
-    val spendingCategories: SpendingCategoriesDomain
+    val spendingCategories: SpendingCategoriesDomain,
 )
 
 data class SavingTrendsDomain(
@@ -17,11 +17,35 @@ data class SavingTrendsDomain(
 
 data class SpendingCategoriesDomain(
     val savings: SpendingChartData,
-    val investments: SpendingChartData,
-    val essentials: SpendingChartData
+    val investments: InvestmentChartData,
+    val essentials: EssentialsChartData,
 )
 
 data class SpendingChartData(
     val amount: Long,
-    val percent: Double
+    val percent: Double,
+)
+
+data class InvestmentChartData(
+    val amount: Long,
+    val percent: Double,
+    val breakdown: InvestmentBreakdownDomain,
+)
+
+data class InvestmentBreakdownDomain(
+    val mutualFunds: SpendingChartData,
+    val fixedDeposits: SpendingChartData,
+)
+
+data class EssentialsChartData(
+    val amount: Long,
+    val percent: Double,
+    val breakdown: EssentialsBreakdownDomain,
+)
+
+data class EssentialsBreakdownDomain(
+    val house: SpendingChartData,
+    val food: SpendingChartData,
+    val transportation: SpendingChartData,
+    val others: SpendingChartData,
 )

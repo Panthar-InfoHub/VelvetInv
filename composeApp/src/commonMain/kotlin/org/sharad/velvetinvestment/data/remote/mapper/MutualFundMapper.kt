@@ -10,6 +10,7 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundIt
 import org.sharad.velvetinvestment.domain.models.mutualfunds.FundMetricsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
 
 fun MutualFund.toDomain(): MutualFundDomain {
@@ -98,5 +99,12 @@ fun BundledFundByIdDto.toDomain(): BundledMutualFundDomain {
                 icon = mf.img_url?:""
             )
         }
+    )
+}
+
+fun org.sharad.velvetinvestment.data.remote.model.initiatemfpurchase.Data.toDomain(): MutualFundPurchaseInitiateDomain {
+    return MutualFundPurchaseInitiateDomain(
+        mandateId = mandate_id,
+        url = mandate_short_url
     )
 }

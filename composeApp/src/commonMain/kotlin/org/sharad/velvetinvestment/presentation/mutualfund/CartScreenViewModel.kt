@@ -2,22 +2,27 @@ package org.sharad.velvetinvestment.presentation.mutualfund
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.domain.SIPStatus
 import org.sharad.velvetinvestment.domain.models.usercart.CartItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.CheckSipPurchaseStatusUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.DeleteCartItemUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetUserCartUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.InitiateSipPurchaseUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseLumpsumFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseSipFundUseCase
-import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -28,15 +33,27 @@ data class CartUiModel(
     val selectedCartType: CartType = CartType.LUMPSUM
 )
 
+sealed interface CartSideEffects{
+    data class OpenForInitiation(val url: String, val mandateId:String): CartSideEffects
+    data class OpenForPurchase(val url: String): CartSideEffects
+
+    data class OpenForLumpSumPurchase(val url: String): CartSideEffects
+}
+
 class CartScreenViewModel(
     private val getUserCartUseCase: GetUserCartUseCase,
     private val deleteCartItemUseCase: DeleteCartItemUseCase,
+    private val initiateSipPurchaseUseCase: InitiateSipPurchaseUseCase,
+    private val checkSipPurchaseStatusUseCase: CheckSipPurchaseStatusUseCase,
     private val purchaseSipUseCase: PurchaseSipFundUseCase,
     private val purchaseLumpSumUseCase: PurchaseLumpsumFundUseCase,
     private val browserLauncher: LaunchBrowserUseCase
 ) : ViewModel() {
 
     private var currentCartType = CartType.LUMPSUM
+
+    private val _cartSideEffect = MutableSharedFlow<CartSideEffects>()
+    val cartSideEffect = _cartSideEffect.asSharedFlow()
 
     private val _uiState = MutableStateFlow<UiState<CartUiModel>>(UiState.Loading)
     val uiState: StateFlow<UiState<CartUiModel>> = _uiState.asStateFlow()
@@ -154,28 +171,93 @@ class CartScreenViewModel(
             val data= (_uiState.value as UiState.Success).data
             hidePopup()
             if (data.selectedCartType == CartType.SIP){
-                purchaseSip()
+                initiateSip()
             }else {
                 purchaseLumpSum()
             }
         }
     }
 
-    fun purchaseSip() {
+    fun initiateSip() {
         viewModelScope.launch {
             _loading.value = true
-            purchaseSipUseCase()
+            initiateSipPurchaseUseCase()
                 .onSuccess {
                     _loading.value = false
-                    browserLauncher(it)
+                    _cartSideEffect.emit(
+                        CartSideEffects.OpenForInitiation(
+                            url = it.url,
+                            mandateId = it.mandateId
+                        )
+                    )
                 }
                 .onError {
                     _loading.value = false
-                    Log("SNACK", "ERROR: ${it.message}")
                     SnackBarController.showError(it.message)
                 }
         }
     }
+
+    fun checkPurchaseStatus(
+        mandateId: String,
+        retryCount: Int = 0
+    ) {
+        viewModelScope.launch {
+            _loading.value = true
+
+            checkSipPurchaseStatusUseCase(mandateId)
+                .onSuccess { status ->
+                    when (status) {
+                        SIPStatus.SUCCESS -> {
+                            _loading.value = false
+                            purchaseSip(mandateId)
+                        }
+
+                        SIPStatus.PENDING, SIPStatus.REQUESTED -> {
+                            if (retryCount < 2) {
+                                delay(5000)
+                                checkPurchaseStatus(
+                                    mandateId = mandateId,
+                                    retryCount = retryCount + 1
+                                )
+                            } else {
+                                _loading.value = false
+                                SnackBarController.showWarning(
+                                    "Purchase status is still pending. Retry Again."
+                                )
+                            }
+                        }
+                    }
+                }
+                .onError {
+                    _loading.value = false
+                    SnackBarController.showError(it.message)
+                }
+        }
+    }
+    fun purchaseSip(mandateId: String) {
+        val current = _uiState.value
+        if (current is UiState.Success){
+            val data = current.data
+            viewModelScope.launch {
+                _uiState.value = UiState.Loading
+                purchaseSipUseCase(mandateId=mandateId)
+                    .onSuccess {
+                        _uiState.value = UiState.Success(data)
+                        _cartSideEffect.emit(
+                            CartSideEffects.OpenForPurchase(
+                                url = it
+                            )
+                        )
+                    }
+                    .onError {
+                        _uiState.value = UiState.Success(data)
+                        SnackBarController.showError(it.message)
+                    }
+            }
+        }
+    }
+
 
     fun purchaseLumpSum() {
         viewModelScope.launch {
@@ -183,11 +265,14 @@ class CartScreenViewModel(
             purchaseLumpSumUseCase()
                 .onSuccess {
                     _loading.value = false
-                    browserLauncher(it)
+                    _cartSideEffect.emit(
+                        CartSideEffects.OpenForLumpSumPurchase(
+                            url = it
+                        )
+                    )
                 }
                 .onError {
                     _loading.value = false
-                    Log("SNACK", "ERROR: ${it.message}")
                     SnackBarController.showError(it.message)
                 }
         }

@@ -1,9 +1,13 @@
 package org.sharad.velvetinvestment.presentation.investmentrate.compose
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -17,11 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.LightGreen
 import org.sharad.emify.core.ui.theme.Primary
@@ -30,6 +37,10 @@ import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.emify.core.ui.theme.TextGray
 import org.sharad.emify.core.ui.theme.healthColor
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.user.EssentialsBreakdownDomain
+import org.sharad.velvetinvestment.domain.models.user.EssentialsChartData
+import org.sharad.velvetinvestment.domain.models.user.InvestmentBreakdownDomain
+import org.sharad.velvetinvestment.domain.models.user.InvestmentChartData
 import org.sharad.velvetinvestment.domain.models.user.InvestmentRateDomain
 import org.sharad.velvetinvestment.domain.models.user.SavingTrendsDomain
 import org.sharad.velvetinvestment.domain.models.user.SpendingCategoriesDomain
@@ -39,12 +50,22 @@ import org.sharad.velvetinvestment.shared.PieChart
 import org.sharad.velvetinvestment.shared.PieChartEntry
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.trimTo
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.arrow_down
+import velvet.composeapp.generated.resources.fd_icon
+import velvet.composeapp.generated.resources.ic_home
+import velvet.composeapp.generated.resources.icon_food
+import velvet.composeapp.generated.resources.icon_house
+import velvet.composeapp.generated.resources.icon_others
+import velvet.composeapp.generated.resources.icon_transport
+import velvet.composeapp.generated.resources.nav_icon_full_screener
 
 
 @Composable
@@ -53,15 +74,18 @@ fun InvestmentRateScreen(
 ) {
     val viewModel: InvestmentRateScreenViewModel = koinViewModel()
     val state by viewModel.investmentRateState.collectAsStateWithLifecycle()
+    val investmentBreakdownExpanded by viewModel.investmentBreakdownExpanded.collectAsStateWithLifecycle()
+    val essentialsBreakdownExpanded by viewModel.essentialsBreakdownExpanded.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = Color.White,
+        containerColor = Color(0xffF8F9FB),
         topBar = {
             BackHeader(
                 heading = "Saving pattern",
                 showBack = true,
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                modifier = Modifier.background(Color.White)
             )
         }
     ) {pv->
@@ -70,13 +94,25 @@ fun InvestmentRateScreen(
             onRetry = { viewModel.loadInvestmentRate() },
             modifier = Modifier.padding(pv)
         ) { data ->
-            InvestmentRateContent(data = data)
+            InvestmentRateContent(
+                data = data,
+                toggleInvestmentBreakdown = { viewModel.toggleInvestmentBreakdown() },
+                toggleEssentialsBreakdown = { viewModel.toggleEssentialsBreakdown() },
+                investmentBreakdownExpanded = investmentBreakdownExpanded,
+                essentialsBreakdownExpanded = essentialsBreakdownExpanded
+            )
         }
     }
 }
 
 @Composable
-fun InvestmentRateContent(data: InvestmentRateDomain) {
+fun InvestmentRateContent(
+    data: InvestmentRateDomain,
+    toggleInvestmentBreakdown: () -> Unit,
+    toggleEssentialsBreakdown: () -> Unit,
+    essentialsBreakdownExpanded: Boolean,
+    investmentBreakdownExpanded: Boolean
+) {
     val animationProgress = remember { Animatable(0f) }
 
     LaunchedEffect(data.trends) {
@@ -93,7 +129,7 @@ fun InvestmentRateContent(data: InvestmentRateDomain) {
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
         item {
@@ -111,8 +147,216 @@ fun InvestmentRateContent(data: InvestmentRateDomain) {
                 animationProgress = { animationProgress.value }
             )
         }
+        item {
+            Text(
+                text = "Spending Breakdown",
+                style = MaterialTheme.typography.headlineSmall,
+                color = darkBlue
+            )
+        }
+        item {
+            CategoryBreakdownSection(
+                investmentBreakdown= data.spendingCategories.investments.breakdown,
+                essentialsBreakdown= data.spendingCategories.essentials.breakdown,
+                toggleInvestmentBreakdown = toggleInvestmentBreakdown,
+                toggleEssentialsBreakdown = toggleEssentialsBreakdown,
+                investementExpended = investmentBreakdownExpanded,
+                essentialsExpended = essentialsBreakdownExpanded
+            )
+        }
+
     }
 }
+
+@Composable
+fun CategoryBreakdownSection(
+    investmentBreakdown: InvestmentBreakdownDomain,
+    essentialsBreakdown: EssentialsBreakdownDomain,
+    toggleEssentialsBreakdown: () -> Unit,
+    toggleInvestmentBreakdown: () -> Unit,
+    essentialsExpended: Boolean,
+    investementExpended: Boolean
+) {
+    val borderColor= Color(0xffE1E2E4)
+    Column(
+        modifier = Modifier.fillMaxWidth()
+            .clip(LocalVelvetShapes.current.roundedDp20)
+            .border(1.dp, borderColor, LocalVelvetShapes.current.roundedDp20)
+            .background(Color.White)
+            .animateContentSize()
+    ) {
+        BreakdownHeader(
+            icon = Res.drawable.nav_icon_full_screener,
+            iconTint = darkBlue,
+            title = "Investments",
+            backgroundColor = Color(0xffDBE1FF).copy(alpha = 0.3f),
+            expended= investementExpended,
+            onClick = toggleInvestmentBreakdown
+        )
+        if(investementExpended){ InvestmentBreakDownSection(data = investmentBreakdown) }
+
+        HorizontalDivider(color = borderColor)
+
+        BreakdownHeader(
+            icon = Res.drawable.ic_home,
+            iconTint = Color(0xff76613D),
+            title = "Essentials",
+            backgroundColor = Color(0xffFCDFB1).copy(alpha = 0.5f),
+            expended= essentialsExpended,
+            onClick = toggleEssentialsBreakdown
+        )
+
+        if(essentialsExpended){ EssentialsBreakDownSection(data = essentialsBreakdown) }
+    }
+}
+
+@Composable
+private fun EssentialsBreakDownSection(data: EssentialsBreakdownDomain) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+            .padding(bottom = 24.dp, top = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        EntryRow(
+            icon= Res.drawable.icon_house,
+            title= "House",
+            percent= data.house.percent,
+            amount = data.house.amount
+        )
+        EntryRow(
+            icon= Res.drawable.icon_food,
+            title= "Fixed Deposits",
+            percent= data.food.percent,
+            amount = data.food.amount
+        )
+        EntryRow(
+            icon= Res.drawable.icon_transport,
+            title= "Transportation",
+            percent= data.transportation.percent,
+            amount = data.transportation.amount
+        )
+        EntryRow(
+            icon= Res.drawable.icon_others,
+            title= "Others",
+            percent= data.others.percent,
+            amount = data.others.amount
+        )
+    }
+}
+
+@Composable
+private fun InvestmentBreakDownSection(data: InvestmentBreakdownDomain) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+            .padding(bottom = 24.dp, top = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        EntryRow(
+            icon= Res.drawable.nav_icon_full_screener,
+            title= "Mutual Funds",
+            percent= data.mutualFunds.percent,
+            amount = data.mutualFunds.amount
+        )
+        EntryRow(
+            icon= Res.drawable.fd_icon,
+            title= "Fixed Deposits",
+            percent= data.fixedDeposits.percent,
+            amount = data.fixedDeposits.amount
+        )
+    }
+}
+
+@Composable
+private fun EntryRow(
+    icon: DrawableResource,
+    title: String,
+    percent: Double,
+    amount: Long
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 28.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = Color(0xff757680),
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = title,
+            color = titleColor,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = "${percent.toInt()}%",
+            fontWeight = FontWeight.SemiBold,
+            color = Primary,
+            style = MaterialTheme.typography.bodySmall,
+        )
+//        text = formatMoneyWithUnits(amount)+ " (${percent.toInt()}%)",
+    }
+}
+
+@Composable
+private fun BreakdownHeader(
+    icon: DrawableResource,
+    title: String,
+    iconTint: Color,
+    backgroundColor: Color,
+    expended: Boolean,
+    onClick: () -> Unit,
+) {
+    val rotationAngle = animateFloatAsState(
+        targetValue = if (expended) 180f else 0f,
+        animationSpec = tween(
+            durationMillis = 300,
+            easing = FastOutSlowInEasing
+        )
+    )
+    Row(
+        modifier = Modifier
+            .clickable(onClick=onClick)
+            .fillMaxWidth()
+            .padding(20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Box(
+            modifier = Modifier.size(40.dp)
+                .clip(CircleShape)
+                .background(backgroundColor),
+            contentAlignment = Alignment.Center
+        ){
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.fillMaxSize()
+                    .padding(10.dp)
+            )
+        }
+        Text(
+            text = title,
+            color = iconTint,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            painter = painterResource(Res.drawable.arrow_down),
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier
+                .size(12.dp)
+                .graphicsLayer {
+                    rotationZ= rotationAngle.value
+                }
+        )
+    }
+}
+
 
 @Composable
 fun AverageSavingsSummaryCard(data: InvestmentRateDomain) {
@@ -167,17 +411,25 @@ fun SavingVsInvestingSection(
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .clip(LocalVelvetShapes.current.roundedDp20)
+            .border(1.dp, Color(0xffE1E2E4), LocalVelvetShapes.current.roundedDp20)
+            .background(Color.White)
+            .padding(20.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = "Saving vs Investing",
                     fontFamily = Poppins,
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = darkBlue
                 )
                 Text(
                     text = "Last 6 months trend",
@@ -186,7 +438,7 @@ fun SavingVsInvestingSection(
                 )
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 16.dp)) {
                 LegendItem(color = darkBlue, label = "Saving")
                 Spacer(modifier = Modifier.width(12.dp))
                 LegendItem(color = Secondary, label = "Investing")
@@ -211,21 +463,26 @@ fun SpendingCategoriesSection(
     categories: SpendingCategoriesDomain,
     animationProgress: () -> Float = { 1f }
 ) {
-    Column {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+    ) {
         Text(
             text = "Spending Categories",
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.headlineSmall,
+            color = darkBlue
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .clip(LocalVelvetShapes.current.roundedDp20)
+                .border(1.dp, Color(0xffE1E2E4), LocalVelvetShapes.current.roundedDp20)
+                .background(Color.White)
+                .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             Box(
-                modifier = Modifier.size(150.dp),
+                modifier = Modifier.size(130.dp),
                 contentAlignment = Alignment.Center
             ) {
                 PieChart(
@@ -234,8 +491,8 @@ fun SpendingCategoriesSection(
                         PieChartEntry(value = categories.essentials.percent.toFloat(), color = Secondary),
                         PieChartEntry(value = categories.savings.percent.toFloat(), color = healthColor.copy(0.8f))
                     ),
-                    modifier = Modifier.size(120.dp),
-                    strokeWidth = 60f,
+                    modifier = Modifier.size(110.dp),
+                    strokeWidth = 50f,
                     animationProgress = animationProgress
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -256,7 +513,7 @@ fun SpendingCategoriesSection(
             ) {
                 SpendingLegendItem(color = Primary, label = "Investments", percent = categories.investments.percent)
                 SpendingLegendItem(color = Secondary, label = "Essentials", percent = categories.essentials.percent)
-                SpendingLegendItem(color = healthColor, label = "Lifestyle", percent = categories.savings.percent)
+                SpendingLegendItem(color = healthColor, label = "Savings", percent = categories.savings.percent)
             }
         }
     }
@@ -297,7 +554,7 @@ fun SpendingLegendItem(color: Color, label: String, percent: Double) {
             text = "${percent.toInt()}%",
             fontSize = 14.sp,
             fontFamily = Poppins,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             color = Primary
         )
     }
@@ -307,29 +564,88 @@ fun SpendingLegendItem(color: Color, label: String, percent: Double) {
 @Preview
 @Composable
 fun InvestmentRateScreenPreview() {
+
     val mockData = InvestmentRateDomain(
         currentSavingPercentage = 45.0,
         previousMonthSavingPercentage = 42.7,
         percentDelta = 2.3,
         savingDelta = 145000,
-        trends = listOf(
-            SavingTrendsDomain("Jan", 4000, 3000),
-            SavingTrendsDomain("Feb", 6000, 4500),
-            SavingTrendsDomain("Mar", 7000, 4000),
-            SavingTrendsDomain("Apr", 12000, 7000),
-            SavingTrendsDomain("May", 3000, 2500),
-            SavingTrendsDomain("Jun", 9000, 8000)
-        ),
+        trends = listOf(SavingTrendsDomain(
+                monthText = "Jan",
+                savings = 4000,
+                investments = 3000,
+            ), SavingTrendsDomain(
+                monthText = "Feb",
+                savings = 6000,
+                investments = 4500,
+            ), SavingTrendsDomain(
+                monthText = "Mar",
+                savings = 7000,
+                investments = 4000,
+            ), SavingTrendsDomain(
+                monthText = "Apr",
+                savings = 12000,
+                investments = 7000,
+            ), SavingTrendsDomain(
+                monthText = "May",
+                savings = 3000,
+                investments = 2500,
+            ), SavingTrendsDomain(
+                monthText = "Jun",
+                savings = 9000,
+                investments = 8000,
+            ),),
         spendingCategories = SpendingCategoriesDomain(
-            savings = SpendingChartData(30000, 30.0),
-            investments = SpendingChartData(50000, 50.0),
-            essentials = SpendingChartData(20000, 20.0)
-        )
+            savings = SpendingChartData(
+                amount = 30000,
+                percent = 30.0,
+            ),
+            investments = InvestmentChartData(
+                amount = 50000,
+                percent = 50.0,
+                breakdown = InvestmentBreakdownDomain(
+                    mutualFunds = SpendingChartData(
+                        amount = 35000,
+                        percent = 70.0,
+                    ),
+                    fixedDeposits = SpendingChartData(
+                        amount = 15000,
+                        percent = 30.0,
+                    ),
+                ),
+            ),
+            essentials = EssentialsChartData(
+                amount = 20000,
+                percent = 20.0,
+                breakdown = EssentialsBreakdownDomain(
+                    house = SpendingChartData(
+                        amount = 7000,
+                        percent = 35.0,
+                    ),
+                    food = SpendingChartData(
+                        amount = 5000,
+                        percent = 25.0,
+                    ),
+                    transportation = SpendingChartData(
+                        amount = 4000,
+                        percent = 20.0,
+                    ),
+                    others = SpendingChartData(
+                        amount = 4000,
+                        percent = 20.0,
+                    ),
+                ),
+            ),
+        ),
     )
 
     VelvetTheme {
-        Surface(color = Color.White) {
-            InvestmentRateContent(data = mockData)
+        Surface(
+            color = Color(0xffF8F9FB),
+        ) {
+            InvestmentRateContent(
+                data = mockData, {}, {},false,false,
+            )
         }
     }
 }

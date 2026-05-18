@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.domain.repository
 
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
+import org.sharad.velvetinvestment.domain.SIPStatus
 import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
@@ -8,6 +9,7 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
 import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
@@ -58,7 +60,11 @@ interface MutualFundRepository {
     suspend fun addToCartSipFund(request: AddCartSipRequest): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun purchaseLumSumFund(): NetworkResponse<String, ErrorDomain>
-    suspend fun purchaseSipFund(): NetworkResponse<String, ErrorDomain>
+
+    suspend fun initiateSipPurchase(): NetworkResponse<MutualFundPurchaseInitiateDomain, ErrorDomain>
+    suspend fun checkSipPurchaseStatus(mandateId: String): NetworkResponse<SIPStatus, ErrorDomain>
+
+    suspend fun purchaseSipFund(mandateId: String): NetworkResponse<String, ErrorDomain>
 
     suspend fun getCombinedCategoryMutualFunds(): NetworkResponse<CombinedFundsDomain, ErrorDomain>
 

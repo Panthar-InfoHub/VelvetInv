@@ -17,6 +17,11 @@ class InvestmentRateScreenViewModel(
 
     private val _investmentRateState =
         MutableStateFlow<UiState<InvestmentRateDomain>>(value = UiState.Loading)
+
+    private val _investmentBreakdownExpanded = MutableStateFlow(false)
+    val investmentBreakdownExpanded = _investmentBreakdownExpanded.asStateFlow()
+    private val _essentialsBreakdownExpanded = MutableStateFlow(false)
+    val essentialsBreakdownExpanded = _essentialsBreakdownExpanded.asStateFlow()
     val investmentRateState= _investmentRateState.asStateFlow()
 
     init {
@@ -34,6 +39,14 @@ class InvestmentRateScreenViewModel(
                     _investmentRateState.value= UiState.Error(it.message)
                 }
         }
+    }
+
+    fun toggleInvestmentBreakdown(){
+        _investmentBreakdownExpanded.value= !_investmentBreakdownExpanded.value
+    }
+
+    fun toggleEssentialsBreakdown(){
+        _essentialsBreakdownExpanded.value= !_essentialsBreakdownExpanded.value
     }
 
 }

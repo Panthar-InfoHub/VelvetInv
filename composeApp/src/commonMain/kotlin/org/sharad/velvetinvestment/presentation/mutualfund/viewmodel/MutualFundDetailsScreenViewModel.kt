@@ -231,6 +231,7 @@ class MutualFundDetailsScreenViewModel(
                         hideBottomSheet()
                         resetCartSheet()
                         SnackBarController.showSuccess("Fund Added to the cart")
+                        loadCart()
                     }.onError {
                         stopCartSheetLoading()
                         if (it.type == ErrorType.MF_KYC_REQUIRED){
