@@ -82,7 +82,7 @@ fun MFPortfolioDetailsScreen(
     ) {
 
         SidedBackHeader(
-            heading = "Cancel SIP",
+            heading = "Withdraw Funds",
             showBack = true,
             onBackClick = onBackClick,
             textIcon = null

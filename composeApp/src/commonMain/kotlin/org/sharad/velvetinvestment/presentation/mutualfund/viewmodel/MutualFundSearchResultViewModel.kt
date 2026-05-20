@@ -56,7 +56,8 @@ class MutualFundSearchResultViewModel(
     val searchText: StateFlow<String> = _searchText
 
     private var currentPage = 1
-    private var hasNextPage = true
+    private var _hasNextPage = MutableStateFlow(true)
+    val hasNextPage = _hasNextPage.asStateFlow()
 
     private val _isLoadingNext = MutableStateFlow(false)
     val isLoadingNext = _isLoadingNext.asStateFlow()
@@ -83,7 +84,7 @@ class MutualFundSearchResultViewModel(
                 .onSuccess { data ->
 
                     currentPage = data.page
-                    hasNextPage = data.hasNextPage
+                    _hasNextPage.value = data.hasNextPage
 
                     _mutualFunds.value = data.items
 
@@ -97,7 +98,7 @@ class MutualFundSearchResultViewModel(
 
     fun loadNext() {
 
-        if (!hasNextPage || _isLoadingNext.value) return
+        if (!_hasNextPage.value || _isLoadingNext.value) return
 
         viewModelScope.launch {
 
@@ -118,7 +119,7 @@ class MutualFundSearchResultViewModel(
                 .onSuccess { data ->
 
                     currentPage = data.page
-                    hasNextPage = data.hasNextPage
+                    _hasNextPage.value = data.hasNextPage
 
                     _mutualFunds.value += data.items
                 }
@@ -155,7 +156,7 @@ class MutualFundSearchResultViewModel(
         }
         _filterState.value = InvestmentFilter(updatedGroups)
         currentPage = 1
-        hasNextPage = true
+        _hasNextPage.value = true
         loadFunds()
     }
     fun cycleReturnRatePeriod() {
@@ -175,7 +176,7 @@ class MutualFundSearchResultViewModel(
         }
 
         currentPage = 1
-        hasNextPage = true
+        _hasNextPage.value = true
 
         loadFunds()
     }
@@ -185,7 +186,7 @@ class MutualFundSearchResultViewModel(
         _filterState.value = newFilter
 
         currentPage = 1
-        hasNextPage = true
+        _hasNextPage.value = true
 
         _selectedFilter.value =
             MutualFundLabel.CustomLabel(
@@ -200,7 +201,7 @@ class MutualFundSearchResultViewModel(
         _filterState.value = createInitialInvestmentFilter()
 
         currentPage = 1
-        hasNextPage = true
+        _hasNextPage.value = true
 
         loadFunds()
     }

@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -74,7 +73,6 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.NavLineChart
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.VelvetLoader
-import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
@@ -84,7 +82,6 @@ import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
-import velvet.composeapp.generated.resources.icon_share
 import velvet.composeapp.generated.resources.icon_warning
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,6 +109,7 @@ fun MutualFundDetailsScreenRoot(
     val cartState by viewModel.cartSheetState.collectAsStateWithLifecycle()
 
     val cartAmount by CartInfo.fundAmount.collectAsStateWithLifecycle()
+    val navChangePercent by viewModel.navChangePercent.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize())
     {
@@ -163,7 +161,7 @@ fun MutualFundDetailsScreenRoot(
                         selectedYear = selectedYear,
                         onSelectedYearChange = viewModel::onSelectedYearChange,
                         displayPercent = displayPercent,
-
+                        navChange = navChangePercent,
                         calculatorState = calculatorState,
                         onCalcInvestmentChange = viewModel::onInvestmentChange,
                         onCalcSipToggle = viewModel::onSipToggle,
@@ -291,7 +289,8 @@ fun MutualFundDetailsScreen(
     onCalcSipToggle: (Boolean) -> Unit,
     onCalcTimeChange: (Int) -> Unit,
     modifier: Modifier,
-    onGraphRetry: ()-> Unit
+    onGraphRetry: () -> Unit,
+    navChange: String
 ) {
 
     var calculatorExpanded by remember { mutableStateOf(false) }
@@ -344,7 +343,8 @@ fun MutualFundDetailsScreen(
                     nav = detailsState.latest_nav,
                     assetType = detailsState.asset_type,
                     riskLevel = detailsState.risk_level,
-                    navChange = detailsState.metrics.nav_change_pct
+                    navChange = navChange,
+                    selectedYear=selectedYear
                 )
             }
 
@@ -513,7 +513,14 @@ fun InvestmentRiskCard() {
 //}
 
 @Composable
-fun FundInfo(date: String, nav: String, assetType: String, riskLevel: Int, navChange: Double) {
+fun FundInfo(
+    date: String,
+    nav: String,
+    assetType: String,
+    riskLevel: Int,
+    navChange: String,
+    selectedYear: GraphDurationSelection
+) {
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(160.dp),
@@ -562,14 +569,22 @@ fun FundInfo(date: String, nav: String, assetType: String, riskLevel: Int, navCh
                 title = "Nav Change (%)",
             ){
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ){
                     Text(
-                        text = navChange.toString(),
+                        text = navChange,
                         style = MaterialTheme.typography.headlineLarge,
                         color = Color.Black
                     )
+
+                    if (selectedYear==GraphDurationSelection.All){
+                        Text(
+                            text="(1D)",
+                            style = titlesStyle.copy(fontSize = 12.sp),
+                            color = titleColor
+                        )
+                    }
                 }
             }
         }
@@ -673,7 +688,7 @@ private fun GraphDurationSelectionItemLabel(
 }
 
 @Composable
-fun InfoCard(detailsState: org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain, displayPercent: StableMetricUi?) {
+fun InfoCard(detailsState: MutualFundDetailsDomain, displayPercent: StableMetricUi?) {
 
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
@@ -707,22 +722,22 @@ fun InfoCard(detailsState: org.sharad.velvetinvestment.domain.models.mutualfunds
                 }
             )
 
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .genericDropShadow(CircleShape)
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .clickable(onClick = {}),
-                contentAlignment = Alignment.Center
-            ){
-                Icon(
-                    painter = painterResource(Res.drawable.icon_share),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = Secondary
-                )
-            }
+//            Box(
+//                modifier = Modifier
+//                    .size(48.dp)
+//                    .genericDropShadow(CircleShape)
+//                    .clip(CircleShape)
+//                    .background(Color.White)
+//                    .clickable(onClick = {}),
+//                contentAlignment = Alignment.Center
+//            ){
+//                Icon(
+//                    painter = painterResource(Res.drawable.icon_share),
+//                    contentDescription = null,
+//                    modifier = Modifier.size(32.dp),
+//                    tint = Secondary
+//                )
+//            }
 
         }
 

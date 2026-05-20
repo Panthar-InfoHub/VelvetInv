@@ -21,6 +21,10 @@ object AppEventsController {
         _appEvent.emit(AppEvent.GoalEventRefresh)
     }
 
+    suspend fun sendLoanRefreshEvent(){
+        _appEvent.emit(AppEvent.LoanEventRefresh)
+    }
+
     suspend fun sendPortfolioRefreshEvent(){
         _appEvent.emit(AppEvent.PortfolioRefreshEvent)
     }
@@ -39,6 +43,7 @@ object AppEventsController {
 sealed interface AppEvent{
     data object HomeEventRefresh: AppEvent
     data object GoalEventRefresh: AppEvent
+    data object LoanEventRefresh: AppEvent
 
     data object PortfolioRefreshEvent: AppEvent
     data object LogOut: AppEvent

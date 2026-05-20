@@ -63,12 +63,12 @@ fun BottomNavigation(
         AppEventsController.appEvent.collect {
             when(it){
                 AppEvent.HomeEventRefresh -> {
-                    homeViewModel.loadHome()
+                    homeViewModel.loadHomeData()
                     AppEventsController.clear()
                 }
 
                 AppEvent.GoalEventRefresh -> {
-                    homeViewModel.loadHome()
+                    homeViewModel.loadHomeData()
                     AppEventsController.clear()
                 }
 

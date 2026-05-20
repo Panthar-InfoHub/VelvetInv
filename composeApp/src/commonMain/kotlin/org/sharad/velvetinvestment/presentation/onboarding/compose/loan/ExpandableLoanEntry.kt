@@ -36,11 +36,13 @@ import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
 import velvet.composeapp.generated.resources.delete_box
+import velvet.composeapp.generated.resources.ic_pencil
 
 @Composable
 fun ExpandableLoanEntry(
     loanInfo: LoanInfo,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onEditClick: (() -> Unit)? = null
 ) {
 
     var extended by remember { mutableStateOf(false) }
@@ -62,7 +64,8 @@ fun ExpandableLoanEntry(
                 title= loanInfo.loanType.displayName,
                 extended=extended,
                 onClick={extended=!extended},
-                onDeleteClick={ onDeleteClick()}
+                onDeleteClick={ onDeleteClick()},
+                onEditClick = onEditClick
             )
 
             if (extended){ ExtendingPart(loanInfo = loanInfo) }
@@ -143,7 +146,13 @@ fun ExtendingPart(loanInfo: LoanInfo) {
 }
 
 @Composable
-fun StablePart(title: String, extended: Boolean, onClick: () -> Unit, onDeleteClick: () -> Unit) {
+fun StablePart(
+    title: String,
+    extended: Boolean,
+    onClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onEditClick: (() -> Unit)? = null
+) {
     Row(
         modifier=Modifier.fillMaxWidth()
             .height(72.dp)
@@ -164,16 +173,34 @@ fun StablePart(title: String, extended: Boolean, onClick: () -> Unit, onDeleteCl
         )
 
         if (extended){
-            Icon(
-                painter = painterResource(Res.drawable.delete_box),
-                contentDescription = null,
-                modifier = Modifier.padding(end = 20.dp)
-                    .size(16.dp)
-                    .clickable(
-                        onClick={onDeleteClick()}
-                    ),
-                tint = Primary
-            )
+            Row(
+                modifier = Modifier.padding(end = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                onEditClick?.let {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_pencil),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clickable(
+                                onClick = { it() }
+                            ),
+                        tint = Primary
+                    )
+                }
+                Icon(
+                    painter = painterResource(Res.drawable.delete_box),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clickable(
+                            onClick = { onDeleteClick() }
+                        ),
+                    tint = Primary
+                )
+            }
         }
         else{
             Icon(

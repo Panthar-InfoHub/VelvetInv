@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -65,26 +64,20 @@ import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.VelvetLoader
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
-import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.formatWithCommas
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
-import velvet.composeapp.generated.resources.feasibility_score
 import velvet.composeapp.generated.resources.future_value
-import velvet.composeapp.generated.resources.increased_by
 import velvet.composeapp.generated.resources.invest_now
 import velvet.composeapp.generated.resources.monthly_sip
 import velvet.composeapp.generated.resources.progress
-import velvet.composeapp.generated.resources.projected_impact
-import velvet.composeapp.generated.resources.projection_impact
 import velvet.composeapp.generated.resources.rectangle_19
 import velvet.composeapp.generated.resources.remove
-import velvet.composeapp.generated.resources.req_monthly
 import velvet.composeapp.generated.resources.returns_3y
 import velvet.composeapp.generated.resources.target
 import velvet.composeapp.generated.resources.todays_cost
@@ -192,7 +185,7 @@ fun ProjectionImpactHeader(
         }
 
         Text(
-            text = stringResource(Res.string.projection_impact),
+            text = "Goal Projection",
             style = MaterialTheme.typography.headlineLarge,
             color = Primary
         )
@@ -266,7 +259,7 @@ fun ProjectedImpactCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ){
             Text(
-                text = stringResource(Res.string.projected_impact),
+                text = "Goal",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
@@ -376,23 +369,6 @@ fun ProjectedImpactCard(
                 }
 
                 Column {
-                    Text(
-                        text = stringResource(Res.string.feasibility_score),
-                        style = titlesStyle,
-                        color = Color.Black,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    CustomProgressFillBar(
-                        progress = data.feasibilityScore,
-                        progressColor = greenColor,
-                        trackColor = Color(0xFFE0E0E0),
-                        thickness = 10.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                Column {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -420,25 +396,6 @@ fun ProjectedImpactCard(
                     )
                 }
 
-                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(Res.string.increased_by)+"₹ ${formatMoneyWithUnits(data.increasedBy.toLong())}",
-                        style = titlesStyle,
-                        color = orangeColor,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = stringResource(Res.string.req_monthly)+"₹ ${formatMoneyWithUnits(data.requiredMonthly.toLong())}",
-                        style = titlesStyle,
-                        color = greenColor,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
             }
         }
     }

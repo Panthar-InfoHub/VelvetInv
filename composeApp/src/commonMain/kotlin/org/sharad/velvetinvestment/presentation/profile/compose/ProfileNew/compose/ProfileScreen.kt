@@ -76,7 +76,7 @@ fun ProfileScreen(
 
     UiStateContainer(
         uiState = state,
-        onRetry = { viewModel.loadHome() }
+        onRetry = { viewModel.loadHomeData() }
     ) { data: HomeScreenUiData ->
         Scaffold(
             containerColor = Color.White

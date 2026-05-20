@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.data.remote.repository
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -17,6 +18,9 @@ import org.sharad.velvetinvestment.data.remote.model.fdredirect.FDRedirectDto
 import org.sharad.velvetinvestment.data.remote.model.firereport.FireReportDto
 import org.sharad.velvetinvestment.data.remote.model.goalbyid.GoalByIdDto
 import org.sharad.velvetinvestment.data.remote.model.goalmapping.GoalMapBodyDto
+import org.sharad.velvetinvestment.data.remote.model.loan.SingleLoanDto
+import org.sharad.velvetinvestment.data.remote.model.loan.UpdateLoanRequest
+import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
 import org.sharad.velvetinvestment.data.remote.model.investmentratedto.InvestmentRateDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
@@ -25,6 +29,9 @@ import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.user.InvestmentRateDomain
+import org.sharad.velvetinvestment.data.remote.model.loan.UserLoanDto
+import org.sharad.velvetinvestment.domain.models.PaginatedData
+import org.sharad.velvetinvestment.domain.models.loan.LoanDomain
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -239,6 +246,70 @@ class UserFinanceRepo(
         return safeRequest<Unit> {
             client.post(getUrl("/user-goal/map")) {
                 setBody(body)
+            }
+        }
+    }
+
+    override suspend fun deleteSingleLoan(id: String): NetworkResponse<Unit, ErrorDomain> {
+        return safeRequest<Unit> {
+            client.delete(getUrl("/user-loan/$id"))
+        }
+    }
+
+    override suspend fun getLoans(
+        page: Int,
+        limit: Int
+    ): NetworkResponse<PaginatedData<LoanDomain>, ErrorDomain> {
+        val response = safeRequest<UserLoanDto> {
+            client.get(getUrl("/user-loan")) {
+                parameter("page", page)
+                parameter("limit", limit)
+            }
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> {
+                val data = response.data.data
+                NetworkResponse.Success(
+                    PaginatedData(
+                        items = data.loans,
+                        page = data.pagination.current_page,
+                        pageSize = data.pagination.limit,
+                        totalItems = data.pagination.total_loans,
+                        totalPages = data.pagination.total_pages,
+                        hasNextPage = data.pagination.current_page < data.pagination.total_pages
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getLoanById(id: String): NetworkResponse<LoanDomain, ErrorDomain> {
+        val response = safeRequest<SingleLoanDto> {
+            client.get(getUrl("/user-loan/$id"))
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.data)
+        }
+    }
+
+    override suspend fun addSingleLoan(data: Loan): NetworkResponse<Unit, ErrorDomain> {
+        return safeRequest<Unit> {
+            client.post(getUrl("/user-loan")) {
+                setBody(data)
+            }
+        }
+    }
+
+    override suspend fun updateSingleLoan(
+        loanId: String,
+        data: UpdateLoanRequest
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return safeRequest<Unit> {
+            client.patch(getUrl("/user-loan/$loanId")) {
+                setBody(data)
             }
         }
     }

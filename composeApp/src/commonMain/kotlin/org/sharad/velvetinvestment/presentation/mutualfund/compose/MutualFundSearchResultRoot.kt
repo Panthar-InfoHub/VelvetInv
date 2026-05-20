@@ -25,13 +25,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
-import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -59,11 +55,13 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.FilterChip
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.shared.compose.PaginationEffect
+import org.sharad.velvetinvestment.shared.compose.PaginationFooter
+import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.MutualFundLabel
-import org.sharad.velvetinvestment.shared.theme.subHeading
-import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_filter
 
@@ -89,6 +87,7 @@ fun MutualFundSearchScreenRoot(
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
     val isLoadingNext by viewModel.isLoadingNext.collectAsStateWithLifecycle()
+    val hasNextPage by viewModel.hasNextPage.collectAsStateWithLifecycle()
 
 
     Box(modifier = Modifier.fillMaxSize())
@@ -118,6 +117,7 @@ fun MutualFundSearchScreenRoot(
                             onFundClick = onFundClick,
                             pv = pv,
                             isLoadingNext = isLoadingNext,
+                            hasNextPage = hasNextPage,
                             loadNext = viewModel::loadNext,
                             toggleRateYear =viewModel::cycleReturnRatePeriod,
                             selectedYear = selectedYear,
@@ -177,6 +177,7 @@ fun MutualFundSearchScreen(
     pv: PaddingValues,
     selectedYear: SelectedReturnRatePeriod,
     isLoadingNext: Boolean,
+    hasNextPage: Boolean,
     loadNext: () -> Unit,
     selectedFilter: LabelFilter?,
     onFilterSelected: (LabelFilter) -> Unit,
@@ -189,17 +190,7 @@ fun MutualFundSearchScreen(
 
     val lazyListState = rememberLazyListState()
 
-    LaunchedEffect(result) {
-        snapshotFlow {
-            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-        }
-            .distinctUntilChanged()
-            .collect {
-                if (it == result.lastIndex) {
-                    loadNext()
-                }
-            }
-    }
+    PaginationEffect(lazyListState = lazyListState, onLoadMore = loadNext)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top=4.dp),
@@ -249,15 +240,8 @@ fun MutualFundSearchScreen(
                 )
             }
         }
-        if (isLoadingNext) {
-            item {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = Color.LightGray
-                    )
-                }
-            }
+        item {
+            PaginationFooter(hasNextPage = hasNextPage)
         }
 
     }

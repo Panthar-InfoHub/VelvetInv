@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -62,6 +63,7 @@ import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.filled_down
@@ -73,6 +75,7 @@ fun BundleResultScreenRoot(
     bundleKey: String,
     heading: String,
     onBackClick: () -> Unit,
+    onCartClick: () -> Unit,
     onFundClick: (String) -> Unit
 ) {
 
@@ -90,7 +93,7 @@ fun BundleResultScreenRoot(
     val bundleData by viewModel.bundleData.collectAsStateWithLifecycle()
     val bundleCartState by viewModel.bundleCartState.collectAsStateWithLifecycle()
     val showBottomSheet by viewModel.showCartSheet.collectAsStateWithLifecycle()
-
+    val cartAmount by CartInfo.fundAmount.collectAsStateWithLifecycle()
 
     when (uiState) {
 
@@ -113,6 +116,12 @@ fun BundleResultScreenRoot(
                         heading = heading,
                         showBack = true,
                         onBackClick = onBackClick
+                    )
+                },
+                floatingActionButton = {
+                    CartFab(
+                        onClick = { onCartClick() },
+                        cartAmount = cartAmount,
                     )
                 },
                 bottomBar = {
@@ -483,7 +492,10 @@ fun SIPBundleCart(
     showSipDayDropDown: () -> Unit,
 ) {
 
-    val chips = listOf<Long>(500, 1000, 2500, 5000, 10000)
+    val chips = generateInvestmentChips(
+        minAmount = minAmount,
+        isSip = true
+    )
 
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -493,16 +505,28 @@ fun SIPBundleCart(
             ShadowlessTextField(
                 value = amount?.toString() ?: "",
                 onValueChange = onAmountChange,
-                placeHolder = "Enter amount",
+                placeHolder = "Enter amount (min. ₹${minAmount})",
                 label = "Investment Amount"
             )
 
-            if (amount != null && amount < minAmount) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (amount != null && amount < minAmount) {
+                    Text(
+                        text = "Amount less than min ₹$minAmount",
+                        color = appRed,
+                        style = titlesStyle.copy(fontSize = 12.sp),
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
                 Text(
-                    text = "Minimum investment amount is ₹$minAmount",
-                    color = appRed,
-                    style = titlesStyle.copy(fontSize = 12.sp),
-                    modifier = Modifier.padding(start = 4.dp)
+                    text = "Min ₹$minAmount",
+                    style = titlesStyle.copy(fontSize = 14.sp),
+                    color = titleColor
                 )
             }
         }

@@ -46,12 +46,10 @@ class FDSearchResultViewModel(
     val filterState: StateFlow<InvestmentFilter> = _filterState
 
     private var currentPage = 1
-    private var hasNextPage = true
+    private val _hasNextPage = MutableStateFlow(true)
+    val hasNextPage = _hasNextPage.asStateFlow()
     private val _isLoadingNext = MutableStateFlow(false)
     val isLoadingNext = _isLoadingNext.asStateFlow()
-
-
-
 
     init {
         loadFunds()
@@ -72,7 +70,7 @@ class FDSearchResultViewModel(
             )
                 .onSuccess { data ->
                     currentPage = data.page
-                    hasNextPage = data.hasNextPage
+                    _hasNextPage.value = data.hasNextPage
 
                     _fixedDeposits.value = data.items
                     _loadingState.value = LoadingState.Success
@@ -84,7 +82,7 @@ class FDSearchResultViewModel(
     }
 
     fun loadNext() {
-        if (!hasNextPage || _isLoadingNext.value) return
+        if (!_hasNextPage.value || _isLoadingNext.value) return
 
         viewModelScope.launch {
             _isLoadingNext.value = true
@@ -101,7 +99,7 @@ class FDSearchResultViewModel(
             )
                 .onSuccess { data ->
                     currentPage = data.page
-                    hasNextPage = data.hasNextPage
+                    _hasNextPage.value = data.hasNextPage
 
                     _fixedDeposits.value += data.items
                 }
@@ -138,7 +136,7 @@ class FDSearchResultViewModel(
     fun applyFilter(newFilter: InvestmentFilter) {
         _filterState.value = newFilter
         currentPage = 1
-        hasNextPage = true
+        _hasNextPage.value = true
         _selectedFilter.value= FDLabel.CustomLabel(newFilter.getActiveFilterLabel(),FDFilterIds.CUSTOM)
         loadFunds()
     }
@@ -146,7 +144,7 @@ class FDSearchResultViewModel(
     fun clearFilter() {
         _filterState.value = createInitialFDFilters()
         currentPage = 1
-        hasNextPage = true
+        _hasNextPage.value = true
         loadFunds()
     }
     fun toggleFilterScreen() {

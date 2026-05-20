@@ -2,6 +2,11 @@ package org.sharad.velvetinvestment.utils.di
 
 import org.koin.dsl.module
 import org.sharad.velvetinvestment.domain.models.mfkyc.GetContractPdfUseCase
+import org.sharad.velvetinvestment.domain.usecases.loan.DeleteLoanUseCase
+import org.sharad.velvetinvestment.domain.usecases.loan.AddSingleLoanUseCase
+import org.sharad.velvetinvestment.domain.usecases.loan.GetLoanByIdUseCase
+import org.sharad.velvetinvestment.domain.usecases.loan.GetLoansUseCase
+import org.sharad.velvetinvestment.domain.usecases.loan.UpdateSingleLoanUseCase
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDPortFolioDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
@@ -184,5 +189,11 @@ val useCaseModule= module {
     factory { GetGoalByIdUseCase(get()) }
     factory { MapGoalUseCase(get()) }
     factory { GetContractPdfUseCase(get()) }
+
+    factory { GetLoansUseCase(get()) }
+    factory { GetLoanByIdUseCase(get()) }
+    factory { AddSingleLoanUseCase(get()) }
+    factory { DeleteLoanUseCase(get()) }
+    factory { UpdateSingleLoanUseCase(get()) }
 
 }

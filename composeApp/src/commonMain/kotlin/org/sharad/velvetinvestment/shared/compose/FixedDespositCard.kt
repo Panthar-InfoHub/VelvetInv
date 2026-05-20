@@ -94,7 +94,7 @@ fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
                 }
 
                 Text(
-                    text = formatMoneyAfterL(fdData.amount.toLong()),
+                    text = formatMoneyAfterL(fdData.amount.toDouble().toLong()),
                     style = MaterialTheme.typography.labelSmall,
                     color = darkBlue
                 )

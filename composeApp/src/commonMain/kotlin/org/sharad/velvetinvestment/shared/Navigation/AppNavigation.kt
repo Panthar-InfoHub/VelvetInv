@@ -29,6 +29,7 @@ import org.sharad.velvetinvestment.presentation.insurance.TermInsuranceScreen
 import org.sharad.velvetinvestment.presentation.investmentrate.compose.InvestmentRateScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCFormScreen
+import org.sharad.velvetinvestment.presentation.loans.compose.LoanFlowScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundDetailsScreenRoot
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundSearchScreenRoot
@@ -411,7 +412,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
-                    onLoanClick = {},
+                    onLoanClick = {
+                        navController.navigate(Route.LoansFlowScreen) {
+                            launchSingleTop = true
+                        }
+                    },
                     onInsuranceClick = {
                         navController.navigate(Route.InsuranceCoverageEdit) {
                             launchSingleTop = true
@@ -576,6 +581,13 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
 
+            composable<Route.LoansFlowScreen> {
+                LoanFlowScreen(
+                    pv = pv,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
             composable<Route.Notifications> {
                 NotificationScreen(
                     onBack = { navController.popBackStack() },
@@ -717,6 +729,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     onBackClick = {
                         navController.popBackStack()
                     },
+                    onCartClick = {
+                        navController.navigate(Route.CartScreen)
+                    },
                     onFundClick = {
                         navController.navigate(Route.MutualFundDetails(it)) {
                             launchSingleTop = true
@@ -732,6 +747,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         navController.navigate(Route.BundleResultScreen(bundleKey)){
                             launchSingleTop=true
                         }
+                    },
+                    onCartClick = {
+                        navController.navigate(Route.CartScreen)
                     },
                     pv = pv
                 )

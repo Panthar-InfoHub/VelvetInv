@@ -24,20 +24,16 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -49,6 +45,8 @@ import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.FilterChip
+import org.sharad.velvetinvestment.shared.compose.PaginationEffect
+import org.sharad.velvetinvestment.shared.compose.PaginationFooter
 import org.sharad.velvetinvestment.utils.FDLabel
 import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
@@ -77,6 +75,7 @@ fun FDSearchScreenRoot(
     val showFilterScreen by viewModel.showFilterScreen.collectAsStateWithLifecycle()
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
     val isLoadingNext by viewModel.isLoadingNext.collectAsStateWithLifecycle()
+    val hasNextPage by viewModel.hasNextPage.collectAsStateWithLifecycle()
     val searchText by  viewModel.searchText.collectAsStateWithLifecycle()
 
 
@@ -101,6 +100,7 @@ fun FDSearchScreenRoot(
                         onFDClick = onFDClick,
                         pv = pv,
                         isLoadingNext =isLoadingNext,
+                        hasNextPage = hasNextPage,
                         loadNext =viewModel::loadNext,
                         selectedYear = selectedYear,
                         selectedFilter = selectedFilter,
@@ -168,6 +168,7 @@ fun FDSearchScreen(
     onFilterSelected: (LabelFilter) -> Unit,
     toggleFilterScreen: () -> Unit,
     isLoadingNext: Boolean,
+    hasNextPage: Boolean,
     loadNext: () -> Unit,
     searchText: String,
     onTextChange: (String) -> Unit,
@@ -185,17 +186,7 @@ fun FDSearchScreen(
     }
     val lazyListState= rememberLazyListState()
 
-    LaunchedEffect(result){
-        snapshotFlow {
-            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-        }
-            .distinctUntilChanged()
-            .collect {
-                if(it==result.lastIndex){
-                    loadNext()
-                }
-            }
-    }
+    PaginationEffect(lazyListState = lazyListState, onLoadMore = loadNext)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top=4.dp),
@@ -212,16 +203,16 @@ fun FDSearchScreen(
         }
         item{Spacer(Modifier.height(20.dp))}
 
-        item {
-            FundFilterRowMF(
-                filters = labels,
-                selectedFilter = selectedFilter,
-                onFilterSelected = onFilterSelected,
-                toggleFilterScreen=toggleFilterScreen
-            )
-        }
-
-        item{Spacer(Modifier.height(20.dp))}
+//        item {
+//            FundFilterRowMF(
+//                filters = labels,
+//                selectedFilter = selectedFilter,
+//                onFilterSelected = onFilterSelected,
+//                toggleFilterScreen=toggleFilterScreen
+//            )
+//        }
+//
+//        item{Spacer(Modifier.height(20.dp))}
 
 //        item{
 //            YearRow(
@@ -250,13 +241,8 @@ fun FDSearchScreen(
 
         item { Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp)) }
 
-        if (isLoadingNext){
-            item {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = Color.LightGray
-                )
-            }
+        item {
+            PaginationFooter(hasNextPage = hasNextPage)
         }
 
     }

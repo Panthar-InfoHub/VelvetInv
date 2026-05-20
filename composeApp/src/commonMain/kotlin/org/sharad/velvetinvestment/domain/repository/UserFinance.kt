@@ -1,9 +1,13 @@
 package org.sharad.velvetinvestment.domain.repository
 
 import org.sharad.velvetinvestment.data.remote.model.goalmapping.GoalMapBodyDto
+import org.sharad.velvetinvestment.data.remote.model.loan.UpdateLoanRequest
+import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
+import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
+import org.sharad.velvetinvestment.domain.models.loan.LoanDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.user.InvestmentRateDomain
@@ -44,4 +48,13 @@ interface UserFinance {
 
     suspend fun mapGoal(body: GoalMapBodyDto): NetworkResponse<Unit, ErrorDomain>
 
+    suspend fun deleteSingleLoan(id: String): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun getLoans(page: Int, limit: Int): NetworkResponse<PaginatedData<LoanDomain>, ErrorDomain>
+
+    suspend fun getLoanById(id: String): NetworkResponse<LoanDomain, ErrorDomain>
+
+    suspend fun addSingleLoan(data: Loan): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun updateSingleLoan(loanId: String, data: UpdateLoanRequest): NetworkResponse<Unit, ErrorDomain>
 }

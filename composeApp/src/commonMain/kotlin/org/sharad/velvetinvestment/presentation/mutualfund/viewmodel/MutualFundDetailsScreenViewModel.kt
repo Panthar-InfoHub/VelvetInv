@@ -35,6 +35,7 @@ import org.sharad.velvetinvestment.utils.networking.ErrorType
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.pruneForGraph
+import org.sharad.velvetinvestment.utils.trimTo
 
 class MutualFundDetailsScreenViewModel(
     private val id: String,
@@ -56,6 +57,31 @@ class MutualFundDetailsScreenViewModel(
 
     private val _selectedYear = MutableStateFlow(GraphDurationSelection.ThreeYears)
     val selectedYear= _selectedYear.asStateFlow()
+
+     val navChangePercent = combine(graphState,detailsState,selectedYear){ graphState,detailsState, selectedYear->
+        if (selectedYear == GraphDurationSelection.All){
+            when(detailsState){
+                is DetailsState.Error -> "n/a"
+                DetailsState.Loading -> "--"
+                is DetailsState.Success -> detailsState.data.metrics.nav_change_pct.trimTo(2)
+            }
+        }
+         else{
+             when(graphState){
+                 is GraphState.Error -> "n/a"
+                 GraphState.Loading -> "--"
+                 is GraphState.Success -> {
+                     val first = graphState.data.graphPoints.firstOrNull()?.navValue?:0.0
+                     val last = graphState.data.graphPoints.lastOrNull()?.navValue?:0.0
+                     ((last - first) / first * 100).trimTo(2)
+                 }
+             }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = "--"
+    )
 
     private val _bottomSheetVisibility= MutableStateFlow<MFBottomSheetType?>(null)
     val bottomSheetVisibility= _bottomSheetVisibility.asStateFlow()

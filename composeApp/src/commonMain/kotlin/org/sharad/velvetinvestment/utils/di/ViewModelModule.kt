@@ -27,6 +27,8 @@ import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.BundleResul
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
+import org.sharad.velvetinvestment.presentation.loans.viewmodel.AddLoanViewModel
+import org.sharad.velvetinvestment.presentation.loans.viewmodel.LoanInfoViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CASParserViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.CurrentAssetViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.FinancialFlowScreenViewModel
@@ -52,10 +54,12 @@ val viewModelModule= module {
     viewModel { CurrentAssetViewModel() }
     viewModel { CASParserViewModel(get()) }
     viewModel { LoanScreenViewModel() }
+    viewModel { LoanInfoViewModel(get(), get()) }
+    viewModel { (id: String?) -> AddLoanViewModel(id, get(), get(), get()) }
     viewModel { InsuranceCoverageViewModel() }
     viewModel { GoalScreenOnboardingViewModel() }
 
-    viewModel { HomeScreenViewModel(get()) }
+    viewModel { HomeScreenViewModel(get(),get()) }
     viewModel { PersonalInfoViewModel(get()) }
 
     viewModel {

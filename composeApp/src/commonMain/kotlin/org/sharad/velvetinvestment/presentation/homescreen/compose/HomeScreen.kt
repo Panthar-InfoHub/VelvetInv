@@ -84,7 +84,7 @@ fun HomeScreenMain(
 
         UiStateContainer(
             uiState = homeState,
-            onRetry = { viewModel.loadHome() }
+            onRetry = { viewModel.loadHomeData() }
         ) { data ->
             HomeScreen(
                 name = data.name,

@@ -21,16 +21,20 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.AllBundlesViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
+import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 
 @Composable
 fun AllBundlesScreen(
     onBackClick: () -> Unit,
     onBundleClick: (String) -> Unit,
+    onCartClick: () -> Unit,
     pv: PaddingValues
 ) {
     val viewModel: AllBundlesViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val cartAmount by CartInfo.fundAmount.collectAsStateWithLifecycle()
+
 
     Scaffold(
         topBar = {
@@ -38,6 +42,12 @@ fun AllBundlesScreen(
                 heading = "Curated Bundles",
                 showBack = true,
                 onBackClick = onBackClick
+            )
+        },
+        floatingActionButton = {
+            CartFab(
+                onClick = { onCartClick() },
+                cartAmount = cartAmount,
             )
         },
         containerColor = Color.White

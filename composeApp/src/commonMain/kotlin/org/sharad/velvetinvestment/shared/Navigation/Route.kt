@@ -123,6 +123,15 @@ object Route {
     data object GoalsScreen
 
     @Serializable
+    data object LoansFlowScreen
+
+    @Serializable
+    data object LoansScreen
+
+    @Serializable
+    data class AddLoanScreen(val loanId: String? = null)
+
+    @Serializable
     data object Profile
     @Serializable
     data object Notifications

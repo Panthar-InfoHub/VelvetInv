@@ -174,7 +174,9 @@ fun LoanSummary(monthlyEmi: Long, totalTenure: Int, outstandingAmount: Long, tot
                 textAlign = TextAlign.Center
             )
 
-            Column {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 Text(
                     text = "₹${formatMoneyWithUnits(outstandingAmount)}",
                     fontFamily = Poppins,

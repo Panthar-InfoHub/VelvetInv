@@ -174,7 +174,10 @@ fun SIPCart(
     showDateDropDown: () -> Unit,
     showDurationDropDown: () -> Unit,
 ) {
-    val chips= listOf<Long>(500,1000,2500,5000,10000)
+    val chips = generateInvestmentChips(
+        minAmount = minAmount,
+        isSip = true
+    )
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -270,7 +273,10 @@ fun LumpSumCart(
     loading: Boolean,
 
 ) {
-    val chips= listOf<Long>(5000,25000,50000,100000)
+    val chips = generateInvestmentChips(
+        minAmount = minAmount,
+        isSip = false
+    )
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -550,4 +556,20 @@ fun FundBadge(text: String){
             modifier = Modifier.padding(vertical = 2.dp, horizontal = 12.dp)
         )
     }
+}
+
+fun generateInvestmentChips(
+    minAmount: Long,
+    isSip: Boolean
+): List<Long> {
+
+    val multipliers = if (isSip) {
+        listOf(1L, 2L, 5L, 10L, 20L)
+    } else {
+        listOf(1L, 2L, 5L, 10L)
+    }
+
+    return multipliers
+        .map { minAmount * it }
+        .distinct()
 }
