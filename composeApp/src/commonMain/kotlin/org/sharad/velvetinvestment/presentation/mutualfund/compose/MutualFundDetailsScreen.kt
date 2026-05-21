@@ -817,7 +817,7 @@ fun MutualFundIcon(
         Text(
             text = schemeName
                 .take(2).capitalize(Locale.current),
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.headlineSmall,
             color = textColor
         )
     }

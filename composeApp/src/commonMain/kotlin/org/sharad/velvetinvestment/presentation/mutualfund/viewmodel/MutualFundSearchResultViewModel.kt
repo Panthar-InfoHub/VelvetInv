@@ -174,11 +174,6 @@ class MutualFundSearchResultViewModel(
             SelectedReturnRatePeriod.THREE_YEAR ->
                 _selectedYear.value = SelectedReturnRatePeriod.THREE_MONTH
         }
-
-        currentPage = 1
-        _hasNextPage.value = true
-
-        loadFunds()
     }
 
     fun applyFilter(newFilter: InvestmentFilter) {

@@ -10,6 +10,7 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundDomain
+import org.sharad.velvetinvestment.utils.trimDoubleTo
 
 fun CombinedFundsDto.toDomain(): CombinedFundsDomain {
     return CombinedFundsDomain(
@@ -18,7 +19,8 @@ fun CombinedFundsDto.toDomain(): CombinedFundsDomain {
                 categoryName = item.bundle_name,
                 key = item.id,
                 mutualFunds = item.bundle_products.map { it.toDomain() },
-                minAmount = item.accumulated_min_amount
+                minAmount = item.accumulated_min_amount,
+                img_url = item.img_url?:""
             )
         },
         categoryMutualFundDomain = data.normal_funds.items.map { itemX ->
@@ -83,9 +85,9 @@ fun ItemXX.toDomain(): MutualFundDomain {
 
 fun Metrics.toDomain(): ReturnYearsRateDomain {
     return ReturnYearsRateDomain(
-        month3 = return_90d,
-        month6 = return_6m,
-        year1 = return_1y,
-        year3 = return_3y
+        month3 = return_90d?.trimDoubleTo(2),
+        month6 = return_6m?.trimDoubleTo(2),
+        year1 = return_1y?.trimDoubleTo(2),
+        year3 = return_3y?.trimDoubleTo(2),
     )
 }

@@ -17,9 +17,9 @@ fun Data.toDomain(): BundledMutualFundDomain {
         mutualFunds = bundle_products.map { product ->
             product.toDomain()
         },
-        sipDates = emptyList(), // Not provided in DTO
-        minAmount = accumulated_min_amount.toDouble(),
-        allowedFrequencies = listOf(InvestmentFrequency.MONTHLY) // Defaulting since not in DTO
+        minAmount = accumulated_min_amount.toDouble(), // Not provided in DTO
+        allowedFrequencies = listOf(InvestmentFrequency.MONTHLY),
+        img_url = img_url?:""
     )
 }
 

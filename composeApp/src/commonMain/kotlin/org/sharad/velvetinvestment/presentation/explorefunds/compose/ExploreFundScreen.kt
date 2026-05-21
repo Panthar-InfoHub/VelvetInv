@@ -16,8 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,20 +41,26 @@ import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.bgColor5
+import org.sharad.emify.core.ui.theme.shadowColor
+import org.sharad.velvetinvestment.domain.models.fixeddeposits.FixedDepositDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.FixedTopPicksUiModel
 import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.MutualFundTopPicksUiModel
 import org.sharad.velvetinvestment.presentation.explorefunds.viewmodel.ExploreFundScreenViewModel
 import org.sharad.velvetinvestment.presentation.explorefunds.viewmodel.TopPickCombinedUiModel
+import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDListCard
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundListCard
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.shared.theme.buttonTextStyle
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.UiState
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.expenses_icon
 import velvet.composeapp.generated.resources.icon_fd
@@ -133,17 +138,20 @@ fun ExploreFundScreenContent(
                     )
                 }
 
-                item { MFTopPicks(data.funds, navigateToSpecificMF) }
-
+                item{
+                    MFTopPicks(data.funds, navigateToSpecificMF)
+                }
                 item {
+                    Spacer(Modifier.height(20.dp))
                     BarHeader(
                         heading = "Top Picks Fixed Deposit",
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
 
-                item { FDTopPicks(topFd = data.fixedDeposits, onClick = navigateToSpecificFD) }
-
+                item{
+                    FDTopPicks(topFd = data.fixedDeposits, onClick = navigateToSpecificFD)
+                }
                 item { Spacer(modifier = Modifier.padding(bottom = pv.calculateBottomPadding())) }
             }
         }
@@ -152,28 +160,46 @@ fun ExploreFundScreenContent(
 }
 
 @Composable
-fun FDTopPicks(topFd: List<FixedTopPicksUiModel>, onClick: (String) -> Unit) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) {
-        items(topFd, key = { it.id }) {
-            TopPicksCardFD(it, onClick = { onClick(it.id) })
+fun FDTopPicks(topFd: List<FixedDepositDomain>, onClick: (String) -> Unit) {
+    topFd.forEach {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            FDListCard(fd = it, onClick = { onClick(it.id) })
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp)
+                    .height(1.dp)
+                    .clip(CircleShape)
+                    .background(shadowColor)
+            )
         }
     }
 }
 
 @Composable
 fun MFTopPicks(
-    topFunds: List<MutualFundTopPicksUiModel>,
+    topFunds: List<MutualFundDomain>,
     navigateToSpecificMF: (String) -> Unit,
 ) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) {
-        items(topFunds, key = { it.id }) {
-            TopPicksCardMF(it, onClick = { navigateToSpecificMF(it.id) })
+    topFunds.forEachIndexed { idx, it ->
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            MutualFundListCard(
+                onClick = { navigateToSpecificMF(it.id) },
+                fund = it,
+                selectedYear = SelectedReturnRatePeriod.ONE_YEAR,
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp, bottom = if (idx==topFunds.lastIndex) 0.dp else 12.dp)
+                    .height(1.dp)
+                    .clip(CircleShape)
+                    .background(shadowColor)
+            )
         }
     }
 }

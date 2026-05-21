@@ -10,7 +10,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
@@ -21,10 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
@@ -39,11 +37,10 @@ import velvet.composeapp.generated.resources.nav_icon_profile
 
 
 @Composable
-fun BottomNavBar(navController: NavController) {
-
-    val entry by navController.currentBackStackEntryAsState()
-    val currentDestination=entry?.destination
-
+fun BottomNavBar(
+    currentDestination: NavDestination?,
+    onNavigate: (Any) -> Unit
+) {
     val bottomBarItems = listOf(Route.Home, Route.FundScreener, Route.PortFolio, Route.Insurance, Route.Profile)
     val itemsLabels= listOf("Home","Fund Screener","Portfolio", "Insurance","Profile")
     val icons= listOf(Res.drawable.nav_icon_home,
@@ -65,16 +62,10 @@ fun BottomNavBar(navController: NavController) {
         ){
             bottomBarItems.forEachIndexed { index, item ->
                 NavigationBarItem(
-                    selected = currentDestination?.hierarchy?.any{
+                    selected = currentDestination?.hierarchy?.any {
                         it.hasRoute(item::class)
-                    }==true,
-                    onClick = {navController.navigate(item){
-                        popUpTo(navController.graph.startDestinationId){
-                            saveState=true
-                        }
-                        launchSingleTop=true
-                        restoreState=true
-                    } },
+                    } == true,
+                    onClick = { onNavigate(item) },
                     icon = {
                         Icon(
                             painter = painterResource(icons[index]),

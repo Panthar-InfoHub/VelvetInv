@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
@@ -40,20 +39,25 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.LoadingState
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
@@ -77,8 +81,42 @@ fun CategoryMutualFundScreenRoot(
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
 
 
+    CategoryMutualFundScreenRootContent(
+        uiState = uiState,
+        combinedState = combinedState,
+        searchText = searchText,
+        onBackClick = onBackClick,
+        onIconClick = onIconClick,
+        onFundClick = onFundClick,
+        pv = pv,
+        onSearchClick = onSearchClick,
+        onCategoryClick = onCategoryClick,
+        onBundleClick = onBundleClick,
+        onBundledFundClick = onBundledFundClick,
+        onRetryClick = { viewModel.loadMutualFunds() },
+        onSearchTextChange = { viewModel.onSearchTextChange(it) }
+    )
+}
+
+@Composable
+fun CategoryMutualFundScreenRootContent(
+    uiState: LoadingState,
+    combinedState: CombinedFundsDomain,
+    searchText: String,
+    onBackClick: () -> Unit,
+    onIconClick: () -> Unit,
+    onFundClick: (String) -> Unit,
+    pv: PaddingValues,
+    onSearchClick: (String) -> Unit,
+    onCategoryClick: (String) -> Unit,
+    onBundleClick: () -> Unit,
+    onBundledFundClick: (String) -> Unit,
+    onRetryClick: () -> Unit,
+    onSearchTextChange: (String) -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize()
+            .background(Color.White)
     ) {
         ScreenHeader(
             onBackClick = { onBackClick() },
@@ -90,7 +128,7 @@ fun CategoryMutualFundScreenRoot(
         ){
             when(uiState){
                 is LoadingState.Error->{
-                    ErrorScreen((uiState as LoadingState.Error).error, onRetryClick = { viewModel.loadMutualFunds() })
+                    ErrorScreen(uiState.error, onRetryClick = onRetryClick)
                 }
                 LoadingState.Loading -> {
                     LoaderScreen()
@@ -103,7 +141,7 @@ fun CategoryMutualFundScreenRoot(
                         onCategoryClick = onCategoryClick,
                         onFundClick = {onFundClick(it)},
                         searchText =searchText,
-                        onTextChange = { viewModel.onSearchTextChange(it) },
+                        onTextChange = onSearchTextChange,
                         pv =pv,
                         onSearchClick = {onSearchClick(searchText)},
                         onBundledFundClick = {onBundledFundClick(it)},
@@ -129,14 +167,12 @@ fun CategoryMutualFundScreen(
     onBundleClick: () -> Unit
 ) {
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 150.dp),
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
+        item {
             AppSearchBar(
                 value = searchText,
                 onTextChange = { onTextChange(it) },
@@ -145,56 +181,67 @@ fun CategoryMutualFundScreen(
         }
 
         if (bundles.isNotEmpty()){
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item{
                 BarHeader(
                     heading = "Curated Bundles",
                     showArrow = true,
-                    onArrowClick = {onBundleClick()}
+                    onArrowClick = {onBundleClick()},
+                    modifier = Modifier.padding(vertical = 4.dp)
+
                 )
             }
 
             items(
                 items = bundles,
-                key = {it.key}
+                key = {it.key},
             ){bundle->
-                BundleCard(
-                    title = bundle.categoryName,
-                    minAmount = "₹" + formatMoneyAfterL(bundle.minAmount.toLong()),
-                    onClick = {onBundledFundClick(bundle.key)}
+                BundleCardExtended(
+                    onClick = { onBundledFundClick(bundle.key) },
+                    bundleData = bundle,
                 )
             }
         }
 
         funds.forEach {category->
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item {
                 BarHeader(
                     heading = category.categoryName,
                     showArrow = true,
-                    onArrowClick = {onCategoryClick(category.categorySearchReference)}
+                    onArrowClick = {onCategoryClick(category.categorySearchReference)},
+                    modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
 
             items(
                 items = category.mutualFunds,
-                key = { category.categorySearchReference+it.id }
-            ) { fund ->
+                key = {fund -> category.categorySearchReference + fund.id }
+            ) {  fund ->
 
-                MutualFundGridCard(
-                    onClick = { onFundClick(fund.id) },
-                    schemeName = fund.name,
-                    assetType = fund.type,
-                    latestNav = fund.latestNav,
-                    oneYearReturn= fund.returnYearsRate.year1,
-                    icon= fund.icon
-                )
+                Column(
+                ) {
+                    MutualFundListCard(
+                        onClick = { onFundClick(fund.id) },
+                        fund = fund,
+                        selectedYear = SelectedReturnRatePeriod.ONE_YEAR,
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp )
+                            .height(1.dp)
+                            .clip(CircleShape)
+                            .background(shadowColor)
+                    )
+                }
             }
         }
-        item(span = { GridItemSpan(maxLineSpan) }){
+        item{
             Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp))
         }
     }
 
 }
+
 
 @Composable
 fun MutualFundGridCard(
@@ -321,5 +368,131 @@ private fun ScreenHeader(onIconClick: () -> Unit, onBackClick: () -> Unit) {
             )
         }
     }
+}
 
+
+@Preview
+@Composable
+private fun CategoryMutualFundScreenRootPreview() {
+
+    val sampleFunds = listOf(
+        MutualFundDomain(
+            id = "1",
+            name = "SBI Bluechip Fund",
+            icon = "",
+            category = "Equity: Large Cap",
+            remark = null,
+            riskText = "Very High",
+            type = "Equity",
+            returnYearsRate = ReturnYearsRateDomain(
+                month3 = 5.0,
+                month6 = 10.0,
+                year1 = 15.0,
+                year3 = 45.0
+            ),
+            latestNav = "78.5"
+        ),
+        MutualFundDomain(
+            id = "2",
+            name = "Axis Midcap Fund",
+            icon = "",
+            category = "Equity: Mid Cap",
+            remark = null,
+            riskText = "High",
+            type = "Equity",
+            returnYearsRate = ReturnYearsRateDomain(
+                month3 = 4.2,
+                month6 = 9.1,
+                year1 = 13.4,
+                year3 = 38.0
+            ),
+            latestNav = "52.7"
+        ),
+        MutualFundDomain(
+            id = "3",
+            name = "ICICI Flexi Cap Fund",
+            icon = "",
+            category = "Flexi Cap",
+            remark = null,
+            riskText = "Moderately High",
+            type = "Equity",
+            returnYearsRate = ReturnYearsRateDomain(
+                month3 = 3.5,
+                month6 = 7.8,
+                year1 = 11.2,
+                year3 = 31.5
+            ),
+            latestNav = "102.3"
+        ),
+        MutualFundDomain(
+            id = "4",
+            name = "HDFC Small Cap Fund",
+            icon = "",
+            category = "Small Cap",
+            remark = null,
+            riskText = "Very High",
+            type = "Equity",
+            returnYearsRate = ReturnYearsRateDomain(
+                month3 = 6.5,
+                month6 = 12.4,
+                year1 = 18.7,
+                year3 = 49.2
+            ),
+            latestNav = "36.2"
+        )
+    )
+
+    val sampleCategories = listOf(
+        CategoryMutualFundDomain(
+            categoryName = "Large Cap",
+            categorySearchReference = "large_cap",
+            mutualFunds = sampleFunds
+        ),
+        CategoryMutualFundDomain(
+            categoryName = "Mid Cap",
+            categorySearchReference = "mid_cap",
+            mutualFunds = sampleFunds
+        ),
+        CategoryMutualFundDomain(
+            categoryName = "Flexi Cap",
+            categorySearchReference = "flexi_cap",
+            mutualFunds = sampleFunds
+        ),
+        CategoryMutualFundDomain(
+            categoryName = "Small Cap",
+            categorySearchReference = "small_cap",
+            mutualFunds = sampleFunds
+        )
+    )
+
+    val sampleBundle = BundledMutualFundDomain(
+        categoryName = "Velvet Preserve",
+        key = "velvet_preserve",
+        mutualFunds = emptyList(),
+        minAmount = 10000.0,
+        img_url = ""
+    )
+
+    val sampleCombinedState = CombinedFundsDomain(
+        bundleFunds = listOf(sampleBundle),
+        categoryMutualFundDomain = sampleCategories
+    )
+
+    VelvetTheme {
+        CategoryMutualFundScreenRootContent(
+            uiState = LoadingState.Success,
+            combinedState = sampleCombinedState,
+            searchText = "",
+            onBackClick = {},
+            onIconClick = {},
+            onFundClick = {},
+            pv = PaddingValues(0.dp),
+            onSearchClick = {},
+            onCategoryClick = {},
+            onBundleClick = {},
+            onBundledFundClick = {},
+            onRetryClick = {},
+            onSearchTextChange = {}
+        )
+    }
 }

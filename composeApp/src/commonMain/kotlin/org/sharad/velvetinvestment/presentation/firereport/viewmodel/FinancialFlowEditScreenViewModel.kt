@@ -18,6 +18,7 @@ import org.sharad.velvetinvestment.domain.usecases.user.UpdateFinanceUseCase
 import org.sharad.velvetinvestment.presentation.onboarding.models.ExpensePercentages
 import org.sharad.velvetinvestment.presentation.onboarding.models.FinancialFlowDetails
 import org.sharad.velvetinvestment.presentation.onboarding.models.FinancialSummary
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
@@ -204,6 +205,7 @@ class FinancialFlowEditScreenViewModel(
                 }
                 .onSuccess {
                     _loading.value=false
+                    AppEventsController.sendFireRefreshEvent()
                     onSuccessful()
                 }
         }

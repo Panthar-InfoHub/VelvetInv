@@ -9,5 +9,6 @@ data class BundleProduct(
     val id: String,
     val mf_product: MfProduct,
     val mf_product_id: String,
-    val min_amount: String
+    val min_amount: String,
+    val img_url: String?= null
 )

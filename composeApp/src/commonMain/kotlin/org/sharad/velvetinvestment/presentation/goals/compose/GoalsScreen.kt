@@ -40,7 +40,7 @@ fun GoalScreen(
                 AppEvent.GoalEventRefresh ->{
                     viewModel.loadGoals()
                     AppEventsController.clear()
-
+                    AppEventsController.sendHomeRefreshEvent()
                 }
                 AppEvent.HomeEventRefresh -> {
 

@@ -9,5 +9,6 @@ data class Data(
     val allowed_frequencies: List<String>,
     val bundle_name: String,
     val bundle_products: List<BundleProduct>,
-    val id: String
+    val id: String,
+    val img_url: String? = null
 )

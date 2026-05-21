@@ -228,7 +228,6 @@ class ProjectionImpactViewModel(
                 .onSuccess {
 
                     AppEventsController.sendGoalRefreshEvent()
-                    AppEventsController.sendHomeRefreshEvent()
 
                     onSuccess()
                 }
@@ -239,7 +238,6 @@ class ProjectionImpactViewModel(
                     SnackBarController.showError(it.message)
 
                     AppEventsController.sendGoalRefreshEvent()
-                    AppEventsController.sendHomeRefreshEvent()
                 }
         }
     }

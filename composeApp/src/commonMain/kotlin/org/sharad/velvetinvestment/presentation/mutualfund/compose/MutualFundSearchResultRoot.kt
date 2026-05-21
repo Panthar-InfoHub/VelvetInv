@@ -229,7 +229,8 @@ fun MutualFundSearchScreen(
         item{Spacer(Modifier.height(10.dp))}
 
         itemsIndexed(result, key = { _, item -> item.id }){idx, fund ->
-            MutualFundListCard(onClick = { onFundClick(fund.id) }, fund =fund,selectedYear=selectedYear)
+            MutualFundListCard(onClick = { onFundClick(fund.id) }, fund =fund,selectedYear=selectedYear,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp, horizontal = 16.dp))
             if (idx!=result.size-1){
                 Box(
                     modifier = Modifier.fillMaxWidth()
@@ -256,8 +257,7 @@ fun MutualFundListCard(
     selectedYear: SelectedReturnRatePeriod
 ) {
     Row(
-        modifier=modifier.fillMaxWidth().clickable { onClick() }
-            .padding(vertical = 14.dp, horizontal = 16.dp),
+        modifier=modifier.fillMaxWidth().clickable { onClick() },
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -310,7 +310,8 @@ fun MutualFundListCard(
             }
         }
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(start = 4.dp)
         ) {
 
             val rate= when(selectedYear){

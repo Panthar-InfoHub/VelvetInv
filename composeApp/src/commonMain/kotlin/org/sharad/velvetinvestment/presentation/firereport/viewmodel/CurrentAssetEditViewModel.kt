@@ -10,6 +10,7 @@ import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateD
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.UpdateAssetsUseCase
 import org.sharad.velvetinvestment.presentation.onboarding.models.AssetFlowDetails
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -133,6 +134,7 @@ class CurrentAssetEditViewModel(
                 }
                 .onSuccess {
                     _loading.value = false
+                    AppEventsController.sendFireRefreshEvent()
                     onSuccess()
                 }
         }

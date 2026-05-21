@@ -269,7 +269,6 @@ class SingleGoalViewModel(
                     onSuccess()
                     SnackBarController.showSuccess(message = "Goal added successfully")
                     AppEventsController.sendGoalRefreshEvent()
-                    AppEventsController.sendHomeRefreshEvent()
                     _loading.value=false
                 }
                 .onError { error ->

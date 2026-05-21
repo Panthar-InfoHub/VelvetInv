@@ -201,7 +201,7 @@ fun FDSearchScreen(
                 modifier=Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
         }
-        item{Spacer(Modifier.height(20.dp))}
+        item{Spacer(Modifier.height(36.dp))}
 
 //        item {
 //            FundFilterRowMF(
@@ -227,12 +227,12 @@ fun FDSearchScreen(
 //        item{Spacer(Modifier.height(10.dp))}
 
         itemsIndexed(result, key = { _, item -> item.id }){idx, fd ->
-            FDListCard(fd =fd, onClick = { onFDClick(fd.id) }, selectedYear =selectedYear)
+            FDListCard(fd =fd, onClick = { onFDClick(fd.id) }, modifier = Modifier.padding(horizontal = 16.dp))
             if (idx!=result.size-1){
                 Box(
                     modifier = Modifier.fillMaxWidth()
+                        .padding(start = 16.dp,end=16.dp, top=8.dp, bottom = 16.dp)
                         .height(1.dp)
-                        .padding(horizontal = 16.dp)
                         .clip(CircleShape)
                         .background(shadowColor)
                 )

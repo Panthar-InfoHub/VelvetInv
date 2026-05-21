@@ -10,6 +10,7 @@ fun BundledFundsDto.toDomain(): List<BundledMutualFundDomain> {
         BundledMutualFundDomain(
             categoryName = bundle.bundle_name,
             key = bundle.id,
+            img_url = bundle.bundle_products.firstOrNull()?.mf_product?.img_url?:"",
             mutualFunds = bundle.bundle_products.map { product ->
                 val mf = product.mf_product
                 BundledMutualFundItemDomain(

@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,6 +49,7 @@ import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundItemDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.FundMetricsDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.BundleCartUiState
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.BundleResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
@@ -262,25 +264,26 @@ fun BundleMutualFundListCard(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
                 SubcomposeAsyncImage(
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(36.dp),
                     model = fund.icon,
                     contentDescription = null,
                     loading = {
                         MutualFundIcon(
                             schemeName = fund.scheme_name,
-                            size = 40.dp
+                            size = 36.dp
                         )
                     },
                     error = {
                         MutualFundIcon(
                             schemeName = fund.scheme_name,
-                            size = 40.dp
+                            size = 36.dp
                         )
                     },
                     success = {
@@ -298,46 +301,18 @@ fun BundleMutualFundListCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "${fund.scheme_type} . ${fund.risk_name}",
+                        text = "${fund.scheme_type} . " + "Allocation "+"${fund.allocation_percentage}.0%",
                         style = titlesStyle,
                         color = titleColor,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-
-            HorizontalDivider(color = shadowColor, thickness = 1.dp)
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Column {
-                    Text(
-                        text = "Allocation",
-                        style = titlesStyle,
-                        color = titleColor
-                    )
-
-                    Text(
-                        text = "${fund.allocation_percentage}.0%",
-                        style = subHeading,
-                        color = Primary
                     )
                 }
 
                 Column(
+                    modifier = Modifier.padding(start = 4.dp),
                     horizontalAlignment = Alignment.End
                 ) {
-                    Text(
-                        text = "${selectedYear.displayText} Return",
-                        style = titlesStyle,
-                        color = titleColor
-                    )
-
                     val returnRate = when (selectedYear) {
                         SelectedReturnRatePeriod.THREE_MONTH -> fund.metrics?.return90D
                         SelectedReturnRatePeriod.SIX_MONTH -> fund.metrics?.return6M
@@ -348,31 +323,18 @@ fun BundleMutualFundListCard(
                     val isPositive = (returnRate ?: 0.0) >= 0
 
                     val displayColor = if (isPositive) appGreen else appRed
-                    val iconRes = if (isPositive) {
-                        Res.drawable.filled_up
-                    } else {
-                        Res.drawable.filled_down
-                    }
+                    Text(
+                        text = returnRate?.let { it.trimTo(2) + "%" } ?: "N/A",
+                        style = subHeading,
+                        color = if (returnRate == null) titleColor else displayColor
+                    )
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = returnRate?.let { it.trimTo(2) + "%" } ?: "N/A",
-                            style = subHeading,
-                            color = if (returnRate==null) titleColor  else displayColor
-                        )
 
-                        returnRate?.let{
-                            Icon(
-                                painter = painterResource(iconRes),
-                                contentDescription = null,
-                                tint = displayColor,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
+                    Text(
+                        text = selectedYear.displayText,
+                        style = titlesStyle,
+                        color = titleColor
+                    )
                 }
             }
         }
@@ -567,4 +529,52 @@ fun SIPBundleCart(
             onClick = onAddClick
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BundleMutualFundListCardPreview() {
+
+    val mockFund = BundledMutualFundItemDomain(
+        id = "1",
+        scheme_id = "SCH123",
+        isin = "INF000000001",
+        mapping_code = "MAP123",
+        nse_scheme_code = "NSE123",
+        platform_code = "PLT123",
+        scheme_name = "Axis Bluechip Fund Direct Growth",
+        amc_id = "AMC1",
+        amc_code = "AXIS",
+        amc_name = "Axis Mutual Fund",
+        asset_type = "Equity",
+        scheme_type = "Large Cap",
+        structure = "Open Ended",
+        risk_name = "High Risk",
+        risk_level = 5,
+        latest_nav = "58.42",
+        latest_nav_date = "2026-05-20",
+        purchase_allowed = true,
+        sip_allowed = true,
+        redemption_allowed = true,
+        switch_allowed = true,
+        maturity_date = null,
+        nfo_end_date = null,
+        createdAt = "",
+        updatedAt = "",
+        allocation_percentage = 35,
+        minAmount = "500",
+        metrics = FundMetricsDomain(
+            return1Y = 14.56,
+            return3Y = 18.32,
+            return6M = 8.74,
+            return90D = 4.25
+        ),
+        icon = ""
+    )
+
+    BundleMutualFundListCard(
+        fund = mockFund,
+        selectedYear = SelectedReturnRatePeriod.ONE_YEAR,
+        onClick = {}
+    )
 }

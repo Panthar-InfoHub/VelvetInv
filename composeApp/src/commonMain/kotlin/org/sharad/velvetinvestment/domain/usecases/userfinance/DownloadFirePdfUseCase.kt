@@ -20,7 +20,7 @@ class DownloadFirePdfUseCase(
             is NetworkResponse.Success -> {
                 pdfDownloader.downloadPdf(
                     pdfBytes = response.data,
-                    fileName = "fire_report_${Clock.System.now().toEpochMilliseconds()}.pdf",
+                    fileName = "fire_report_${Clock.System.now().toEpochMilliseconds()}",
                     onSuccess = {
                         onSuccess()
                     },

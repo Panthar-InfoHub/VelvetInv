@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 data class VelvetShapes(
+    val roundedDp24: Shape = RoundedCornerShape(24.dp),
     val roundedDp20: Shape = RoundedCornerShape(20.dp),
     val roundedDp15: Shape = RoundedCornerShape(15.dp),
     val roundedDp12: Shape = RoundedCornerShape(12.dp),

@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.InsuranceUpdateDto
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.UpdateInsuranceUseCase
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -133,6 +134,7 @@ class InsuranceCoverageEditViewModel(
                 }
                 .onSuccess {
                     _loading.value = false
+                    AppEventsController.sendFireRefreshEvent()
                     onSuccess()
                 }
         }

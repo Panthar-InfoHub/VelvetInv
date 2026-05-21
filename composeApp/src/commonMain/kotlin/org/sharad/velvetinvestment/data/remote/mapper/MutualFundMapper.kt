@@ -12,6 +12,7 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
+import org.sharad.velvetinvestment.utils.trimDoubleTo
 
 fun MutualFund.toDomain(): MutualFundDomain {
     return MutualFundDomain(
@@ -29,10 +30,10 @@ fun MutualFund.toDomain(): MutualFundDomain {
 
 fun Metrics.toReturnDomain(): ReturnYearsRateDomain {
     return ReturnYearsRateDomain(
-        month3 = return_90d,
-        month6 = return_6m,
-        year1 = return_1y,
-        year3 = return_3y
+        month3 = return_90d?.trimDoubleTo(2),
+        month6 = return_6m?.trimDoubleTo(2),
+        year1 = return_1y?.trimDoubleTo(2),
+        year3 = return_3y?.trimDoubleTo(2),
     )
 }
 
@@ -54,6 +55,7 @@ fun BundledFundByIdDto.toDomain(): BundledMutualFundDomain {
     return BundledMutualFundDomain(
         categoryName = data.bundle_name,
         key = data.id,
+        img_url = data.img_url?:"",
         allowedFrequencies = data.allowed_frequencies.mapNotNull {
             InvestmentFrequency.fromCode(it)
         },

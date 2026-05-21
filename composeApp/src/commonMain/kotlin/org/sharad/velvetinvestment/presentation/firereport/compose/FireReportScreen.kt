@@ -60,6 +60,8 @@ import org.sharad.velvetinvestment.shared.compose.ToggleSwitch
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.AppEvent
+import org.sharad.velvetinvestment.utils.AppEventsController
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.download_ic
@@ -85,6 +87,26 @@ fun FireReportScreen(
     val selectedYearChange = remember(viewModel) { { it: SelectedYear -> viewModel.onSelectedYearChange(it) } }
     val onIconClick = remember(viewModel) { { viewModel.downloadFireReport() } }
     val onRetry = remember(viewModel) { { viewModel.loadData() } }
+
+    LaunchedEffect(Unit){
+        AppEventsController.appEvent
+            .collect {
+                when(it){
+                    AppEvent.FireRefreshEvent -> {
+                        viewModel.loadData()
+                        AppEventsController.clear()
+                        AppEventsController.sendHomeRefreshEvent()
+                    }
+                    AppEvent.GoalEventRefresh ->{
+                        viewModel.loadData()
+                        AppEventsController.clear()
+                        AppEventsController.sendHomeRefreshEvent()
+                    }
+
+                    else -> {}
+                }
+            }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),

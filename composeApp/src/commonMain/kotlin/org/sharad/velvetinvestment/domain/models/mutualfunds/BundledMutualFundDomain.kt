@@ -1,12 +1,13 @@
 package org.sharad.velvetinvestment.domain.models.mutualfunds
 
 data class BundledMutualFundDomain(
-    val categoryName:String,
-    val key:String,
-    val mutualFunds:List<BundledMutualFundItemDomain>,
-    val sipDates:List<Int> = emptyList(),
-    val minAmount:Double=0.0,
-    val allowedFrequencies:List<InvestmentFrequency> = emptyList()
+    val categoryName: String,
+    val key: String,
+    val mutualFunds: List<BundledMutualFundItemDomain>,
+    val sipDates: List<Int> = emptyList(),
+    val minAmount: Double = 0.0,
+    val allowedFrequencies: List<InvestmentFrequency> = emptyList(),
+    val img_url: String
 )
 
 data class BundledMutualFundItemDomain(

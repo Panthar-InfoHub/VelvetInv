@@ -50,6 +50,7 @@ fun LoansScreen(
                 AppEvent.LoanEventRefresh -> {
                     viewModel.loadLoans()
                     AppEventsController.clear()
+                    AppEventsController.sendFireRefreshEvent()
                 }
                 else -> {}
             }

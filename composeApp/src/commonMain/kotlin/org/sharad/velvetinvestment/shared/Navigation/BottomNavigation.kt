@@ -9,10 +9,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
@@ -55,8 +61,11 @@ fun BottomNavigation(
     navigateToPortfolioFdDetailsScreen: (String)-> Unit
 ) {
 
-    val navController= rememberNavController()
-    val homeViewModel: HomeScreenViewModel= koinViewModel()
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    val homeViewModel: HomeScreenViewModel = koinViewModel()
     val portfolioViewModel: PortfolioScreenViewModel=koinViewModel()
 
     LaunchedEffect(Unit){
@@ -72,13 +81,30 @@ fun BottomNavigation(
                     AppEventsController.clear()
                 }
 
+                AppEvent.FireRefreshEvent -> {
+                    homeViewModel.loadHomeData()
+                    AppEventsController.clear()
+                }
                 else -> {}
             }
         }
     }
 
     Scaffold(
-        bottomBar = { BottomNavBar(navController) },
+        bottomBar = {
+            BottomNavBar(
+                currentDestination = currentDestination,
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        },
         containerColor = Color.White
     ) {
         val pv=it
@@ -86,46 +112,70 @@ fun BottomNavigation(
             navController = navController,
             modifier=Modifier.fillMaxSize().padding(bottom = pv.calculateBottomPadding()),
             startDestination = Route.Home,
-            // Forward navigation animation
+            // Dynamic horizontal animations based on bottom nav index
             enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it }, // From Right
-                    animationSpec = tween(
-                        durationMillis = 350,
-                        easing = FastOutSlowInEasing
+                val initialIndex = getRouteIndex(initialState.destination)
+                val targetIndex = getRouteIndex(targetState.destination)
+                when {
+                    initialIndex == -1 || targetIndex == -1 -> EnterTransition.None
+                    initialIndex == targetIndex -> EnterTransition.None
+                    targetIndex > initialIndex -> slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = tween(350, easing = FastOutSlowInEasing)
                     )
-                )
+                    else -> slideInHorizontally(
+                        initialOffsetX = { -it },
+                        animationSpec = tween(350, easing = FastOutSlowInEasing)
+                    )
+                }
             },
-
             exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it }, // To Left
-                    animationSpec = tween(
-                        durationMillis = 350,
-                        easing = FastOutSlowInEasing
+                val initialIndex = getRouteIndex(initialState.destination)
+                val targetIndex = getRouteIndex(targetState.destination)
+                when {
+                    initialIndex == -1 || targetIndex == -1 -> ExitTransition.None
+                    initialIndex == targetIndex -> ExitTransition.None
+                    targetIndex > initialIndex -> slideOutHorizontally(
+                        targetOffsetX = { -it },
+                        animationSpec = tween(350, easing = FastOutSlowInEasing)
                     )
-                )
+                    else -> slideOutHorizontally(
+                        targetOffsetX = { it },
+                        animationSpec = tween(350, easing = FastOutSlowInEasing)
+                    )
+                }
             },
-
-            // Back navigation animation
             popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it }, // From Left
-                    animationSpec = tween(
-                        durationMillis = 350,
-                        easing = FastOutSlowInEasing
+                val initialIndex = getRouteIndex(initialState.destination)
+                val targetIndex = getRouteIndex(targetState.destination)
+                when {
+                    initialIndex == -1 || targetIndex == -1 -> EnterTransition.None
+                    initialIndex == targetIndex -> EnterTransition.None
+                    targetIndex > initialIndex -> slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = tween(350, easing = FastOutSlowInEasing)
                     )
-                )
+                    else -> slideInHorizontally(
+                        initialOffsetX = { -it },
+                        animationSpec = tween(350, easing = FastOutSlowInEasing)
+                    )
+                }
             },
-
             popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it }, // To Right
-                    animationSpec = tween(
-                        durationMillis = 350,
-                        easing = FastOutSlowInEasing
+                val initialIndex = getRouteIndex(initialState.destination)
+                val targetIndex = getRouteIndex(targetState.destination)
+                when {
+                    initialIndex == -1 || targetIndex == -1 -> ExitTransition.None
+                    initialIndex == targetIndex -> ExitTransition.None
+                    targetIndex > initialIndex -> slideOutHorizontally(
+                        targetOffsetX = { -it },
+                        animationSpec = tween(350, easing = FastOutSlowInEasing)
                     )
-                )
+                    else -> slideOutHorizontally(
+                        targetOffsetX = { it },
+                        animationSpec = tween(350, easing = FastOutSlowInEasing)
+                    )
+                }
             }
         ){
 
@@ -202,5 +252,17 @@ fun BottomNavigation(
 
         }
 
+    }
+}
+
+private fun getRouteIndex(destination: NavDestination?): Int {
+    if (destination == null) return -1
+    return when {
+        destination.hasRoute<Route.Home>() -> 0
+        destination.hasRoute<Route.FundScreener>() -> 1
+        destination.hasRoute<Route.PortFolio>() -> 2
+        destination.hasRoute<Route.Insurance>() -> 3
+        destination.hasRoute<Route.Profile>() -> 4
+        else -> -1
     }
 }
