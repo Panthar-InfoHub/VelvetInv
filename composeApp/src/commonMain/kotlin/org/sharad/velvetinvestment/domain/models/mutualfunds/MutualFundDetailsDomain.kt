@@ -9,7 +9,7 @@ data class MutualFundDetailsDomain(
     val asset_type: String,
     val createdAt: String,
     val id: String,
-    val isin: String,
+    val isin: String?,
     val latest_nav: String,
     val latest_nav_date: String,
     val mapping_code: String,
@@ -32,7 +32,7 @@ data class MutualFundDetailsDomain(
     val investmentFrequency: List<InvestmentFrequency>,
     val updatedAt: String,
     val icon: String,
-    val minAmount:Long
+    val minAmount: Long
 )
 
 enum class InvestmentFrequency(

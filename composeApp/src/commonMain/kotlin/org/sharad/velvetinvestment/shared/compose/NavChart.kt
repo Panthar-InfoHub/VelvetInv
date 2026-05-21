@@ -3,9 +3,13 @@ package org.sharad.velvetinvestment.shared.compose
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +27,16 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
+import kotlin.time.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
 @Composable
@@ -61,19 +72,15 @@ fun NavLineChart(
         val width = size.width
         val height = size.height
 
-        val horizontalPadding = 12f
-        val verticalPadding = 80f
-
-        val chartStartX = horizontalPadding
-        val chartEndX = width - horizontalPadding
-        val chartTop = verticalPadding
-        val chartBottom = height - verticalPadding
+        val chartStartX = 24f
+        val chartEndX = width- 10f
+        val chartTop = 60f
+        val chartBottom = height - 50f
 
         val chartWidth = chartEndX - chartStartX
         val chartHeight = chartBottom - chartTop
 
         val maxNav = data.maxOf { it.navValue }
-        val minNav = data.minOf { it.navValue }
 
         val stepX = chartWidth / (data.size - 1)
 
@@ -81,8 +88,8 @@ fun NavLineChart(
             val x = chartStartX + index * stepX
 
             val normalized =
-                if (maxNav == minNav) 0.5f
-                else ((item.navValue - minNav) / (maxNav - minNav)).toFloat()
+                if (maxNav == 0.0) 0f
+                else (item.navValue / maxNav).toFloat()
 
             val y = chartBottom - normalized * chartHeight
 
@@ -94,6 +101,61 @@ fun NavLineChart(
         }
 
         val activeIndex = activePoint?.let { points.indexOf(it) }
+
+        /* ---------- Y-AXIS & GRID ---------- */
+        val yPointsCount = 5
+        for (i in 0 until yPointsCount) {
+            val fraction = i / (yPointsCount - 1).toFloat()
+            val valY = maxNav * fraction
+            val y = chartBottom - fraction * chartHeight
+
+            val label = valY.toInt().toString()
+            val textLayout = textMeasurer.measure(
+                AnnotatedString(label),
+                style = textStyle.copy(fontSize = 10.sp, color = Color.Gray)
+            )
+            drawText(
+                textLayout,
+                topLeft = Offset(chartStartX - textLayout.size.width - 20f, y - textLayout.size.height / 2)
+            )
+
+            drawLine(
+                color = Color.Gray.copy(alpha = 0.1f),
+                start = Offset(chartStartX, y),
+                end = Offset(chartEndX, y),
+                strokeWidth = 1f
+            )
+        }
+
+        drawLine(
+            color = Color.Gray.copy(alpha = 0.3f),
+            start = Offset(chartStartX, chartTop),
+            end = Offset(chartStartX, chartBottom),
+            strokeWidth = 2f
+        )
+
+        drawLine(
+            color = Color.Gray.copy(alpha = 0.3f),
+            start = Offset(chartStartX, chartBottom),
+            end = Offset(chartEndX, chartBottom),
+            strokeWidth = 2f
+        )
+
+        /* ---------- X-AXIS LABELS ---------- */
+        val xPointsCount = 4
+        val xIndices = List(xPointsCount) { i -> i * (data.size - 1) / (xPointsCount - 1) }
+        xIndices.forEach { index ->
+            val x = (chartStartX + index * stepX).coerceIn(maximumValue = chartEndX-20f, minimumValue = chartStartX+10f)
+            val dateStr = data[index].date.toAxisDate()
+            val textLayout = textMeasurer.measure(
+                AnnotatedString(dateStr),
+                style = textStyle.copy(fontSize = 10.sp, color = Color.Gray)
+            )
+            drawText(
+                textLayout,
+                topLeft = Offset(x - textLayout.size.width / 2, chartBottom + 36f)
+            )
+        }
 
         /* ---------- LINE PATH ---------- */
 
@@ -209,7 +271,7 @@ fun NavLineChart(
 
 
             labelX = labelX.coerceIn(
-                0f,
+                chartStartX,
                 size.width - textLayout.size.width
             )
 
@@ -219,6 +281,52 @@ fun NavLineChart(
                 textLayout,
                 topLeft = Offset(labelX, labelY),
                 alpha = alpha
+            )
+        }
+    }
+}
+
+private fun String.toAxisDate(): String {
+    return try {
+        val instant = Instant.parse(this)
+        val date = instant.toLocalDateTime(TimeZone.UTC).date
+        val month = date.month.name
+            .lowercase()
+            .replaceFirstChar { it.uppercase() }
+            .take(3)
+
+        val shortYear = (date.year % 100).toString().padStart(2, '0')
+
+        "$month,$shortYear"
+    } catch (e: Exception) {
+        this.takeLast(2)
+    }
+}
+
+@Preview
+@Composable
+fun NavLineChartPreview() {
+    val sampleData = listOf(
+        MutualFundGraphPointsDomain(10.0, "2023-01-01T00:00:00Z", "Jan 01: 10.0"),
+        MutualFundGraphPointsDomain(12.5, "2023-02-01T00:00:00Z", "Feb 01: 12.5"),
+        MutualFundGraphPointsDomain(11.0, "2023-03-01T00:00:00Z", "Mar 01: 11.0"),
+        MutualFundGraphPointsDomain(15.2, "2023-04-01T00:00:00Z", "Apr 01: 15.2"),
+        MutualFundGraphPointsDomain(14.0, "2023-05-01T00:00:00Z", "May 01: 14.0"),
+        MutualFundGraphPointsDomain(18.5, "2023-06-01T00:00:00Z", "Jun 01: 18.5"),
+        MutualFundGraphPointsDomain(22.0, "2023-07-01T00:00:00Z", "Jul 01: 22.0"),
+        MutualFundGraphPointsDomain(20.0, "2023-08-01T00:00:00Z", "Aug 01: 20.0"),
+        MutualFundGraphPointsDomain(25.0, "2023-09-01T00:00:00Z", "Sep 01: 25.0"),
+        MutualFundGraphPointsDomain(28.5, "2023-10-01T00:00:00Z", "Oct 01: 28.5"),
+        MutualFundGraphPointsDomain(27.0, "2023-11-01T00:00:00Z", "Nov 01: 27.0"),
+        MutualFundGraphPointsDomain(32.0, "2023-12-01T00:00:00Z", "Dec 01: 32.0")
+    )
+    VelvetTheme {
+        Box(modifier = Modifier.background(Color.White).padding(16.dp)) {
+            NavLineChart(
+                data = sampleData,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
             )
         }
     }

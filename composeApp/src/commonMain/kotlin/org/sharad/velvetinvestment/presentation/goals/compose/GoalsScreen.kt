@@ -39,13 +39,8 @@ fun GoalScreen(
             when(it){
                 AppEvent.GoalEventRefresh ->{
                     viewModel.loadGoals()
-                    AppEventsController.clear()
-                    AppEventsController.sendHomeRefreshEvent()
+                    AppEventsController.sendFireRefreshEvent()
                 }
-                AppEvent.HomeEventRefresh -> {
-
-                }
-
                 else -> {}
             }
         }

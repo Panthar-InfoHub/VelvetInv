@@ -213,12 +213,7 @@ class ProjectionImpactViewModel(
         onSuccess: () -> Unit
     ) {
 
-        val state = uiState.value
-
-        if (state !is UiState.Success) return
-
-        val currentData =
-            _uiState.value as UiState.Success<ProjectionImpactUiData>
+        val currentData = _uiState.value
 
         viewModelScope.launch {
 

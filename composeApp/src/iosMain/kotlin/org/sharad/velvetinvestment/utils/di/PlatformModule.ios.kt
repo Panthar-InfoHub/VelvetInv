@@ -18,7 +18,7 @@ actual val platformModule: Module
         single<DeviceInfoRetriever>{ DeviceInfoRetrieverIos() }
         single <SharedPreference>{ IosSharedPreferences() }
         single<BrowserLauncher> { IOSBrowserLauncher() }
-        single<PdfDownloadManager> { PdfDownloaderIos() }
+        single<PdfDownloadManager> { PdfDownloaderIos(get()) }
         single<PdfViewer> { PdfViewerIos() }
 
     }

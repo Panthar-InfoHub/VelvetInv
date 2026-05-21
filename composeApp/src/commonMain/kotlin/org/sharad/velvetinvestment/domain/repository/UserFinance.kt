@@ -8,6 +8,7 @@ import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.domain.models.loan.LoanDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.user.InvestmentRateDomain
@@ -57,4 +58,13 @@ interface UserFinance {
     suspend fun addSingleLoan(data: Loan): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun updateSingleLoan(loanId: String, data: UpdateLoanRequest): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun exportReport(
+        type: String,
+        year: Int? = null,
+        folio: String? = null,
+        expand: Int? = null
+    ): NetworkResponse<String, ErrorDomain>
+
+    suspend fun getPendingOrders(): NetworkResponse<List<PendingOrderDomain>, ErrorDomain>
 }

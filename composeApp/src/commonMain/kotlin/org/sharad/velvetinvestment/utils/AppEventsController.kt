@@ -15,22 +15,27 @@ object AppEventsController {
 
     suspend fun sendHomeRefreshEvent(){
         _appEvent.emit(AppEvent.HomeEventRefresh)
+        Log("Refresh Event", "Home Refresh Called")
     }
 
     suspend fun sendGoalRefreshEvent(){
         _appEvent.emit(AppEvent.GoalEventRefresh)
+        Log("Refresh Event", "Goal Refresh Called")
     }
 
     suspend fun sendLoanRefreshEvent(){
         _appEvent.emit(AppEvent.LoanEventRefresh)
+        Log("Refresh Event", "Loan Refresh Called")
     }
 
     suspend fun sendPortfolioRefreshEvent(){
         _appEvent.emit(AppEvent.PortfolioRefreshEvent)
+        Log("Refresh Event", "Portfolio Refresh Called")
     }
 
     suspend fun sendFireRefreshEvent(){
         _appEvent.emit(AppEvent.FireRefreshEvent)
+        Log("Refresh Event", "Fire Refresh Called")
     }
 
 

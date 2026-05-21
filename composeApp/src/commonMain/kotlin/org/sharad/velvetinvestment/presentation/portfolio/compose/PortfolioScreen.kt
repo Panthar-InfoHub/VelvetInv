@@ -1,6 +1,8 @@
 package org.sharad.velvetinvestment.presentation.portfolio.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,16 +19,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -49,6 +55,7 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.InvestedAmountBreakdownDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationItemDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDomain
@@ -76,7 +83,8 @@ import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.ic_jagged_arrow
+import velvet.composeapp.generated.resources.download_ic
+import kotlin.math.abs
 
 @Composable
 fun PortfolioScreenMain(
@@ -90,6 +98,14 @@ fun PortfolioScreenMain(
 
     val screenState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
+
+    val isExportingCapital by viewModel.isExportingCapital.collectAsStateWithLifecycle()
+    val isExportingTax by viewModel.isExportingTax.collectAsStateWithLifecycle()
+    val isExportingPortfolio by viewModel.isExportingPortfolio.collectAsStateWithLifecycle()
+
+    val pendingOrders by viewModel.pendingOrders.collectAsStateWithLifecycle()
+    val pagerState = rememberPagerState(pageCount = { 3 })
+
 
     LaunchedEffect(Unit){
         AppEventsController.appEvent.collect {
@@ -123,7 +139,15 @@ fun PortfolioScreenMain(
                         onFDClick = onFDClick,
                         navigateToCategoryFDScreen = navigateToCategoryFDScreen,
                         navigateToCategoryMutualFundScreen = navigateToCategoryMutualFundScreen,
-                        reload = viewModel::loadPortfolio
+                        reload = viewModel::loadPortfolio,
+                        onDownloadPortfolioReport = viewModel::downloadPortfolioReport,
+                        onDownloadCapitalReport = viewModel::downloadCapitalReport,
+                        onDownloadTaxReport = { viewModel.downloadTaxReport(2024) }, // Defaulting to 2024
+                        isExportingPortfolio = isExportingPortfolio,
+                        isExportingCapital = isExportingCapital,
+                        isExportingTax = isExportingTax,
+                        pendingOrders = pendingOrders,
+                        pagerState=pagerState
                     )
                 }
             }
@@ -141,9 +165,16 @@ fun PortfolioScreen(
     onFDClick: (String) -> Unit,
     navigateToCategoryFDScreen: () -> Unit,
     navigateToCategoryMutualFundScreen: () -> Unit,
-    reload: () -> Unit
+    reload: () -> Unit,
+    onDownloadPortfolioReport: () -> Unit,
+    onDownloadCapitalReport: () -> Unit,
+    onDownloadTaxReport: () -> Unit,
+    isExportingPortfolio: Boolean,
+    isExportingCapital: Boolean,
+    isExportingTax: Boolean,
+    pendingOrders: List<PendingOrderDomain>,
+    pagerState: PagerState
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(pagerState) {
@@ -209,7 +240,14 @@ fun PortfolioScreen(
                         investedBreakdown = portfolioData.investedAmountBreakdown,
                         onFundClick = onSIPClick,
                         onEmptyButtonClick = navigateToCategoryMutualFundScreen,
-                        reload = reload
+                        reload = reload,
+                        onDownloadCapitalReport = onDownloadCapitalReport,
+                        onDownloadTaxReport = onDownloadTaxReport,
+                        isExportingCapital = isExportingCapital,
+                        isExportingTax = isExportingTax,
+                        onDownloadPortfolioReport = onDownloadPortfolioReport,
+                        isExportingPortfolio = isExportingPortfolio,
+                        pendingOrders = pendingOrders
                     )
                 }
                 2-> {
@@ -284,7 +322,14 @@ fun MutualFundPortfolio(
     investedBreakdown: InvestedAmountBreakdownDomain,
     onFundClick: (MutualFundPortfolioDomain) -> Unit,
     onEmptyButtonClick: () -> Unit,
-    reload: () -> Unit
+    reload: () -> Unit,
+    onDownloadCapitalReport: () -> Unit,
+    onDownloadTaxReport: () -> Unit,
+    isExportingCapital: Boolean,
+    isExportingTax: Boolean,
+    onDownloadPortfolioReport: () -> Unit,
+    isExportingPortfolio: Boolean,
+    pendingOrders: List<PendingOrderDomain>
 ) {
     if (mutualFund.isEmpty()) {
         EmptyFundScreen(
@@ -302,7 +347,24 @@ fun MutualFundPortfolio(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
-                item { MFInvestmentsCard(investedBreakdown, onInvestMore = onEmptyButtonClick) }
+                item {
+                    MFInvestmentsCard(
+                        investedBreakdown,
+                        onInvestMore = onEmptyButtonClick,
+                        onDownloadCapitalReport = onDownloadCapitalReport,
+                        onDownloadTaxReport = onDownloadTaxReport,
+                        onDownloadPortfolioReport=onDownloadPortfolioReport,
+                        isExportingPortfolio= isExportingPortfolio,
+                        isExportingCapital = isExportingCapital,
+                        isExportingTax = isExportingTax
+                    )
+                }
+                if (pendingOrders.isNotEmpty()) {
+                    item { BarHeader(heading = "Pending Payments") }
+                    items(pendingOrders, key = { it.id }) { item ->
+                        PendingPaymentsCard(item)
+                    }
+                }
                 item { BarHeader(heading = "Mutual Funds") }
                 items(mutualFund, key = { it.id }) { item ->
                     MutualFundsCard(fundItem = item, onClick = {
@@ -394,12 +456,6 @@ fun TotalInvestmentCard(totalInvestments: TotalInvestmentsDomain) {
                             )
                             .padding(horizontal = 12.dp, vertical = 4.dp)
                     ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_jagged_arrow),
-                            contentDescription = null,
-                            tint = if (totalInvestments.returnPercent >= 0) labelColorBlue else Color.Red,
-                            modifier = Modifier.size(12.dp)
-                        )
                         Text(
                             text = "${if (totalInvestments.returnPercent >= 0) "+" else ""}${
                                 totalInvestments.returnPercent.trimTo(
@@ -493,7 +549,16 @@ fun TotalInvestmentCard(totalInvestments: TotalInvestmentsDomain) {
 }
 
 @Composable
-fun MFInvestmentsCard(investedBreakdown: InvestedAmountBreakdownDomain, onInvestMore: () -> Unit) {
+fun MFInvestmentsCard(
+    investedBreakdown: InvestedAmountBreakdownDomain,
+    onInvestMore: () -> Unit,
+    onDownloadCapitalReport: () -> Unit,
+    onDownloadTaxReport: () -> Unit,
+    isExportingCapital: Boolean,
+    isExportingTax: Boolean,
+    onDownloadPortfolioReport: () -> Unit,
+    isExportingPortfolio: Boolean
+) {
     val shapes = LocalVelvetShapes.current
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -505,37 +570,43 @@ fun MFInvestmentsCard(investedBreakdown: InvestedAmountBreakdownDomain, onInvest
             modifier = Modifier.fillMaxWidth().padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column{
-                Text(text = "Total Investments", style = titlesStyle, color = titleColor)
-                Text(
-                    text = "₹${formatMoneyAfterL(investedBreakdown.investedAmount.toLong() + investedBreakdown.returnsAmount.toLong())}",
-                    style = subHeading.copy(fontSize = 24.sp),
-                    color = Primary
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column {
+                    Text(text = "Total Investments", style = titlesStyle, color = titleColor)
                     Text(
-                        text = "${if (investedBreakdown.returnsPercent >= 0) "+" else ""}${
-                            investedBreakdown.returnsPercent.trimTo(
-                                2
-                            )
-                        }%",
-                        style = titlesStyle,
-                        color = if (investedBreakdown.returnsPercent >= 0) appGreen else Color.Red
+                        text = "₹${formatMoneyAfterL(investedBreakdown.investedAmount.toLong() + investedBreakdown.returnsAmount.toLong())}",
+                        style = subHeading.copy(fontSize = 24.sp),
+                        color = Primary
                     )
-                    Text(
-                        text = "Total Returns (${if (investedBreakdown.returnsAmount < 0) "-₹" else "₹"}${
-                            formatMoneyAfterL(
-                                kotlin.math.abs(
-                                    investedBreakdown.returnsAmount.toLong()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "${if (investedBreakdown.returnsPercent >= 0) "+" else ""}${
+                                investedBreakdown.returnsPercent.trimTo(
+                                    2
                                 )
-                            )
-                        })",
-                        style = titlesStyle,
-                        color = titleColor
-                    )
+                            }%",
+                            style = titlesStyle,
+                            color = if (investedBreakdown.returnsPercent >= 0) appGreen else Color.Red
+                        )
+                        Text(
+                            text = "Total Returns (${if (investedBreakdown.returnsAmount < 0) "-₹" else "₹"}${
+                                formatMoneyAfterL(
+                                    abs(
+                                        investedBreakdown.returnsAmount.toLong()
+                                    )
+                                )
+                            })",
+                            style = titlesStyle,
+                            color = titleColor
+                        )
+                    }
                 }
             }
             HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
@@ -567,12 +638,35 @@ fun MFInvestmentsCard(investedBreakdown: InvestedAmountBreakdownDomain, onInvest
                 }
             }
             HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
-            AppButton(
-                text = "INVEST MORE",
-                onClick = onInvestMore,
-                modifier = Modifier.width(160.dp).align(Alignment.End),
-                shape = RoundedCornerShape(12.dp),
-            )
+            Row{
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    ReportDownloadItem(
+                        text = "Holdings PDF",
+                        loading = isExportingCapital,
+                        onClick = onDownloadCapitalReport
+                    )
+
+                    ReportDownloadItem(
+                        text = "Tax Saving PDF",
+                        loading = isExportingTax,
+                        onClick = onDownloadTaxReport
+                    )
+
+                    ReportDownloadItem(
+                        text = "Portfolio PDF",
+                        loading = isExportingPortfolio,
+                        onClick = onDownloadPortfolioReport
+                    )
+                }
+                AppButton(
+                    text = "INVEST MORE",
+                    onClick = onInvestMore,
+                    modifier = Modifier.width(160.dp),
+                    shape = RoundedCornerShape(12.dp),
+                )
+            }
         }
     }
 }
@@ -584,15 +678,59 @@ fun MFInvestmentsCardPreview() {
         Box(modifier = Modifier.padding(16.dp)) {
             MFInvestmentsCard(
                 investedBreakdown = previewPortfolioData.investedAmountBreakdown,
-                onInvestMore = {}
+                onInvestMore = {},
+                onDownloadCapitalReport = {},
+                onDownloadTaxReport = {},
+                isExportingCapital = false,
+                isExportingTax = false,
+                onDownloadPortfolioReport = {},
+                isExportingPortfolio = false,
             )
         }
     }
 }
+@Composable
+private fun ReportDownloadItem(
+    text: String,
+    loading: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick, indication = null, interactionSource = remember { MutableInteractionSource() })
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
 
+        if (loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(14.dp),
+                strokeWidth = 2.dp
+            )
+        } else {
+            Icon(
+                painter = painterResource(Res.drawable.download_ic),
+                contentDescription = null,
+                modifier = Modifier.size(14.dp)
+            )
+        }
+
+        Text(
+            text = text,
+            style = titlesStyle.copy(
+                fontWeight = FontWeight.Medium
+            ),
+            color = Primary
+        )
+    }
+}
 @Preview(showBackground = true, backgroundColor = 0xffffff)
 @Composable
 fun DashboardPortfolioPreview() {
+    val pagerState= rememberPagerState(initialPage = 0) { 3 }
     VelvetTheme {
         PortfolioScreen(
             selectedTab = SelectedPortfolio.Dashboard,
@@ -602,7 +740,15 @@ fun DashboardPortfolioPreview() {
             onFDClick = {},
             navigateToCategoryFDScreen = {},
             navigateToCategoryMutualFundScreen = {},
-            reload = {}
+            reload = {},
+            onDownloadPortfolioReport = {},
+            onDownloadCapitalReport = {},
+            onDownloadTaxReport = {},
+            isExportingPortfolio = false,
+            isExportingCapital = false,
+            isExportingTax = false,
+            pendingOrders = samplePendingOrders,
+            pagerState=pagerState
         )
     }
 }
@@ -610,6 +756,7 @@ fun DashboardPortfolioPreview() {
 @Preview(showBackground = true, backgroundColor = 0xffffff)
 @Composable
 fun MutualFundPortfolioPreview() {
+    val pagerState= rememberPagerState(initialPage = 1) { 3 }
     VelvetTheme {
         PortfolioScreen(
             selectedTab = SelectedPortfolio.MutualFunds,
@@ -619,7 +766,15 @@ fun MutualFundPortfolioPreview() {
             onFDClick = {},
             navigateToCategoryFDScreen = {},
             navigateToCategoryMutualFundScreen = {},
-            reload = {}
+            reload = {},
+            onDownloadPortfolioReport = {},
+            onDownloadCapitalReport = {},
+            onDownloadTaxReport = {},
+            isExportingPortfolio = false,
+            isExportingCapital = false,
+            isExportingTax = false,
+            pendingOrders = samplePendingOrders,
+            pagerState=pagerState
         )
     }
 }
@@ -636,6 +791,123 @@ fun FixedDepositPortfolioPreview() {
         )
     }
 }
+
+@Composable
+fun PendingPaymentsCard(item: PendingOrderDomain) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .genericDropShadow(RoundedCornerShape(15.dp))
+            .clip(RoundedCornerShape(15.dp))
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = item.schemeName,
+                        color = Color.Black,
+                        style = MaterialTheme.typography.labelSmall.copy(lineHeight = 20.sp),
+                        maxLines = 2
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = item.amc,
+                        color = titleColor,
+                        style = titlesStyle
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "₹${formatMoneyAfterL(item.amount.toLong())}",
+                        color = Color.Black,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                    Text(
+                        text = item.type,
+                        style = tinyLabel,
+                        color = Secondary
+                    )
+                }
+            }
+
+            HorizontalDivider(color = PathGray.copy(alpha = 0.5f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Status",
+                        style = tinyLabel,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = item.status,
+                        style = subHeadingMedium.copy(fontSize = 12.sp),
+                        color = if (item.status.contains("Pending", true)) appRed else appGreen
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "Date",
+                        style = tinyLabel,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = item.date.take(10),
+                        style = subHeadingMedium.copy(fontSize = 12.sp),
+                        color = titleColor
+                    )
+                }
+            }
+
+            if (item.statusRemark.isNotEmpty()) {
+                Text(
+                    text = item.statusRemark,
+                    style = tinyLabel.copy(fontSize = 10.sp),
+                    color = appRed.copy(alpha = 0.8f)
+                )
+            }
+        }
+    }
+}
+
+private val samplePendingOrders = listOf(
+    PendingOrderDomain(
+        id = "1",
+        type = "SIP",
+        schemeName = "SBI Bluechip Fund - Direct Plan - Growth",
+        amount = 5000.0,
+        date = "2023-10-25T10:00:00Z",
+        status = "Payment Pending",
+        statusRemark = "Action required: Complete payment to start SIP",
+        amc = "SBI Mutual Fund",
+        frequency = "Monthly",
+        startDate = "2023-11-01"
+    ),
+//    PendingOrderDomain(
+//        id = "2",
+//        type = "Lumpsum",
+//        schemeName = "HDFC Index Fund - Nifty 50 Plan",
+//        amount = 10000.0,
+//        date = "2023-10-24T15:30:00Z",
+//        status = "Processing",
+//        statusRemark = "Waiting for AMC confirmation",
+//        amc = "HDFC Mutual Fund",
+//        frequency = "One-time",
+//        startDate = "2023-10-24"
+//    )
+)
 
 private val previewPortfolioData = PortfolioDomain(
     dashboard = PortfolioDashboardDomain(

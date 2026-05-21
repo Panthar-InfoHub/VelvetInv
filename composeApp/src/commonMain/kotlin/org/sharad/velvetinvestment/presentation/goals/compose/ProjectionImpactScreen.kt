@@ -64,6 +64,7 @@ import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.VelvetLoader
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
@@ -261,6 +262,7 @@ fun ProjectedImpactCard(
             Text(
                 text = "Goal",
                 style = MaterialTheme.typography.titleLarge,
+                fontFamily = Poppins,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
             )
@@ -303,6 +305,7 @@ fun ProjectedImpactCard(
                 Text(
                     text = data.goalName,
                     style = MaterialTheme.typography.titleMedium,
+                    fontFamily = Poppins,
                     color = orangeColor,
                     fontWeight = FontWeight.Bold
                 )

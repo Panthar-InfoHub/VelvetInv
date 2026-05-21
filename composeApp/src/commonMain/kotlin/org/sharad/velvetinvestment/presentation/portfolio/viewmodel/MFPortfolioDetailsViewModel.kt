@@ -13,6 +13,8 @@ import org.sharad.velvetinvestment.data.remote.model.fundredeem.PartialRedemptio
 import org.sharad.velvetinvestment.domain.models.portfolio.SIPDetailsDomain
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.RedeemFullFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.RedeemPartialFundUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.ExportSoaReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.DownloadPdfByUrlUseCase
 import org.sharad.velvetinvestment.presentation.portfolio.compose.RedemptionInputType
 import org.sharad.velvetinvestment.presentation.portfolio.compose.RedemptionType
 import org.sharad.velvetinvestment.utils.LoadingState
@@ -25,7 +27,9 @@ sealed interface MFPortfolioSideEffects{
 }
 class MFPortfolioDetailsViewModel(
     private val partialRedemptionUseCase: RedeemPartialFundUseCase,
-    private val redeemFullFundUseCase: RedeemFullFundUseCase
+    private val redeemFullFundUseCase: RedeemFullFundUseCase,
+    private val soaReportUseCase: ExportSoaReportUseCase,
+    private val downloadPdfByUrlUseCase: DownloadPdfByUrlUseCase
 ): ViewModel() {
 
     private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Success)
@@ -54,6 +58,9 @@ class MFPortfolioDetailsViewModel(
 
     private val _isSubmitting = MutableStateFlow(false)
     val isSubmitting = _isSubmitting.asStateFlow()
+
+    private val _soaDownloading = MutableStateFlow(false)
+    val soaDownloading = _soaDownloading.asStateFlow()
 
 
     fun onRedemptionTypeChange(type: RedemptionType) {
@@ -161,6 +168,36 @@ class MFPortfolioDetailsViewModel(
            }
             _isSubmitting.value = false
             _showRedemptionSheet.value = false
+        }
+    }
+    fun downloadSOA(
+        folio: String,
+    ){
+        viewModelScope.launch {
+            _soaDownloading.value = true
+            soaReportUseCase(
+                folio = folio,
+            )
+                .onSuccess { url ->
+                    downloadPdfByUrlUseCase(
+                        url = url,
+                        fileName = "SOA_$folio.pdf",
+                        onSuccess = {
+                            _soaDownloading.value = false
+                            viewModelScope.launch{
+                                SnackBarController.showSuccess("Statement downloaded successfully")
+                            }                        },
+                        onFailure = {
+                            _soaDownloading.value = false
+                            viewModelScope.launch{
+                                SnackBarController.showError("Failed to download statement")
+                            }                        }
+                    )
+                }
+                .onError { 
+                    _soaDownloading.value = false
+                    SnackBarController.showError(it.message)
+                }
         }
     }
 }

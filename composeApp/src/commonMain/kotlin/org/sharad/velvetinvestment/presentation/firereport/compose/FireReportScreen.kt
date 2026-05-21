@@ -94,12 +94,10 @@ fun FireReportScreen(
                 when(it){
                     AppEvent.FireRefreshEvent -> {
                         viewModel.loadData()
-                        AppEventsController.clear()
                         AppEventsController.sendHomeRefreshEvent()
                     }
                     AppEvent.GoalEventRefresh ->{
                         viewModel.loadData()
-                        AppEventsController.clear()
                         AppEventsController.sendHomeRefreshEvent()
                     }
 

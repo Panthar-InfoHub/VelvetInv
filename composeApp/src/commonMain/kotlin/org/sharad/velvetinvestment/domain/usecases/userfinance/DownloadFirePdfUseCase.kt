@@ -12,15 +12,16 @@ class DownloadFirePdfUseCase(
 ) {
 
     suspend operator fun invoke(
+        fileName: String,
         onSuccess: () -> Unit,
-        onFailed: (String) -> Unit
+        onFailed: (String) -> Unit,
     ): NetworkResponse<Unit, ErrorDomain> {
 
         return when (val response = repo.getFirePdf()) {
             is NetworkResponse.Success -> {
                 pdfDownloader.downloadPdf(
                     pdfBytes = response.data,
-                    fileName = "fire_report_${Clock.System.now().toEpochMilliseconds()}",
+                    fileName = fileName,
                     onSuccess = {
                         onSuccess()
                     },

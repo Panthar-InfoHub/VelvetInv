@@ -39,7 +39,6 @@ import velvet.composeapp.generated.resources.logo_app
 @Composable
 fun LoginScreen(
     windowSize: WindowSize,
-    onLoginSuccessNavigation: () -> Unit,
     viewModel: LoginScreenViewModel,
     onOtpSend: () -> Unit,
 ) {

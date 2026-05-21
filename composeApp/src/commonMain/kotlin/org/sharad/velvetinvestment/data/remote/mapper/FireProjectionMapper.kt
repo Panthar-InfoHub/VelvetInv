@@ -12,7 +12,8 @@ import org.sharad.velvetinvestment.domain.models.fire.PortfolioProjectionPointDo
 fun FireReportDto.toDomain(): FireReportDomain {
     return FireReportDomain(
         actual = data.actual.toScenarioDomain(),
-        projected = data.projected.toScenarioDomain()
+        projected = data.projected.toScenarioDomain(),
+        userName = data.actual.user_profile.name
     )
 }
 

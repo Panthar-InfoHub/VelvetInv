@@ -85,7 +85,6 @@ fun LoginNavigation(
         composable<Route.LoginScreen> {
             LoginScreen(
                 windowSize=windowSize,
-                onLoginSuccessNavigation=onLoginSuccessNavigation,
                 onOtpSend={
                     navController.navigate(Route.OtpScreen)
                 },

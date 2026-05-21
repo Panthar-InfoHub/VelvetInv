@@ -202,11 +202,15 @@ data class AssetAllocationUi(
 fun BundledMutualFundDomain.getGroupedAssetAllocations(): List<AssetAllocationUi> {
     return mutualFunds
         .groupBy { fund ->
-            val assetType = fund.asset_type.trim()
-            if (assetType.contains("other", ignoreCase = true)) {
+            val schemeType = fund.scheme_type
+                .trim()
+                .replace("fund", "", ignoreCase = true)
+                .trim()
+
+            if (schemeType.contains("other", ignoreCase = true)) {
                 "Other"
             } else {
-                assetType
+                schemeType
             }
         }
         .map { (assetType, funds) ->

@@ -71,7 +71,13 @@ import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseC
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetGoalByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetInvestmentRateDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
+import org.sharad.velvetinvestment.domain.usecases.portfolio.GetPendingOrdersUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.MapGoalUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.ExportCapitalReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.ExportPortfolioReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.ExportTaxReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.ExportSoaReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.DownloadPdfByUrlUseCase
 
 val useCaseModule= module {
     factory { LoginWithNumberUseCase(get()) }
@@ -195,5 +201,12 @@ val useCaseModule= module {
     factory { AddSingleLoanUseCase(get()) }
     factory { DeleteLoanUseCase(get()) }
     factory { UpdateSingleLoanUseCase(get()) }
+
+    factory { ExportCapitalReportUseCase(get()) }
+    factory { ExportPortfolioReportUseCase(get()) }
+    factory { ExportTaxReportUseCase(get()) }
+    factory { ExportSoaReportUseCase(get()) }
+    factory { DownloadPdfByUrlUseCase(get()) }
+    factory { GetPendingOrdersUseCase(get()) }
 
 }

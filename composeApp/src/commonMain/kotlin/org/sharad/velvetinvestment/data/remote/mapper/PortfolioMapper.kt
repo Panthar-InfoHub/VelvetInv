@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.data.remote.mapper
 
 import org.sharad.velvetinvestment.data.remote.model.fdportfoliobyid.FDPortFolioById
+import org.sharad.velvetinvestment.data.remote.model.pendingorders.PendingOrderDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.portfolio.FDStatus
 import org.sharad.velvetinvestment.data.remote.model.portfolio.MutualFund as MutualFundDto
@@ -11,6 +12,7 @@ import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDo
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.InvestedAmountBreakdownDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationItemDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.TotalInvestmentsDomain
@@ -163,5 +165,20 @@ fun FDPortFolioById.toDomain(): FixedDepositTransactionDomain {
         issuerBannerUrl = data.product.issuer.banner_url,
         issuerRatingText = data.product.issuer.rating_text,
         pendingAction = PendingAction.fromValue(data.pending_action)
+    )
+}
+
+fun PendingOrderDto.toDomain(): PendingOrderDomain {
+    return PendingOrderDomain(
+        id = id ?: "",
+        type = type ?: "",
+        schemeName = scheme_name ?: "",
+        amount = amount ?: 0.0,
+        date = date ?: "",
+        status = status ?: "",
+        statusRemark = status_remark ?: "",
+        amc = amc ?: "",
+        frequency = frequency ?: "",
+        startDate = start_date ?: ""
     )
 }

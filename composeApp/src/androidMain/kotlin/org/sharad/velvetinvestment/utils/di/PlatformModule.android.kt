@@ -17,7 +17,7 @@ actual val platformModule: Module
     get() = module {
         single<DeviceInfoRetriever> { DeviceInfoRetrieverAndroid(get()) }
         single <SharedPreference>{ AndroidSharedPreferences(get()) }
-        single<PdfDownloadManager> { PdfDownloader(get()) }
+        single<PdfDownloadManager> { PdfDownloader(get(),get()) }
         single<BrowserLauncher> { AndroidBrowserLauncher(get()) }
         single<PdfViewer> { PdfViewerAndroid(get()) }
 

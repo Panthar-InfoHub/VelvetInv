@@ -12,10 +12,12 @@ import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
 import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
 import org.sharad.velvetinvestment.presentation.firereport.uimodels.toUiModel
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
+import kotlin.time.Clock
 
 class FireReportViewModel(
     private val getFireReportUseCase: GetFireReportUseCase,
@@ -105,9 +107,15 @@ class FireReportViewModel(
 
 
     fun downloadFireReport(){
+        val userName = when(val uiState = uiState.value){
+            is UiState.Error -> ""
+            UiState.Loading -> ""
+            is UiState.Success -> uiState.data.userName+"_"
+        }
         viewModelScope.launch {
             _downloadingReport.value = true
             downloadFirePdfUseCase(
+                fileName = "Velvet_FIRE_Report_$userName${DateTimeUtils.epochMillisToSlashDateReversed(Clock.System.now().toEpochMilliseconds())}",
                 onSuccess = {
                     _downloadingReport.value = false
                     viewModelScope.launch { SnackBarController.showSuccess("Report Downloaded") }

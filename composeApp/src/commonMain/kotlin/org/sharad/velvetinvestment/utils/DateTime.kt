@@ -198,6 +198,18 @@ object DateTimeUtils {
 
         return "$day/$month/$year"
     }
+    fun epochMillisToSlashDateReversed(epochMillis: Long?): String {
+        if (epochMillis==null) return ""
+        val instant = Instant.fromEpochMilliseconds(epochMillis)
+
+        val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+
+        val day = dateTime.date.day.toString().padStart(2, '0')
+        val month = dateTime.date.month.number.toString().padStart(2, '0')
+        val year = dateTime.date.year
+
+        return "$year/$month/$day"
+    }
 
     fun slashDateToIsoUtc(date: String?): String {
         if (date.isNullOrBlank()) return ""

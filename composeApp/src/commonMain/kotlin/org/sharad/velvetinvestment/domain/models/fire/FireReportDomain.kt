@@ -2,7 +2,8 @@ package org.sharad.velvetinvestment.domain.models.fire
 
 data class FireReportDomain(
     val actual: FireScenarioDomain,
-    val projected: FireScenarioDomain
+    val projected: FireScenarioDomain,
+    val userName: String
 )
 
 data class FireScenarioDomain(

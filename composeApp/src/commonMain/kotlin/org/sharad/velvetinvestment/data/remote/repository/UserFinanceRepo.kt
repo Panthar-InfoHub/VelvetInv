@@ -22,6 +22,7 @@ import org.sharad.velvetinvestment.data.remote.model.loan.SingleLoanDto
 import org.sharad.velvetinvestment.data.remote.model.loan.UpdateLoanRequest
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
 import org.sharad.velvetinvestment.data.remote.model.investmentratedto.InvestmentRateDto
+import org.sharad.velvetinvestment.data.remote.model.pendingorders.PendingOrdersDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalDomain
@@ -30,8 +31,10 @@ import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransacti
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.user.InvestmentRateDomain
 import org.sharad.velvetinvestment.data.remote.model.loan.UserLoanDto
+import org.sharad.velvetinvestment.data.remote.model.report.ReportExportDto
 import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.loan.LoanDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -310,6 +313,40 @@ class UserFinanceRepo(
         return safeRequest<Unit> {
             client.patch(getUrl("/user-loan/$loanId")) {
                 setBody(data)
+            }
+        }
+    }
+
+    override suspend fun exportReport(
+        type: String,
+        year: Int?,
+        folio: String?,
+        expand: Int?
+    ): NetworkResponse<String, ErrorDomain> {
+        val response = safeRequest<ReportExportDto> {
+            client.get(getUrl("/report")) {
+                parameter("type", type)
+                year?.let { parameter("year", it) }
+                folio?.let { parameter("folio", it) }
+                expand?.let { parameter("expand", it) }
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.data)
+        }
+    }
+
+    override suspend fun getPendingOrders(): NetworkResponse<List<PendingOrderDomain>, ErrorDomain> {
+        val response = safeRequest<PendingOrdersDto> {
+            client.get(getUrl("/user/pending-orders"))
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(
+                    response.data.data?.pending_orders?.map { it.toDomain() } ?: emptyList()
+                )
             }
         }
     }

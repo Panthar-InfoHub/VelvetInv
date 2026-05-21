@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -30,15 +31,18 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioSideEffects
 import org.sharad.velvetinvestment.shared.Navigation.Route
+import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.SidedBackHeader
 import org.sharad.velvetinvestment.shared.rememberBrowserReturnLauncher
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.AppEventsController
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +61,7 @@ fun MFPortfolioDetailsScreen(
     val redemptionUnits by viewModel.redemptionUnits.collectAsStateWithLifecycle()
     val redemptionAmount by viewModel.redemptionAmount.collectAsStateWithLifecycle()
     val isSubmitting by viewModel.isSubmitting.collectAsStateWithLifecycle()
+    val soaDownloading by viewModel.soaDownloading.collectAsStateWithLifecycle()
     val browserLauncher = rememberBrowserReturnLauncher()
     val scope = rememberCoroutineScope()
 
@@ -107,7 +112,9 @@ fun MFPortfolioDetailsScreen(
                     SIPDetailsLoadedScreen(
                         data = data,
                         pv = pv,
-                        onWithdrawClick = { viewModel.onShowRedemptionSheet() }
+                        soaDownloading=soaDownloading,
+                        onWithdrawClick = { viewModel.onShowRedemptionSheet() },
+                        onSoaDownload= {viewModel.downloadSOA(data.folio)}
                     )
                 }
             }
@@ -145,7 +152,9 @@ fun MFPortfolioDetailsScreen(
 fun SIPDetailsLoadedScreen(
     data: Route.SIPPortfolioDetails,
     pv: PaddingValues,
-    onWithdrawClick: () -> Unit
+    onWithdrawClick: () -> Unit,
+    onSoaDownload: () -> Unit,
+    soaDownloading: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -158,7 +167,7 @@ fun SIPDetailsLoadedScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item { Spacer(modifier = Modifier) }
-            item { SIPDetailsCard(data) }
+            item { SIPDetailsCard(data, onSoaDownload=onSoaDownload,soaDownloading=soaDownloading) }
             item { Spacer(Modifier.height(16.dp)) }
         }
 
@@ -171,7 +180,11 @@ fun SIPDetailsLoadedScreen(
 }
 
 @Composable
-fun SIPDetailsCard(data: Route.SIPPortfolioDetails) {
+fun SIPDetailsCard(
+    data: Route.SIPPortfolioDetails,
+    onSoaDownload: () -> Unit,
+    soaDownloading: Boolean
+) {
     ShadowCard {
         Column(
             modifier = Modifier
@@ -224,6 +237,13 @@ fun SIPDetailsCard(data: Route.SIPPortfolioDetails) {
                 SIPInfoRow("Average NAV", data.avgNav.toString())
                 SIPInfoRow("Balance Units", data.balanceUnits.toString())
                 SIPInfoRow("Investment Type", if (data.isSip) "SIP" else "Lumpsum")
+                AppButton(
+                    text= "Download SOA",
+                    onClick = onSoaDownload,
+                    modifier = Modifier.padding(vertical = 8.dp).height(44.dp),
+                    shape = LocalVelvetShapes.current.roundedDp15,
+                    loading = soaDownloading
+                )
             }
         }
     }
@@ -249,6 +269,34 @@ fun SIPInfoRow(
             text = value,
             color = Color.Black,
             style = subHeading
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SIPDetailsLoadedScreenPreview() {
+    VelvetTheme {
+        SIPDetailsLoadedScreen(
+            data = Route.SIPPortfolioDetails(
+                id = 1,
+                title = "Quant Small Cap Fund",
+                category = "Equity - Small Cap",
+                amount = 50000.0,
+                isSip = true,
+                startDate = "15 Aug 2023",
+                returnPercentage = "24.5%",
+                returnAmount = 12250,
+                xirr = "28.2%",
+                currentNav = 156.45,
+                avgNav = 125.30,
+                folio = "12345678/90",
+                balanceUnits = 319.58
+            ),
+            pv = PaddingValues(0.dp),
+            {},
+            {},
+            soaDownloading = false,
         )
     }
 }

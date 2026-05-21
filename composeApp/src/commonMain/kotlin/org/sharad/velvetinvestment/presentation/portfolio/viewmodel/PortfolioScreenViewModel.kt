@@ -6,21 +6,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
-import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDashboardUseCase
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetPortfolioMutualFundsUseCase
+import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
+import org.sharad.velvetinvestment.domain.usecases.report.DownloadPdfByUrlUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.ExportCapitalReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.ExportPortfolioReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.report.ExportTaxReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
-import org.sharad.velvetinvestment.presentation.portfolio.models.FDCardPortfolioData
-import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
-import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
+import org.sharad.velvetinvestment.domain.usecases.portfolio.GetPendingOrdersUseCase
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
-import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 class PortfolioScreenViewModel(
-    private val getPortfolioUseCase: GetPortfolioUseCase
+    private val getPortfolioUseCase: GetPortfolioUseCase,
+    private val exportCapitalReportUseCase: ExportCapitalReportUseCase,
+    private val exportTaxReportUseCase: ExportTaxReportUseCase,
+    private val exportPortfolioReportUseCase: ExportPortfolioReportUseCase,
+    private val downloadPdfByUrlUseCase: DownloadPdfByUrlUseCase,
+    private val getPendingOrdersUseCase: GetPendingOrdersUseCase
 ) : ViewModel() {
 
 
@@ -33,8 +38,30 @@ class PortfolioScreenViewModel(
         MutableStateFlow<UiState<PortfolioDomain>>(UiState.Loading)
     val uiState = _loadingState.asStateFlow()
 
+    private val _isExportingCapital = MutableStateFlow(false)
+    val isExportingCapital = _isExportingCapital.asStateFlow()
+
+    private val _isExportingTax = MutableStateFlow(false)
+    val isExportingTax = _isExportingTax.asStateFlow()
+
+    private val _isExportingPortfolio = MutableStateFlow(false)
+    val isExportingPortfolio = _isExportingPortfolio.asStateFlow()
+
+    private val _pendingOrders = MutableStateFlow<List<PendingOrderDomain>>(emptyList())
+    val pendingOrders = _pendingOrders.asStateFlow()
+
     init {
         loadPortfolio()
+        loadPendingOrders()
+    }
+
+    fun loadPendingOrders() {
+        viewModelScope.launch {
+            getPendingOrdersUseCase()
+                .onSuccess {
+                    _pendingOrders.value = it
+                }
+        }
     }
 
 
@@ -53,6 +80,93 @@ class PortfolioScreenViewModel(
 
     fun onTabSelected(tab: SelectedPortfolio) {
         _selectedTab.value = tab
+    }
+
+    fun downloadCapitalReport() {
+        viewModelScope.launch {
+            _isExportingCapital.value = true
+            exportCapitalReportUseCase()
+                .onSuccess { url ->
+                    downloadPdfByUrlUseCase(
+                        url = url,
+                        fileName = "Capital_Report.pdf",
+                        onSuccess = {
+                            _isExportingCapital.value = false
+                            viewModelScope.launch {
+                                SnackBarController.showSuccess("Capital report downloaded successfully")
+                            }
+                        },
+                        onFailure = {
+                            _isExportingCapital.value = false
+                            viewModelScope.launch {
+                                SnackBarController.showError("Failed to download capital report")
+                            }
+                        }
+                    )
+                }
+                .onError {
+                    _isExportingCapital.value = false
+                    SnackBarController.showError(it.message)
+                }
+        }
+    }
+
+    fun downloadTaxReport(year: Int) {
+        viewModelScope.launch {
+            _isExportingTax.value = true
+            exportTaxReportUseCase(year = year)
+                .onSuccess { url ->
+                    downloadPdfByUrlUseCase(
+                        url = url,
+                        fileName = "Tax_Report_$year.pdf",
+                        onSuccess = {
+                            _isExportingTax.value = false
+                            viewModelScope.launch {
+                                SnackBarController.showSuccess("Tax report downloaded successfully")
+                            }
+                        },
+                        onFailure = {
+                            _isExportingTax.value = false
+                            viewModelScope.launch {
+                                SnackBarController.showError("Failed to download tax report")
+                            }
+                        }
+                    )
+                }
+                .onError {
+                    _isExportingTax.value = false
+                    SnackBarController.showError(it.message)
+                }
+        }
+    }
+
+    fun downloadPortfolioReport() {
+        viewModelScope.launch {
+            _isExportingPortfolio.value = true
+            exportPortfolioReportUseCase()
+                .onSuccess { url ->
+                    downloadPdfByUrlUseCase(
+                        url = url,
+                        fileName = "Portfolio_Report.pdf",
+                        onSuccess = {
+                            _isExportingPortfolio.value = false
+                            viewModelScope.launch {
+                                SnackBarController.showSuccess("Portfolio report downloaded successfully")
+                            }
+                        },
+                        onFailure = {
+                            _isExportingPortfolio.value = false
+                            viewModelScope.launch {
+                                SnackBarController.showError("Failed to download portfolio report")
+                            }
+                        }
+                    )
+                }
+                .onError {
+                    _isExportingPortfolio.value = false
+                    SnackBarController.showError(it.message)
+                }
+        }
     }
 }
 
