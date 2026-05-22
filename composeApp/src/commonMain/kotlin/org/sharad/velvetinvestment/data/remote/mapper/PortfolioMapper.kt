@@ -16,6 +16,7 @@ import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationItemDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.TotalInvestmentsDomain
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.PendingAction
 
 fun UserPortFolioDto.toDomain(): PortfolioDomain {
@@ -174,7 +175,11 @@ fun PendingOrderDto.toDomain(): PendingOrderDomain {
         type = type ?: "",
         schemeName = scheme_name ?: "",
         amount = amount ?: 0.0,
-        date = date ?: "",
+        date = if (type == "SIP") {
+            DateTimeUtils.formatDate(date ?: "")
+        } else {
+            date ?: ""
+        },
         status = status ?: "",
         statusRemark = status_remark ?: "",
         amc = amc ?: "",

@@ -5,6 +5,10 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
 import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
@@ -298,6 +302,36 @@ object DateTimeUtils {
     }
     fun dobToEpochMillis(dob: String): Long {
         return Instant.parse(dob).toEpochMilliseconds()
+    }
+
+    fun formatDate(input: String): String {
+        try{
+            val normalized = input
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
+                .replace(Regex("""\s([a-z]{3})\s""")) {
+                    " ${it.groupValues[1].replaceFirstChar { c -> c.uppercase() }} "
+                }
+
+            val parser = LocalDate.Format {
+                this@Format.day(padding = Padding.ZERO)
+                char(' ')
+                monthName(MonthNames.ENGLISH_ABBREVIATED)
+                char(' ')
+                year()
+            }
+            val formatter = LocalDate.Format {
+                day(padding = Padding.ZERO)
+                char('/')
+                monthNumber(Padding.ZERO)
+                char('/')
+                year()
+            }
+            return parser.parse(normalized).format(formatter)
+
+        }catch (e: Exception){
+            return input
+        }
     }
 }
 

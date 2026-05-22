@@ -55,6 +55,11 @@ class PortfolioScreenViewModel(
         loadPendingOrders()
     }
 
+    fun refresh(){
+        loadPortfolio()
+        loadPendingOrders()
+    }
+
     fun loadPendingOrders() {
         viewModelScope.launch {
             getPendingOrdersUseCase()

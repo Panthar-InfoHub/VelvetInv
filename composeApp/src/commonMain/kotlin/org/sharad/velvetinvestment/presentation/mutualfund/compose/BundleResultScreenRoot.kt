@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -39,13 +37,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.appRed
-import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundItemDomain
@@ -62,16 +57,13 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
-import org.sharad.velvetinvestment.utils.FundTypeSelector
-import org.sharad.velvetinvestment.utils.LoadingState
-import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.CartInfo
+import org.sharad.velvetinvestment.utils.FundTypeSelector
+import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.trimTo
-import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.filled_down
-import velvet.composeapp.generated.resources.filled_up
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -306,7 +298,7 @@ fun BundleMutualFundListCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "${fund.scheme_type} . " + "Allocation "+"${fund.allocation_percentage}.0%",
+                        text = "${fund.scheme_type} . " + "\nAllocation "+"${fund.allocation_percentage}.0%",
                         style = titlesStyle,
                         color = titleColor,
                         maxLines = 2,

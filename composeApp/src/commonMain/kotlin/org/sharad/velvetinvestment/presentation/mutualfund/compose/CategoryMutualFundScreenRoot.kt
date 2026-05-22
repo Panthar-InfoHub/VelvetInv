@@ -223,7 +223,7 @@ fun CategoryMutualFundScreen(
                     MutualFundListCard(
                         onClick = { onFundClick(fund.id) },
                         fund = fund,
-                        selectedYear = SelectedReturnRatePeriod.ONE_YEAR,
+                        selectedYear = SelectedReturnRatePeriod.THREE_YEAR,
                     )
                     Box(
                         modifier = Modifier

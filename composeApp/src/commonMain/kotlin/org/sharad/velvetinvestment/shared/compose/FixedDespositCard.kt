@@ -29,6 +29,7 @@ import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
@@ -89,6 +90,7 @@ fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
                     Text(
                         text = fdData.roiAtBooking+"% p.a.",
                         style = MaterialTheme.typography.titleSmall,
+                        fontFamily = Poppins,
                         color = Color(0xff00658D)
                     )
                 }

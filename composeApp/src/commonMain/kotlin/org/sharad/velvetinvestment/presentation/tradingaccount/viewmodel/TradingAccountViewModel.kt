@@ -211,7 +211,7 @@ class TradingAccountViewModel(
         _isMinor.value = isMinor(value)
     }
     fun onGenderChange(value: String) = updateData { it.copy(gender = value.trim().toUpperCase(Locale.current)) }
-    fun onEmailChange(value: String) = updateData { it.copy(email = value.trim().toUpperCase(Locale.current)) }
+    fun onEmailChange(value: String) = updateData { it.copy(email = value.trim()) }
     fun onPhoneChange(value: String) = updateData { it.copy(indian_mobile_no = value.trim().toUpperCase(Locale.current)) }
     fun onTaxStatusChange(value: String) = updateData { it.copy(tax_status = value.trim().toUpperCase(Locale.current)) }
     fun onOccupationChange(value: String) = updateData { it.copy(occupation_code = value.trim().toUpperCase(Locale.current)) }

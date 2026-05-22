@@ -12,12 +12,13 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
+import org.sharad.velvetinvestment.utils.toTitleCase
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 
 fun MutualFund.toDomain(): MutualFundDomain {
     return MutualFundDomain(
         id = id,
-        name = scheme_name,
+        name = scheme_name.toTitleCase(),
         icon = img_url?:"",
         category = asset_type?:"",
         remark = null,
@@ -78,7 +79,7 @@ fun BundledFundByIdDto.toDomain(): BundledMutualFundDomain {
                 mapping_code = mf.mapping_code,
                 nse_scheme_code = mf.nse_scheme_code,
                 platform_code = mf.platform_code,
-                scheme_name = mf.scheme_name,
+                scheme_name = mf.scheme_name.toTitleCase(),
                 amc_id = mf.amc_id,
                 amc_code = mf.amc_code,
                 amc_name = mf.amc_name,

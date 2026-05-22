@@ -56,6 +56,7 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
@@ -343,8 +344,8 @@ fun MutualFundDetailsScreen(
                     nav = detailsState.latest_nav,
                     assetType = detailsState.asset_type,
                     riskLevel = detailsState.risk_level,
-                    navChange = navChange,
-                    selectedYear=selectedYear
+                    metrics = detailsState.metrics,
+                    selectedYear =selectedYear
                 )
             }
 
@@ -518,9 +519,33 @@ fun FundInfo(
     nav: String,
     assetType: String,
     riskLevel: Int,
-    navChange: String,
+    metrics: Metrics,
     selectedYear: GraphDurationSelection
 ) {
+
+    val returnValue = when (selectedYear) {
+        GraphDurationSelection.OneMonth -> metrics.return_30d
+        GraphDurationSelection.SixMonths -> metrics.return_6m
+        GraphDurationSelection.OneYear -> metrics.return_1y
+        GraphDurationSelection.ThreeYears -> metrics.return_3y
+        GraphDurationSelection.FiveYears -> metrics.return_5y
+        GraphDurationSelection.All -> metrics.nav_change_pct
+    }
+
+    val returnText = returnValue?.let { "${it.trimTo(2)}%" + when(selectedYear){
+        GraphDurationSelection.ThreeYears ->  " p.a."
+        GraphDurationSelection.FiveYears -> " p.a."
+        else -> ""
+    } } ?: "n/a"
+
+    val returnLabel = when(selectedYear){
+        GraphDurationSelection.OneMonth -> "Return (1M)"
+        GraphDurationSelection.SixMonths -> "Return (6M)"
+        GraphDurationSelection.OneYear -> "Return (1Y)"
+        GraphDurationSelection.ThreeYears -> "Return (3Y)"
+        GraphDurationSelection.FiveYears -> "Return (5Y)"
+        GraphDurationSelection.All -> "Return (1D)"
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(160.dp),
@@ -566,31 +591,20 @@ fun FundInfo(
         }
         item{
             FundInfoCard(
-                title = "Nav Change (%)",
+                title = returnLabel,
             ){
                 Row(
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ){
                     Text(
-                        text = navChange,
+                        text = returnText,
                         style = MaterialTheme.typography.headlineLarge,
                         color = Color.Black
                     )
-
-                    if (selectedYear==GraphDurationSelection.All){
-                        Text(
-                            text="(1D)",
-                            style = titlesStyle.copy(fontSize = 12.sp),
-                            color = titleColor
-                        )
-                    }
                 }
             }
         }
-
-
-
     }
 }
 
@@ -793,11 +807,11 @@ fun InfoCard(
                     GraphDurationSelection.SixMonths -> "6M return"
                     GraphDurationSelection.OneYear -> "1Y annualised"
                     GraphDurationSelection.ThreeYears -> "3Y annualised"
-                    GraphDurationSelection.FiveYears -> null
+                    GraphDurationSelection.FiveYears -> "5Y annualised"
                     GraphDurationSelection.All -> "1Y annualised"
                 }
 
-                if (returnValue != null && returnLabel != null) {
+                if (returnValue != null) {
                     Text(
                         text = returnLabel,
                         style = titlesStyle,

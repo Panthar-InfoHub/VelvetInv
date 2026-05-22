@@ -9,3 +9,9 @@ fun isValidEmail(email: String): Boolean {
 fun String.isValidPhoneNumberInput(): Boolean {
     return all { it.isDigit() } && length <= 10
 }
+
+fun String.toTitleCase(): String {
+    return lowercase().replace(Regex("(^|[\\s-_./]+)([a-z])")) {
+        it.groupValues[1] + it.groupValues[2].uppercase()
+    }
+}

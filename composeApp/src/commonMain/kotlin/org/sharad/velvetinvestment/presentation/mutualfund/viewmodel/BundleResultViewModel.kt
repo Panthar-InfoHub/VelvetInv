@@ -47,7 +47,7 @@ class BundleResultViewModel(
     private val _bundleData = MutableStateFlow<BundledMutualFundDomain?>(null)
     val bundleData: StateFlow<BundledMutualFundDomain?> = _bundleData.asStateFlow()
 
-    private val _selectedYear = MutableStateFlow(SelectedReturnRatePeriod.ONE_YEAR)
+    private val _selectedYear = MutableStateFlow(SelectedReturnRatePeriod.THREE_YEAR)
     val selectedYear: StateFlow<SelectedReturnRatePeriod> = _selectedYear.asStateFlow()
 
     private val _showCartSheet = MutableStateFlow(false)

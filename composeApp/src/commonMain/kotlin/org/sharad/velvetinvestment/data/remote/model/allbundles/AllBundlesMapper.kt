@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.data.remote.model.allbundles
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundItemDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
+import org.sharad.velvetinvestment.utils.toTitleCase
 
 fun AllBundlesDto.toDomain(): List<BundledMutualFundDomain> {
     return data.bundles.map { bundleData ->
@@ -31,7 +32,7 @@ fun BundleProduct.toDomain(): BundledMutualFundItemDomain {
         mapping_code = mf_product.mapping_code,
         nse_scheme_code = mf_product.nse_scheme_code,
         platform_code = mf_product.platform_code,
-        scheme_name = mf_product.scheme_name,
+        scheme_name = mf_product.scheme_name.toTitleCase(),
         amc_id = mf_product.amc_id,
         amc_code = mf_product.amc_code,
         amc_name = mf_product.amc_name,

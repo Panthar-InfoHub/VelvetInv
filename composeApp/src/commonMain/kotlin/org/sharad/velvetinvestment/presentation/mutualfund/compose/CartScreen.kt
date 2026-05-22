@@ -28,15 +28,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -46,13 +51,16 @@ import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.usercart.CartItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
+import org.sharad.velvetinvestment.domain.models.usercart.SipDetails
 import org.sharad.velvetinvestment.presentation.mutualfund.CartScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.CartSideEffects
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.rememberBrowserReturnLauncher
 import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import velvet.composeapp.generated.resources.Res
@@ -74,6 +82,7 @@ fun CartScreen(
     val popupVisible by viewModel.confirmationPopupVisible.collectAsStateWithLifecycle()
     val loading by viewModel.loading.collectAsStateWithLifecycle()
     val browserLauncher = rememberBrowserReturnLauncher()
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit){
         viewModel.cartSideEffect.collect{
@@ -92,6 +101,7 @@ fun CartScreen(
                 is CartSideEffects.OpenForLumpSumPurchase -> {
                     browserLauncher.launch(it.url){
                         viewModel.reloadFund()
+                        scope.launch{ AppEventsController.sendPortfolioRefreshEvent() }
                     }
                 }
             }
@@ -188,24 +198,38 @@ fun MFTypeSelector(selected: CartType, onSelect: (CartType) -> Unit, lumpsumSize
 fun CartScreenContent(items: List<CartItemDomain>, onRemoveClick: (String) -> Unit, onRefresh: () -> Unit) {
     PullToRefreshBox(
         isRefreshing = false,
-        onRefresh = onRefresh
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize()
     ){
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            itemsIndexed(
-                items = items,
-                key = { _, it -> it.id }
-            ) { _, it ->
-                CartItem(
-                    item = it,
-                    onRemoveClick = onRemoveClick
+        if (items.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No Fund In cart",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = titleColor.copy(alpha = 0.6f)
                 )
-                HorizontalDivider(
-                    thickness = 0.5.dp,
-                    color = titleColor,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                itemsIndexed(
+                    items = items,
+                    key = { _, it -> it.id }
+                ) { _, it ->
+                    CartItem(
+                        item = it,
+                        onRemoveClick = onRemoveClick
+                    )
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = titleColor,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
             }
         }
     }
@@ -242,21 +266,52 @@ fun CartItem(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.primary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = initials,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        fontFamily = Poppins
-                    )
-                }
+                SubcomposeAsyncImage(
+                    modifier = Modifier.size(44.dp),
+                    model = item.imageUrl,
+                    contentDescription = null,
+
+                    loading = {
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = initials,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                fontFamily = Poppins
+                            )
+                        }
+                    },
+
+                    error = {
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = initials,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                fontFamily = Poppins
+                            )
+                        }
+                    },
+
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    }
+                )
+
 
                 Column(
                     modifier = Modifier.weight(1f)
@@ -379,6 +434,62 @@ fun CartTypeChip(text: String, onClick: () -> Unit, selected: Boolean, icon: Dra
                 text = text,
                 style = titlesStyle.copy(fontWeight = FontWeight.Medium, fontSize = 14.sp),
                 color = if (selected) selectedTextColor else unselectedTextColor,
+            )
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun CartScreenContentEmptyPreview() {
+    VelvetTheme {
+        Box(modifier = Modifier.background(Color.White).fillMaxSize()) {
+            CartScreenContent(
+                items = emptyList(),
+                onRemoveClick = {},
+                onRefresh = {}
+            )
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun CartScreenContentPreview() {
+    VelvetTheme {
+        Box(modifier = Modifier.background(Color.White)) {
+            CartScreenContent(
+                items = listOf(
+                    CartItemDomain(
+                        id = "1",
+                        amcName = "SBI Mutual Fund",
+                        productName = "SBI Bluechip Fund Direct Growth",
+                        amount = 5000,
+                        type = CartType.LUMPSUM,
+                        date = "2023-10-27",
+                        imageUrl = ""
+                    ),
+                    CartItemDomain(
+                        id = "2",
+                        amcName = "HDFC Mutual Fund",
+                        productName = "HDFC Mid-Cap Opportunities Fund",
+                        amount = 2000,
+                        type = CartType.SIP,
+                        date = "2023-10-27",
+                        sipDetails = SipDetails(
+                            startDate = "2023-11-01",
+                            endDate = "2028-11-01",
+                            frequency = "Monthly",
+                            day = 5,
+                            sipAmount = 2000
+                        ),
+                        ""
+                    )
+                ),
+                onRemoveClick = {},
+                onRefresh = {}
             )
         }
     }

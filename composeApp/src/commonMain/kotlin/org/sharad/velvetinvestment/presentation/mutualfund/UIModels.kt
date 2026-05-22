@@ -1,8 +1,8 @@
 package org.sharad.velvetinvestment.presentation.mutualfund
 
 import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
@@ -91,7 +91,6 @@ fun CartBottomSheetState.toSipRequest(
     val duration = selectedDuration ?: return null
     val day = selectedSIPDate?.toIntOrNull() ?: return null
 
-
     if (amount < minAmount) return null
 
     val today = Clock.System.now()
@@ -100,7 +99,9 @@ fun CartBottomSheetState.toSipRequest(
 
     val startDate = today.plus(DatePeriod(days = 31))
 
-    val maxEndDate = LocalDate(2099, 12, 31)
+    val maxEndDate = startDate
+        .plus(DatePeriod(years = 40))
+        .minus(DatePeriod(days = 1))
 
     val endDate = if (duration == Duration.PERPETUAL) {
         maxEndDate

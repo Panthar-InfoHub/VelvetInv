@@ -159,7 +159,7 @@ fun HomeScreen(
         if (goals.isEmpty()){ item { FirstGoalCard(onClick={navigateToAddGoal()}) } }
         item { FireReportHeader()}
         item { FireReportCard(fireReport, onClick ={onFireReportClick()}) }
-        item { BarHeader(heading = "Why Invest with Velvet?") }
+        item { BarHeader(heading = "Start Investing with Velvet?") }
         item {
             FeatureNavigationCards(
                 onBeatInflationClick = {

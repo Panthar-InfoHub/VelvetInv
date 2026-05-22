@@ -33,7 +33,6 @@ import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.Combined
 import org.sharad.velvetinvestment.data.remote.model.usercart.UserCartDto
 import org.sharad.velvetinvestment.domain.SIPStatus
 import org.sharad.velvetinvestment.domain.models.PaginatedData
-import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
@@ -42,8 +41,6 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDoma
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
-import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
-import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
 import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.ErrorType
@@ -93,7 +90,7 @@ class MutualFundRepo(
                 search?.let { parameter("search", it) }
                 page?.let { parameter("page", it) }
                 limit?.let { parameter("limit", it) }
-                sort?.let { parameter("sort", it) }
+                sort?.let { parameter("sort_by", it) }
                 risk?.let { parameter("risk", it) }
                 category?.let { parameter("category", it) }
                 fundCategory?.let { parameter("fund_category", it) }

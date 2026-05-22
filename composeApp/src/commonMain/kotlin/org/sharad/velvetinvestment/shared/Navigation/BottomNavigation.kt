@@ -85,6 +85,10 @@ fun BottomNavigation(
                     homeViewModel.loadHomeData()
                     AppEventsController.clear()
                 }
+                AppEvent.PortfolioRefreshEvent -> {
+                    portfolioViewModel.refresh()
+                    AppEventsController.clear()
+                }
                 else -> {}
             }
         }

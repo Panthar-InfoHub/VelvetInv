@@ -190,7 +190,7 @@ fun MFTopPicks(
             MutualFundListCard(
                 onClick = { navigateToSpecificMF(it.id) },
                 fund = it,
-                selectedYear = SelectedReturnRatePeriod.ONE_YEAR,
+                selectedYear = SelectedReturnRatePeriod.THREE_YEAR,
             )
             Box(
                 modifier = Modifier

@@ -57,7 +57,7 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDo
 import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.MutualFundTopPicksUiModel
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.ProjectionImpactUiData
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.ProjectionImpactViewModel
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.BundleCard
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.BundleCardExtended
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.CustomProgressFillBar
 import org.sharad.velvetinvestment.shared.UiStateContainer
@@ -69,7 +69,6 @@ import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
@@ -138,8 +137,8 @@ fun ProjectionImpactScreen(
             ) { data ->
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 16.dp)
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
                     item{
                         ProjectedImpactCard(data = data, onClick=onMapClick)
@@ -314,6 +313,7 @@ fun ProjectedImpactCard(
                         Text(
                             text = stringResource(Res.string.todays_cost),
                             style = titlesStyle,
+                            fontFamily = Poppins,
                             color = titleColor
                         )
                         Text(
@@ -328,6 +328,7 @@ fun ProjectedImpactCard(
                         Text(
                             text = stringResource(Res.string.future_value),
                             style = titlesStyle,
+                            fontFamily = Poppins,
                             color = titleColor
                         )
                         Text(
@@ -345,6 +346,7 @@ fun ProjectedImpactCard(
                         Text(
                             text = stringResource(Res.string.target),
                             style = titlesStyle,
+                            fontFamily = Poppins,
                             color = titleColor
                         )
                         Text(
@@ -359,6 +361,7 @@ fun ProjectedImpactCard(
                         Text(
                             text = stringResource(Res.string.monthly_sip),
                             style = titlesStyle,
+                            fontFamily = Poppins,
                             color = titleColor
                         )
                         Text(
@@ -438,20 +441,11 @@ fun ExploreBundleGoalsSection(
                     showArrow = true,
                     onArrowClick = onArrowClick
                 )
-                data.chunked(2).forEach { chunk->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        chunk.forEach {bundle->
-                            BundleCard(
-                                title = bundle.categoryName,
-                                minAmount = "₹" + formatMoneyAfterL(bundle.minAmount.toLong()),
-                                onClick = { onBundleClick(bundle.key) },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
+                data.forEach { bundle->
+                    BundleCardExtended(
+                        onClick = { onBundleClick(bundle.key) },
+                        bundleData = bundle
+                    )
                 }
             }
         }

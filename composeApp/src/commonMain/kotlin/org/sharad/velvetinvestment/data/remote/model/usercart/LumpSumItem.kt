@@ -35,5 +35,6 @@ data class LumpSumItem(
     val tgt_prod_name: String,
     val tgt_reinv_flag: String,
     val txn_amount: String,
-    val txn_units: String
+    val txn_units: String,
+    val img_url: String?=null
 )

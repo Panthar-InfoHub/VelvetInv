@@ -61,7 +61,6 @@ import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationIt
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.TotalInvestmentsDomain
-import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
 import org.sharad.velvetinvestment.presentation.portfolio.models.label
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
@@ -74,12 +73,11 @@ import org.sharad.velvetinvestment.shared.compose.GenericTabSwitcher
 import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
-import org.sharad.velvetinvestment.utils.AppEvent
-import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
@@ -105,18 +103,6 @@ fun PortfolioScreenMain(
 
     val pendingOrders by viewModel.pendingOrders.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState(pageCount = { 3 })
-
-
-    LaunchedEffect(Unit){
-        AppEventsController.appEvent.collect {
-            when(it){
-                 AppEvent.PortfolioRefreshEvent -> {
-                    viewModel.loadPortfolio()
-                }
-                else -> {}
-            }
-        }
-    }
 
     Box(
         modifier=Modifier.fillMaxSize(),
@@ -864,7 +850,7 @@ fun PendingPaymentsCard(item: PendingOrderDomain) {
                         color = Color.Gray
                     )
                     Text(
-                        text = item.date.take(10),
+                        text = item.date,
                         style = subHeadingMedium.copy(fontSize = 12.sp),
                         color = titleColor
                     )

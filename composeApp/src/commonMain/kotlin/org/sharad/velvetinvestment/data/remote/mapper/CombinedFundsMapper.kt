@@ -10,6 +10,7 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundDomain
+import org.sharad.velvetinvestment.utils.toTitleCase
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 
 fun CombinedFundsDto.toDomain(): CombinedFundsDomain {
@@ -43,7 +44,7 @@ fun BundleProduct.toDomain(): BundledMutualFundItemDomain {
            mapping_code = product.mapping_code,
            nse_scheme_code = product.nse_scheme_code,
            platform_code = product.platform_code,
-           scheme_name = product.scheme_name,
+           scheme_name = product.scheme_name.toTitleCase(),
            amc_id = product.amc_id,
            amc_code = product.amc_code,
            amc_name = product.amc_name,
@@ -72,7 +73,7 @@ fun BundleProduct.toDomain(): BundledMutualFundItemDomain {
 fun ItemXX.toDomain(): MutualFundDomain {
     return MutualFundDomain(
         id = id,
-        name = scheme_name,
+        name = scheme_name.toTitleCase(),
         icon = img_url?:"",
         category = asset_type,
         remark = null,

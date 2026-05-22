@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.data.remote.mapper
 import org.sharad.velvetinvestment.data.remote.model.bundledfunds.BundledFundsDto
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundItemDomain
+import org.sharad.velvetinvestment.utils.toTitleCase
 
 fun BundledFundsDto.toDomain(): List<BundledMutualFundDomain> {
     val bundles = this.data.bundles
@@ -20,7 +21,7 @@ fun BundledFundsDto.toDomain(): List<BundledMutualFundDomain> {
                     mapping_code = mf.mapping_code,
                     nse_scheme_code = mf.nse_scheme_code,
                     platform_code = mf.platform_code,
-                    scheme_name = mf.scheme_name,
+                    scheme_name = mf.scheme_name.toTitleCase(),
                     amc_id = mf.amc_id,
                     amc_code = mf.amc_code,
                     amc_name = mf.amc_name,

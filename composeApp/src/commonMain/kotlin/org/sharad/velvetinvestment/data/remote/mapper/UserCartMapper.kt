@@ -29,7 +29,8 @@ fun SipItem.toSipDomain(): CartItemDomain {
             frequency = sip_freq,
             day = sip_day.toIntOrNull() ?: 0,
             sipAmount = sip_amt.toLongOrNull() ?: 0
-        )
+        ),
+        imageUrl = img_url?:""
     )
 }
 
@@ -41,6 +42,8 @@ fun LumpSumItem.toLumpSumDomain(): CartItemDomain {
         amount = txn_amount.toLongOrNull() ?: 0,
         type = CartType.LUMPSUM,
         date = adddate,
-        sipDetails = null
+        sipDetails = null,
+        imageUrl = img_url?:""
+
     )
 }

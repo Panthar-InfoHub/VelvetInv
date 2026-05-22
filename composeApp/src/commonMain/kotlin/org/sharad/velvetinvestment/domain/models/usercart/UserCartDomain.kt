@@ -12,7 +12,8 @@ data class CartItemDomain(
     val amount: Long,
     val type: CartType,
     val date: String,
-    val sipDetails: SipDetails? = null
+    val sipDetails: SipDetails? = null,
+    val imageUrl: String
 )
 
 enum class CartType {
