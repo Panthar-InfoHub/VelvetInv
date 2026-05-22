@@ -13,7 +13,7 @@ class GetMutualFundTopPicksUseCase(
             search = null,
             page = 1,
             limit = 4,
-            sort = "1y",
+            sort = "3y",
             risk = null,
             category = null,
             fundCategory = null

@@ -19,12 +19,12 @@ fun MutualFund.toDomain(): MutualFundDomain {
         id = id,
         name = scheme_name,
         icon = img_url?:"",
-        category = asset_type,
+        category = asset_type?:"",
         remark = null,
         riskText = risk_name,
-        type = scheme_type,
+        type = scheme_type?:"",
         returnYearsRate = metrics.toReturnDomain(),
-        latestNav = latest_nav,
+        latestNav = latest_nav?: "n/a",
     )
 }
 

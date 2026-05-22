@@ -264,7 +264,7 @@ fun ProjectedImpactCard(
                 style = MaterialTheme.typography.titleLarge,
                 fontFamily = Poppins,
                 color = Color.Black,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
             )
 
             Row(
@@ -303,11 +303,10 @@ fun ProjectedImpactCard(
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(
-                    text = data.goalName,
+                    text = data.goalItemName,
                     style = MaterialTheme.typography.titleMedium,
                     fontFamily = Poppins,
                     color = orangeColor,
-                    fontWeight = FontWeight.Bold
                 )
 
                 Row(modifier = Modifier.fillMaxWidth()) {
@@ -548,7 +547,7 @@ fun ProjectionImpactScreenPreview() {
         Box(modifier = Modifier.fillMaxSize()) {
             ProjectedImpactCard(
                 data = ProjectionImpactUiData(
-                    goalName = "Education",
+                    goalItemName = "Education",
                     todaysCost = 1000000,
                     futureValue = 2500000.0,
                     targetYear = 2035,

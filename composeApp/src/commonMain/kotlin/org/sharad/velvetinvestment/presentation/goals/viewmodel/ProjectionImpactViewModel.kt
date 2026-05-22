@@ -25,7 +25,7 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 import kotlin.math.pow
 
 data class ProjectionImpactUiData(
-    val goalName: String,
+    val goalItemName: String,
     val todaysCost: Long,
     val futureValue: Double,
     val targetYear: Int,
@@ -191,8 +191,8 @@ class ProjectionImpactViewModel(
             DateTimeUtils.getCurrentYear() + yearsLeft
 
         return ProjectionImpactUiData(
-            goalName = goal.goalItemName
-                ?: goal.goalName
+            goalItemName = goal.goalName
+                ?: goal.goalItemName
                 ?: "Goal",
             todaysCost = todaysCost,
             futureValue = futureValue,

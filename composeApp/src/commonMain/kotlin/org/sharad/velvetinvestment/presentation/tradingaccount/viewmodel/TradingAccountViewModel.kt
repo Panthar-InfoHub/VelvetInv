@@ -202,26 +202,26 @@ class TradingAccountViewModel(
         }
     }
 
-    fun onFirstNameChange(value: String) = updateData { it.copy(primary_holder_first_name = value) }
-    fun onMiddleNameChange(value: String) = updateData { it.copy(primary_holder_middle_name = value) }
-    fun onLastNameChange(value: String) = updateData { it.copy(primary_holder_last_name = value) }
+    fun onFirstNameChange(value: String) = updateData { it.copy(primary_holder_first_name = value.trim().toUpperCase(Locale.current)) }
+    fun onMiddleNameChange(value: String) = updateData { it.copy(primary_holder_middle_name = value.trim().toUpperCase(Locale.current)) }
+    fun onLastNameChange(value: String) = updateData { it.copy(primary_holder_last_name = value.trim().toUpperCase(Locale.current)) }
     fun onPanChange(value: String) = updateData { it.copy(primary_holder_pan = value.trim().toUpperCase(Locale.current)) }
     fun onDobChange(value: String) {
-        updateData { it.copy(primary_holder_dob_incorporation = value) }
+        updateData { it.copy(primary_holder_dob_incorporation = value.trim().toUpperCase(Locale.current)) }
         _isMinor.value = isMinor(value)
     }
-    fun onGenderChange(value: String) = updateData { it.copy(gender = value) }
-    fun onEmailChange(value: String) = updateData { it.copy(email = value.trim()) }
-    fun onPhoneChange(value: String) = updateData { it.copy(indian_mobile_no = value.trim()) }
-    fun onTaxStatusChange(value: String) = updateData { it.copy(tax_status = value) }
-    fun onOccupationChange(value: String) = updateData { it.copy(occupation_code = value) }
-    fun onOccTypeChange(value: String) = updateData { it.copy(occ_type = value) }
-    fun onPlaceOfBirthChange(value: String) = updateData { it.copy(po_bir_inc = value) }
+    fun onGenderChange(value: String) = updateData { it.copy(gender = value.trim().toUpperCase(Locale.current)) }
+    fun onEmailChange(value: String) = updateData { it.copy(email = value.trim().toUpperCase(Locale.current)) }
+    fun onPhoneChange(value: String) = updateData { it.copy(indian_mobile_no = value.trim().toUpperCase(Locale.current)) }
+    fun onTaxStatusChange(value: String) = updateData { it.copy(tax_status = value.trim().toUpperCase(Locale.current)) }
+    fun onOccupationChange(value: String) = updateData { it.copy(occupation_code = value.trim().toUpperCase(Locale.current)) }
+    fun onOccTypeChange(value: String) = updateData { it.copy(occ_type = value.trim().toUpperCase(Locale.current)) }
+    fun onPlaceOfBirthChange(value: String) = updateData { it.copy(po_bir_inc = value.trim().toUpperCase(Locale.current)) }
     fun onPrimaryCkycChange(value: String) = updateData { it.copy(primary_holder_ckyc_number = value.trim().toUpperCase(Locale.current)) }
-    fun onPrimaryKycTypeChange(value: String) = updateData { it.copy(primary_holder_kyc_type = value) }
-    fun onPrimaryPanExemptChange(value: String) = updateData { it.copy(primary_holder_pan_exempt = value) }
-    fun onPrimaryKraExemptRefChange(value: String) = updateData { it.copy(primary_holder_kra_exempt_ref_no = value.trim()) }
-    fun onPrimaryExemptCategoryChange(value: String) = updateData { it.copy(primary_holder_exempt_category = value) }
+    fun onPrimaryKycTypeChange(value: String) = updateData { it.copy(primary_holder_kyc_type = value.trim().toUpperCase(Locale.current)) }
+    fun onPrimaryPanExemptChange(value: String) = updateData { it.copy(primary_holder_pan_exempt = value.trim().toUpperCase(Locale.current)) }
+    fun onPrimaryKraExemptRefChange(value: String) = updateData { it.copy(primary_holder_kra_exempt_ref_no = value.trim().toUpperCase(Locale.current)) }
+    fun onPrimaryExemptCategoryChange(value: String) = updateData { it.copy(primary_holder_exempt_category = value.trim().toUpperCase(Locale.current)) }
 
     // JOINT HOLDER DETAILS
     private val _holderNature = MutableStateFlow(Holding.SINGLE)
@@ -282,46 +282,46 @@ class TradingAccountViewModel(
         }
     }
 
-    fun onSecondFirstNameChange(value: String) = updateData { it.copy(second_holder_first_name = value) }
-    fun onSecondMiddleNameChange(value: String) = updateData { it.copy(second_holder_middle_name = value) }
-    fun onSecondLastNameChange(value: String) = updateData { it.copy(second_holder_last_name = value) }
+    fun onSecondFirstNameChange(value: String) = updateData { it.copy(second_holder_first_name = value.trim().toUpperCase(Locale.current)) }
+    fun onSecondMiddleNameChange(value: String) = updateData { it.copy(second_holder_middle_name = value.trim().toUpperCase(Locale.current)) }
+    fun onSecondLastNameChange(value: String) = updateData { it.copy(second_holder_last_name = value.trim().toUpperCase(Locale.current)) }
     fun onSecondPanChange(value: String) = updateData { it.copy(second_holder_pan = value.trim().toUpperCase(Locale.current)) }
-    fun onSecondDobChange(value: String) = updateData { it.copy(second_holder_dob = value) }
-    fun onSecondEmailChange(value: String) = updateData { it.copy(second_holder_email = value.trim()) }
-    fun onSecondMobileChange(value: String) = updateData { it.copy(second_holder_mobile = value.trim()) }
+    fun onSecondDobChange(value: String) = updateData { it.copy(second_holder_dob = value.trim().toUpperCase(Locale.current)) }
+    fun onSecondEmailChange(value: String) = updateData { it.copy(second_holder_email = value.trim().toUpperCase(Locale.current)) }
+    fun onSecondMobileChange(value: String) = updateData { it.copy(second_holder_mobile = value.trim().toUpperCase(Locale.current)) }
     fun onSecondCkycChange(value: String) = updateData { it.copy(second_holder_ckyc_number = value.trim().toUpperCase(Locale.current)) }
-    fun onSecondKycTypeChange(value: String) = updateData { it.copy(second_holder_kyc_type = value) }
-    fun onSecondPanExemptChange(value: String) = updateData { it.copy(second_holder_pan_exempt = value) }
-    fun onSecondExemptCategoryChange(value: String) = updateData { it.copy(second_holder_exempt_category = value) }
-    fun onSecondEmailDeclChange(value: String) = updateData { it.copy(second_holder_email_declaration = value) }
-    fun onSecondMobileDeclChange(value: String) = updateData { it.copy(second_holder_mobile_declaration = value) }
+    fun onSecondKycTypeChange(value: String) = updateData { it.copy(second_holder_kyc_type = value.trim().toUpperCase(Locale.current)) }
+    fun onSecondPanExemptChange(value: String) = updateData { it.copy(second_holder_pan_exempt = value.trim().toUpperCase(Locale.current)) }
+    fun onSecondExemptCategoryChange(value: String) = updateData { it.copy(second_holder_exempt_category = value.trim().toUpperCase(Locale.current)) }
+    fun onSecondEmailDeclChange(value: String) = updateData { it.copy(second_holder_email_declaration = value.trim().toUpperCase(Locale.current)) }
+    fun onSecondMobileDeclChange(value: String) = updateData { it.copy(second_holder_mobile_declaration = value.trim().toUpperCase(Locale.current)) }
 
-    fun onThirdFirstNameChange(value: String) = updateData { it.copy(third_holder_first_name = value) }
-    fun onThirdMiddleNameChange(value: String) = updateData { it.copy(third_holder_middle_name = value) }
-    fun onThirdLastNameChange(value: String) = updateData { it.copy(third_holder_last_name = value) }
+    fun onThirdFirstNameChange(value: String) = updateData { it.copy(third_holder_first_name = value.trim().toUpperCase(Locale.current)) }
+    fun onThirdMiddleNameChange(value: String) = updateData { it.copy(third_holder_middle_name = value.trim().toUpperCase(Locale.current)) }
+    fun onThirdLastNameChange(value: String) = updateData { it.copy(third_holder_last_name = value.trim().toUpperCase(Locale.current)) }
     fun onThirdPanChange(value: String) = updateData { it.copy(third_holder_pan = value.trim().toUpperCase(Locale.current)) }
-    fun onThirdDobChange(value: String) = updateData { it.copy(third_holder_dob = value) }
-    fun onThirdEmailChange(value: String) = updateData { it.copy(third_holder_email = value.trim()) }
-    fun onThirdMobileChange(value: String) = updateData { it.copy(third_holder_mobile = value.trim()) }
+    fun onThirdDobChange(value: String) = updateData { it.copy(third_holder_dob = value.trim().toUpperCase(Locale.current)) }
+    fun onThirdEmailChange(value: String) = updateData { it.copy(third_holder_email = value.trim().toUpperCase(Locale.current)) }
+    fun onThirdMobileChange(value: String) = updateData { it.copy(third_holder_mobile = value.trim().toUpperCase(Locale.current)) }
     fun onThirdCkycChange(value: String) = updateData { it.copy(third_holder_ckyc_number = value.trim().toUpperCase(Locale.current)) }
-    fun onThirdKycTypeChange(value: String) = updateData { it.copy(third_holder_kyc_type = value) }
-    fun onThirdPanExemptChange(value: String) = updateData { it.copy(third_holder_pan_exempt = value) }
-    fun onThirdExemptCategoryChange(value: String) = updateData { it.copy(third_holder_exempt_category = value) }
-    fun onThirdEmailDeclChange(value: String) = updateData { it.copy(third_holder_email_declaration = value) }
-    fun onThirdMobileDeclChange(value: String) = updateData { it.copy(third_holder_mobile_declaration = value) }
+    fun onThirdKycTypeChange(value: String) = updateData { it.copy(third_holder_kyc_type = value.trim().toUpperCase(Locale.current)) }
+    fun onThirdPanExemptChange(value: String) = updateData { it.copy(third_holder_pan_exempt = value.trim().toUpperCase(Locale.current)) }
+    fun onThirdExemptCategoryChange(value: String) = updateData { it.copy(third_holder_exempt_category = value.trim().toUpperCase(Locale.current)) }
+    fun onThirdEmailDeclChange(value: String) = updateData { it.copy(third_holder_email_declaration = value.trim().toUpperCase(Locale.current)) }
+    fun onThirdMobileDeclChange(value: String) = updateData { it.copy(third_holder_mobile_declaration = value.trim().toUpperCase(Locale.current)) }
 
     // GUARDIAN DETAILS
-    fun onGuardianRelationChange(value: String) = updateData { it.copy(guardian_relation = value) }
-    fun onGuardianFirstNameChange(value: String) = updateData { it.copy(guardian_first_name = value) }
-    fun onGuardianMiddleNameChange(value: String) = updateData { it.copy(guardian_middle_name = value) }
-    fun onGuardianLastNameChange(value: String) = updateData { it.copy(guardian_last_name = value) }
+    fun onGuardianRelationChange(value: String) = updateData { it.copy(guardian_relation = value.trim().toUpperCase(Locale.current)) }
+    fun onGuardianFirstNameChange(value: String) = updateData { it.copy(guardian_first_name = value.trim().toUpperCase(Locale.current)) }
+    fun onGuardianMiddleNameChange(value: String) = updateData { it.copy(guardian_middle_name = value.trim().toUpperCase(Locale.current)) }
+    fun onGuardianLastNameChange(value: String) = updateData { it.copy(guardian_last_name = value.trim().toUpperCase(Locale.current)) }
     fun onGuardianPanChange(value: String) = updateData { it.copy(guardian_pan = value.trim().toUpperCase(Locale.current)) }
-    fun onGuardianDobChange(value: String) = updateData { it.copy(guardian_dob = value) }
+    fun onGuardianDobChange(value: String) = updateData { it.copy(guardian_dob = value.trim().toUpperCase(Locale.current)) }
     fun onGuardianCkycChange(value: String) = updateData { it.copy(guardian_ckyc_number = value.trim().toUpperCase(Locale.current)) }
-    fun onGuardianKycTypeChange(value: String) = updateData { it.copy(guardian_kyc_type = value) }
-    fun onGuardianPanExemptChange(value: String) = updateData { it.copy(guardian_pan_exempt = value) }
-    fun onGuardianExemptCategoryChange(value: String) = updateData { it.copy(guardian_exempt_category = value) }
-    fun onGuardianExemptRefNoChange(value: String) = updateData { it.copy(guardian_exempt_ref_no = value.trim()) }
+    fun onGuardianKycTypeChange(value: String) = updateData { it.copy(guardian_kyc_type = value.trim().toUpperCase(Locale.current)) }
+    fun onGuardianPanExemptChange(value: String) = updateData { it.copy(guardian_pan_exempt = value.trim().toUpperCase(Locale.current)) }
+    fun onGuardianExemptCategoryChange(value: String) = updateData { it.copy(guardian_exempt_category = value.trim().toUpperCase(Locale.current)) }
+    fun onGuardianExemptRefNoChange(value: String) = updateData { it.copy(guardian_exempt_ref_no = value.trim().toUpperCase(Locale.current)) }
 
     // NOMINEE DETAILS
     private val _nomineeChecked = MutableStateFlow(false)
@@ -345,24 +345,24 @@ class TradingAccountViewModel(
         onNominee1MinorFlagChange(if (isMinor == true) "Y" else "N")
     }
 
-    fun onNominee1NameChange(value: String) = updateData { it.copy(nominee_1_name = value) }
-    fun onNominee1RelationChange(value: String) = updateData { it.copy(nominee_1_relationship = value) }
-    fun onNominee1DobChange(value: String) = updateData { it.copy(nominee_1_dob = value) }
-    fun onNominee1EmailChange(value: String) = updateData { it.copy(nominee_1_email = value.trim()) }
-    fun onNominee1MobileChange(value: String) = updateData { it.copy(nominee_1_mobile = value.trim()) }
-    fun onNominee1IdentityTypeChange(value: String) = updateData { it.copy(nominee_1_identity_type = value) }
+    fun onNominee1NameChange(value: String) = updateData { it.copy(nominee_1_name = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1RelationChange(value: String) = updateData { it.copy(nominee_1_relationship = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1DobChange(value: String) = updateData { it.copy(nominee_1_dob = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1EmailChange(value: String) = updateData { it.copy(nominee_1_email = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1MobileChange(value: String) = updateData { it.copy(nominee_1_mobile = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1IdentityTypeChange(value: String) = updateData { it.copy(nominee_1_identity_type = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1IdentityNumberChange(value: String) = updateData { it.copy(nominee_1_identity_number = value.trim().toUpperCase(Locale.current)) }
-    fun onNominee1Address1Change(value: String) = updateData { it.copy(nominee_1_address1 = value) }
-    fun onNominee1Address2Change(value: String) = updateData { it.copy(nominee_1_address2 = value) }
-    fun onNominee1Address3Change(value: String) = updateData { it.copy(nominee_1_address3 = value) }
-    fun onNominee1CityChange(value: String) = updateData { it.copy(nominee_1_city = value) }
-    fun onNominee1PincodeChange(value: String) = updateData { it.copy(nominee_1_pin = value.trim()) }
-    fun onNominee1CountryChange(value: String) = updateData { it.copy(nominee_1_country = value) }
-    fun onNominee1MinorFlagChange(value: String) = updateData { it.copy(nominee_1_minor_flag = value) }
-    fun onNominee1GuardianChange(value: String) = updateData { it.copy(nominee_1_guardian = value) }
+    fun onNominee1Address1Change(value: String) = updateData { it.copy(nominee_1_address1 = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1Address2Change(value: String) = updateData { it.copy(nominee_1_address2 = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1Address3Change(value: String) = updateData { it.copy(nominee_1_address3 = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1CityChange(value: String) = updateData { it.copy(nominee_1_city = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1PincodeChange(value: String) = updateData { it.copy(nominee_1_pin = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1CountryChange(value: String) = updateData { it.copy(nominee_1_country = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1MinorFlagChange(value: String) = updateData { it.copy(nominee_1_minor_flag = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1GuardianChange(value: String) = updateData { it.copy(nominee_1_guardian = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1GuardianPanChange(value: String) = updateData { it.copy(nominee_1_guardian_pan = value.trim().toUpperCase(Locale.current)) }
-    fun onNominee1ApplicableChange(value: String) = updateData { it.copy(nominee_1_applicable = value) }
-    fun onNomineeSoaChange(value: String) = updateData { it.copy(nominee_soa = value) }
+    fun onNominee1ApplicableChange(value: String) = updateData { it.copy(nominee_1_applicable = value.trim().toUpperCase(Locale.current)) }
+    fun onNomineeSoaChange(value: String) = updateData { it.copy(nominee_soa = value.trim().toUpperCase(Locale.current)) }
 
     // BANK DETAILS
     private val _visibleBankAccounts = MutableStateFlow(listOf(1))
@@ -440,19 +440,19 @@ class TradingAccountViewModel(
         when (index) { 1 -> onDefaultBankFlag1Change(value); 2 -> onDefaultBankFlag2Change(value); 3 -> onDefaultBankFlag3Change(value); 4 -> onDefaultBankFlag4Change(value); 5 -> onDefaultBankFlag5Change(value) }
     }
 
-    fun onAccountType1Change(value: String) = updateData { it.copy(account_type_1 = value) }
-    fun onAccountNumber1Change(value: String) = updateData { it.copy(account_no_1 = value.trim()) }
+    fun onAccountType1Change(value: String) = updateData { it.copy(account_type_1 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountNumber1Change(value: String) = updateData { it.copy(account_no_1 = value.trim().toUpperCase(Locale.current)) }
     fun onIfscCode1Change(value: String) = updateData { it.copy(ifsc_code_1 = value.trim().toUpperCase(Locale.current)) }
     fun onMicrNo1Change(value: String) = updateData { it.copy(micr_no_1 = value.trim().toUpperCase(Locale.current)) }
-    fun onDefaultBankFlag1Change(value: String) = updateData { it.copy(default_bank_flag_1 = value) }
-    fun onAccountType2Change(value: String) = updateData { it.copy(account_type_2 = value) }
-    fun onAccountType3Change(value: String) = updateData { it.copy(account_type_3 = value) }
-    fun onAccountType4Change(value: String) = updateData { it.copy(account_type_4 = value) }
-    fun onAccountType5Change(value: String) = updateData { it.copy(account_type_5 = value) }
-    fun onAccountNumber2Change(value: String) = updateData { it.copy(account_no_2 = value.trim()) }
-    fun onAccountNumber3Change(value: String) = updateData { it.copy(account_no_3 = value.trim()) }
-    fun onAccountNumber4Change(value: String) = updateData { it.copy(account_no_4 = value.trim()) }
-    fun onAccountNumber5Change(value: String) = updateData { it.copy(account_no_5 = value.trim()) }
+    fun onDefaultBankFlag1Change(value: String) = updateData { it.copy(default_bank_flag_1 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountType2Change(value: String) = updateData { it.copy(account_type_2 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountType3Change(value: String) = updateData { it.copy(account_type_3 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountType4Change(value: String) = updateData { it.copy(account_type_4 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountType5Change(value: String) = updateData { it.copy(account_type_5 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountNumber2Change(value: String) = updateData { it.copy(account_no_2 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountNumber3Change(value: String) = updateData { it.copy(account_no_3 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountNumber4Change(value: String) = updateData { it.copy(account_no_4 = value.trim().toUpperCase(Locale.current)) }
+    fun onAccountNumber5Change(value: String) = updateData { it.copy(account_no_5 = value.trim().toUpperCase(Locale.current)) }
     fun onIfscCode2Change(value: String) = updateData { it.copy(ifsc_code_2 = value.trim().toUpperCase(Locale.current)) }
     fun onIfscCode3Change(value: String) = updateData { it.copy(ifsc_code_3 = value.trim().toUpperCase(Locale.current)) }
     fun onIfscCode4Change(value: String) = updateData { it.copy(ifsc_code_4 = value.trim().toUpperCase(Locale.current)) }
@@ -461,19 +461,19 @@ class TradingAccountViewModel(
     fun onMicrNo3Change(value: String) = updateData { it.copy(micr_no_3 = value.trim().toUpperCase(Locale.current)) }
     fun onMicrNo4Change(value: String) = updateData { it.copy(micr_no_4 = value.trim().toUpperCase(Locale.current)) }
     fun onMicrNo5Change(value: String) = updateData { it.copy(micr_no_5 = value.trim().toUpperCase(Locale.current)) }
-    fun onDefaultBankFlag2Change(value: String) = updateData { it.copy(default_bank_flag_2 = value) }
-    fun onDefaultBankFlag3Change(value: String) = updateData { it.copy(default_bank_flag_3 = value) }
-    fun onDefaultBankFlag4Change(value: String) = updateData { it.copy(default_bank_flag_4 = value) }
-    fun onDefaultBankFlag5Change(value: String) = updateData { it.copy(default_bank_flag_5 = value) }
+    fun onDefaultBankFlag2Change(value: String) = updateData { it.copy(default_bank_flag_2 = value.trim().toUpperCase(Locale.current)) }
+    fun onDefaultBankFlag3Change(value: String) = updateData { it.copy(default_bank_flag_3 = value.trim().toUpperCase(Locale.current)) }
+    fun onDefaultBankFlag4Change(value: String) = updateData { it.copy(default_bank_flag_4 = value.trim().toUpperCase(Locale.current)) }
+    fun onDefaultBankFlag5Change(value: String) = updateData { it.copy(default_bank_flag_5 = value.trim().toUpperCase(Locale.current)) }
 
     // ADDRESS DETAILS
-    fun onAddress1Change(value: String) = updateData { it.copy(address_1 = value) }
-    fun onAddress2Change(value: String) = updateData { it.copy(address_2 = value) }
-    fun onAddress3Change(value: String) = updateData { it.copy(address_3 = value) }
-    fun onCityChange(value: String) = updateData { it.copy(city = value) }
-    fun onStateChange(value: String) = updateData { it.copy(state = value) }
-    fun onPincodeChange(value: String) = updateData { it.copy(pincode = value.trim()) }
-    fun onCountryChange(value: String) = updateData { it.copy(country = value) }
+    fun onAddress1Change(value: String) = updateData { it.copy(address_1 = value.trim().toUpperCase(Locale.current)) }
+    fun onAddress2Change(value: String) = updateData { it.copy(address_2 = value.trim().toUpperCase(Locale.current)) }
+    fun onAddress3Change(value: String) = updateData { it.copy(address_3 = value.trim().toUpperCase(Locale.current)) }
+    fun onCityChange(value: String) = updateData { it.copy(city = value.trim().toUpperCase(Locale.current)) }
+    fun onStateChange(value: String) = updateData { it.copy(state = value.trim().toUpperCase(Locale.current)) }
+    fun onPincodeChange(value: String) = updateData { it.copy(pincode = value.trim().toUpperCase(Locale.current)) }
+    fun onCountryChange(value: String) = updateData { it.copy(country = value.trim().toUpperCase(Locale.current)) }
 
     // CLIENT TYPE & DEMAT DETAILS
     val clientScreenButtonEnabled = _formState.map { formState ->
@@ -521,9 +521,9 @@ class TradingAccountViewModel(
         }
     }
 
-    fun onClientTypeChange(value: String) = updateData { it.copy(client_type = value) }
-    fun onPmsChange(value: String) = updateData { it.copy(pms = value) }
-    fun onDefaultDpChange(value: String) = updateData { it.copy(default_dp = value) }
+    fun onClientTypeChange(value: String) = updateData { it.copy(client_type = value.trim().toUpperCase(Locale.current)) }
+    fun onPmsChange(value: String) = updateData { it.copy(pms = value.trim().toUpperCase(Locale.current)) }
+    fun onDefaultDpChange(value: String) = updateData { it.copy(default_dp = value.trim().toUpperCase(Locale.current)) }
     fun onCdslDpidChange(value: String) = updateData { it.copy(cdsl_dpid = value.trim().toUpperCase(Locale.current)) }
     fun onCdslCltidChange(value: String) = updateData { it.copy(cdslcltid = value.trim().toUpperCase(Locale.current)) }
     fun onNsdlDpidChange(value: String) = updateData { it.copy(nsdldpid = value.trim().toUpperCase(Locale.current)) }
@@ -554,19 +554,19 @@ class TradingAccountViewModel(
         secondHolderValid && thirdHolderValid && nominationValid
     }.stateIn(scope = viewModelScope, started = WhileSubscribed(5000), initialValue = false)
 
-    fun onNominationOptChange(value: String) = updateData { it.copy(nomination_opt = value) }
-    fun onNominationAuthChange(value: String) = updateData { it.copy(nomination_authentication = value) }
-    fun onDivPayModeChange(value: String) = updateData { it.copy(div_pay_mode = value) }
-    fun onAadhaarUpdatedChange(value: String) = updateData { it.copy(aadhaar_updated = value) }
-    fun onChequeNameChange(value: String) = updateData { it.copy(cheque_name = value) }
-    fun onCommunicationModeChange(value: String) = updateData { it.copy(communication_mode = value) }
-    fun onEmailDeclFlagChange(value: String) = updateData { it.copy(email_declaration_flag = value) }
-    fun onMobileDeclFlagChange(value: String) = updateData { it.copy(mobile_declaration_flag = value) }
-    fun onPaperlessFlagChange(value: String) = updateData { it.copy(paperless_flag = value) }
-    fun onLeiNoChange(value: String) = updateData { it.copy(lei_no = value.trim()) }
-    fun onLeiValidityChange(value: String) = updateData { it.copy(lei_validity = value) }
-    fun onMapinIdChange(value: String) = updateData { it.copy(mapin_id = value.trim()) }
-    fun onSourceWealthChange(value: String) = updateData { it.copy(srce_wealt = value) }
+    fun onNominationOptChange(value: String) = updateData { it.copy(nomination_opt = value.trim().toUpperCase(Locale.current)) }
+    fun onNominationAuthChange(value: String) = updateData { it.copy(nomination_authentication = value.trim().toUpperCase(Locale.current)) }
+    fun onDivPayModeChange(value: String) = updateData { it.copy(div_pay_mode = value.trim().toUpperCase(Locale.current)) }
+    fun onAadhaarUpdatedChange(value: String) = updateData { it.copy(aadhaar_updated = value.trim().toUpperCase(Locale.current)) }
+    fun onChequeNameChange(value: String) = updateData { it.copy(cheque_name = value.trim().toUpperCase(Locale.current)) }
+    fun onCommunicationModeChange(value: String) = updateData { it.copy(communication_mode = value.trim().toUpperCase(Locale.current)) }
+    fun onEmailDeclFlagChange(value: String) = updateData { it.copy(email_declaration_flag = value.trim().toUpperCase(Locale.current)) }
+    fun onMobileDeclFlagChange(value: String) = updateData { it.copy(mobile_declaration_flag = value.trim().toUpperCase(Locale.current)) }
+    fun onPaperlessFlagChange(value: String) = updateData { it.copy(paperless_flag = value.trim().toUpperCase(Locale.current)) }
+    fun onLeiNoChange(value: String) = updateData { it.copy(lei_no = value.trim().toUpperCase(Locale.current)) }
+    fun onLeiValidityChange(value: String) = updateData { it.copy(lei_validity = value.trim().toUpperCase(Locale.current)) }
+    fun onMapinIdChange(value: String) = updateData { it.copy(mapin_id = value.trim().toUpperCase(Locale.current)) }
+    fun onSourceWealthChange(value: String) = updateData { it.copy(srce_wealt = value.trim().toUpperCase(Locale.current)) }
 
     val addressScreenButtonEnabled = _formState
         .map { formState ->
@@ -639,48 +639,48 @@ class TradingAccountViewModel(
             initialValue = false
         )
     fun onForeignAddress1Change(value: String) =
-        updateData { it.copy(foreign_address_1 = value) }
+        updateData { it.copy(foreign_address_1 = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignAddress2Change(value: String) =
-        updateData { it.copy(foreign_address_2 = value) }
+        updateData { it.copy(foreign_address_2 = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignAddress3Change(value: String) =
-        updateData { it.copy(foreign_address_3 = value) }
+        updateData { it.copy(foreign_address_3 = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignCityChange(value: String) =
-        updateData { it.copy(foreign_address_city = value) }
+        updateData { it.copy(foreign_address_city = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignStateChange(value: String) =
-        updateData { it.copy(foreign_address_state = value) }
+        updateData { it.copy(foreign_address_state = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignPincodeChange(value: String) =
-        updateData { it.copy(foreign_address_pincode = value.trim()) }
+        updateData { it.copy(foreign_address_pincode = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignCountryChange(value: String) =
-        updateData { it.copy(foreign_address_country = value) }
+        updateData { it.copy(foreign_address_country = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignPhoneChange(value: String) =
-        updateData { it.copy(foreign_address_resi_phone = value.trim()) }
+        updateData { it.copy(foreign_address_resi_phone = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignFaxChange(value: String) =
-        updateData { it.copy(foreign_address_fax = value) }
+        updateData { it.copy(foreign_address_fax = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignOfficePhoneChange(value: String) =
-        updateData { it.copy(foreign_address_off_phone = value.trim()) }
+        updateData { it.copy(foreign_address_off_phone = value.trim().toUpperCase(Locale.current)) }
 
     fun onForeignOfficeFaxChange(value: String) =
-        updateData { it.copy(foreign_address_off_fax = value) }
+        updateData { it.copy(foreign_address_off_fax = value.trim().toUpperCase(Locale.current)) }
     fun onResiPhoneChange(value: String) =
-        updateData { it.copy(resi_phone = value.trim()) }
+        updateData { it.copy(resi_phone = value.trim().toUpperCase(Locale.current)) }
 
     fun onResiFaxChange(value: String) =
-        updateData { it.copy(resi_fax = value) }
+        updateData { it.copy(resi_fax = value.trim().toUpperCase(Locale.current)) }
 
     fun onOfficePhoneChange(value: String) =
-        updateData { it.copy(office_phone = value.trim()) }
+        updateData { it.copy(office_phone = value.trim().toUpperCase(Locale.current)) }
 
     fun onOfficeFaxChange(value: String) =
-        updateData { it.copy(office_fax = value) }
+        updateData { it.copy(office_fax = value.trim().toUpperCase(Locale.current)) }
 
     val guardianScreenButtonEnabled = _formState
         .map { formState ->

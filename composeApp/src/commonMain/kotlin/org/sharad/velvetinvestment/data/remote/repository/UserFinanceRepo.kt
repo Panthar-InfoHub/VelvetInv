@@ -37,6 +37,7 @@ import org.sharad.velvetinvestment.domain.models.loan.LoanDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
+import org.sharad.velvetinvestment.utils.networking.ErrorType
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import org.sharad.velvetinvestment.utils.networking.getUrl
 import org.sharad.velvetinvestment.utils.networking.safeRequest
@@ -333,7 +334,18 @@ class UserFinanceRepo(
         }
         return when (response) {
             is NetworkResponse.Error -> NetworkResponse.Error(response.error)
-            is NetworkResponse.Success -> NetworkResponse.Success(response.data.data)
+            is NetworkResponse.Success -> {
+                val url = response.data.data.result
+                if (url==null){
+                     NetworkResponse.Error(ErrorDomain(
+                        code = -1,
+                        message = "No Data Found",
+                        type = ErrorType.UNKNOWN
+                    ))
+                }
+                else
+                NetworkResponse.Success(url)
+            }
         }
     }
 

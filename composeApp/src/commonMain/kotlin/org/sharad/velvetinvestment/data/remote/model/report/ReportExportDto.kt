@@ -6,5 +6,11 @@ import kotlinx.serialization.Serializable
 data class ReportExportDto(
     val code: Int,
     val message: String,
-    val data: String
+    val data: ReportDataDto
+)
+
+@Serializable
+data class ReportDataDto(
+    val code: Int,
+    val result: String?= null
 )

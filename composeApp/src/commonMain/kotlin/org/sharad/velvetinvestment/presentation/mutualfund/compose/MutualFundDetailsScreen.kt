@@ -767,7 +767,7 @@ fun InfoCard(
                     GraphDurationSelection.SixMonths -> detailsState.metrics.return_6m
                     GraphDurationSelection.OneYear -> detailsState.metrics.return_1y
                     GraphDurationSelection.ThreeYears -> detailsState.metrics.return_3y
-                    GraphDurationSelection.FiveYears -> null
+                    GraphDurationSelection.FiveYears -> detailsState.metrics.return_5y
                     GraphDurationSelection.All -> detailsState.metrics.return_1y
                 }
 
@@ -812,10 +812,18 @@ fun InfoCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val navChange = detailsState.metrics.nav_change_pct
+
             Text(
-                text= (if (detailsState.metrics.nav_change_pct>0) "+" else "") + detailsState.metrics.nav_change_pct.toString()+"%",
+                text = navChange?.let {
+                    (if (it > 0) "+" else "") + it.toString() + "%"
+                } ?: "N/A",
                 style = titlesStyle,
-                color = if (detailsState.metrics.nav_change_pct>0) appGreen else Color.Red
+                color = when {
+                    navChange == null -> titleColor
+                    navChange > 0 -> appGreen
+                    else -> Color.Red
+                }
             )
             Text(
                 text= "1D",

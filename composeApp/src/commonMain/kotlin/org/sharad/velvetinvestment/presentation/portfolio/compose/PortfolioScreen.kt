@@ -142,7 +142,7 @@ fun PortfolioScreenMain(
                         reload = viewModel::loadPortfolio,
                         onDownloadPortfolioReport = viewModel::downloadPortfolioReport,
                         onDownloadCapitalReport = viewModel::downloadCapitalReport,
-                        onDownloadTaxReport = { viewModel.downloadTaxReport(2024) }, // Defaulting to 2024
+                        onDownloadTaxReport = { viewModel.downloadTaxReport(2024) },
                         isExportingPortfolio = isExportingPortfolio,
                         isExportingCapital = isExportingCapital,
                         isExportingTax = isExportingTax,

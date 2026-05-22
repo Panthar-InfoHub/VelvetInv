@@ -63,7 +63,7 @@ class MutualFundDetailsScreenViewModel(
             when(detailsState){
                 is DetailsState.Error -> "n/a"
                 DetailsState.Loading -> "--"
-                is DetailsState.Success -> detailsState.data.metrics.nav_change_pct.trimTo(2)
+                is DetailsState.Success -> detailsState.data.metrics.nav_change_pct?.trimTo(2)?:"n/a"
             }
         }
          else{
@@ -368,6 +368,7 @@ fun Metrics.getPreferredReturn(): Float {
         return_90d != null -> return_90d.toFloat()
         return_30d != null -> return_30d.toFloat()
         return_3y != null -> return_3y.toFloat()
+        return_5y != null -> return_5y.toFloat()
         else -> 12f
     }
 }
