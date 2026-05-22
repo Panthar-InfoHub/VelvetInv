@@ -572,27 +572,27 @@ fun InvestmentRateScreenPreview() {
         percentDelta = 2.3,
         savingDelta = 145000,
         trends = listOf(SavingTrendsDomain(
-                monthText = "Jan",
+                monthText = "Jan 26",
                 savings = 4000,
                 investments = 3000,
             ), SavingTrendsDomain(
-                monthText = "Feb",
+                monthText = "Feb 26",
                 savings = 6000,
                 investments = 4500,
             ), SavingTrendsDomain(
-                monthText = "Mar",
+                monthText = "Mar 26",
                 savings = 7000,
                 investments = 4000,
             ), SavingTrendsDomain(
-                monthText = "Apr",
+                monthText = "Apr 26",
                 savings = 12000,
                 investments = 7000,
             ), SavingTrendsDomain(
-                monthText = "May",
+                monthText = "May 26",
                 savings = 3000,
                 investments = 2500,
             ), SavingTrendsDomain(
-                monthText = "Jun",
+                monthText = "Jun 26",
                 savings = 9000,
                 investments = 8000,
             ),),

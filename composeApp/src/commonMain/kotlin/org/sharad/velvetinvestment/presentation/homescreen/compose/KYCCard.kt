@@ -36,7 +36,7 @@ fun KYCCard(
 ) {
     Row(
         modifier=Modifier.fillMaxWidth()
-            .height(80.dp)
+            .height(76.dp)
             .genericDropShadow()
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White,RoundedCornerShape(12.dp))
@@ -61,7 +61,7 @@ fun KYCCard(
 
         )
 
-        Box(modifier=Modifier.size(44.dp).clip(RoundedCornerShape(10.dp))
+        Box(modifier=Modifier.size(40.dp).clip(RoundedCornerShape(10.dp))
             .background(appRed.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ){
@@ -69,13 +69,13 @@ fun KYCCard(
                 painter = painterResource(Res.drawable.kyc_icon),
                 contentDescription = null,
                 tint = appRed,
-                modifier = Modifier.width(24.dp)
+                modifier = Modifier.width(22.dp)
             )
         }
 
         Text(
             text=text,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 15.sp),
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
             color = Color.Black,
             modifier = Modifier.weight(1f)
         )

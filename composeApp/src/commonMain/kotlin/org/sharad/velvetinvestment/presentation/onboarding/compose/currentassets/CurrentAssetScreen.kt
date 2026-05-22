@@ -189,15 +189,15 @@ fun AssetHolding(
             onValueChange = onFixedDepositsUpdate
         )
 
-        ExpandableExpenseEntryField(
-            heading = "Real Estate",
-            subHeading = "Property, land, REITs",
-            amount = assetInfo.realEstate,
-            percentage = null,
-            accentColor = bgColor7,
-            icon = Res.drawable.icon_real_estate,
-            onValueChange = onRealEstateUpdate
-        )
+//        ExpandableExpenseEntryField(
+//            heading = "Real Estate",
+//            subHeading = "Property, land, REITs",
+//            amount = assetInfo.realEstate,
+//            percentage = null,
+//            accentColor = bgColor7,
+//            icon = Res.drawable.icon_real_estate,
+//            onValueChange = onRealEstateUpdate
+//        )
 
         ExpandableExpenseEntryField(
             heading = "Gold & Commodities",

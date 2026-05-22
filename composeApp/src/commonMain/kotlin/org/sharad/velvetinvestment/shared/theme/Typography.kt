@@ -44,8 +44,8 @@ val Typography @Composable get() = Typography(
     headlineLarge = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-        lineHeight = 24.sp
+        fontSize = 20.sp,
+        lineHeight = 22.sp
     ),
 
 
@@ -58,14 +58,14 @@ val Typography @Composable get() = Typography(
     headlineSmall = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp
+        fontSize = 18.sp
     ),
 
 
     bodyMedium = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
-        fontSize = 20.sp
+        fontSize = 18.sp
     ),
 
     //////////////////////////////////////////
@@ -85,7 +85,7 @@ val Typography @Composable get() = Typography(
     displayMedium = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
+        fontSize = 28.sp,
     ),
 
     displaySmall = TextStyle(
@@ -131,7 +131,7 @@ val subHeadingMedium @Composable get() = TextStyle(
 val subHeading @Composable get() = TextStyle(
     fontFamily = Poppins,
     fontWeight = FontWeight.SemiBold,
-    fontSize = 15.sp
+    fontSize = 14.sp
 )
 val tinyLabel @Composable get() = TextStyle(
     fontFamily = Poppins,

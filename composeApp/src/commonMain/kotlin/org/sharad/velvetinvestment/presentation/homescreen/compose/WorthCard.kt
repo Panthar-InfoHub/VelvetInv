@@ -35,6 +35,7 @@ import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
@@ -123,7 +124,7 @@ fun UserWorthCard(
 
                         Text(
                             text = "Absolute / CAGR Growth",
-                            style = titlesStyle,
+                            style = tinyLabel,
                             color = Primary
                         )
 

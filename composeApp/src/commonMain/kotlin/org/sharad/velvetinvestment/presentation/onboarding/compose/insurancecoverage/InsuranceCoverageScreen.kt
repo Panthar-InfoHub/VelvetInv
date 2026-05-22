@@ -172,26 +172,8 @@ fun SummaryField(
                         color = bgColor1,
                     )
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Total Coverage",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = Primary,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = "₹ ${ formatMoneyWithUnits(totalInsurance)}",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = bgColor1,
-                    )
-                }
             }
         }
 
     }
-
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
+import org.sharad.velvetinvestment.domain.GoalType
 import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.progressPercent
 import org.sharad.velvetinvestment.shared.CustomProgressFillBar
@@ -30,23 +31,22 @@ import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
+import velvet.composeapp.generated.resources.education_icon
 import velvet.composeapp.generated.resources.icon_callender
+import velvet.composeapp.generated.resources.plus_icon
+import velvet.composeapp.generated.resources.ring_icon
+import velvet.composeapp.generated.resources.ruppee_circle
 
 @Composable
 fun GoalEntryCard(goal: GoalsSummaryDomain, onClick: () -> Unit) {
 
     val tintColor=goal.goalTypes.color
-//    val icon=when(goal.goalTypes){
-//        GoalTypes.WEALTH_BUILDING -> {
-//            Res.drawable.ruppee_circle
-//        }
-//        GoalTypes.RETIREMENT -> {Res.drawable.icon_callender}
-//        GoalTypes.EDUCATION -> {Res.drawable.education_icon}
-//        GoalTypes.MARRIAGE -> { Res.drawable.ring_icon }
-//        GoalTypes.CUSTOM_GOAL -> { Res.drawable.plus_icon }
-//    }
-    val icon= Res.drawable.icon_callender
-
+    val icon=when(goal.goalTypes.type){
+        GoalType.ChildEducation ->{Res.drawable.education_icon}
+        GoalType.ChildMarriage -> { Res.drawable.ring_icon }
+        GoalType.Retirement -> {Res.drawable.icon_callender}
+        GoalType.WealthBuilding -> { Res.drawable.ruppee_circle }
+    }
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -114,7 +114,7 @@ fun GoalEntryCard(goal: GoalsSummaryDomain, onClick: () -> Unit) {
 
                 CustomProgressFillBar(
                     modifier = Modifier.fillMaxWidth(),
-                    thickness= 14.dp,
+                    thickness= 10.dp,
                     progressColor=tintColor,
                     progress = goal.progressPercent() / 100f
                 )

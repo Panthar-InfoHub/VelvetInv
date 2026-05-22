@@ -21,7 +21,7 @@ fun InvestmentRateDto.toDomain(): InvestmentRateDomain {
         savingDelta = data.average_savings_pattern.total_saved_vs_prev_month,
         trends = data.investing_trend.map {
             it.toDomain()
-        },
+        }.reversed(),
         spendingCategories = data.spending_categories.toDomain()
     )
 }

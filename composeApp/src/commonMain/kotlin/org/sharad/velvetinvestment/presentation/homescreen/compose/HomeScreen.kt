@@ -142,9 +142,9 @@ fun HomeScreen(
     LazyColumn(
         modifier=Modifier.fillMaxSize()
             .padding( start = 16.dp, end = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        contentPadding = PaddingValues(top = 26.dp)
     ) {
-        item { Spacer(modifier=Modifier.height(16.dp,)) }
         item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick) }
         item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick=navigateToInvestmentRateScree, hidden=hidden, onHiddenToggle=onHiddenToggle)}
         if (!kyc || !tradingKyc){ item { BarHeader(heading = "Finish Setting Up Account") } }
@@ -257,7 +257,7 @@ fun LazyListScope.homeGoalsInfo(goals: List<GoalsSummaryDomain>, onClick:(String
 fun FireReportCard(summary: Double, onClick: () -> Unit) {
     Row(
         modifier=Modifier.fillMaxWidth()
-            .height(80.dp)
+            .height(76.dp)
             .genericDropShadow()
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White,RoundedCornerShape(12.dp))
@@ -268,7 +268,7 @@ fun FireReportCard(summary: Double, onClick: () -> Unit) {
 
         Box(modifier=Modifier
             .padding(start = 16.dp)
-            .size(44.dp)
+            .size(40.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(Color(0xff273E71).copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
@@ -277,7 +277,7 @@ fun FireReportCard(summary: Double, onClick: () -> Unit) {
                 painter = painterResource(Res.drawable.fire_icon),
                 contentDescription = null,
                 tint = Color(0xff273E71),
-                modifier = Modifier.width(22.dp)
+                modifier = Modifier.width(20.dp)
             )
         }
 
