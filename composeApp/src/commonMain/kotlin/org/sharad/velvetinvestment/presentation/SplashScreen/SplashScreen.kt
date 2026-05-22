@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.presentation.SplashScreen
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.background_mesh
 import velvet.composeapp.generated.resources.logo_app
 import velvet.composeapp.generated.resources.splash_cover_1
+import kotlin.collections.listOf
 
 @Composable
 fun SplashScreen(windowSize: WindowSize, onGetStarted: () -> Unit) {
@@ -231,11 +233,18 @@ fun SplashPane2(
     modifier: Modifier = Modifier,
     onGetStarted: () -> Unit
 ){
+    val headList= remember {
+        listOf(
+            "Plan Today.\nLive Free Tomorrow.",
+            "Invest Smarter,\nGrow with Purpose.",
+            "Turn Life Goals into\nFinancial Plans."
+        )
+    }
     val textList= remember{
         listOf(
-            "Goals-based planning, direct mutual funds, fixed deposit all in one place .",
-            "Discover a platform that merges investment strategies, savings options, and tailored financial advice.",
-            "Explore a service that combines investment tactics, savings plans, and personalized financial guidance."
+            "Track your finances, measure your F.I.R.E. progress, and move closer to financial independence.",
+            "Explore mutual funds and fixed deposits designed to support your wealth-building journey. ",
+            "Set goals, stay on track, and build a future that aligns with your ambitions. "
         )
     }
 
@@ -256,12 +265,16 @@ fun SplashPane2(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(
-            text="Master your Financial\nFuture",
-            textAlign = TextAlign.Center,
-            color = Secondary,
-            style = MaterialTheme.typography.headlineLarge
-        )
+        AnimatedContent(
+            targetState = pagerState.currentPage
+        ){page->
+            Text(
+                text = headList[page],
+                textAlign = TextAlign.Center,
+                color = Secondary,
+                style = MaterialTheme.typography.headlineLarge
+            )
+        }
 
         Column(
             modifier=Modifier.fillMaxWidth(),

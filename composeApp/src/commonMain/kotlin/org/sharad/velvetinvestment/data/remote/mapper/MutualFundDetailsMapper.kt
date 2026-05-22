@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.data.remote.mapper
 
+import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.MutualFundsDetailDto
 import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
@@ -19,7 +20,7 @@ fun MutualFundsDetailDto.toDomain(): MutualFundDetailsDomain {
         latest_nav_date = d.latest_nav_date,
         mapping_code = d.mapping_code,
         maturity_date = d.maturity_date,
-        metrics = d.metrics,
+        metrics = d.metrics?: Metrics(0.0, null, null, null, null,null),
         nfo_end_date = d.nfo_end_date,
         nse_scheme_code = d.nse_scheme_code,
         platform_code = d.platform_code,

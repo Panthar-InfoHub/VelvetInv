@@ -60,6 +60,8 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.SelectedFundType
@@ -271,19 +273,22 @@ fun BundleMutualFundListCard(
             ) {
 
                 SubcomposeAsyncImage(
-                    modifier = Modifier.size(36.dp),
+                    modifier = Modifier.size(44.dp)
+                        .genericDropShadow(LocalVelvetShapes.current.roundedDp12)
+                        .clip(LocalVelvetShapes.current.roundedDp12)
+                        .background(Color.White),
                     model = fund.icon,
                     contentDescription = null,
                     loading = {
                         MutualFundIcon(
                             schemeName = fund.scheme_name,
-                            size = 36.dp
+                            size = 40.dp
                         )
                     },
                     error = {
                         MutualFundIcon(
                             schemeName = fund.scheme_name,
-                            size = 36.dp
+                            size = 40.dp
                         )
                     },
                     success = {

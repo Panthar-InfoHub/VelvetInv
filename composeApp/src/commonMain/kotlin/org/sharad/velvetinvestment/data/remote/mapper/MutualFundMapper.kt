@@ -28,12 +28,19 @@ fun MutualFund.toDomain(): MutualFundDomain {
     )
 }
 
-fun Metrics.toReturnDomain(): ReturnYearsRateDomain {
-    return ReturnYearsRateDomain(
-        month3 = return_90d?.trimDoubleTo(2),
-        month6 = return_6m?.trimDoubleTo(2),
-        year1 = return_1y?.trimDoubleTo(2),
-        year3 = return_3y?.trimDoubleTo(2),
+fun Metrics?.toReturnDomain(): ReturnYearsRateDomain {
+    return this?.let {
+        ReturnYearsRateDomain(
+            month3 = return_90d?.trimDoubleTo(2),
+            month6 = return_6m?.trimDoubleTo(2),
+            year1 = return_1y?.trimDoubleTo(2),
+            year3 = return_3y?.trimDoubleTo(2),
+        )
+    }?: ReturnYearsRateDomain(
+        month3 = null,
+        month6 = null,
+        year1 = null,
+        year3 = null,
     )
 }
 

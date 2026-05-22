@@ -19,16 +19,6 @@ import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 
 interface MutualFundRepository {
-
-    suspend fun getPortfolioMutualFunds():
-            NetworkResponse<List<FundListCardData>, ErrorDomain>
-
-    suspend fun getDashboard():
-            NetworkResponse<MutualFundDashBoardData, ErrorDomain>
-
-    suspend fun getMutualFundTopPicks():
-            NetworkResponse<List<MutualFundTopPicksDomain>, ErrorDomain>
-
     suspend fun getCategoryMutualFunds(
         page: Int? = null,
         limit: Int? = null

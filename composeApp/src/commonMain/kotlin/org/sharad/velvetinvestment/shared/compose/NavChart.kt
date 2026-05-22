@@ -297,7 +297,7 @@ private fun String.toAxisDate(): String {
 
         val shortYear = (date.year % 100).toString().padStart(2, '0')
 
-        "$month,$shortYear"
+        "$month'$shortYear"
     } catch (e: Exception) {
         this.takeLast(2)
     }

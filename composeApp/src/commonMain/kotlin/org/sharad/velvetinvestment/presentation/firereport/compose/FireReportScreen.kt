@@ -177,7 +177,7 @@ fun FireReportContent(
                 onEmiIncludedClick = onEmiSwitchClick,
                 onUpdateClick=onUpdateClick,
                 onProjectedClick = onProjectedSwitchClick,
-                showProjected = showProjected
+                showProjected = !showProjected
             )
         }
         item {
@@ -370,7 +370,7 @@ fun FireReportHeadSwitcher(
             }
             YearSelector(selectedYear,onSelectedYearChange)
             FireToggle(text="Include EMI",emiIncluded,onEmiIncludedClick)
-            FireToggle(text="Projected",showProjected,onProjectedClick)
+            FireToggle(text="Projected Vs Actual",showProjected,onProjectedClick)
         }
     }
 }

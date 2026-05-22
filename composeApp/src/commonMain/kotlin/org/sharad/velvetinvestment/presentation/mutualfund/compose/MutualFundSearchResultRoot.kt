@@ -59,6 +59,8 @@ import org.sharad.velvetinvestment.shared.compose.FilterChip
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.PaginationEffect
 import org.sharad.velvetinvestment.shared.compose.PaginationFooter
+import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.LabelFilter
@@ -267,7 +269,10 @@ fun MutualFundListCard(
         verticalAlignment = Alignment.CenterVertically
     ) {
         SubcomposeAsyncImage(
-            modifier = Modifier.size(38.dp),
+            modifier = Modifier.size(38.dp)
+                .genericDropShadow()
+                .clip(LocalVelvetShapes.current.roundedDp12)
+                .background(Color.White),
             model = fund.icon,
             contentDescription = null,
             loading = {

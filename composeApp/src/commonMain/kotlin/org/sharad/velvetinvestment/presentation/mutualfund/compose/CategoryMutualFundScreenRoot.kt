@@ -176,7 +176,8 @@ fun CategoryMutualFundScreen(
             AppSearchBar(
                 value = searchText,
                 onTextChange = { onTextChange(it) },
-                onSearchClick = { onSearchClick(searchText) }
+                onSearchClick = { onSearchClick(searchText) },
+                modifier = Modifier.fillMaxWidth()
             )
         }
 

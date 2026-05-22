@@ -95,17 +95,18 @@ fun InvestmentMethodScreen(
             item {
                 Column {
                     Text(
-                        text = stringResource(Res.string.choose_how_to_invest),
-                        fontSize = 28.sp,
+                        text = "Invest Your Way",
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = Poppins,
                         color = Color.Black
                     )
 
                     Text(
-                        text = stringResource(Res.string.select_investment_method),
+                        text = "Pick an option to start your investment journey today. ",
                         fontFamily = Poppins,
-                        fontSize = 16.sp,
+                        fontSize = 14.sp,
+                        lineHeight = 16.sp,
                         color = Color.Gray
                     )
                 }
@@ -115,7 +116,7 @@ fun InvestmentMethodScreen(
                 InvestmentOptionCard(
                     title = stringResource(Res.string.start_an_sip),
                     description = stringResource(Res.string.sip_description),
-                    buttonText ="SIP",
+                    buttonText ="Start SIP ",
                     icon = Res.drawable.ic_callended_filled,
                     onButtonClick = onStartSipClick
                 )
@@ -125,7 +126,7 @@ fun InvestmentMethodScreen(
                 InvestmentOptionCard(
                     title = stringResource(Res.string.invest_as_lumpsum),
                     description = stringResource(Res.string.lumpsum_description),
-                    buttonText = "Lumpsum",
+                    buttonText = "Invest Lump Sum",
                     icon = Res.drawable.ic_ruppee_filled,
                     onButtonClick = onLumpsumClick
                 )

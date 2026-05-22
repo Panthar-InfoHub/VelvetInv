@@ -15,7 +15,7 @@ data class Data(
     val latest_nav_date: String,
     val mapping_code: String,
     val maturity_date: String?,
-    val metrics: Metrics,
+    val metrics: Metrics?,
     val nfo_end_date: String?,
     val nse_scheme_code: String,
     val platform_code: String,

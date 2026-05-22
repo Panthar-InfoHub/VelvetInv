@@ -321,7 +321,7 @@ fun MutualFundDetailsScreen(
             contentPadding = PaddingValues(top = 8.dp)
         ) {
             item {
-                InfoCard(detailsState=detailsState, displayPercent=displayPercent)
+                InfoCard(detailsState=detailsState, selectedYear=selectedYear)
             }
             item { Spacer(Modifier.height(20.dp)) }
             item("graph") {
@@ -688,8 +688,10 @@ private fun GraphDurationSelectionItemLabel(
 }
 
 @Composable
-fun InfoCard(detailsState: MutualFundDetailsDomain, displayPercent: StableMetricUi?) {
-
+fun InfoCard(
+    detailsState: MutualFundDetailsDomain,
+    selectedYear: GraphDurationSelection
+) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
     ) {
@@ -755,28 +757,55 @@ fun InfoCard(detailsState: MutualFundDetailsDomain, displayPercent: StableMetric
             color = Color.Black
         )
 
-        displayPercent?.let{
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = it.value.trimTo(2) + "%",
-                    fontFamily = Poppins,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (it.value> 0) appGreen else Color.Red
-                )
+                val returnValue = when (selectedYear) {
+                    GraphDurationSelection.OneMonth -> detailsState.metrics.return_30d
+                    GraphDurationSelection.SixMonths -> detailsState.metrics.return_6m
+                    GraphDurationSelection.OneYear -> detailsState.metrics.return_1y
+                    GraphDurationSelection.ThreeYears -> detailsState.metrics.return_3y
+                    GraphDurationSelection.FiveYears -> null
+                    GraphDurationSelection.All -> detailsState.metrics.return_1y
+                }
+
+                val returnText = returnValue?.let { "${it.trimTo(2)}%" } ?: "n/a"
+
+                val returnColor = when {
+                    returnValue == null -> Color.Gray
+                    returnValue > 0 -> appGreen
+                    returnValue < 0 -> Color.Red
+                    else -> Color.Unspecified
+                }
 
                 Text(
-                    text = it.label + " annualised",
-                    style = titlesStyle,
-                    color = titleColor
+                    text = returnText,
+                    fontFamily = Poppins,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = returnColor
                 )
+
+                val returnLabel = when (selectedYear) {
+                    GraphDurationSelection.OneMonth -> "1M return"
+                    GraphDurationSelection.SixMonths -> "6M return"
+                    GraphDurationSelection.OneYear -> "1Y annualised"
+                    GraphDurationSelection.ThreeYears -> "3Y annualised"
+                    GraphDurationSelection.FiveYears -> null
+                    GraphDurationSelection.All -> "1Y annualised"
+                }
+
+                if (returnValue != null && returnLabel != null) {
+                    Text(
+                        text = returnLabel,
+                        style = titlesStyle,
+                        color = titleColor
+                    )
+                }
 
             }
-        }
 
         Row(
             modifier=Modifier.fillMaxWidth(),

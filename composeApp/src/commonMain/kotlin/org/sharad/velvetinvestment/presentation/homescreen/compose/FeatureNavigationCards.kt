@@ -53,8 +53,8 @@ fun FeatureNavigationCards(
         ) {
             FeatureNavigationCard(
                 onClick = onBeatInflationClick,
-                title = "Mutual Fund",
-                description = "Grow Wealth faster than rising cost",
+                title = "Mutual Funds ",
+                description = "Equity,Liquid Funds and more ",
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.expenses_icon),
@@ -69,7 +69,7 @@ fun FeatureNavigationCards(
             FeatureNavigationCard(
                 onClick = onExpertPickedClick,
                 title = "Fixed Deposits",
-                description = "Curated fund for better Returns",
+                description = "Earn stable returns ",
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.human_brain_icon),
@@ -90,7 +90,7 @@ fun FeatureNavigationCards(
             FeatureNavigationCard(
                 onClick = onStartSmallClick,
                 title = "Track F.I.R.E report",
-                description = "Begin your journey to financial freedom!",
+                description = "Track your progress towards Financial Independence",
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.thunder_icon),
@@ -105,7 +105,7 @@ fun FeatureNavigationCards(
             FeatureNavigationCard(
                 onClick = onDiversifiedClick,
                 title = "Insurance",
-                description = "Allocate wisely to reduce financial risk.",
+                description = "Protect your wealth and goals from unexpected risks",
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.circe_chart_icon),

@@ -19,10 +19,10 @@
     <string name="invest_now">Invest Now</string>
     <string name="choose_how_to_invest">Choose how to invest</string>
     <string name="select_investment_method">Select an investment method to continue.</string>
-    <string name="start_an_sip">Start an SIP</string>
+    <string name="start_an_sip">Start a SIP</string>
     <string name="sip_description">Automated monthly investments to build wealth steadily over time.</string>
     <string name="start_sip_setup">Start SIP Setup</string>
-    <string name="invest_as_lumpsum">Invest as Lump-sum</string>
+    <string name="invest_as_lumpsum">Invest a Lump-Sum</string>
     <string name="lumpsum_description">Make a one-time investment with your available funds today.</string>
     <string name="privacy_policy_title">Privacy Policy</string>
     <string name="privacy_policy_header">Velvet Investing Privacy Policy</string>

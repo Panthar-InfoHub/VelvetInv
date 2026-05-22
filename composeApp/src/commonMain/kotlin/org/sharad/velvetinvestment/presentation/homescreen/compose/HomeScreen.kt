@@ -177,7 +177,7 @@ fun HomeScreen(
             )
         }
         if (goals.isNotEmpty()) {
-            item { BarHeader(heading = "Your Goals", showArrow = true, onArrowClick = navigateToGoalScreen) }
+            item { BarHeader(heading = "Your Financial Goals", showArrow = true, onArrowClick = navigateToGoalScreen) }
             homeGoalsInfo(goals = goals) { id ->
                 navigateToSpecificGoalProjection(id)
             }
@@ -286,7 +286,7 @@ fun FireReportCard(summary: Double, onClick: () -> Unit) {
                 .fillMaxWidth()
         ){
             Text(
-                text = "Current F.I.R.E Percentage",
+                text = "Current F.I.R.E.(%) Score",
                 style = subHeading,
                 color = Primary,
             )
@@ -348,12 +348,12 @@ fun FireReportHeader() {
             Column(modifier = Modifier.weight(1f)
                 .fillMaxWidth()){
                 Text(
-                    text = "F.I.R.E Report",
+                    text = "Your F.I.R.E Report",
                     style = MaterialTheme.typography.headlineSmall,
                     color = Primary,
                 )
                 Text(
-                    text = "Financial Independence Retire Early",
+                    text = "Track how close you are to Financial Freedom",
                     style = titlesStyle,
                     color = Primary,
                 )

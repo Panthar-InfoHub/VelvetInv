@@ -55,17 +55,6 @@ import org.sharad.velvetinvestment.utils.networking.safeUnitRequest
 class MutualFundRepo(
     private val client: HttpClient
 ): MutualFundRepository {
-    override suspend fun getPortfolioMutualFunds(): NetworkResponse<List<FundListCardData>, ErrorDomain> {
-        return NetworkResponse.Success(emptyList())
-    }
-
-    override suspend fun getDashboard(): NetworkResponse<MutualFundDashBoardData, ErrorDomain> {
-        return NetworkResponse.Error(ErrorDomain(0, "Unknown", ErrorType.UNKNOWN))
-    }
-
-    override suspend fun getMutualFundTopPicks(): NetworkResponse<List<MutualFundTopPicksDomain>, ErrorDomain> {
-        return NetworkResponse.Error(ErrorDomain(0, "Unknown", ErrorType.UNKNOWN))
-    }
 
     override suspend fun getCategoryMutualFunds(
         page: Int?,
