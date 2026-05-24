@@ -50,6 +50,7 @@ import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioD
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.withInterRupee
 import org.sharad.velvetinvestment.shared.theme.buttonTextStyle
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
@@ -318,7 +319,7 @@ fun InvestmentDetailsCard(details: FixedDepositTransactionDomain) {
 
             InfoTextColumn(
                 title = "Principal Amount",
-                value = formatMoneyAfterL(details.amount.toLong()),
+                value = "₹${formatMoneyAfterL(details.amount.toLong())}".withInterRupee(),
                 valueColor = Primary,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -337,7 +338,7 @@ fun InvestmentDetailsCard(details: FixedDepositTransactionDomain) {
 
                 InfoTextColumn(
                     title = "Maturity Amount",
-                    value = details.maturityAmount?.let { "₹${formatMoneyAfterL(it.toLong())}" }?: "N/A",
+                    value = details.maturityAmount?.let { "₹${formatMoneyAfterL(it.toLong())}".withInterRupee() }?: "N/A",
                     valueColor = appGreen,
                     modifier = Modifier.weight(1f),
                 )
@@ -401,7 +402,7 @@ fun FDDetailsHeader(onBackClick: () -> Unit, bankName: String, fdId: String) {
 @Composable
 fun InfoTextColumn(
     title: String,
-    value: String,
+    value: Any,
     valueColor: Color,
     modifier: Modifier = Modifier,
     spacing: Dp = 4.dp
@@ -416,10 +417,21 @@ fun InfoTextColumn(
             color = titleColor
         )
 
-        Text(
-            text = value,
-            style = subHeading,
-            color = valueColor
-        )
+        when (value) {
+            is String -> {
+                Text(
+                    text = value,
+                    style = subHeading,
+                    color = valueColor
+                )
+            }
+            is androidx.compose.ui.text.AnnotatedString -> {
+                Text(
+                    text = value,
+                    style = subHeading,
+                    color = valueColor
+                )
+            }
+        }
     }
 }

@@ -49,12 +49,14 @@ import org.sharad.velvetinvestment.presentation.mutualfund.CartBottomSheetState
 import org.sharad.velvetinvestment.presentation.mutualfund.Duration
 import org.sharad.velvetinvestment.presentation.mutualfund.MFPurchaseTypes
 import org.sharad.velvetinvestment.shared.compose.AppButton
+import org.sharad.velvetinvestment.shared.theme.Inter
 import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 
@@ -200,7 +202,7 @@ fun SIPCart(
             ) {
                 if (amount != null && amount < minAmount) {
                     Text(
-                        text = "Amount less than min ₹$minAmount",
+                        text = "Amount less than min ₹$minAmount".withInterRupee(),
                         color = appRed,
                         style = titlesStyle.copy(fontSize = 12.sp),
                     )
@@ -208,7 +210,7 @@ fun SIPCart(
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 Text(
-                    text = "Min ₹$minAmount",
+                    text = "Min ₹$minAmount".withInterRupee(),
                     style = titlesStyle.copy(fontSize = 14.sp),
                     color = titleColor
                 )
@@ -299,7 +301,7 @@ fun LumpSumCart(
             ) {
                 if (amount != null && amount < minAmount) {
                     Text(
-                        text = "Amount less than min ₹$minAmount",
+                        text = "Amount less than min ₹$minAmount".withInterRupee(),
                         color = appRed,
                         style = titlesStyle.copy(fontSize = 12.sp),
                     )
@@ -307,7 +309,7 @@ fun LumpSumCart(
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 Text(
-                    text = "Min ₹$minAmount",
+                    text = "Min ₹$minAmount".withInterRupee(),
                     style = titlesStyle.copy(fontSize = 14.sp),
                     color = titleColor
                 )
@@ -345,7 +347,7 @@ fun AmountChipsGrid(
     ) {
         amounts.forEach { amount ->
             ChipItem(
-                text = "₹" + formatMoneyAfterL(amount),
+                text = ("₹" + formatMoneyAfterL(amount)),
                 onClick = { onChipClick(amount) },
                 selected = amount == currentAmount
             )
@@ -369,7 +371,7 @@ fun ChipItem(text: String, onClick: () -> Unit, selected: Boolean) {
         contentAlignment = Alignment.Center
     ){
         Text(
-            text = text,
+            text = text.withInterRupee(),
             style = titlesStyle.copy(fontWeight = FontWeight.Medium, fontSize = 14.sp),
             color = if (selected) Color.White else Primary,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
@@ -437,7 +439,7 @@ fun ShadowlessTextField(
             ) {
                 Text(
                     text = "₹",
-                    fontFamily = Poppins,
+                    fontFamily = Inter,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier=Modifier.padding(start = 8.dp)
@@ -451,7 +453,7 @@ fun ShadowlessTextField(
                 ) {
                     if (value.isEmpty()) {
                         Text(
-                            text = placeHolder,
+                            text = placeHolder.withInterRupee(),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color(0xffC5C5C5)
                         )

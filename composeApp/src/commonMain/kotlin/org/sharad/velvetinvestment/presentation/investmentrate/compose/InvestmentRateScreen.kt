@@ -57,10 +57,10 @@ import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.trimTo
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 import velvet.composeapp.generated.resources.fd_icon
-import velvet.composeapp.generated.resources.ic_home
 import velvet.composeapp.generated.resources.icon_food
 import velvet.composeapp.generated.resources.icon_house
 import velvet.composeapp.generated.resources.icon_others
@@ -395,7 +395,8 @@ fun AverageSavingsSummaryCard(data: InvestmentRateDomain) {
                 )
             }
             Text(
-                text = "You saved ₹${formatWithCommas(data.savingDelta)} more than last month.",
+                text = "You saved ₹${formatWithCommas(data.savingDelta)} more than last month."
+                    .withInterRupee(),
                 color = Color.White,
                 lineHeight = 20.sp,
                 fontFamily = Poppins,
@@ -499,7 +500,8 @@ fun SpendingCategoriesSection(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "Total", fontSize = 12.sp, color = TextGray, fontFamily = Poppins)
                     Text(
-                        text = "₹${formatMoneyWithUnits(categories.investments.amount + categories.essentials.amount + categories.savings.amount)}",
+                        text = "₹${formatMoneyWithUnits(categories.investments.amount + categories.essentials.amount + categories.savings.amount)}"
+                            .withInterRupee(),
                         fontSize = 16.sp,
                         fontFamily = Poppins,
                         fontWeight = FontWeight.Bold,

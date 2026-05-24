@@ -51,6 +51,7 @@ import org.sharad.velvetinvestment.utils.DateTimeUtils.epochToYYYYMMdd
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 
 @Composable
 fun OnBoardingConfirmationScreen(
@@ -152,12 +153,6 @@ fun OnBoardingConfirmationScreen(
                         "₹${formatMoneyWithUnits(totalLiabilities)}",
                         Color.Red
                     )
-//                    HorizontalDivider()
-//                    KeyValueRow(
-//                        "Net Worth",
-//                        "₹${formatMoneyWithUnits(netWorth)}",
-//                        Secondary
-//                    )
                 }
             }
 
@@ -189,22 +184,6 @@ fun OnBoardingConfirmationScreen(
             }
 
             if (goals.isNotEmpty()) {
-//                item {
-//                    SectionCard(title = "Goals (${goals.size})") {
-//                        goals.forEach {
-//                            KeyValueRow(
-//                                label = it.title,
-//                                value = when(it){
-//                                    is GoalRequest.ChildEducation -> formatMoneyWithUnits(it.currentGoalCost)
-//                                    is GoalRequest.ChildMarriage -> formatMoneyWithUnits(it.currentGoalCost)
-//                                    is GoalRequest.Retirement -> formatMoneyWithUnits(it.currentMonthlyExpense)
-//                                    is GoalRequest.WealthBuildingGoal -> formatMoneyWithUnits(it.currentGoalCost)
-//                                },
-//                                valueColor = Secondary
-//                            )
-//                        }
-//                    }
-//                }
 
                 items(goals){
                     GoalEntry(
@@ -328,6 +307,6 @@ private fun KeyValueRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, color = Primary, style = MaterialTheme.typography.labelLarge)
-        Text(value, color = valueColor,  style = MaterialTheme.typography.labelLarge)
+        Text(value.withInterRupee(), color = valueColor,  style = MaterialTheme.typography.labelLarge)
     }
 }

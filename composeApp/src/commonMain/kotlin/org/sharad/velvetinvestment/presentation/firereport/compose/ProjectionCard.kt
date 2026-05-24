@@ -43,6 +43,7 @@ import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.trimTo
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 
@@ -132,7 +133,7 @@ fun UnExtendedProjectionPart(
                 color = titleColor
             )
             Text(
-                text = portfolio,
+                text = portfolio.withInterRupee(),
                 fontFamily = Poppins,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
@@ -278,7 +279,7 @@ fun DataCard(value: String, title: String, modifier: Modifier=Modifier, valueCol
                 color = Color(0xff62748E)
             )
             Text(
-                text = "₹ $value",
+                text = "₹ $value".withInterRupee(),
                 fontFamily = Poppins,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,

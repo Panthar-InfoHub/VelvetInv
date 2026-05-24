@@ -70,6 +70,7 @@ import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatWithCommas
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.future_value
@@ -317,7 +318,7 @@ fun ProjectedImpactCard(
                             color = titleColor
                         )
                         Text(
-                            text = "₹ ${formatCurrency(data.todaysCost)}",
+                            text = "₹ ${formatCurrency(data.todaysCost)}".withInterRupee(),
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.Black,
                             fontWeight = FontWeight.Bold
@@ -332,7 +333,7 @@ fun ProjectedImpactCard(
                             color = titleColor
                         )
                         Text(
-                            text = "₹ ${formatCurrency(data.futureValue.toLong())}",
+                            text = "₹ ${formatCurrency(data.futureValue.toLong())}".withInterRupee(),
                             style = MaterialTheme.typography.titleMedium,
                             color = orangeColor,
                             fontWeight = FontWeight.Bold
@@ -365,7 +366,7 @@ fun ProjectedImpactCard(
                             color = titleColor
                         )
                         Text(
-                            text = "₹ ${formatCurrency(data.monthlySip.toLong())}",
+                            text = "₹ ${formatCurrency(data.monthlySip.toLong())}".withInterRupee(),
                             style = MaterialTheme.typography.titleMedium,
                             color = greenColor,
                             fontWeight = FontWeight.Bold
@@ -385,7 +386,7 @@ fun ProjectedImpactCard(
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "₹ ${formatCurrency(data.currentSaved)} / ₹ ${formatCurrency(data.targetAmount)}",
+                            text = ("₹ ${formatCurrency(data.currentSaved)} / ₹ ${formatCurrency(data.targetAmount)}").withInterRupee(),
                             style = titlesStyle,
                             color = Color.Black,
                             fontWeight = FontWeight.SemiBold
@@ -508,7 +509,7 @@ fun BundleGoalCard(
             )
 
             Text(
-                text = data.metadata,
+                text = data.metadata.withInterRupee(),
                 style = titlesStyle.copy(fontSize = 11.sp),
                 color = titleColor,
                 maxLines = 1

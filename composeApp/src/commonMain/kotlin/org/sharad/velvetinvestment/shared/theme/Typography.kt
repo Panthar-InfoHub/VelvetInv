@@ -10,6 +10,10 @@ import androidx.compose.ui.unit.sp
 
 import org.jetbrains.compose.resources.Font
 import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.inter_bold
+import velvet.composeapp.generated.resources.inter_medium
+import velvet.composeapp.generated.resources.inter_regular
+import velvet.composeapp.generated.resources.inter_semibold
 import velvet.composeapp.generated.resources.poppins_bold
 import velvet.composeapp.generated.resources.poppins_medium
 import velvet.composeapp.generated.resources.poppins_regular
@@ -37,6 +41,25 @@ val Poppins @Composable get() = FontFamily(
         resource = Res.font.poppins_medium,
         weight = FontWeight.Medium
     )
+)
+
+val Inter @Composable get() = FontFamily(
+    Font(
+        resource = Res.font.inter_regular,
+        weight = FontWeight.Normal
+    ),
+    Font(
+        resource = Res.font.inter_medium,
+        weight = FontWeight.Medium
+    ),
+    Font(
+        resource = Res.font.inter_bold,
+        weight = FontWeight.Bold
+    ),
+    Font(
+        resource = Res.font.inter_semibold,
+        weight = FontWeight.SemiBold
+    ),
 )
 
 val Typography @Composable get() = Typography(

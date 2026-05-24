@@ -5,10 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,17 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
-import org.sharad.emify.core.ui.theme.appGreen
-import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.withInterRupee
 
 @Composable
 fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
@@ -118,7 +114,7 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = "₹" + formatMoneyAfterL(fundItem.amount.toLong()),
+                        text = ("₹" + formatMoneyAfterL(fundItem.amount.toLong())).withInterRupee(),
                         color = Color.Black,
                         style = MaterialTheme.typography.labelSmall,
                     )
@@ -145,7 +141,7 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
                         color = titleColor
                     )
                     Text(
-                        text = "₹" + formatMoneyAfterL(fundItem.amount.toLong()),
+                        text = ("₹" + formatMoneyAfterL(fundItem.amount.toLong())).withInterRupee(),
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.Black
                     )

@@ -80,6 +80,7 @@ import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.trimTo
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.download_ic
 import kotlin.math.abs
@@ -427,7 +428,7 @@ fun TotalInvestmentCard(totalInvestments: TotalInvestmentsDomain) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "₹${formatMoneyAfterL(totalInvestments.currentValue.toLong())}",
+                        text = "₹${formatMoneyAfterL(totalInvestments.currentValue.toLong())}".withInterRupee(),
                         style = subHeading.copy(fontSize = 36.sp, fontWeight = FontWeight.ExtraBold),
                         color = Primary
                     )
@@ -462,7 +463,7 @@ fun TotalInvestmentCard(totalInvestments: TotalInvestmentsDomain) {
                 ) {
                     Text(text = "Allocation", style = tinyLabel)
                     Text(
-                        text = "Total: ₹${formatMoneyAfterL(totalInvestments.currentValue.toLong())}",
+                        text = "Total: ₹${formatMoneyAfterL(totalInvestments.currentValue.toLong())}".withInterRupee(),
                         style = tinyLabel,
                         color = Primary
                     )
@@ -564,7 +565,7 @@ fun MFInvestmentsCard(
                 Column {
                     Text(text = "Total Investments", style = titlesStyle, color = titleColor)
                     Text(
-                        text = "₹${formatMoneyAfterL(investedBreakdown.investedAmount.toLong() + investedBreakdown.returnsAmount.toLong())}",
+                        text = "₹${formatMoneyAfterL(investedBreakdown.investedAmount.toLong() + investedBreakdown.returnsAmount.toLong())}".withInterRupee(),
                         style = subHeading.copy(fontSize = 24.sp),
                         color = Primary
                     )
@@ -588,7 +589,7 @@ fun MFInvestmentsCard(
                                         investedBreakdown.returnsAmount.toLong()
                                     )
                                 )
-                            })",
+                            })".withInterRupee(),
                             style = titlesStyle,
                             color = titleColor
                         )
@@ -605,7 +606,7 @@ fun MFInvestmentsCard(
                 ) {
                     Text(text = "Invested Amount", style = titlesStyle, color = titleColor)
                     Text(
-                        text = "₹${formatMoneyAfterL(investedBreakdown.investedAmount.toLong())}",
+                        text = "₹${formatMoneyAfterL(investedBreakdown.investedAmount.toLong())}".withInterRupee(),
                         style = subHeading,
                         color = Color.Black
                     )
@@ -812,7 +813,7 @@ fun PendingPaymentsCard(item: PendingOrderDomain) {
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "₹${formatMoneyAfterL(item.amount.toLong())}",
+                        text = "₹${formatMoneyAfterL(item.amount.toLong())}".withInterRupee(),
                         color = Color.Black,
                         style = MaterialTheme.typography.labelSmall
                     )

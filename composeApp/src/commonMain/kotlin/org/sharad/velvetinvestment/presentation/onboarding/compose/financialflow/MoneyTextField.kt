@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.sharad.velvetinvestment.shared.theme.Inter
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 
@@ -99,7 +100,7 @@ fun MoneyTextField(
             ) {
                 Text(
                     text = "₹",
-                    fontFamily = Poppins,
+                    fontFamily = Inter,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier=Modifier.padding(start = 8.dp)

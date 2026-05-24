@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.palak.test
+package org.sharad.velvetinvestment.presentation.extra.test
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

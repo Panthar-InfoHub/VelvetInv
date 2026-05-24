@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.palak.test
+package org.sharad.velvetinvestment.presentation.extra.test
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.darkBlue
-import org.sharad.emify.core.ui.theme.greenColor
+import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.velvetinvestment.shared.compose.GoalsCard
 import org.sharad.velvetinvestment.shared.compose.ScreenHeader
 import velvet.composeapp.generated.resources.Res
@@ -42,10 +42,10 @@ import velvet.composeapp.generated.resources.rupeesign
 import velvet.composeapp.generated.resources.vector__6_
 @Preview(showSystemUi = true)
 @Composable
-fun EducationGoalScreen(){
+fun FinancialMarriageScreen() {
     var textFieldValue by remember { mutableStateOf("") }
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)// Handles outer padding for all items
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
     ) {
         // 1. Header Section
         item {
@@ -57,28 +57,26 @@ fun EducationGoalScreen(){
         item {
             Text("Goal Name", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
             Spacer(modifier = Modifier.height(20.dp))
-
-            GoalDisplayBox(
+            SelectionDisplay(
                 icon = Res.drawable.elements,
                 label = "Retirement",
-                color = greenColor
+                color = goldenColor
             )
-            Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // 3. Target Inputs Section
+        // 3. Input Fields
         item {
             TextFieldComposable(
-                text = "Target Year *",
+                "Target Year *",
                 value = "2030",
                 icon = Res.drawable.calender,
-                color = greenColor
+                color = goldenColor
             )
             TextFieldComposable(
-                text = "Target Amount *",
+                "Target Amount *",
                 value = "100000",
                 icon = Res.drawable.rupeesign,
-                color = greenColor
+                color = goldenColor
             )
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -91,75 +89,66 @@ fun EducationGoalScreen(){
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(20.dp))
-
-            GoalDisplayBox(
+            SelectionDisplay(
                 icon = Res.drawable.vector__6_,
                 label = "6 %",
-                color = greenColor,
-                textColor = greenColor
+                color = goldenColor,
+                labelColor = goldenColor
             )
             Spacer(modifier = Modifier.height(30.dp))
         }
 
-        // 5. Impact Analysis Section
+        // 5. Projection Section
         item {
-            HorizontalDivider(thickness = 2.dp, color = greenColor)
+            HorizontalDivider(thickness = 2.dp, color = goldenColor)
             Spacer(modifier = Modifier.height(15.dp))
-
             Text("Projected Impact", fontSize = 20.sp, fontWeight = FontWeight.W600)
             Spacer(modifier = Modifier.height(15.dp))
-
-            GoalsCard(color=greenColor)
+            GoalsCard(color =goldenColor )
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-        // 6. Final Action Section
+        // 6. Action Button
         item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp),
-                contentAlignment = Alignment.Center
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(darkBlue),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp)
             ) {
-                Button(
-                    onClick = { /* Handle Save */ },
-                    colors = ButtonDefaults.buttonColors(darkBlue),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Set Your First Goal", fontSize = 18.sp)
-                }
+                Text("Set Your First Goal", fontSize = 18.sp)
             }
             Spacer(modifier = Modifier.height(30.dp))
         }
     }
+
 }
-@Composable
-fun GoalDisplayBox(
-    icon: DrawableResource,
-    label: String,
-    color: Color,
-    textColor: Color = Color.Black
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, color = color, shape = RoundedCornerShape(12.dp))
-            .height(70.dp)
-            .background(color = Color.White, shape = RoundedCornerShape(12.dp))
-            .padding(15.dp),
-        contentAlignment = Alignment.CenterStart
+    @Composable
+    fun SelectionDisplay(
+        icon: DrawableResource,
+        label: String,
+        color: Color,
+        labelColor: Color = Color.Unspecified
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier
-                    .background(color.copy(0.1f), RoundedCornerShape(8.dp))
-                    .padding(8.dp)
-            )
-            Spacer(Modifier.width(15.dp))
-            Text(label, fontWeight = FontWeight.Medium, fontSize = 16.sp, color = textColor)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, color = color, shape = RoundedCornerShape(12.dp))
+                .height(70.dp)
+                .background(color = Color.White, shape = RoundedCornerShape(12.dp))
+                .padding(15.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier
+                        .background(color.copy(0.1f), RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                )
+                Spacer(Modifier.width(15.dp))
+                Text(label, fontWeight = FontWeight.Medium, fontSize = 16.sp, color = labelColor)
+            }
         }
     }
-}

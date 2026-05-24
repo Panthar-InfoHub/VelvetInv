@@ -460,7 +460,7 @@ fun SIPBundleCart(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             ShadowlessTextField(
                 value = amount?.toString() ?: "",
                 onValueChange = onAmountChange,

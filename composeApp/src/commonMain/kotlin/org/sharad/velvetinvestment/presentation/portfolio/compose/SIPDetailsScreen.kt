@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,6 +43,7 @@ import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.AppEventsController
+import org.sharad.velvetinvestment.utils.withInterRupee
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -209,7 +211,7 @@ fun SIPDetailsCard(
                     )
 
                     Text(
-                        text = "₹${data.amount}",
+                        text = "₹${data.amount}".withInterRupee(),
                         color = Color.Black,
                         style = subHeading,
                         modifier = Modifier.padding(start = 12.dp)
@@ -231,7 +233,7 @@ fun SIPDetailsCard(
                 SIPInfoRow("Folio", data.folio)
                 SIPInfoRow("Start Date", data.startDate)
                 SIPInfoRow("Return %", data.returnPercentage)
-                SIPInfoRow("Return Amount", "₹${data.returnAmount}")
+                SIPInfoRow("Return Amount", "₹${data.returnAmount}".withInterRupee())
                 SIPInfoRow("XIRR", data.xirr)
                 SIPInfoRow("Current NAV", data.currentNav.toString())
                 SIPInfoRow("Average NAV", data.avgNav.toString())
@@ -252,7 +254,7 @@ fun SIPDetailsCard(
 @Composable
 fun SIPInfoRow(
     title: String,
-    value: String
+    value: Any
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -265,11 +267,22 @@ fun SIPInfoRow(
             style = titlesStyle
         )
 
-        Text(
-            text = value,
-            color = Color.Black,
-            style = subHeading
-        )
+        when (value) {
+            is String -> {
+                Text(
+                    text = value,
+                    color = Color.Black,
+                    style = subHeading
+                )
+            }
+            is AnnotatedString -> {
+                Text(
+                    text = value,
+                    color = Color.Black,
+                    style = subHeading
+                )
+            }
+        }
     }
 }
 

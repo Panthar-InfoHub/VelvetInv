@@ -62,6 +62,7 @@ import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.AppEvent
 import org.sharad.velvetinvestment.utils.AppEventsController
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.download_ic
@@ -260,7 +261,7 @@ fun PortFolioProjectionChart(
                     )
                 }
                 Text(
-                    text = "Amount (₹)",
+                    text = "Amount (₹)".withInterRupee(),
                     style = titlesStyle,
                     color = titleColor
                 )

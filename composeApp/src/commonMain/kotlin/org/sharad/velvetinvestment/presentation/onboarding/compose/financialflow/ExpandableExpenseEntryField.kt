@@ -31,6 +31,7 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 import velvet.composeapp.generated.resources.circle_arrow
@@ -183,7 +184,7 @@ fun UnExtendedPart(
                 horizontalAlignment = Alignment.End,
             ) {
                 Text(
-                    text = "₹ ${formatMoneyWithUnits(amount)}",
+                    text = "₹ ${formatMoneyWithUnits(amount)}".withInterRupee(),
                     style = org.sharad.velvetinvestment.shared.theme.subHeading,
                 )
                 percentage?.let{

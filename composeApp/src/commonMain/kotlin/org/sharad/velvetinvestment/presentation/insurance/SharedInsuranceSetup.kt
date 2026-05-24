@@ -37,6 +37,7 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_warning
 
@@ -187,7 +188,7 @@ fun RecommendedCard(modifier: Modifier, title: String, value: String, color: Col
                 color = color
             )
             Text(
-                text = value,
+                text = value.withInterRupee(),
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = Poppins,
                 fontSize = 16.sp,
@@ -241,7 +242,7 @@ fun CoverageStatus(coverage: String, status: String) {
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
-                    text = coverage,
+                    text = coverage.withInterRupee(),
                     color = Primary,
                     fontFamily = Poppins,
                     fontSize = 20.sp,
@@ -283,7 +284,7 @@ fun RiskCard(
 
 
                 Text(
-                    text =  text,
+                    text =  text.withInterRupee(),
                     style = titlesStyle.copy(fontSize = 12.sp),
                     color = Primary
                 )

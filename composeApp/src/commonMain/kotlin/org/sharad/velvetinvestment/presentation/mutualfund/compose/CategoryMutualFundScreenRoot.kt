@@ -7,14 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -28,19 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.SubcomposeAsyncImage
-import coil3.compose.SubcomposeAsyncImageContent
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
-import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.shadowColor
-import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
@@ -52,13 +45,9 @@ import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
-import org.sharad.velvetinvestment.shared.theme.subHeading
-import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.LoadingState
-import org.sharad.velvetinvestment.utils.trimTo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.cart_icon
@@ -242,91 +231,6 @@ fun CategoryMutualFundScreen(
     }
 
 }
-
-
-@Composable
-fun MutualFundGridCard(
-    schemeName: String,
-    assetType: String,
-    latestNav: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    oneYearReturn: Double?,
-    icon: String
-) {
-    ShadowCard(
-        modifier = modifier
-            .widthIn(min = 160.dp)
-            .height(176.dp),
-        clickable = true,
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                SubcomposeAsyncImage(
-                    modifier = Modifier.size(48.dp),
-                    model = icon,
-                    contentDescription = null,
-                    loading = {
-                        MutualFundIcon(
-                            schemeName = schemeName,
-                            size = 48.dp
-                        )
-                    },
-                    error = {
-                        MutualFundIcon(
-                            schemeName = schemeName,
-                            size = 48.dp
-                        )
-                    },
-                    success = {
-                        SubcomposeAsyncImageContent()
-                    }
-                )
-
-                Text(
-                    text = schemeName,
-                    style = subHeading,
-                    color = Color.Black,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "1Y Return",
-                    style = titlesStyle,
-                    color = titleColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Text(
-                    text = oneYearReturn?.let {
-                        it.trimTo(2) + "%"
-                    }?: "N/A",
-                    style = subHeading,
-                    color = appGreen
-                )
-            }
-        }
-    }
-}
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

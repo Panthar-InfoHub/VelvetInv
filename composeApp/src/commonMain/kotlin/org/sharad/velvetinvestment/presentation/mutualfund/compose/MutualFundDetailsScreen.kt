@@ -81,6 +81,7 @@ import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.utils.trimTo
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.icon_warning
@@ -560,7 +561,7 @@ fun FundInfo(
                 title = "NAV: ${date.isoUtcToDisplayDate()}",
             ){
                 Text(
-                    text= "₹ ${nav.toDouble().trimDoubleTo(2)}",
+                    text= "₹ ${nav.toDouble().trimDoubleTo(2)}".withInterRupee(),
                     style = MaterialTheme.typography.headlineLarge,
                     color = Color.Black
                 )

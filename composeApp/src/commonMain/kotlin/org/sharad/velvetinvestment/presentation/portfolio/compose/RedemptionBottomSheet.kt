@@ -31,6 +31,7 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.ShadowlessTextField
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.withInterRupee
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 
@@ -239,7 +240,7 @@ fun RedemptionBottomSheet(
                                 Spacer(Modifier.weight(1f))
 
                                 Text(
-                                    text = "Max Amount: ₹${formatMoneyAfterL(maxAmount.toLong())}",
+                                    text = "Max Amount: ₹${formatMoneyAfterL(maxAmount.toLong())}".withInterRupee(),
                                     style = titlesStyle,
                                     color = titleColor
                                 )
@@ -313,7 +314,7 @@ fun RedemptionBottomSheetPreview() {
         schemeId = 19998,
         folioNo = "91078494263",
         selectedRedemptionType = RedemptionType.PARTIAL,
-        selectedInputType = RedemptionInputType.UNITS,
+        selectedInputType = RedemptionInputType.AMOUNT,
         redemptionUnits = "1000",
         redemptionAmount = "8700",
         maxUnits = 245.75,

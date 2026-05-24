@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -67,6 +68,7 @@ import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatWithCommas
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.ic_delete
 import velvet.composeapp.generated.resources.plus_icon
@@ -145,7 +147,7 @@ fun TotalCurrentValueBar(totalValue: Double) {
                 color = titleColor
             )
             Text(
-                text = "₹${formatWithCommas(totalValue.toLong())}",
+                text = "₹${formatWithCommas(totalValue.toLong())}".withInterRupee(),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = Poppins,
@@ -298,7 +300,7 @@ fun MappedSchemeCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = "NAV",  style = tinyLabel)
                     Text(
-                        text = "₹${scheme.nav}",
+                        text = "₹${scheme.nav}".withInterRupee(),
                         style = subHeading,
                         color = Primary
                     )
@@ -306,7 +308,7 @@ fun MappedSchemeCard(
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
                     Text(text = "CURRENT VALUE",  style = tinyLabel)
                     Text(
-                        text = "₹${formatWithCommas(scheme.currentVal.toDoubleOrNull()?.toLong() ?: 0L)}",
+                        text = "₹${formatWithCommas(scheme.currentVal.toDoubleOrNull()?.toLong() ?: 0L)}".withInterRupee(),
                         style = subHeading,
                         color = appGreen
                     )
@@ -447,7 +449,7 @@ fun SelectableSchemeItem(
                 style = titlesStyle.copy(fontWeight = FontWeight.SemiBold)
             )
             Text(
-                text = "Units: ${scheme.units} | Value: ₹${formatWithCommas(scheme.value.toLong())}",
+                text = ("Units: ${scheme.units} | Value: ₹${formatWithCommas(scheme.value.toLong())}").withInterRupee(),
                 style = MaterialTheme.typography.displaySmall,
                 color = titleColor
             )

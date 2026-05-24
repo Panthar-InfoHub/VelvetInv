@@ -37,6 +37,7 @@ import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 
 @Composable
 fun OnBoardingLoanScreen(
@@ -178,7 +179,7 @@ fun LoanSummary(monthlyEmi: Long, totalTenure: Int, outstandingAmount: Long, tot
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "₹${formatMoneyWithUnits(outstandingAmount)}",
+                    text = "₹${formatMoneyWithUnits(outstandingAmount)}".withInterRupee(),
                     fontFamily = Poppins,
                     fontSize = 36.sp,
                     lineHeight = 36.sp,
@@ -200,7 +201,7 @@ fun LoanSummary(monthlyEmi: Long, totalTenure: Int, outstandingAmount: Long, tot
             )
 
             Text(
-                text = "₹${formatMoneyWithUnits(monthlyEmi)}",
+                text = "₹${formatMoneyWithUnits(monthlyEmi)}".withInterRupee(),
                 fontFamily = Poppins,
                 fontSize = 36.sp,
                 lineHeight = 36.sp,

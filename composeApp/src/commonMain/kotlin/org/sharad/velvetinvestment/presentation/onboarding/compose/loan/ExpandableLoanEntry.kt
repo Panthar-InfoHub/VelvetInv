@@ -33,6 +33,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.models.LoanInfo
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
 import velvet.composeapp.generated.resources.delete_box
@@ -94,8 +95,8 @@ fun ExtendingPart(loanInfo: LoanInfo) {
                 fontFamily = Poppins
             )
             Text(
-                text="₹${formatMoneyWithUnits(loanInfo.outstandingAmount)}",
-                fontWeight = FontWeight.SemiBold,
+                text = "₹${formatMoneyWithUnits(loanInfo.outstandingAmount)}"
+                    .withInterRupee(),
                 fontSize = 16.sp,
                 fontFamily = Poppins,
                 color = Secondary
@@ -114,7 +115,8 @@ fun ExtendingPart(loanInfo: LoanInfo) {
                 fontFamily = Poppins
             )
             Text(
-                text="₹${formatMoneyWithUnits(loanInfo.monthlyEmi)}",
+                text = "₹${formatMoneyWithUnits(loanInfo.monthlyEmi)}"
+                    .withInterRupee(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 fontFamily = Poppins,

@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.presentation.mutualfund.compose
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,9 +65,11 @@ import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.delete_box
+import velvet.composeapp.generated.resources.empty_funds_ic
 import velvet.composeapp.generated.resources.nav_icon_full_screener
 import velvet.composeapp.generated.resources.wallet_icon
 
@@ -206,11 +210,23 @@ fun CartScreenContent(items: List<CartItemDomain>, onRemoveClick: (String) -> Un
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "No Fund In cart",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = titleColor.copy(alpha = 0.6f)
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ){
+                    Image(
+                        painter = painterResource(Res.drawable.empty_funds_ic),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 48.dp)
+                    )
+                    Text(
+                        text = "No funds added yet. Add funds to get started.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = titleColor.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
+                }
             }
         } else {
             LazyColumn(
@@ -359,7 +375,7 @@ fun CartItem(
             }
 
             Text(
-                text = "₹${amount}",
+                text = "₹${amount}".withInterRupee(),
                 color = appGreen,
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.headlineLarge

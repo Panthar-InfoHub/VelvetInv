@@ -50,6 +50,7 @@ import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 
 @Composable
 fun FDPurchaseScreenRoot(
@@ -303,7 +304,8 @@ fun FDProjectedReturnsCard(
             ) {
 
                 Text(
-                    text = "₹ "+ formatMoneyAfterL(maturityAmount.toLong()),
+                    text = ("₹ " + formatMoneyAfterL(maturityAmount.toLong()))
+                        .withInterRupee(),
                     style = MaterialTheme.typography.headlineMedium,
                     color = Secondary
                 )
@@ -339,7 +341,8 @@ fun FDProjectedReturnsCard(
                 )
 
                 Text(
-                    text = "+ ₹${formatMoneyAfterL(interestEarned.toLong())}",
+                    text = ("+ ₹${formatMoneyAfterL(interestEarned.toLong())}")
+                        .withInterRupee(),
                     style = titlesStyle,
                     color = appGreen
                 )

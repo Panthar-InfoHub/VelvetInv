@@ -36,6 +36,7 @@ import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.withInterRupee
 
 @Composable
 fun BundleCardExtended(
@@ -116,7 +117,7 @@ fun BundleCardExtended(
                         color = titleColor,
                     )
                     Text(
-                        text = "₹ ${formatMoneyAfterL(bundleData.minAmount.toLong())}",
+                        text = "₹ ${formatMoneyAfterL(bundleData.minAmount.toLong())}".withInterRupee(),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }

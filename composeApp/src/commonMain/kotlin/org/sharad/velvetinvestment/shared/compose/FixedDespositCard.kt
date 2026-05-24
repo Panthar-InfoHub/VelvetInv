@@ -33,6 +33,7 @@ import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.ic_callended_filled
 
@@ -96,7 +97,7 @@ fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
                 }
 
                 Text(
-                    text = formatMoneyAfterL(fdData.amount.toDouble().toLong()),
+                    text = "₹ ${ formatMoneyAfterL(fdData.amount.toDouble().toLong()) }".withInterRupee(),
                     style = MaterialTheme.typography.labelSmall,
                     color = darkBlue
                 )

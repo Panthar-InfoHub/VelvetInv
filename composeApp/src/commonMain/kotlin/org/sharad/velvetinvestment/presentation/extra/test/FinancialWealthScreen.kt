@@ -1,7 +1,8 @@
-package org.sharad.velvetinvestment.presentation.palak.test
+package org.sharad.velvetinvestment.presentation.extra.test
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,32 +32,51 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.darkBlue
+import org.sharad.emify.core.ui.theme.orangeColor
 import org.sharad.velvetinvestment.shared.compose.GoalsCard
-import org.sharad.velvetinvestment.shared.compose.ScreenHeader
 import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.arrowback_elements
 import velvet.composeapp.generated.resources.calender
 import velvet.composeapp.generated.resources.elements
-import velvet.composeapp.generated.resources.rupeesign
-import velvet.composeapp.generated.resources.vector__6_
+import velvet.composeapp.generated.resources.vector__5_
 
 @Preview(showSystemUi = true)
 @Composable
-fun CustomGoalScreen(){
+fun FinancialWealthScreen(){
     var textFieldValue by remember{mutableStateOf("")}
-    val graycolor = Color(0xFF5A5E60)
     LazyColumn {
         item {
             Column(modifier = Modifier.padding(16.dp)) {
-                ScreenHeader("Custom Goal")
+                Spacer(modifier = Modifier.height(30.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.arrowback_elements),
+                        contentDescription = "Arrow Back Icon"
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            "Financial Goals",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                            color = Color(0xFF273E71)
+                        )
 
-                Text("Category", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                    }
+                }
+                Spacer(modifier = Modifier.height(30.dp))
+                Text("Goal Name", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
                 Spacer(modifier = Modifier.height(20.dp))
                 Box(
                     modifier = Modifier.fillMaxWidth()
-                        .border(1.dp, color = Color(0xFF5A5E60), shape = RoundedCornerShape(12.dp))
+                        .border(1.dp, color = Color(0xFFFF9D00), shape = RoundedCornerShape(12.dp))
                         .height(70.dp)
                         .background(color = Color.White, shape = RoundedCornerShape(12.dp))
                         .padding(15.dp), contentAlignment = Alignment.CenterStart
@@ -68,9 +88,9 @@ fun CustomGoalScreen(){
                         Icon(
                             painter = painterResource(Res.drawable.elements),
                             contentDescription = "wealth icon",
-                            tint = Color(0xFF5A5E60),
+                            tint = Color(0xFFFF9D00),
                             modifier = Modifier.background(
-                                color = Color(0xFF5a5e60).copy(0.1f),
+                                color = Color(0xFFFF9D00).copy(0.1f),
                                 shape = RoundedCornerShape(8.dp)
                             ).padding(8.dp)
                         )
@@ -79,13 +99,64 @@ fun CustomGoalScreen(){
 
                     }
                 }
-Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+                Text("Target Year *", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                TextField(
+                    value = textFieldValue,
+                    onValueChange = { textFieldValue = it },
+                    leadingIcon = {
+                        Box(
+                            modifier = Modifier.padding(12.dp).background(
+                                color = Color(0xFFFF9D00).copy(0.1f),
+                                shape = RoundedCornerShape(12.dp)
+                            ).padding(8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.calender),
+                                contentDescription = "calender icon",
+                                tint = Color(0xFFFF9D00)
+                            )
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    placeholder = { Text("2030", modifier = Modifier.padding(top = 6.dp)) },
+                    modifier = Modifier.height(70.dp).fillMaxWidth()
+                        .border(1.dp, color = Color(0xFFFF9D00), shape = RoundedCornerShape(12.dp))
+                )
 
-               Text("Goal Name", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                Spacer(modifier = Modifier.height(20.dp))
+                Text("Target Amount *", fontSize = 20.sp)
+                TextField(
+                    value = textFieldValue,
+                    onValueChange = { textFieldValue = it },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(Res.drawable.vector__5_),
+                            contentDescription = "calender icon",
+                            tint = Color(0xFFFF9D00)
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    placeholder = { Text("100000", modifier = Modifier.padding(top = 8.dp)) },
+                    modifier = Modifier.height(70.dp).fillMaxWidth()
+                        .border(1.dp, color = Color(0xFFFF9D00), shape = RoundedCornerShape(12.dp))
+                )
+                Text("Default Inflation Rate(% per annum)")
+
                 Spacer(modifier = Modifier.height(20.dp))
                 Box(
                     modifier = Modifier.fillMaxWidth()
-                        .border(1.dp, color = Color(0xFF5A5E60), shape = RoundedCornerShape(12.dp))
+                        .border(1.dp, color = Color(0xFFFF9D00), shape = RoundedCornerShape(12.dp))
                         .height(70.dp)
                         .background(color = Color.White, shape = RoundedCornerShape(12.dp))
                         .padding(15.dp), contentAlignment = Alignment.CenterStart
@@ -97,44 +168,9 @@ Spacer(modifier = Modifier.height(20.dp))
                         Icon(
                             painter = painterResource(Res.drawable.elements),
                             contentDescription = "wealth icon",
-                            tint = Color(0xFF5A5E60),
+                            tint = Color(0xFFFF9D00),
                             modifier = Modifier.background(
-                                color = Color(0xFF5A5E60).copy(0.1f),
-                                shape = RoundedCornerShape(8.dp)
-                            ).padding(8.dp)
-                        )
-                        Spacer(Modifier.width(15.dp))
-                        Text("Wealth Building", fontWeight = FontWeight.Medium, fontSize = 16.sp)
-
-                    }
-                }
-                TextFieldComposable("Target Year *",value="2030",icon=Res.drawable.calender,color=graycolor)
-
-                TextFieldComposable("Target Amount *",value="100000",icon=Res.drawable.rupeesign,color=graycolor)
-
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text("Default Inflation Rate(% per annum)", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-
-                Spacer(modifier = Modifier.height(20.dp))
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .border(1.dp, color = graycolor, shape = RoundedCornerShape(12.dp))
-                        .height(70.dp)
-                        .background(color = Color.White, shape = RoundedCornerShape(12.dp))
-                        .padding(15.dp), contentAlignment = Alignment.CenterStart
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.vector__6_),
-                            contentDescription = "default Inflation icon",
-                            tint = graycolor,
-                            modifier = Modifier.background(
-                                color = graycolor.copy(0.1f),
+                                color = Color(0xFFFF9D00).copy(0.1f),
                                 shape = RoundedCornerShape(8.dp)
                             ).padding(8.dp)
                         )
@@ -143,17 +179,17 @@ Spacer(modifier = Modifier.height(20.dp))
                             "6 %",
                             fontWeight = FontWeight.Medium,
                             fontSize = 16.sp,
-                            color = graycolor
+                            color = orangeColor
                         )
 
                     }
                 }
                 Spacer(modifier = Modifier.height(30.dp))
-                HorizontalDivider(thickness = 2.dp, color = graycolor)
+                HorizontalDivider(thickness = 2.dp, color = orangeColor)
                 Spacer(modifier = Modifier.height(15.dp))
                 Text("Projected Impact", fontSize = 20.sp, fontWeight = FontWeight.W600)
                 Spacer(modifier = Modifier.height(15.dp))
-                GoalsCard(color = graycolor)
+                GoalsCard(color = orangeColor)
                 Spacer(modifier = Modifier.height(20.dp))
                 Row(modifier = Modifier.padding(horizontal = 30.dp)) {
                     Button(onClick = {}, colors = ButtonDefaults.buttonColors(darkBlue),modifier=Modifier.fillMaxWidth()){
@@ -166,42 +202,3 @@ Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
-
-@Composable
-fun TextFieldComposable(text:String,value:String,icon: DrawableResource, color:Color){
-    var textFieldValue by remember{mutableStateOf("")}
-Spacer(modifier=Modifier.height(20.dp))
-    Text(text, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-    Spacer(modifier = Modifier.height(20.dp))
-    TextField(
-        value = textFieldValue,
-        onValueChange = { textFieldValue = it },
-        leadingIcon = {
-            Box(
-                modifier = Modifier.padding(12.dp).background(
-                    color = color.copy(0.1f),
-                    shape = RoundedCornerShape(12.dp)
-                ).padding(8.dp)
-            ) {
-                Icon(
-                    painter = painterResource(resource = icon),
-                    contentDescription = "textfield icon",
-                    tint = color
-                )
-            }
-        },
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        ),
-        placeholder = {
-            Text(text=value, modifier = Modifier.padding(top = 8.dp))
-                      },
-        modifier = Modifier.height(70.dp).fillMaxWidth()
-            .border(1.dp, color = color, shape = RoundedCornerShape(12.dp))
-    )
-}
-
-

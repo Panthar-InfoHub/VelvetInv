@@ -46,6 +46,7 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.plain_credit_card_rafiki_1
 
@@ -156,7 +157,7 @@ fun ZeroPriceCard(text: String, modifier: Modifier) {
                 contentAlignment = Alignment.Center
             ){
                 Text(
-                    text="₹0",
+                    text="₹0".withInterRupee(),
                     style = MaterialTheme.typography.headlineMedium,
                     color= Primary
                 )

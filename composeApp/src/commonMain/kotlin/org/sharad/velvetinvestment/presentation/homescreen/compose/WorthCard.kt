@@ -33,10 +33,10 @@ import org.sharad.velvetinvestment.shared.compose.MeshSquareBackground
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.formatWithCommas
+import org.sharad.velvetinvestment.utils.withInterRupee
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
-import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
 import velvet.composeapp.generated.resources.expenses_icon
@@ -62,7 +62,7 @@ fun UserWorthCard(
     val investingRateFormatted =
         "${netWorth?.investingRate ?: 0}%"
 
-    val totalNetWorthMasked = "₹"+" XX,XXX"
+    val totalNetWorthMasked = "₹ XX,XXX"
     val growthMasked = "Hidden"
     val investingRateMasked = "Hidden"
 
@@ -101,7 +101,7 @@ fun UserWorthCard(
             )
 
             Text(
-                text = if (hidden) totalNetWorthMasked else totalNetWorthFormatted,
+                text = (if (hidden) totalNetWorthMasked else totalNetWorthFormatted).withInterRupee(),
                 style = MaterialTheme.typography.displayMedium,
                 color = Color.White
             )
@@ -141,7 +141,7 @@ fun UserWorthCard(
                             )
 
                             Text(
-                                text = if (hidden) growthMasked else growthFormatted,
+                                text = (if (hidden) growthMasked else growthFormatted).withInterRupee(),
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp,
                                 fontFamily = Poppins,

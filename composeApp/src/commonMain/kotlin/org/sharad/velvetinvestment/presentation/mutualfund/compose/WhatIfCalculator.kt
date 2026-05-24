@@ -35,6 +35,7 @@ import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.getPreferre
 import org.sharad.velvetinvestment.shared.compose.TwoWaySwitch
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.utils.withInterRupee
 import kotlin.math.pow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,7 +111,7 @@ fun WhatIfCalculator(
                     color =Color(0xff4A5565)
                 )
                 Text(
-                    "₹ ${input.monthlyInvestment}",
+                    "₹ ${input.monthlyInvestment}".withInterRupee(),
                     fontSize = 14.sp,
                     fontFamily = Poppins,
                     fontWeight = FontWeight.Bold,
@@ -233,7 +234,7 @@ fun WhatIfCalculator(
                         fontFamily = Poppins,
                         fontWeight = FontWeight.Medium,
                         color = titleColor)
-                    Text("₹ ${formatMoneyWithUnits(totalInvested)}",
+                    Text("₹ ${formatMoneyWithUnits(totalInvested)}".withInterRupee(),
                         fontSize = 14.sp,
                         fontFamily = Poppins,
                         fontWeight = FontWeight.Medium)
@@ -252,7 +253,7 @@ fun WhatIfCalculator(
                         fontWeight = FontWeight.Medium,
                         color = titleColor)
                     Text(
-                        "₹ ${formatMoneyWithUnits(returns)}",
+                        "₹ ${formatMoneyWithUnits(returns)}".withInterRupee(),
                         color = if (returns>0) appGreen else appRed,
                         fontSize = 14.sp,
                         fontFamily = Poppins,
@@ -279,7 +280,7 @@ fun WhatIfCalculator(
                         color = Primary
                     )
                     Text(
-                        "₹ ${formatMoneyWithUnits(totalValue)}",
+                        "₹ ${formatMoneyWithUnits(totalValue)}".withInterRupee(),
                         fontSize = 18.sp,
                         fontFamily = Poppins,
                         fontWeight = FontWeight.SemiBold,

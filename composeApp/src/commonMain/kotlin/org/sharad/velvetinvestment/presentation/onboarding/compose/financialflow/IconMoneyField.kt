@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.sharad.velvetinvestment.shared.theme.Inter
 import org.sharad.velvetinvestment.shared.theme.Poppins
 
 @Composable
@@ -69,7 +70,7 @@ fun IconMoneyTextField(
             ) {
                 Text(
                     text = "₹",
-                    fontFamily = Poppins,
+                    fontFamily = Inter,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier=Modifier.padding(horizontal = 12.dp)

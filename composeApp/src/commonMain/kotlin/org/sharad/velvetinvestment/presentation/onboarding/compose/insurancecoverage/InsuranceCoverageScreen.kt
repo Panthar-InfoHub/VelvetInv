@@ -29,6 +29,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCo
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_insurance
 
@@ -150,7 +151,7 @@ fun SummaryField(
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        text = "₹ ${ formatMoneyWithUnits(lifeInsurance) }",
+                        text = "₹ ${ formatMoneyWithUnits(lifeInsurance) }".withInterRupee(),
                         style = MaterialTheme.typography.headlineSmall,
                         color = bgColor1,
                     )

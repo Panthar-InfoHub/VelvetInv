@@ -39,12 +39,12 @@ import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_fd
 import velvet.composeapp.generated.resources.icon_gold
 import velvet.composeapp.generated.resources.icon_mf
 import velvet.composeapp.generated.resources.icon_money
-import velvet.composeapp.generated.resources.icon_real_estate
 import velvet.composeapp.generated.resources.icon_stocks
 
 @Composable
@@ -134,7 +134,7 @@ fun TotalAssets(totalAssets: Long) {
                 style = MaterialTheme.typography.headlineSmall,
             )
             Text(
-                text = "₹${formatMoneyWithUnits(totalAssets)}",
+                text = "₹${formatMoneyWithUnits(totalAssets)}".withInterRupee(),
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = Poppins,
                 fontSize = 40.sp

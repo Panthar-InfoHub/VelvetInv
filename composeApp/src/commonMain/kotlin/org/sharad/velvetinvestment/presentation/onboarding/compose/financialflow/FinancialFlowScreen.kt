@@ -43,6 +43,7 @@ import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_food
 import velvet.composeapp.generated.resources.icon_house
@@ -296,7 +297,7 @@ fun IncomeEntry(annualIncome: Long?, onAnnualIncomeUpdate: (String) -> Unit) {
                     )
 
                     Text(
-                        text = annualIncome?.let { "₹${formatWithCommas(it/12)}" } ?: "₹0",
+                        text = (annualIncome?.let { "₹${formatWithCommas(it/12)}" } ?: "₹0").withInterRupee(),
                         style = MaterialTheme.typography.headlineMedium,
                         color = Primary
                     )

@@ -37,6 +37,7 @@ import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.theme.largeTextStyle
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 
 @Composable
 fun OnBoardingGoalScreen(
@@ -171,7 +172,7 @@ fun GoalSummary(totalGoals: Int, totalAmount: Long) {
             )
 
             Text(
-                text= "₹${formatMoneyWithUnits(totalAmount)}",
+                text= "₹${formatMoneyWithUnits(totalAmount)}".withInterRupee(),
                 style = largeTextStyle,
                 color = Primary,
                 textAlign = TextAlign.Center

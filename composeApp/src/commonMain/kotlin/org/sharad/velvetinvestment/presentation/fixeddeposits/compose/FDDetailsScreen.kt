@@ -74,6 +74,7 @@ import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.withInterRupee
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -343,13 +344,11 @@ fun FDInfoCard(
             )
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-
                 Text(
-                    value,
+                    text = value.withInterRupee(),
                     style = MaterialTheme.typography.labelSmall,
                     color = Secondary
                 )
-
                 if (onClick != null) {
                     Icon(
                         painter = painterResource(Res.drawable.arrow_down),
@@ -447,7 +446,7 @@ fun LockRow(
         )
 
         Text(
-            text = value,
+            text = value.withInterRupee(),
             fontSize = 16.sp,
             fontFamily = Poppins,
             fontWeight = FontWeight.Medium,
