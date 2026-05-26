@@ -18,6 +18,7 @@ import org.sharad.velvetinvestment.data.remote.model.fdredirect.FDRedirectDto
 import org.sharad.velvetinvestment.data.remote.model.firereport.FireReportDto
 import org.sharad.velvetinvestment.data.remote.model.goalbyid.GoalByIdDto
 import org.sharad.velvetinvestment.data.remote.model.goalmapping.GoalMapBodyDto
+import org.sharad.velvetinvestment.data.remote.model.goalmapping.UnMapGoalRequestDto
 import org.sharad.velvetinvestment.data.remote.model.loan.SingleLoanDto
 import org.sharad.velvetinvestment.data.remote.model.loan.UpdateLoanRequest
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
@@ -250,6 +251,14 @@ class UserFinanceRepo(
         return safeRequest<Unit> {
             client.post(getUrl("/user-goal/map")) {
                 setBody(body)
+            }
+        }
+    }
+
+    override suspend fun unMapGoal(goalId: Int): NetworkResponse<Unit, ErrorDomain> {
+        return safeRequest<Unit> {
+            client.delete(getUrl("/user-goal/map-remove")) {
+                setBody(UnMapGoalRequestDto(goalId))
             }
         }
     }

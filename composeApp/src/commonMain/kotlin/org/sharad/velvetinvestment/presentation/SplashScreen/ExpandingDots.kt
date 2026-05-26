@@ -18,7 +18,7 @@ import org.sharad.emify.core.ui.theme.lightGray
 
 @Composable
 fun ExpandingDots(
-    numberOfDots:Int=3,
+    numberOfDots:Int=4,
     currentIndexOfDot:Int=0
 ) {
     Row(

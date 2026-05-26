@@ -75,7 +75,8 @@ object Route {
         val currentNav: Double,
         val avgNav: Double,
         val folio: String,
-        val balanceUnits: Double
+        val balanceUnits: Double,
+        val img_url: String? = ""
     )
     @Serializable
     data class SIPCancellationScreen(val id:String)
@@ -141,6 +142,8 @@ object Route {
     data object PrivacyPolicy
     @Serializable
     data object TermsAndConditions
+    @Serializable
+    data object AboutUs
 
     @Serializable
     data object FixedDepositCategory

@@ -100,33 +100,19 @@ fun PrivacyPolicyScreen(
             item {
                 Text(
                     text = stringResource(Res.string.privacy_policy_header),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp,
+                    lineHeight = 32.sp,
+                    fontWeight = FontWeight.SemiBold,
                     fontFamily = Poppins,
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(Res.string.privacy_policy_intro),
+                    text = stringResource(Res.string.privacy_policy_intro)+ "\n" + stringResource(Res.string.privacy_policy_consent),
                     fontSize = 14.sp,
                     fontFamily = Poppins,
-                    color = Color.Gray,
+                    color = Color(0xff3D4B37),
                     lineHeight = 20.sp
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(Res.string.privacy_policy_consent),
-                    fontSize = 14.sp,
-                    fontFamily = Poppins,
-                    color = Color.Gray,
-                    lineHeight = 20.sp
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(Res.string.privacy_policy_last_updated),
-                    fontSize = 12.sp,
-                    fontFamily = Poppins,
-                    color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -311,8 +297,8 @@ private @Composable
 fun SectionTitle(title: String) {
     Text(
         text = title,
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.SemiBold,
         fontFamily = Poppins,
         color = Color.Black,
         modifier = Modifier.padding(bottom = 12.dp)
@@ -323,10 +309,10 @@ private @Composable
 fun SubSection(title: String, content: String) {
     Text(
         text = buildAnnotatedString {
-            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Gray)) {
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold,)) {
                 append(title)
             }
-            withStyle(style = SpanStyle(fontWeight = FontWeight.Normal, color = Color.Gray)) {
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Normal, color =Color(0xff3D4B37) )) {
                 append(content)
             }
         },
@@ -377,7 +363,7 @@ fun ContactItem(label: String, value: String) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PrivacyPolicyScreenPreview() {
     VelvetTheme {

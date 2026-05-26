@@ -5,7 +5,6 @@ import org.sharad.velvetinvestment.data.remote.model.fundredeem.FullRedemptionRe
 import org.sharad.velvetinvestment.data.remote.model.fundredeem.PartialRedemptionRequestDto
 import org.sharad.velvetinvestment.domain.SIPStatus
 import org.sharad.velvetinvestment.domain.models.PaginatedData
-import org.sharad.velvetinvestment.domain.models.explore.MutualFundTopPicksDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
@@ -13,8 +12,6 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
-import org.sharad.velvetinvestment.presentation.portfolio.models.FundListCardData
-import org.sharad.velvetinvestment.presentation.portfolio.models.MutualFundDashBoardData
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 
@@ -62,7 +59,10 @@ interface MutualFundRepository {
 
     suspend fun getBundleFunds(bundleKey: String): NetworkResponse<BundledMutualFundDomain, ErrorDomain>
 
-    suspend fun getAllBundledFunds(): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain>
+    suspend fun getAllBundledFunds(
+        page: Int?,
+        limit: Int?
+    ): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain>
 
     suspend fun addBundleToCartLumpsum(
         bundleId: String,

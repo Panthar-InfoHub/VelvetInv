@@ -47,6 +47,7 @@ import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScre
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.CheckKYCScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCheckAnimationScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutUsScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.PrivacyPolicyScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.TermsAndConditionsScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
@@ -241,6 +242,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     },
                     navigateToTermsAndConditions = {
                         navController.navigate(Route.TermsAndConditions) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToAboutUs = {
+                        navController.navigate(Route.AboutUs) {
                             launchSingleTop = true
                         }
                     },
@@ -607,6 +613,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
             }
             composable<Route.TermsAndConditions> {
                 TermsAndConditionsScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable<Route.AboutUs> {
+                AboutUsScreen(
                     onBack = { navController.popBackStack() }
                 )
             }

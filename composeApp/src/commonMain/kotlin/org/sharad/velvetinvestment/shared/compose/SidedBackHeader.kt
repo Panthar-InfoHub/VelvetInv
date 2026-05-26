@@ -25,16 +25,17 @@ import velvet.composeapp.generated.resources.back_arrow
 fun SidedBackHeader(
     heading: String,
     showBack: Boolean = false,
-    onBackClick: () -> Unit={},
-    textIcon:String?=null,
-    onTextClick:()->Unit={}
-){
+    onBackClick: () -> Unit = {},
+    textIcon: String? = null,
+    onTextClick: () -> Unit = {},
+    trailingContent: (@Composable () -> Unit)? = null
+) {
     Row(
-        modifier=Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 16.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (showBack){
+        if (showBack) {
             Icon(
                 painter = painterResource(Res.drawable.back_arrow),
                 contentDescription = null,
@@ -51,18 +52,21 @@ fun SidedBackHeader(
             color = Primary,
             modifier = Modifier.weight(1f)
         )
-        textIcon?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.labelSmall,
-                color = Secondary,
-                modifier = Modifier.clickable(
-                    onClick = onTextClick,
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
+        if (trailingContent != null) {
+            trailingContent()
+        } else {
+            textIcon?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Secondary,
+                    modifier = Modifier.clickable(
+                        onClick = onTextClick,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
                 )
-            )
+            }
         }
-
     }
 }

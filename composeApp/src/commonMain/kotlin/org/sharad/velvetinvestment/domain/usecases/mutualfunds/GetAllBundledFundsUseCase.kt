@@ -8,7 +8,13 @@ import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 class GetAllBundledFundsUseCase(
     private val repository: MutualFundRepository
 ) {
-    suspend operator fun invoke(): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain> {
-        return repository.getAllBundledFunds()
+    suspend operator fun invoke(
+        page: Int?=null,
+        limit: Int?=null
+    ): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain> {
+        return repository.getAllBundledFunds(
+            page=page,
+            limit=limit
+        )
     }
 }

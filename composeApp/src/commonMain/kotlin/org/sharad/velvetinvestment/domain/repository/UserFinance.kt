@@ -49,6 +49,8 @@ interface UserFinance {
 
     suspend fun mapGoal(body: GoalMapBodyDto): NetworkResponse<Unit, ErrorDomain>
 
+    suspend fun unMapGoal(goalId: Int): NetworkResponse<Unit, ErrorDomain>
+
     suspend fun deleteSingleLoan(id: String): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun getLoans(page: Int, limit: Int): NetworkResponse<PaginatedData<LoanDomain>, ErrorDomain>

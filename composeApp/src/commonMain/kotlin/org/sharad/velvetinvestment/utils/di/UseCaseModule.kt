@@ -76,6 +76,7 @@ import org.sharad.velvetinvestment.domain.usecases.userfinance.GetGoalByIdUseCas
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetInvestmentRateDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.MapGoalUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.UnMapGoalUseCase
 
 val useCaseModule= module {
     factory { LoginWithNumberUseCase(get()) }
@@ -182,6 +183,7 @@ val useCaseModule= module {
     factory { GetInvestmentRateDataUseCase(get()) }
     factory { GetGoalByIdUseCase(get()) }
     factory { MapGoalUseCase(get()) }
+    factory { UnMapGoalUseCase(get()) }
     factory { GetContractPdfUseCase(get()) }
 
     factory { GetLoansUseCase(get()) }

@@ -323,11 +323,14 @@ class MutualFundRepo(
         }
     }
 
-    override suspend fun getAllBundledFunds(): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain> {
+    override suspend fun getAllBundledFunds(
+        page: Int?,
+        limit: Int?
+    ): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain> {
         val response = safeRequest<AllBundlesDto> {
             client.get(getUrl("/bundles")){
-                parameter("page",1)
-                parameter("limit", 20)
+                parameter("page",page?:1)
+                parameter("limit", limit?:20)
             }
         }
         return when (response) {

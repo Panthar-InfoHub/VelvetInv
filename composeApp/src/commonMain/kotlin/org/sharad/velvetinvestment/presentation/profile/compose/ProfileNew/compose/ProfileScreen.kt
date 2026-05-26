@@ -40,6 +40,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.SignOutUseCase
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
@@ -52,7 +53,9 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
+import velvet.composeapp.generated.resources.info_icon
 import velvet.composeapp.generated.resources.kyc_icon
+import velvet.composeapp.generated.resources.kyc_person_icon
 import velvet.composeapp.generated.resources.notification_icon
 import velvet.composeapp.generated.resources.profile_icon
 import velvet.composeapp.generated.resources.security
@@ -66,6 +69,7 @@ fun ProfileScreen(
     navigateToKYC: () -> Unit = {},
     navigateToPrivacyPolicy: () -> Unit = {},
     navigateToTermsAndConditions: () -> Unit = {},
+    navigateToAboutUs: () -> Unit = {},
     onSignOut: () -> Unit,
     viewModel: HomeScreenViewModel
 ) {
@@ -148,7 +152,8 @@ fun ProfileScreen(
                 item {
                     LegalCard(
                         onPrivacyPolicyClick = navigateToPrivacyPolicy,
-                        onTermsAndConditionsClick = navigateToTermsAndConditions
+                        onTermsAndConditionsClick = navigateToTermsAndConditions,
+                        onAboutUsClick = navigateToAboutUs
                     )
                 }
 
@@ -315,8 +320,10 @@ fun KYCCard(status: String, onKYCClick: () -> Unit) {
 @Composable
 fun LegalCard(
     onPrivacyPolicyClick: () -> Unit = {},
-    onTermsAndConditionsClick: () -> Unit = {}
+    onTermsAndConditionsClick: () -> Unit = {},
+    onAboutUsClick: () -> Unit
 ) {
+    val openBrowser: LaunchBrowserUseCase = koinInject()
     ShadowCard(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
@@ -334,6 +341,21 @@ fun LegalCard(
                 icon = Res.drawable.security,
                 title = "Privacy Policy",
                 onCLick = onPrivacyPolicyClick
+            )
+
+            HorizontalDivider(color = Color.LightGray)
+
+            RowItem(
+                icon = Res.drawable.kyc_person_icon,
+                title = "Contact Us",
+                onCLick = { openBrowser("https://velvetinvesting.com/contact") }
+            )
+            HorizontalDivider(color = Color.LightGray)
+
+            RowItem(
+                icon = Res.drawable.info_icon,
+                title = "About Us",
+                onCLick = onAboutUsClick
             )
         }
     }
@@ -356,7 +378,7 @@ fun RowItem(
         {
 
             Box(
-                modifier=Modifier.size(44.dp)
+                modifier=Modifier.size(40.dp)
                     .clip(RoundedCornerShape(15.dp))
                     .background(
                         color = Color(0xFFDEE2F6),
@@ -369,7 +391,7 @@ fun RowItem(
                     contentDescription = title,
                     tint= Primary,
                     modifier = Modifier
-                        .size(26.dp)
+                        .size(24.dp)
                 )
             }
 

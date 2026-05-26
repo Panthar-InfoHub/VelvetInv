@@ -1,5 +1,8 @@
 package org.sharad.velvetinvestment.presentation.portfolio.compose
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,8 +13,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -20,31 +30,55 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.Secondary
+import org.sharad.emify.core.ui.theme.TextGray
+import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.appRed
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioSideEffects
 import org.sharad.velvetinvestment.shared.Navigation.Route
-import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.SidedBackHeader
 import org.sharad.velvetinvestment.shared.rememberBrowserReturnLauncher
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
-import org.sharad.velvetinvestment.utils.LoadingState
-import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.AppEventsController
+import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.utils.withInterRupee
-import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.document_kyc_icon
+import velvet.composeapp.generated.resources.download_ic
+import velvet.composeapp.generated.resources.ic_graph
+import velvet.composeapp.generated.resources.ic_jagged_arrow
+import velvet.composeapp.generated.resources.ic_menu
+import velvet.composeapp.generated.resources.ic_percent
+import velvet.composeapp.generated.resources.icon_callender
+import velvet.composeapp.generated.resources.icon_clock
+import velvet.composeapp.generated.resources.icon_mf
+import velvet.composeapp.generated.resources.info_icon
+import velvet.composeapp.generated.resources.rupeesign
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,12 +121,45 @@ fun MFPortfolioDetailsScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-
         SidedBackHeader(
-            heading = "Withdraw Funds",
+            heading = "Withdraw Fund",
             showBack = true,
             onBackClick = onBackClick,
-            textIcon = null
+            trailingContent = {
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Secondary.copy(alpha = 0.1f))
+                        .clickable { viewModel.downloadSOA(data.folio) }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "SOA",
+                        style = TextStyle(
+                            fontFamily = Poppins,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 12.sp,
+                            color = Secondary
+                        )
+                    )
+                    if (soaDownloading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(12.dp),
+                            strokeWidth = 1.dp,
+                            color = Secondary
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(Res.drawable.download_ic),
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = Secondary
+                        )
+                    }
+                }
+            }
         )
 
         Box(modifier = Modifier.weight(1f)) {
@@ -114,9 +181,7 @@ fun MFPortfolioDetailsScreen(
                     SIPDetailsLoadedScreen(
                         data = data,
                         pv = pv,
-                        soaDownloading=soaDownloading,
-                        onWithdrawClick = { viewModel.onShowRedemptionSheet() },
-                        onSoaDownload= {viewModel.downloadSOA(data.folio)}
+                        onWithdrawClick = { viewModel.onShowRedemptionSheet() }
                     )
                 }
             }
@@ -155,8 +220,16 @@ fun SIPDetailsLoadedScreen(
     data: Route.SIPPortfolioDetails,
     pv: PaddingValues,
     onWithdrawClick: () -> Unit,
-    onSoaDownload: () -> Unit,
-    soaDownloading: Boolean
+    folioIcon: DrawableResource = Res.drawable.document_kyc_icon,
+    calendarIcon: DrawableResource = Res.drawable.icon_callender,
+    returnPercentIcon: DrawableResource = Res.drawable.icon_mf,
+    returnAmountIcon: DrawableResource = Res.drawable.rupeesign,
+    xirrIcon: DrawableResource = Res.drawable.ic_percent,
+    currentNavIcon: DrawableResource = Res.drawable.ic_jagged_arrow,
+    avgNavIcon: DrawableResource = Res.drawable.ic_graph,
+    balanceUnitsIcon: DrawableResource = Res.drawable.icon_clock,
+    investmentTypeIcon: DrawableResource = Res.drawable.ic_menu,
+    infoIcon: DrawableResource = Res.drawable.info_icon
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -168,13 +241,50 @@ fun SIPDetailsLoadedScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item { Spacer(modifier = Modifier) }
-            item { SIPDetailsCard(data, onSoaDownload=onSoaDownload,soaDownloading=soaDownloading) }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+            item { FundSummaryCard(data = data) }
+
+            item {
+                Text(
+                    text = "Fund details",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            item {
+                ShadowCard {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        FundDetailItem(folioIcon, "Folio", data.folio)
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        FundDetailItem(calendarIcon, "Start date", data.startDate)
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        FundDetailItem(returnPercentIcon, "Return %", data.returnPercentage, valueColor = if (data.returnPercentage.contains("-")) appRed else appGreen)
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        FundDetailItem(returnAmountIcon, "Return amount", "₹${formatWithCommas(data.returnAmount.toLong())}", valueColor = if (data.returnAmount>0) appGreen else appRed)
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        FundDetailItem(xirrIcon, "XIRR", data.xirr)
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        FundDetailItem(currentNavIcon, "Current NAV", "₹${data.currentNav}")
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        FundDetailItem(avgNavIcon, "Average NAV", "₹${data.avgNav}")
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        FundDetailItem(balanceUnitsIcon, "Balance units", data.balanceUnits.toString())
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        FundDetailItem(investmentTypeIcon, "Investment type", if (data.isSip) "SIP" else "Lumpsum")
+                    }
+                }
+            }
+
+            item {
+                BottomNotice(infoIcon)
+            }
+
             item { Spacer(Modifier.height(16.dp)) }
         }
 
         NextButtonFooter(
-            value = "Withdraw",
+            value = "Proceed to withdraw",
             onClick = onWithdrawClick,
             pv = pv,
         )
@@ -182,134 +292,210 @@ fun SIPDetailsLoadedScreen(
 }
 
 @Composable
-fun SIPDetailsCard(
+fun FundSummaryCard(
     data: Route.SIPPortfolioDetails,
-    onSoaDownload: () -> Unit,
-    soaDownloading: Boolean
 ) {
-    ShadowCard {
+    ShadowCard(
+        modifier = Modifier.border(
+            width = 1.dp,
+            color = Color.LightGray.copy(alpha = 0.5f),
+            shape = LocalVelvetShapes.current.roundedDp15
+        )
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(20.dp)
         ) {
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            Row(
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
+                SubcomposeAsyncImage(
+                    modifier = Modifier.size(48.dp)
+                        .clip(LocalVelvetShapes.current.roundedDp12)
+                        .background(Color.White),
+                    model = data.img_url,
+                    contentDescription = null,
+
+                    loading = {
+                        MutualFundIcon(
+                            schemeName = data.title, size = 48.dp
+                        )
+                    },
+
+                    error = {
+                        MutualFundIcon(
+                            schemeName = data.title, size = 48.dp
+                        )
+                    },
+
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
                     Text(
                         text = data.title,
-                        color = Color.Black,
-                        style = subHeading,
-                        modifier = Modifier.weight(1f)
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Black
                     )
-
                     Text(
-                        text = "₹${data.amount}".withInterRupee(),
-                        color = Color.Black,
-                        style = subHeading,
-                        modifier = Modifier.padding(start = 12.dp)
+                        text = data.category,
+                        style = titlesStyle,
+                        color = TextGray
                     )
                 }
-
-                Text(
-                    text = data.category,
-                    color = titleColor,
-                    style = titlesStyle
-                )
             }
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 20.dp),
+                thickness = 1.dp,
+                color = Color.LightGray.copy(alpha = 0.5f)
+            )
 
-                SIPInfoRow("Folio", data.folio)
-                SIPInfoRow("Start Date", data.startDate)
-                SIPInfoRow("Return %", data.returnPercentage)
-                SIPInfoRow("Return Amount", "₹${data.returnAmount}".withInterRupee())
-                SIPInfoRow("XIRR", data.xirr)
-                SIPInfoRow("Current NAV", data.currentNav.toString())
-                SIPInfoRow("Average NAV", data.avgNav.toString())
-                SIPInfoRow("Balance Units", data.balanceUnits.toString())
-                SIPInfoRow("Investment Type", if (data.isSip) "SIP" else "Lumpsum")
-                AppButton(
-                    text= "Download SOA",
-                    onClick = onSoaDownload,
-                    modifier = Modifier.padding(vertical = 8.dp).height(44.dp),
-                    shape = LocalVelvetShapes.current.roundedDp15,
-                    loading = soaDownloading
-                )
+            Row(modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Column(modifier = Modifier) {
+                    Text(
+                        text = "Invested amount",
+                        style = TextStyle(
+                            fontFamily = Poppins,
+                            fontSize = 12.sp,
+                            color = Color.DarkGray
+                        )
+                    )
+                    Text(
+                        text = "₹${formatWithCommas(data.amount.toLong())}".withInterRupee(),
+                        style = subHeadingMedium,
+                        color = Primary
+                    )
+                }
+                Column(modifier= Modifier) {
+                    Text(
+                        text = "Current value",
+                        style = TextStyle(
+                            fontFamily = Poppins,
+                            fontSize = 12.sp,
+                            color = Color.DarkGray
+                        )
+                    )
+                    Text(
+                        text = "₹${formatWithCommas((data.amount + data.returnAmount).toLong())}".withInterRupee(),
+                        style = subHeadingMedium,
+                        color = Secondary
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun SIPInfoRow(
-    title: String,
-    value: Any
+fun FundDetailItem(
+    icon: DrawableResource,
+    label: String,
+    value: String,
+    valueColor: Color = Color.Black
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp, horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Primary.copy(alpha = 0.05f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = Primary
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = title,
-            color = titleColor,
-            style = titlesStyle
+            text = label,
+            style = TextStyle(
+                fontFamily = Poppins,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.Gray
+            ),
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value.withInterRupee(),
+            style = TextStyle(
+                fontFamily = Poppins,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = valueColor
+            )
         )
 
-        when (value) {
-            is String -> {
-                Text(
-                    text = value,
-                    color = Color.Black,
-                    style = subHeading
-                )
-            }
-            is AnnotatedString -> {
-                Text(
-                    text = value,
-                    color = Color.Black,
-                    style = subHeading
-                )
-            }
-        }
     }
 }
 
-@Preview(showBackground = true)
+@Composable
+fun BottomNotice(icon: DrawableResource) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(Primary.copy(alpha = 0.05f))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = Primary
+        )
+        Text(
+            text = "All redemptions are processed as per AMC timelines.",
+            style = TextStyle(
+                fontFamily = Poppins,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.Black.copy(alpha = 0.7f)
+            )
+        )
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 fun SIPDetailsLoadedScreenPreview() {
     VelvetTheme {
         SIPDetailsLoadedScreen(
             data = Route.SIPPortfolioDetails(
                 id = 1,
-                title = "Quant Small Cap Fund",
-                category = "Equity - Small Cap",
-                amount = 50000.0,
-                isSip = true,
-                startDate = "15 Aug 2023",
-                returnPercentage = "24.5%",
-                returnAmount = 12250,
-                xirr = "28.2%",
-                currentNav = 156.45,
-                avgNav = 125.30,
-                folio = "12345678/90",
-                balanceUnits = 319.58
+                title = "Parag Parikh Flexi Cap Fund - Reg - Gr",
+                category = "MF-Flexi-cap Fund",
+                amount = 694965.34,
+                isSip = false,
+                startDate = "28-Sep-2020",
+                returnPercentage = "56.18%",
+                returnAmount = -390424,
+                xirr = "15.29%",
+                currentNav = 82.693,
+                avgNav = 52.947,
+                folio = "CM_10534533",
+                balanceUnits = 13125.567
             ),
             pv = PaddingValues(0.dp),
-            {},
-            {},
-            soaDownloading = false,
+            onWithdrawClick = {}
         )
     }
 }

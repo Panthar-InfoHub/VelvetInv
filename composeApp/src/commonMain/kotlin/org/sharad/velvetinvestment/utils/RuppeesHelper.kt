@@ -7,13 +7,14 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import org.sharad.velvetinvestment.shared.theme.Inter
 
-
 @Composable
 fun String.withInterRupee(): AnnotatedString {
     val inter = Inter
-    return buildAnnotatedString {
-        this@withInterRupee.forEach { char ->
 
+    val formattedText = replace("₹-", "-₹")
+
+    return buildAnnotatedString {
+        formattedText.forEach { char ->
             if (char == '₹') {
                 withStyle(
                     SpanStyle(

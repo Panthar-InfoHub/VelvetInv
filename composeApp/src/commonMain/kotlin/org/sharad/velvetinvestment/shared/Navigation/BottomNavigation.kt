@@ -56,6 +56,7 @@ fun BottomNavigation(
     navigateToTradingAccountSetup: () -> Unit,
     navigateToPrivacyPolicy: () -> Unit,
     navigateToTermsAndConditions: () -> Unit,
+    navigateToAboutUs: () -> Unit,
     navigateToKYC: () -> Unit,
     navigateToInvestmentRateScree: () -> Unit,
     navigateToPortfolioFdDetailsScreen: (String)-> Unit
@@ -242,6 +243,7 @@ fun BottomNavigation(
                     navigateToKYC = navigateToKYC,
                     navigateToPrivacyPolicy=navigateToPrivacyPolicy,
                     navigateToTermsAndConditions=navigateToTermsAndConditions,
+                    navigateToAboutUs=navigateToAboutUs,
                     onSignOut=onSignOut,
                     viewModel=homeViewModel
                 )

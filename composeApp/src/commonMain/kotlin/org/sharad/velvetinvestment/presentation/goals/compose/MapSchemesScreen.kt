@@ -38,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,7 +47,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
-import org.sharad.emify.core.ui.theme.redColor
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.goals.GoalSchemeDomain
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.PortfolioSideEffect
@@ -70,7 +69,6 @@ import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.ic_delete
 import velvet.composeapp.generated.resources.plus_icon
 
 @Composable
@@ -109,12 +107,11 @@ fun MapSchemesScreen(
                     .padding(paddingValues)
             ) {
                 if (it.schemes.isEmpty()) {
-                    MapSchemesEmptyContent(modifier = Modifier.weight(1f))
+                    MapSchemesEmptyContent(modifier = Modifier.weight(1f), onClick={viewModel.openBottomSheet()})
                 } else {
                     MapSchemesFilledContent(
                         mappedSchemes = it.schemes,
-                        onRemoveScheme = {
-                        },
+                        onRemoveScheme = { viewModel.unMapGoal(it.goalId) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -158,7 +155,7 @@ fun TotalCurrentValueBar(totalValue: Double) {
 }
 
 @Composable
-fun MapSchemesEmptyContent(modifier: Modifier = Modifier) {
+fun MapSchemesEmptyContent(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -168,8 +165,10 @@ fun MapSchemesEmptyContent(modifier: Modifier = Modifier) {
     ) {
         Box(
             modifier = Modifier
+                .clip(CircleShape)
                 .background(Color(0xffEFF4FF), CircleShape)
-                .border(1.dp, Color(0xffCBDBF5).copy(0.3f), CircleShape),
+                .border(1.dp, Color(0xffCBDBF5).copy(0.3f), CircleShape)
+                .clickable(onClick=onClick),
             contentAlignment = Alignment.Center
         ){
         Box(
@@ -213,7 +212,7 @@ fun MapSchemesEmptyContent(modifier: Modifier = Modifier) {
 @Composable
 fun MapSchemesFilledContent(
     mappedSchemes: List<GoalSchemeDomain>,
-    onRemoveScheme: (GoalSchemeDomain) -> Unit,
+    onRemoveScheme: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -229,7 +228,18 @@ fun MapSchemesFilledContent(
         items(mappedSchemes) { scheme ->
             MappedSchemeCard(
                 scheme = scheme,
-                onRemove = { onRemoveScheme(scheme) }
+            )
+        }
+        item{
+            Text(
+                text= "Remove Mapping",
+                modifier = Modifier.fillMaxWidth()
+                    .clickable(
+                        onClick = { onRemoveScheme() },
+                    ),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.headlineSmall,
+                color = appRed
             )
         }
     }
@@ -238,7 +248,6 @@ fun MapSchemesFilledContent(
 @Composable
 fun MappedSchemeCard(
     scheme: GoalSchemeDomain,
-    onRemove: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -262,19 +271,19 @@ fun MappedSchemeCard(
                     ),
                     modifier = Modifier.weight(1f)
                 )
-                Icon(
-                    painter = painterResource(Res.drawable.ic_delete),
-                    contentDescription = "Remove",
-                    modifier = Modifier
-                        .padding(start = 20.dp, top = 4.dp)
-                        .size(20.dp)
-                        .clickable(
-                            onClick = onRemove,
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ),
-                    tint = redColor
-                )
+//                Icon(
+//                    painter = painterResource(Res.drawable.ic_delete),
+//                    contentDescription = "Remove",
+//                    modifier = Modifier
+//                        .padding(start = 20.dp, top = 4.dp)
+//                        .size(20.dp)
+//                        .clickable(
+//                            onClick = onRemove,
+//                            indication = null,
+//                            interactionSource = remember { MutableInteractionSource() }
+//                        ),
+//                    tint = redColor
+//                )
             }
 
             Row(modifier = Modifier.fillMaxWidth()) {

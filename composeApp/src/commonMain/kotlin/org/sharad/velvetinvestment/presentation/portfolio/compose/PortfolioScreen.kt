@@ -1,11 +1,14 @@
 package org.sharad.velvetinvestment.presentation.portfolio.compose
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,11 +43,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Month
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.PathGray
 import org.sharad.emify.core.ui.theme.Primary
@@ -73,6 +79,7 @@ import org.sharad.velvetinvestment.shared.compose.GenericTabSwitcher
 import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
@@ -83,6 +90,9 @@ import org.sharad.velvetinvestment.utils.trimTo
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.download_ic
+import velvet.composeapp.generated.resources.holdings_ic
+import velvet.composeapp.generated.resources.icon_download
+import velvet.composeapp.generated.resources.tax_savings_ic
 import kotlin.math.abs
 
 @Composable
@@ -337,7 +347,12 @@ fun MutualFundPortfolio(
                 item {
                     MFInvestmentsCard(
                         investedBreakdown,
-                        onInvestMore = onEmptyButtonClick,
+                        onInvestMore = onEmptyButtonClick
+                    )
+                }
+
+                item {
+                    PdfReportsRow(
                         onDownloadCapitalReport = onDownloadCapitalReport,
                         onDownloadTaxReport = onDownloadTaxReport,
                         onDownloadPortfolioReport=onDownloadPortfolioReport,
@@ -346,6 +361,7 @@ fun MutualFundPortfolio(
                         isExportingTax = isExportingTax
                     )
                 }
+
                 if (pendingOrders.isNotEmpty()) {
                     item { BarHeader(heading = "Pending Payments") }
                     items(pendingOrders, key = { it.id }) { item ->
@@ -359,6 +375,125 @@ fun MutualFundPortfolio(
                     })
                 }
                 item { Spacer(modifier = Modifier.height(20.dp)) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PdfReportsRow(
+    onDownloadCapitalReport: () -> Unit,
+    onDownloadTaxReport: () -> Unit,
+    isExportingCapital: Boolean,
+    isExportingTax: Boolean,
+    onDownloadPortfolioReport: () -> Unit,
+    isExportingPortfolio: Boolean
+) {
+
+    Row(
+        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        )
+    {
+        PdfDownloadCard(
+            text = "Holdings PDF",
+            loading = isExportingCapital,
+            onClick = onDownloadCapitalReport,
+            iconTint = Color(0xff1FAE6E),
+            icon= Res.drawable.holdings_ic,
+            modifier = Modifier.weight(1f).fillMaxHeight()
+        )
+
+        PdfDownloadCard(
+            text = "Tax Saving PDF",
+            loading = isExportingTax,
+            onClick = onDownloadTaxReport,
+            iconTint = Color(0xff006495),
+            icon= Res.drawable.tax_savings_ic,
+            modifier = Modifier.weight(1f).fillMaxHeight()
+        )
+
+        PdfDownloadCard(
+            text = "Portfolio PDF",
+            loading = isExportingPortfolio,
+            onClick = onDownloadPortfolioReport,
+            iconTint = Color(0xffF97316),
+            icon= Res.drawable.holdings_ic,
+            modifier = Modifier.weight(1f).fillMaxHeight()
+        )
+
+    }
+
+}
+
+@Composable
+private fun PdfDownloadCard(
+    text: String,
+    loading: Boolean,
+    onClick: () -> Unit,
+    iconTint: Color,
+    icon: DrawableResource,
+    modifier: Modifier= Modifier
+) {
+
+    Box(
+        modifier = modifier
+            .clip(LocalVelvetShapes.current.roundedDp15)
+            .background(iconTint.copy(0.03f))
+            .border(1.dp,iconTint.copy(0.1f), LocalVelvetShapes.current.roundedDp15 )
+            .clickable(
+                onClick = onClick,
+                enabled = !loading
+            ),
+        contentAlignment = Alignment.Center
+    ){
+        Column(
+            modifier= Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ){
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                modifier = Modifier.size(36.dp).clip(CircleShape).background(iconTint.copy(0.08f)).padding(8.dp),
+                tint = iconTint
+            )
+            Text(
+                text = text,
+                style = tinyLabel,
+                lineHeight = 12.sp,
+                color = Primary,
+                textAlign = TextAlign.Center
+            )
+            AnimatedContent(loading){it->
+                if (it){
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(10.dp),
+                        strokeWidth = 1.dp,
+                        color = iconTint
+                    )
+                }else{
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = if (loading) "Generating..." else "Download",
+                            fontSize = 10.sp,
+                            lineHeight = 10.sp,
+                            fontFamily = Poppins,
+                            color = iconTint,
+                            textAlign = TextAlign.Center
+                        )
+                        Icon(
+                            painter = painterResource(Res.drawable.icon_download),
+                            contentDescription = null,
+                            modifier = Modifier.size(8.dp),
+                            tint = iconTint
+                        )
+                    }
+                }
             }
         }
     }
@@ -539,12 +674,6 @@ fun TotalInvestmentCard(totalInvestments: TotalInvestmentsDomain) {
 fun MFInvestmentsCard(
     investedBreakdown: InvestedAmountBreakdownDomain,
     onInvestMore: () -> Unit,
-    onDownloadCapitalReport: () -> Unit,
-    onDownloadTaxReport: () -> Unit,
-    isExportingCapital: Boolean,
-    isExportingTax: Boolean,
-    onDownloadPortfolioReport: () -> Unit,
-    isExportingPortfolio: Boolean
 ) {
     val shapes = LocalVelvetShapes.current
     Box(
@@ -623,39 +752,40 @@ fun MFInvestmentsCard(
                         color = if (investedBreakdown.returnsPercent >= 0) appGreen else Color.Red
                     )
                 }
-            }
-            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
-            Row{
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    ReportDownloadItem(
-                        text = "Holdings PDF",
-                        loading = isExportingCapital,
-                        onClick = onDownloadCapitalReport
-                    )
-
-                    ReportDownloadItem(
-                        text = "Tax Saving PDF",
-                        loading = isExportingTax,
-                        onClick = onDownloadTaxReport
-                    )
-
-                    ReportDownloadItem(
-                        text = "Portfolio PDF",
-                        loading = isExportingPortfolio,
-                        onClick = onDownloadPortfolioReport
-                    )
-                }
                 AppButton(
                     text = "INVEST MORE",
                     onClick = onInvestMore,
-                    modifier = Modifier.width(160.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
                     shape = RoundedCornerShape(12.dp),
                 )
             }
         }
     }
+}
+
+@Composable
+private fun DownloadPdfRow(){
+//    Column(
+//        modifier = Modifier.weight(1f)
+//    ) {
+//        ReportDownloadItem(
+//            text = "Holdings PDF",
+//            loading = isExportingCapital,
+//            onClick = onDownloadCapitalReport
+//        )
+//
+//        ReportDownloadItem(
+//            text = "Tax Saving PDF",
+//            loading = isExportingTax,
+//            onClick = onDownloadTaxReport
+//        )
+//
+//        ReportDownloadItem(
+//            text = "Portfolio PDF",
+//            loading = isExportingPortfolio,
+//            onClick = onDownloadPortfolioReport
+//        )
+//    }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xffffff)
@@ -666,12 +796,6 @@ fun MFInvestmentsCardPreview() {
             MFInvestmentsCard(
                 investedBreakdown = previewPortfolioData.investedAmountBreakdown,
                 onInvestMore = {},
-                onDownloadCapitalReport = {},
-                onDownloadTaxReport = {},
-                isExportingCapital = false,
-                isExportingTax = false,
-                onDownloadPortfolioReport = {},
-                isExportingPortfolio = false,
             )
         }
     }
@@ -865,6 +989,14 @@ fun PendingPaymentsCard(item: PendingOrderDomain) {
                     color = appRed.copy(alpha = 0.8f)
                 )
             }
+
+            AppButton(
+                modifier = Modifier
+                    .padding(top = 4.dp).height(40.dp),
+                text = "Complete Action",
+                onClick = {},
+                enabled = false
+            )
         }
     }
 }

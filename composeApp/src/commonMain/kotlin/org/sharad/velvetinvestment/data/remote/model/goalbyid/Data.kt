@@ -8,7 +8,7 @@ data class Data(
     val child_name: String?,
     val createdAt: String,
     val current_age: Int?,
-    val current_goal_cost: String?,
+    val current_goal_cost: Double?,
     val current_monthly_expense: String?,
     val current_saved_amount: String,
     val goal_id: Int,

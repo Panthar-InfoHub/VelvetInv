@@ -94,7 +94,7 @@ class PortfolioScreenViewModel(
                 .onSuccess { url ->
                     downloadPdfByUrlUseCase(
                         url = url,
-                        fileName = "Capital_Report.pdf",
+                        fileName = "Capital_Report",
                         onSuccess = {
                             _isExportingCapital.value = false
                             viewModelScope.launch {
@@ -123,7 +123,7 @@ class PortfolioScreenViewModel(
                 .onSuccess { url ->
                     downloadPdfByUrlUseCase(
                         url = url,
-                        fileName = "Tax_Report_$year.pdf",
+                        fileName = "Tax_Report_$year",
                         onSuccess = {
                             _isExportingTax.value = false
                             viewModelScope.launch {
@@ -152,7 +152,7 @@ class PortfolioScreenViewModel(
                 .onSuccess { url ->
                     downloadPdfByUrlUseCase(
                         url = url,
-                        fileName = "Portfolio_Report.pdf",
+                        fileName = "Portfolio_Report",
                         onSuccess = {
                             _isExportingPortfolio.value = false
                             viewModelScope.launch {

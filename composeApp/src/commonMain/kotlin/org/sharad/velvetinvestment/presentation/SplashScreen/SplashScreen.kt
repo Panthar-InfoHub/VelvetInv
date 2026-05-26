@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,11 +30,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
+import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.utils.PermissionCallback
@@ -45,7 +52,10 @@ import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.background_mesh
 import velvet.composeapp.generated.resources.logo_app
-import velvet.composeapp.generated.resources.splash_cover_1
+import velvet.composeapp.generated.resources.splash1
+import velvet.composeapp.generated.resources.splash2
+import velvet.composeapp.generated.resources.splash3
+import velvet.composeapp.generated.resources.splash4
 import kotlin.collections.listOf
 
 @Composable
@@ -82,12 +92,83 @@ fun SplashScreen(windowSize: WindowSize, onGetStarted: () -> Unit) {
         permissionManager.askPermission(PermissionType.NOTIFICATION)
     }
 
+    SplashScreenContent(
+        windowSize = windowSize,
+        onGetStarted = onGetStarted
+    )
+}
 
+@Composable
+fun SplashScreenContent(
+    windowSize: WindowSize,
+    onGetStarted: () -> Unit
+) {
+
+    val headList = remember {
+        listOf(
+
+            buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(color = Primary)
+                ) {
+                    append("F.I.R.E")
+                }
+                append(" Report.")
+            },
+
+            buildAnnotatedString {
+                append("Track your ")
+                withStyle(
+                    style = SpanStyle(color = Primary)
+                ) {
+                    append("Net worth")
+                }
+                append(" real time")
+            },
+
+            buildAnnotatedString {
+                append("Understand ")
+                withStyle(
+                    style = SpanStyle(color = Primary)
+                ) {
+                    append("your Financial Reality")
+                }
+            },
+
+            buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(color = Primary)
+                ) {
+                    append("Save More.")
+                }
+                append(" Invest Better.")
+            }
+        )
+    }
+    val textList= remember{
+        listOf(
+            "Know when you can became financially independent with Velvet’s personalised F.I.R.E Report",
+            "Velvet Show you what to focus on  and how to close you F.I.R.E gap",
+            "Track your net worth, savings rate, goals, retirement path and financial gaps in one Place",
+            "Take your right actions today to create the life you dream of tomorrow"
+           )
+    }
+
+    val imageList= remember {
+        listOf(
+            Res.drawable.splash1,
+            Res.drawable.splash2,
+            Res.drawable.splash3,
+            Res.drawable.splash4
+        )
+    }
+
+    val pagerState= rememberPagerState { textList.size }
 
     Box(
-        modifier=Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopStart
-    ){
+    ) {
 
         LightGradient()
 
@@ -95,19 +176,31 @@ fun SplashScreen(windowSize: WindowSize, onGetStarted: () -> Unit) {
         when (windowSize) {
             WindowSize.PhoneLandscape -> {
                 SplashScreenLandscape(
-                    onGetStarted=onGetStarted
+                    onGetStarted = onGetStarted,
+                    headList =headList,
+                    pagerState =pagerState,
+                    textList =textList,
+                    imageList =imageList
                 )
             }
 
             WindowSize.PhonePortrait -> {
                 SplashScreenPortrait(
-                    onGetStarted=onGetStarted
+                    onGetStarted = onGetStarted,
+                    headList =headList,
+                    pagerState =pagerState,
+                    textList =textList,
+                    imageList =imageList
                 )
             }
 
             WindowSize.Tablet -> {
                 SplashScreenPortrait(
-                    onGetStarted=onGetStarted
+                    onGetStarted = onGetStarted,
+                    headList =headList,
+                    pagerState =pagerState,
+                    textList =textList,
+                    imageList =imageList
                 )
 
             }
@@ -128,7 +221,13 @@ fun LightGradient() {
 }
 
 @Composable
-fun SplashScreenPortrait(onGetStarted: () -> Unit) {
+fun SplashScreenPortrait(
+    onGetStarted: () -> Unit,
+    headList: List<AnnotatedString>,
+    pagerState: PagerState,
+    textList: List<String>,
+    imageList: List<DrawableResource>
+) {
     Box(
         modifier=Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -144,16 +243,28 @@ fun SplashScreenPortrait(onGetStarted: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            SplashPane1()
+            SplashPane1(
+                pagerState=pagerState,
+                imageList=imageList
+            )
             SplashPane2(
-                onGetStarted=onGetStarted
+                onGetStarted = onGetStarted,
+                headList =headList,
+                pagerState =pagerState,
+                textList =textList
             )
         }
     }
 }
 
 @Composable
-fun SplashScreenLandscape(onGetStarted: () -> Unit) {
+fun SplashScreenLandscape(
+    onGetStarted: () -> Unit,
+    headList: List<AnnotatedString>,
+    pagerState: PagerState,
+    textList: List<String>,
+    imageList: List<DrawableResource>
+) {
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -182,25 +293,28 @@ fun SplashScreenLandscape(onGetStarted: () -> Unit) {
         ) {
             SplashPane1(
                 modifier = Modifier.weight(1f),
-                size= WindowSize.PhoneLandscape
+                size= WindowSize.PhoneLandscape,
+                imageList=imageList,
+                pagerState=pagerState
             )
             SplashPane2(
                 modifier = Modifier.weight(1f),
-                onGetStarted=onGetStarted
+                onGetStarted =onGetStarted,
+                headList =headList,
+                pagerState =pagerState,
+                textList =textList
             )
         }
     }
 }
 
-@Composable
-fun SplashScreenTablet(){
-
-}
 
 @Composable
 fun SplashPane1(
     modifier: Modifier = Modifier,
-    size: WindowSize.PhoneLandscape?=null
+    size: WindowSize.PhoneLandscape? = null,
+    imageList: List<DrawableResource>,
+    pagerState: PagerState
 ){
     Column(
         modifier=modifier.fillMaxWidth(),
@@ -219,11 +333,15 @@ fun SplashPane1(
             textAlign = TextAlign.Center
         )
         if (size!=WindowSize.PhoneLandscape){
-            Image(
-                painter = painterResource(Res.drawable.splash_cover_1),
-                modifier = Modifier.fillMaxWidth().height(300.dp),
-                contentDescription = "Splash_Cover",
-            )
+            AnimatedContent(
+                targetState = pagerState.currentPage
+            ){page->
+                Image(
+                    painter = painterResource(imageList[page]),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).height(300.dp),
+                    contentDescription = "Splash_Cover",
+                )
+            }
         }
     }
 }
@@ -231,24 +349,11 @@ fun SplashPane1(
 @Composable
 fun SplashPane2(
     modifier: Modifier = Modifier,
-    onGetStarted: () -> Unit
+    onGetStarted: () -> Unit,
+    headList: List<AnnotatedString>,
+    pagerState: PagerState,
+    textList: List<String>
 ){
-    val headList= remember {
-        listOf(
-            "Plan Today.\nLive Free Tomorrow.",
-            "Invest Smarter,\nGrow with Purpose.",
-            "Turn Life Goals into\nFinancial Plans."
-        )
-    }
-    val textList= remember{
-        listOf(
-            "Track your finances, measure your F.I.R.E. progress, and move closer to financial independence.",
-            "Explore mutual funds and fixed deposits designed to support your wealth-building journey. ",
-            "Set goals, stay on track, and build a future that aligns with your ambitions. "
-        )
-    }
-
-    val pagerState= rememberPagerState { textList.size }
 
     LaunchedEffect(Unit){
         while (true){
@@ -295,6 +400,7 @@ fun SplashPane2(
 
             ExpandingDots(
                 currentIndexOfDot = pagerState.currentPage,
+                numberOfDots = 4
             )
 
         }
@@ -312,4 +418,3 @@ fun SplashPane2(
 
     }
 }
-

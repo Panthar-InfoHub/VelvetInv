@@ -69,7 +69,7 @@ import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.formatWithCommas
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
@@ -260,8 +260,8 @@ fun ProjectedImpactCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ){
             Text(
-                text = "Goal",
-                style = MaterialTheme.typography.titleLarge,
+                text = data.goalName,
+                style = MaterialTheme.typography.headlineLarge,
                 fontFamily = Poppins,
                 color = Color.Black,
                 fontWeight = FontWeight.Medium,
@@ -312,7 +312,7 @@ fun ProjectedImpactCard(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = stringResource(Res.string.todays_cost),
+                            text = if (data.goalTypeId==3) "Monthly Expense" else stringResource(Res.string.todays_cost),
                             style = titlesStyle,
                             fontFamily = Poppins,
                             color = titleColor
@@ -327,7 +327,7 @@ fun ProjectedImpactCard(
                     Column(modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.End) {
                         Text(
-                            text = stringResource(Res.string.future_value),
+                            text = if (data.goalTypeId==3) "Corpus Value" else stringResource(Res.string.future_value),
                             style = titlesStyle,
                             fontFamily = Poppins,
                             color = titleColor
@@ -408,7 +408,7 @@ fun ProjectedImpactCard(
 }
 
 private fun formatCurrency(amount: Long): String {
-    return formatWithCommas(amount)
+    return formatMoneyAfterL(amount)
 }
 
 
@@ -553,7 +553,9 @@ fun ProjectionImpactScreenPreview() {
                     increasedBy = 1500000.0,
                     requiredMonthly = 12000.0,
                     schemes = emptyList(),
-                    goalId = 123
+                    goalId = 123,
+                    goalName = "Retirement",
+                    goalTypeId = 3
                 ),
             ){}
         }

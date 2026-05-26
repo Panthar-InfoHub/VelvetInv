@@ -29,6 +29,7 @@ import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_right
 import velvet.composeapp.generated.resources.education_icon
@@ -97,7 +98,7 @@ fun GoalEntryCard(goal: GoalsSummaryDomain, onClick: () -> Unit) {
                            color = tintColor
                        )
                        Text(
-                           text="₹${formatMoneyAfterL(goal.amount)}/${formatMoneyWithUnits(goal.targetAmount)}",
+                           text="₹${formatMoneyAfterL(goal.amount)}/${formatMoneyWithUnits(goal.targetAmount)}".withInterRupee(),
                            style = MaterialTheme.typography.labelSmall,
                            color = Color.Black
                        )

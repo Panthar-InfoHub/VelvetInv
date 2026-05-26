@@ -855,7 +855,7 @@ fun MutualFundIcon(
     schemeName: String,
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
-    cornerRadius: Dp = 15.dp,
+    cornerRadius: Dp = 12.dp,
     backgroundColor: Color = Primary,
     textColor: Color = Color.White
 ) {

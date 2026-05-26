@@ -5,7 +5,7 @@ data class GoalDomain(
     val childName: String?,
     val createdAt: String,
     val currentAge: Int?,
-    val currentGoalCost: String?,
+    val currentGoalCost: Double?,
     val currentMonthlyExpense: String?,
     val currentSavedAmount: String,
     val goalId: Int,
