@@ -2,7 +2,9 @@ package org.sharad.velvetinvestment.data.remote.mapper
 
 import org.sharad.velvetinvestment.data.remote.model.fdportfoliobyid.FDPortFolioById
 import org.sharad.velvetinvestment.data.remote.model.pendingorders.PendingOrderDto
+import org.sharad.velvetinvestment.data.remote.model.portfolio.FolioFundDataDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
+import org.sharad.velvetinvestment.domain.models.portfolio.FolioFundDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FDStatus
 import org.sharad.velvetinvestment.data.remote.model.portfolio.MutualFund as MutualFundDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.FdTransaction as FdTransactionDto
@@ -47,8 +49,7 @@ fun UserPortFolioDto.toDomain(): PortfolioDomain {
                     value = totalInvestments
                         .allocation
                         .mutual_funds
-                        .value
-                        .toDouble(),
+                        .value,
 
                     percent = totalInvestments
                         .allocation
@@ -60,8 +61,7 @@ fun UserPortFolioDto.toDomain(): PortfolioDomain {
                     value = totalInvestments
                         .allocation
                         .fixed_deposits
-                        .value
-                        .toDouble(),
+                        .value,
 
                     percent = totalInvestments
                         .allocation
@@ -101,16 +101,15 @@ fun MutualFundDto.toDomain(): MutualFundPortfolioDomain {
         title = title,
         category = category,
         amount = amount,
-        isSip = is_sip,
-        startDate = start_date,
-        returnPercentage = return_percentage,
+        currentValue = current_value,
         returnAmount = `return`,
-        xirr = xirr,
-        currentNav = current_nav,
-        avgNav = avg_nav,
+        returnPercentage = return_percentage,
         folio = folio,
-        balanceUnits = balance_units,
-        icon = img_url ?: ""
+        icon = img_url.orEmpty(),
+        minSipAmount = transaction_rules.min_sip_amount.toLongOrNull() ?: 0L,
+        minLumpSumAmount = transaction_rules.min_lump_sum_amount.toLongOrNull() ?: 0L,
+        schemeId=scheme_id,
+        balanceUnits=bal_units
     )
 }
 
@@ -185,5 +184,25 @@ fun PendingOrderDto.toDomain(): PendingOrderDomain {
         amc = amc ?: "",
         frequency = frequency ?: "",
         startDate = start_date ?: ""
+    )
+}
+
+fun FolioFundDataDto.toDomain(): FolioFundDomain {
+    return FolioFundDomain(
+        id = id,
+        title = title,
+        category = category,
+        amount = amount.toLong(),
+        isSip = is_sip,
+        startDate = start_date,
+        returnPercentage = return_percentage,
+        `return` = `return`,
+        xirr = xirr,
+        currentNav = current_nav,
+        avgNav = avg_nav,
+        folio = folio,
+        balanceUnits = balance_units,
+        imgUrl = img_url,
+        schemeId = scheme_id
     )
 }

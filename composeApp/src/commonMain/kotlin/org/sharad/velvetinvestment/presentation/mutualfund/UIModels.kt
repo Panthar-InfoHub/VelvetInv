@@ -53,7 +53,8 @@ data class CalculatorInputState(
 data class CartBottomSheetState(
     val selectedType: MFPurchaseTypes= MFPurchaseTypes.LUMP_SUM,
     val amount:Long?=null,
-    val minAmount:Long = 500,
+    val minLumpSumAmount:Long = 500,
+    val minSipAmount:Long = 500,
     val loading:Boolean=false,
     val selectedFrequency: InvestmentFrequency?=null,
     val selectedSIPDate:String?=null,
@@ -83,7 +84,8 @@ enum class Duration(
 
 
 fun CartBottomSheetState.toSipRequest(
-    productId: String
+    productId: String,
+    folioId: String?
 ): AddCartSipRequest? {
 
     val amount = amount ?: return null
@@ -91,7 +93,7 @@ fun CartBottomSheetState.toSipRequest(
     val duration = selectedDuration ?: return null
     val day = selectedSIPDate?.toIntOrNull() ?: return null
 
-    if (amount < minAmount) return null
+    if (amount < minLumpSumAmount) return null
 
     val today = Clock.System.now()
         .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -119,6 +121,7 @@ fun CartBottomSheetState.toSipRequest(
         sip_en_date = endDate.toString(),
         sip_freq = frequency.code,
         sip_day = day,
-        sip_amt = amount
+        sip_amt = amount,
+        folio = folioId?:""
     )
 }

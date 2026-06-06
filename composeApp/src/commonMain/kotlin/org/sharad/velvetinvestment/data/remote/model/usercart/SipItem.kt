@@ -36,5 +36,7 @@ data class SipItem(
     val tgt_reinv_flag: String,
     val txn_amount: String,
     val txn_units: String,
-    val img_url: String?=null
+    val img_url: String?=null,
+    val min_step_up_amt: Long?= 0,
+    val min_step_up_percent: Double = 10.0
 )

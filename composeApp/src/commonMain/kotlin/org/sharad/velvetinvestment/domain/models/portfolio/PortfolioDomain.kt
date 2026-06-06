@@ -1,20 +1,20 @@
 package org.sharad.velvetinvestment.domain.models.portfolio
 
 data class MutualFundPortfolioDomain(
-    val id: Int,
+    val id: String,
     val title: String,
     val category: String,
     val amount: Double,
-    val isSip: Boolean,
-    val startDate: String,
+    val currentValue: Double,
+    val returnAmount: Double,
     val returnPercentage: String,
-    val returnAmount: Int,
-    val xirr: String,
-    val currentNav: Double,
-    val avgNav: Double,
     val folio: String,
-    val balanceUnits: Double,
-    val icon: String
+    val icon: String,
+
+    val minSipAmount: Long,
+    val minLumpSumAmount: Long,
+    val schemeId: Int,
+    val balanceUnits: Double
 )
 
 data class FixedDepositPortfolioDomain(

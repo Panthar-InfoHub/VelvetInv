@@ -21,7 +21,7 @@ import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCFormScreenView
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KycContractViewModel
-import org.sharad.velvetinvestment.presentation.mutualfund.CartScreenViewModel
+import org.sharad.velvetinvestment.presentation.cart.viewmodel.CartScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.AllBundlesViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.BundleResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
@@ -37,8 +37,10 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCo
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.OnBoardingConfirmationViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.ExistingFundsLumpSumViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FolioFundsMFViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.CheckKYCViewModel
 import org.sharad.velvetinvestment.presentation.settingscreens.viewmodels.SettingViewModel
@@ -103,7 +105,7 @@ val viewModelModule= module {
     viewModel { KycContractViewModel(get(), get(), get(), get()) }
     viewModel {(id:String)-> FDDetailsViewModel(id,get()) }
     viewModel {(id:String)-> FDPurchaseViewModel(id,get(),get(), get()) }
-    viewModel { CartScreenViewModel(get(),get(),get(),get(),get(),get(), get()) }
+    viewModel { CartScreenViewModel(get(),get(),get(),get(),get(), get()) }
     viewModel { SingleGoalViewModel(get(), get()) }
     viewModel { (id: String) -> ProjectionImpactViewModel(get(),get(), get(),get(),get(),get(),id) }
     viewModel { FinancialFlowEditScreenViewModel(get(), get()) }
@@ -112,5 +114,7 @@ val viewModelModule= module {
     viewModel { InsuranceScreenViewModel(get()) }
     viewModel { (bundleKey: String) -> BundleResultViewModel(bundleKey = bundleKey, get(),get(), get())}
     viewModel { AllBundlesViewModel(get()) }
+    viewModel { (folioId: String) -> FolioFundsMFViewModel(folioId, get()) }
     viewModel { InvestmentRateScreenViewModel(get()) }
+    viewModel { ExistingFundsLumpSumViewModel(get(),get())}
 }

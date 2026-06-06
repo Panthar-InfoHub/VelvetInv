@@ -16,11 +16,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,28 +45,36 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.bgColor4
+import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.shared.theme.buttonTextStyle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
-import velvet.composeapp.generated.resources.choose_how_to_invest
 import velvet.composeapp.generated.resources.ic_callended_filled
 import velvet.composeapp.generated.resources.ic_ruppee_filled
 import velvet.composeapp.generated.resources.invest_as_lumpsum
 import velvet.composeapp.generated.resources.lumpsum_description
-import velvet.composeapp.generated.resources.select_investment_method
 import velvet.composeapp.generated.resources.sip_description
 import velvet.composeapp.generated.resources.start_an_sip
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvestmentMethodScreen(
     onStartSipClick: () -> Unit = {},
     onLumpsumClick: () -> Unit = {},
+    onExistingSIPFundClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onExistingLumpSumFundClick: () -> Unit = {}
 ) {
+    var showSIPBottomSheet by remember { mutableStateOf(false) }
+    var showLumpSumBottomSheet by remember { mutableStateOf(false) }
+    val sheetStateSIP = rememberModalBottomSheetState()
+    val sheetStateLumpSum = rememberModalBottomSheetState()
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.White,
@@ -116,9 +135,9 @@ fun InvestmentMethodScreen(
                 InvestmentOptionCard(
                     title = stringResource(Res.string.start_an_sip),
                     description = stringResource(Res.string.sip_description),
-                    buttonText ="Start SIP ",
+                    buttonText = "Start SIP ",
                     icon = Res.drawable.ic_callended_filled,
-                    onButtonClick = onStartSipClick
+                    onButtonClick = { showSIPBottomSheet = true }
                 )
             }
 
@@ -128,10 +147,106 @@ fun InvestmentMethodScreen(
                     description = stringResource(Res.string.lumpsum_description),
                     buttonText = "Invest Lump Sum",
                     icon = Res.drawable.ic_ruppee_filled,
-                    onButtonClick = onLumpsumClick
+                    onButtonClick = {
+                        showLumpSumBottomSheet = true
+                    }
                 )
             }
         }
+
+        if (showSIPBottomSheet) {
+            SIPSelectionBottomSheet(
+                sheetState = sheetStateSIP,
+                onDismiss = { showSIPBottomSheet = false },
+                onExistingFundClick = {
+                    showSIPBottomSheet = false
+                    onExistingSIPFundClick()
+                },
+                onExploreNewFundsClick = {
+                    showSIPBottomSheet = false
+                    onStartSipClick()
+                }
+            )
+        }
+        if (showLumpSumBottomSheet) {
+            SIPSelectionBottomSheet(
+                sheetState = sheetStateLumpSum,
+                onDismiss = { showLumpSumBottomSheet = false },
+                onExistingFundClick = {
+                    showLumpSumBottomSheet = false
+                    onExistingLumpSumFundClick()
+                },
+                onExploreNewFundsClick = {
+                    showLumpSumBottomSheet = false
+                    onLumpsumClick()
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SIPSelectionBottomSheet(
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onExistingFundClick: () -> Unit,
+    onExploreNewFundsClick: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp)
+        ) {
+            BottomSheetOptionItem(
+                title = "Top Up existing Funds",
+                subtitle = "Invest more in existing funds",
+                onClick = onExistingFundClick
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                color = Color.LightGray.copy(alpha = 0.5f)
+            )
+
+            BottomSheetOptionItem(
+                title = "Explore New Funds",
+                subtitle = "Discover new funds and start a fresh investment.",
+                onClick = onExploreNewFundsClick
+            )
+        }
+    }
+}
+
+@Composable
+fun BottomSheetOptionItem(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 24.dp, vertical = 20.dp)
+    ) {
+        Text(
+            text = title,
+            style = buttonTextStyle,
+            color = titleColor
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.titleSmall,
+            color = Color(0xffAAAAAA)
+        )
     }
 }
 
@@ -144,8 +259,6 @@ fun InvestmentOptionCard(
     onButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-
     Column(
         modifier = modifier
             .fillMaxWidth()

@@ -395,7 +395,7 @@ fun MapSchemesBottomSheetContent(
                             items(data) { scheme ->
                                 SelectableSchemeItem(
                                     scheme = scheme,
-                                    onToggle = { viewModel.toggleSelection(scheme.schemeId.toInt()) }
+                                    onToggle = { viewModel.toggleSelection(scheme.schemeId) }
                                 )
                             }
                         }

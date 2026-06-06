@@ -38,8 +38,17 @@ interface UserAuth {
 
     suspend fun getUserData(): NetworkResponse<UserDataDto, ErrorDomain>
 
+    suspend fun getTradingAccountPrefilledData(): NetworkResponse<org.sharad.velvetinvestment.domain.models.tradingaccount.prefilled.TradingAccountPrefilledDomain, ErrorDomain>
+
     suspend fun  verifyPAN(pan: String): NetworkResponse<PANVerifyDomain, ErrorDomain>
 
     suspend fun submitTradingAccountForm(data: TradingAccountFormDomain) : NetworkResponse<String, ErrorDomain>
-    suspend fun tradingAccountConfirmation() : NetworkResponse<Unit, ErrorDomain>
+    suspend fun tradingAccountConfirmation(
+        taxStatus: String,
+        holdingNature: String,
+        jointHolderName1: String,
+        jointHolderName2: String,
+        guardianName: String,
+        isMinor: Boolean
+    ): NetworkResponse<Unit, ErrorDomain>
 }

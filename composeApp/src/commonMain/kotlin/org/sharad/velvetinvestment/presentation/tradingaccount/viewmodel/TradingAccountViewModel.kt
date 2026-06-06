@@ -19,7 +19,7 @@ import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.sharad.velvetinvestment.domain.models.tradingaccount.Data
 import org.sharad.velvetinvestment.domain.models.tradingaccount.TradingAccountFormDomain
-import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.GetTradingAccountPrefilledDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.SubmitTradingAccountFormUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.TradingAccountConfirmationUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.VerifyPANUseCase
@@ -32,14 +32,17 @@ import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.tradingaccount.ClientType
 import org.sharad.velvetinvestment.utils.tradingaccount.DefaultDp
+import org.sharad.velvetinvestment.utils.tradingaccount.FatcaOccupationType
 import org.sharad.velvetinvestment.utils.tradingaccount.Holding
 import org.sharad.velvetinvestment.utils.tradingaccount.KycType
+import org.sharad.velvetinvestment.utils.tradingaccount.SourceOfWealth
+import org.sharad.velvetinvestment.utils.tradingaccount.StateCode
 import org.sharad.velvetinvestment.utils.tradingaccount.TaxStatus
 import kotlin.time.Clock
 import kotlin.time.Instant
 
 class TradingAccountViewModel(
-    private val getUserDataUseCase: GetUserDataUseCase,
+    private val getTradingAccountPrefilledDataUseCase: GetTradingAccountPrefilledDataUseCase,
     private val verifyPANUseCase: VerifyPANUseCase,
     private val submitTradingAccountFormUseCase: SubmitTradingAccountFormUseCase,
     private val tradingAccountConfirmationUseCase: TradingAccountConfirmationUseCase,
@@ -75,18 +78,26 @@ class TradingAccountViewModel(
     fun getUserData() {
         viewModelScope.launch {
             _formState.value = UiState.Loading
-            getUserDataUseCase()
+            getTradingAccountPrefilledDataUseCase()
                 .onSuccess { response ->
                     _formState.value = UiState.Success(
                         TradingAccountFormDomain(data = Data())
                     )
-                    val userData = response.data
+                    val userData = response
                     updateData {
                         it.copy(
-                            primary_holder_first_name = userData.full_name,
+                            primary_holder_first_name = userData.fullName,
                             email = userData.email,
                             primary_holder_dob_incorporation = DateTimeUtils.isoUtcToSlashDate(userData.dob),
-                            indian_mobile_no = userData.phone_no,
+                            indian_mobile_no = userData.phoneNo,
+                            gender = userData.gender.toUpperCase(Locale.current).take(1),
+                            primary_holder_pan = userData.panNo,
+                            po_bir_inc = userData.placeOfBirth,
+                            address_1 = userData.fullAddress,
+                            pincode = userData.pinCode,
+                            city = userData.city,
+                            state = StateCode.fromDisplayName(userData.state)?.code?: "",
+                            country = userData.country,
                         )
                     }
                     _isMinor.value = isMinor(userData.dob)
@@ -140,7 +151,14 @@ class TradingAccountViewModel(
 
             _formState.value = UiState.Loading
 
-            tradingAccountConfirmationUseCase()
+            tradingAccountConfirmationUseCase(
+                taxStatus = successState.data.data.tax_status,
+                holdingNature = successState.data.data.holding_nature,
+                jointHolderName1 = successState.data.data.second_holder_first_name+ " "+successState.data.data.second_holder_last_name,
+                jointHolderName2 = successState.data.data.third_holder_first_name+ " "+successState.data.data.third_holder_last_name,
+                guardianName = successState.data.data.guardian_first_name+ " "+successState.data.data.guardian_last_name,
+                isMinor = isMinor.value
+            )
                 .onSuccess { response ->
                     _formState.value = previousState
                     SnackBarController.showSuccess("Account Created Successfully")
@@ -202,9 +220,9 @@ class TradingAccountViewModel(
         }
     }
 
-    fun onFirstNameChange(value: String) = updateData { it.copy(primary_holder_first_name = value.trim().toUpperCase(Locale.current)) }
-    fun onMiddleNameChange(value: String) = updateData { it.copy(primary_holder_middle_name = value.trim().toUpperCase(Locale.current)) }
-    fun onLastNameChange(value: String) = updateData { it.copy(primary_holder_last_name = value.trim().toUpperCase(Locale.current)) }
+    fun onFirstNameChange(value: String) = updateData { it.copy(primary_holder_first_name = value.toUpperCase(Locale.current)) }
+    fun onMiddleNameChange(value: String) = updateData { it.copy(primary_holder_middle_name = value.toUpperCase(Locale.current)) }
+    fun onLastNameChange(value: String) = updateData { it.copy(primary_holder_last_name = value.toUpperCase(Locale.current)) }
     fun onPanChange(value: String) = updateData { it.copy(primary_holder_pan = value.trim().toUpperCase(Locale.current)) }
     fun onDobChange(value: String) {
         updateData { it.copy(primary_holder_dob_incorporation = value.trim().toUpperCase(Locale.current)) }
@@ -216,7 +234,7 @@ class TradingAccountViewModel(
     fun onTaxStatusChange(value: String) = updateData { it.copy(tax_status = value.trim().toUpperCase(Locale.current)) }
     fun onOccupationChange(value: String) = updateData { it.copy(occupation_code = value.trim().toUpperCase(Locale.current)) }
     fun onOccTypeChange(value: String) = updateData { it.copy(occ_type = value.trim().toUpperCase(Locale.current)) }
-    fun onPlaceOfBirthChange(value: String) = updateData { it.copy(po_bir_inc = value.trim().toUpperCase(Locale.current)) }
+    fun onPlaceOfBirthChange(value: String) = updateData { it.copy(po_bir_inc = value.toUpperCase(Locale.current)) }
     fun onPrimaryCkycChange(value: String) = updateData { it.copy(primary_holder_ckyc_number = value.trim().toUpperCase(Locale.current)) }
     fun onPrimaryKycTypeChange(value: String) = updateData { it.copy(primary_holder_kyc_type = value.trim().toUpperCase(Locale.current)) }
     fun onPrimaryPanExemptChange(value: String) = updateData { it.copy(primary_holder_pan_exempt = value.trim().toUpperCase(Locale.current)) }
@@ -345,21 +363,21 @@ class TradingAccountViewModel(
         onNominee1MinorFlagChange(if (isMinor == true) "Y" else "N")
     }
 
-    fun onNominee1NameChange(value: String) = updateData { it.copy(nominee_1_name = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1NameChange(value: String) = updateData { it.copy(nominee_1_name = value.toUpperCase(Locale.current)) }
     fun onNominee1RelationChange(value: String) = updateData { it.copy(nominee_1_relationship = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1DobChange(value: String) = updateData { it.copy(nominee_1_dob = value.trim().toUpperCase(Locale.current)) }
-    fun onNominee1EmailChange(value: String) = updateData { it.copy(nominee_1_email = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1EmailChange(value: String) = updateData { it.copy(nominee_1_email = value.trim()) }
     fun onNominee1MobileChange(value: String) = updateData { it.copy(nominee_1_mobile = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1IdentityTypeChange(value: String) = updateData { it.copy(nominee_1_identity_type = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1IdentityNumberChange(value: String) = updateData { it.copy(nominee_1_identity_number = value.trim().toUpperCase(Locale.current)) }
-    fun onNominee1Address1Change(value: String) = updateData { it.copy(nominee_1_address1 = value.trim().toUpperCase(Locale.current)) }
-    fun onNominee1Address2Change(value: String) = updateData { it.copy(nominee_1_address2 = value.trim().toUpperCase(Locale.current)) }
-    fun onNominee1Address3Change(value: String) = updateData { it.copy(nominee_1_address3 = value.trim().toUpperCase(Locale.current)) }
-    fun onNominee1CityChange(value: String) = updateData { it.copy(nominee_1_city = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1Address1Change(value: String) = updateData { it.copy(nominee_1_address1 = value.toUpperCase(Locale.current)) }
+    fun onNominee1Address2Change(value: String) = updateData { it.copy(nominee_1_address2 = value.toUpperCase(Locale.current)) }
+    fun onNominee1Address3Change(value: String) = updateData { it.copy(nominee_1_address3 = value.toUpperCase(Locale.current)) }
+    fun onNominee1CityChange(value: String) = updateData { it.copy(nominee_1_city = value.toUpperCase(Locale.current)) }
     fun onNominee1PincodeChange(value: String) = updateData { it.copy(nominee_1_pin = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1CountryChange(value: String) = updateData { it.copy(nominee_1_country = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1MinorFlagChange(value: String) = updateData { it.copy(nominee_1_minor_flag = value.trim().toUpperCase(Locale.current)) }
-    fun onNominee1GuardianChange(value: String) = updateData { it.copy(nominee_1_guardian = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1GuardianChange(value: String) = updateData { it.copy(nominee_1_guardian = value.toUpperCase(Locale.current)) }
     fun onNominee1GuardianPanChange(value: String) = updateData { it.copy(nominee_1_guardian_pan = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1ApplicableChange(value: String) = updateData { it.copy(nominee_1_applicable = value.trim().toUpperCase(Locale.current)) }
     fun onNomineeSoaChange(value: String) = updateData { it.copy(nominee_soa = value.trim().toUpperCase(Locale.current)) }
@@ -566,7 +584,34 @@ class TradingAccountViewModel(
     fun onLeiNoChange(value: String) = updateData { it.copy(lei_no = value.trim().toUpperCase(Locale.current)) }
     fun onLeiValidityChange(value: String) = updateData { it.copy(lei_validity = value.trim().toUpperCase(Locale.current)) }
     fun onMapinIdChange(value: String) = updateData { it.copy(mapin_id = value.trim().toUpperCase(Locale.current)) }
-    fun onSourceWealthChange(value: String) = updateData { it.copy(srce_wealt = value.trim().toUpperCase(Locale.current)) }
+    fun onSourceWealthChange(value: String) {
+
+        val occType = when (value) {
+            SourceOfWealth.SALARY.code ->
+                FatcaOccupationType.SERVICE.code
+
+            SourceOfWealth.BUSINESS_INCOME.code ->
+                FatcaOccupationType.BUSINESS.code
+
+            SourceOfWealth.GIFT.code,
+            SourceOfWealth.ANCESTRAL_PROPERTY.code,
+            SourceOfWealth.RENTAL_INCOME.code,
+            SourceOfWealth.PRIZE_MONEY.code,
+            SourceOfWealth.ROYALTY.code,
+            SourceOfWealth.OTHER.code ->
+                FatcaOccupationType.OTHERS.code
+
+            else ->
+                FatcaOccupationType.NOT_CATEGORIZED.code
+        }
+
+        updateData {
+            it.copy(
+                srce_wealt = value.trim(),
+                occ_type = occType
+            )
+        }
+    }
 
     val addressScreenButtonEnabled = _formState
         .map { formState ->

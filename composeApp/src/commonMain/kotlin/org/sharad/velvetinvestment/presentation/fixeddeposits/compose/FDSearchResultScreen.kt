@@ -112,7 +112,7 @@ fun FDSearchScreenRoot(
                     )
                 }
             }
-
+            BlostemFooter(modifier = Modifier.padding(vertical = 12.dp))
         }
         AnimatedVisibility(
             showFilterScreen,
@@ -240,7 +240,6 @@ fun FDSearchScreen(
         }
 
         item { Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp)) }
-
         item {
             PaginationFooter(hasNextPage = hasNextPage)
         }

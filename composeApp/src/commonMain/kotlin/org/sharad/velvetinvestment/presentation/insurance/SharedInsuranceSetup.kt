@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -33,6 +36,7 @@ import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.bgColor3
 import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.presentation.SplashScreen.ExpandingDots
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.theme.Poppins
@@ -47,21 +51,23 @@ fun SharedInsuranceScreen(
     onBack: () -> Unit,
     subHeading: String,
     icon: DrawableResource,
-    tint:Color,
+    tint: Color,
     status: String,
     coverage: String,
     recommended: String,
     gap: String,
     infoText: String,
-    image: DrawableResource
+    image: List<DrawableResource>
 ) {
+    val state= rememberPagerState { image.size }
     Column(
         modifier=Modifier.fillMaxSize()
     ) {
         BackHeader(heading=heading, showBack = true, onBackClick = onBack)
         LazyColumn(
             modifier=Modifier.weight(1f).padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(bottom = 20.dp)
         ) {
             item {
                 CoverageCard(
@@ -79,7 +85,22 @@ fun SharedInsuranceScreen(
                 RiskCard(infoText)
             }
             item {
-                ImageCard(image)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ){
+                    HorizontalPager(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = state
+                    ) {
+                        ImageCard(image[it])
+                    }
+                    ExpandingDots(
+                        currentIndexOfDot = state.currentPage,
+                        numberOfDots = image.size
+                    )
+                }
             }
         }
     }
@@ -91,7 +112,7 @@ fun ImageCard(x0: DrawableResource) {
        painter = painterResource(x0),
        contentDescription = null,
        modifier = Modifier.fillMaxWidth()
-           .height(242.dp),
+           .height(196.dp),
        contentScale = ContentScale.FillWidth
    )
 }

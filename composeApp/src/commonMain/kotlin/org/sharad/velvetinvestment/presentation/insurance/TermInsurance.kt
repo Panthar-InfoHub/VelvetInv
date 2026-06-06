@@ -8,8 +8,10 @@ import org.sharad.emify.core.ui.theme.termColor
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.banner_term_1
+import velvet.composeapp.generated.resources.banner_term_2
+import velvet.composeapp.generated.resources.banner_term_3
 import velvet.composeapp.generated.resources.nav_icon_incurance
-import velvet.composeapp.generated.resources.pl2
 
 @Composable
 fun TermInsuranceScreen(
@@ -17,6 +19,12 @@ fun TermInsuranceScreen(
 ){
     val viewModel: InsuranceScreenViewModel = koinViewModel()
     val state by viewModel.insuranceInfo.collectAsStateWithLifecycle()
+    val images = listOf(
+        Res.drawable.banner_term_3,
+        Res.drawable.banner_term_1,
+        Res.drawable.banner_term_2
+    )
+
 
     UiStateContainer(
         uiState = state,
@@ -41,7 +49,7 @@ fun TermInsuranceScreen(
                     "31–40 years: 20× Annual Income\n" +
                     "41–50 years: 15× Annual Income\n" +
                     "Above 50 years: 10× Annual Income",
-            image = Res.drawable.pl2
+            image = images
         )
     }
 }

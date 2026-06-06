@@ -8,8 +8,10 @@ import org.sharad.emify.core.ui.theme.healthColor
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.banner_health_1
+import velvet.composeapp.generated.resources.banner_health_2
+import velvet.composeapp.generated.resources.banner_health_3
 import velvet.composeapp.generated.resources.icon_heart
-import velvet.composeapp.generated.resources.pl3
 
 @Composable
 fun HealthInsuranceScreen(
@@ -17,6 +19,11 @@ fun HealthInsuranceScreen(
 ){
     val viewModel: InsuranceScreenViewModel = koinViewModel()
     val state by viewModel.insuranceInfo.collectAsStateWithLifecycle()
+    val images = listOf(
+        Res.drawable.banner_health_3,
+        Res.drawable.banner_health_1,
+        Res.drawable.banner_health_2
+    )
 
     UiStateContainer(
         uiState = state,
@@ -42,7 +49,7 @@ fun HealthInsuranceScreen(
                     "31–40 years: ₹15 Lakhs\n" +
                     "41–50 years: ₹25 Lakhs\n" +
                     "Above 50 years: ₹40 Lakhs",
-            image = Res.drawable.pl3
+            image = images
         )
     }
 }

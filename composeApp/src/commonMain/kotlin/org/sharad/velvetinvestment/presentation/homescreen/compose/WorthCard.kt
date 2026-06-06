@@ -190,7 +190,7 @@ fun UserWorthCard(
         }
 
         VisibilityToggleIcon(
-            isVisible = !hidden,
+            isVisible = hidden,
             onToggle = onHiddenToggle,
             modifier=Modifier.align(Alignment.TopEnd).padding(16.dp)
         )

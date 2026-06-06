@@ -1,6 +1,8 @@
 package org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +18,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -24,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import kotlin.time.Clock
 
 object TermsAndConditionsTextStyle {
 
@@ -61,12 +70,16 @@ fun TermsAndConditionsScreen(
 
 ) {
 
+    var showDevDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var tapCount by remember { mutableIntStateOf(0) }
+    var firstTapTime by remember { mutableLongStateOf(0L) }
+
     Scaffold(
-
         modifier = modifier
-
             .fillMaxSize()
-
             .background(Color.White),
         topBar = {
             BackHeader(
@@ -78,95 +91,54 @@ fun TermsAndConditionsScreen(
         containerColor = Color.White
 
     ) { paddingValues ->
-
         Column(
-
             modifier = Modifier
-
                 .fillMaxSize()
-
                 .verticalScroll(rememberScrollState())
-
                 .padding(
-
                     PaddingValues(
-
                         start =24.dp,
-
                         end = 24.dp,
-
                         top = paddingValues.calculateTopPadding() + 24.dp,
-
                         bottom = paddingValues.calculateBottomPadding() + 24.dp
-
                     )
-
                 ),
-
             verticalArrangement = Arrangement.spacedBy(20.dp)
-
         ) {
-
             Text(
-
                 text = "Terms & Conditions",
-
                 style = TermsAndConditionsTextStyle.screenTitle()
-
             )
-
             Text(
-
                 text = "Please read these terms carefully before using Velvet Investing services.",
-
                 style = TermsAndConditionsTextStyle.body()
-
             )
-
             Text(
-
                 text = "Effective Date: March 30, 2025\nLast Updated: March 30, 2025",
-
                 style = TermsAndConditionsTextStyle.body()
-
             )
-
             TermsSection(
-
                 title = "1. About Velvet Investing",
-
                 body = listOf(
                     "Velvet Investing provides digital tools and services related to financial planning, goal tracking, investment facilitation, reporting, and related user experiences. Certain features may be enabled through third-party partners, including regulated intermediaries, technology service providers, KYC agencies, investment platforms, or financial institutions."
                 )
-
             )
 
             TermsSection(
-
                 title = "2. Eligibility",
-
                 body = listOf(
                     "By using our services, you represent that:"
                 ),
-
                 bullets = listOf(
-
                     "you are legally capable of entering into a binding agreement",
-
                     "the information you provide is true, complete, and accurate",
-
                     "you will use the platform only for lawful purposes",
-
                     "you are authorized to provide all details submitted through your account"
-
                 )
-
             )
 
             TermsSection(
-
                 title = "3. Account Registration and Security",
-
                 body = listOf(
                     "To access certain services, you may be required to register and verify your identity using OTP, KYC, or other authentication steps.\n" +
                             "You are responsible for:"
@@ -382,7 +354,26 @@ fun TermsAndConditionsScreen(
 
                     Text(
                         text = "Email",
-                        style = TermsAndConditionsTextStyle.bodyTitle()
+                        style = TermsAndConditionsTextStyle.bodyTitle(),
+                        modifier=Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            val currentTime = Clock.System.now().toEpochMilliseconds()
+                            if (currentTime - firstTapTime > 5_000) {
+                                tapCount = 0
+                                firstTapTime = currentTime
+                            }
+                            if (tapCount == 0) {
+                                firstTapTime = currentTime
+                            }
+                            tapCount++
+                            if (tapCount >= 10) {
+                                tapCount = 0
+                                firstTapTime = 0L
+                                showDevDialog = true
+                            }
+                        }
                     )
 
                     Text(
@@ -423,6 +414,14 @@ fun TermsAndConditionsScreen(
             }
         }
     }
+
+
+    DevSignaturePasswordDialog(
+        visible = showDevDialog,
+        onDismiss = {
+            showDevDialog = false
+        }
+    )
 }
 
 @Composable

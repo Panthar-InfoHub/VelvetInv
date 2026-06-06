@@ -32,7 +32,9 @@ data class MutualFundDetailsDomain(
     val investmentFrequency: List<InvestmentFrequency>,
     val updatedAt: String,
     val icon: String,
-    val minAmount: Long
+    val minAmount: Long,
+    val minSipAmount: Long,
+    val minLumpSumAmount: Long
 )
 
 enum class InvestmentFrequency(

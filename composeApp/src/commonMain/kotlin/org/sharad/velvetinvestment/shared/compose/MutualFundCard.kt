@@ -18,28 +18,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
-import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.withInterRupee
 
 @Composable
-fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
+fun FolioFundCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
 
     Box(
         modifier = Modifier.fillMaxWidth()
-            .genericDropShadow(RoundedCornerShape(15.dp))
-            .clip(RoundedCornerShape(15.dp))
+            .genericDropShadow(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .clickable(onClick=onClick),
         contentAlignment = Alignment.Center
@@ -47,7 +48,7 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
 
         Column(
             modifier = Modifier.padding(
-                vertical = 24.dp
+                vertical = 16.dp
             )
         ){
             Row(
@@ -70,7 +71,9 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
 
                     error = {
                         MutualFundIcon(
-                            schemeName = fundItem.title, size = 44.dp
+                            schemeName = fundItem.title, size = 44.dp,
+                            backgroundColor = Color(0xffEFEDF3),
+                            textColor = Primary
                         )
                     },
 
@@ -91,7 +94,8 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
                         Text(
                             text = fundItem.title,
                             color = Color.Black,
-                            style = MaterialTheme.typography.labelSmall.copy(lineHeight = 20.sp),
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Normal),
+                            lineHeight = 20.sp,
                             modifier = Modifier.weight(1f),
                             maxLines = 2
                         )
@@ -99,34 +103,23 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = fundItem.category,
+                            text = "Folio no. ",
                             color = titleColor,
-                            style = titlesStyle
+                            style = tinyLabel
+                        )
+                        Text(
+                            text = fundItem.folio,
+                            color = Color(0xff919191),
+                            style = tinyLabel
                         )
                     }
                 }
-                Column(
-                    modifier = Modifier.align(Alignment.Top),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = ("₹" + formatMoneyAfterL(fundItem.amount.toLong())).withInterRupee(),
-                        color = Color.Black,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                    Text(
-                        text = fundItem.returnPercentage,
-                        style = tinyLabel,
-                        color = titleColor
-                    )
-                }
             }
             HorizontalDivider(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 20.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 20.dp),
                 thickness = 0.5.dp
             )
             Row(
@@ -150,12 +143,12 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = "Start Date",
+                        text = "Current Value",
                         style = MaterialTheme.typography.titleSmall,
                         color = titleColor
                     )
                     Text(
-                        text = fundItem.startDate,
+                        text = ("₹" + formatMoneyAfterL(fundItem.currentValue.toLong())).withInterRupee(),
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.Black
                     )
@@ -167,26 +160,25 @@ fun MutualFundsCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
 
 @Preview
 @Composable
-private fun MutualFundsCardPreview() {
+private fun FolioFundCardPreview() {
     val sampleFund = MutualFundPortfolioDomain(
-        id = 1,
+        id = "f49b4800-6016-4123-bd17-7303bc2b18c3",
         title = "SBI Bluechip Fund Direct Growth Fund Direct Growth",
         category = "Equity: Large Cap",
         amount = 125000.0,
-        isSip = true,
-        startDate = "12 Oct 2023",
+        currentValue = 143000.0,
+        returnAmount = 18000.0,
         returnPercentage = "14.5%",
-        returnAmount = 18000,
-        xirr = "15.2%",
-        currentNav = 78.5,
-        avgNav = 65.0,
         folio = "12345678/90",
-        balanceUnits = 1592.35,
-        icon = ""
+        icon = "",
+        minSipAmount = 100,
+        minLumpSumAmount = 1000,
+        schemeId = 1,
+        balanceUnits = 33.44,
     )
     VelvetTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            MutualFundsCard(
+            FolioFundCard(
                 fundItem = sampleFund,
                 onClick = {}
             )

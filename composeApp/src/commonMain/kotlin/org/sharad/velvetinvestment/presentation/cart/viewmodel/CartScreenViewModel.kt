@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.mutualfund
+package org.sharad.velvetinvestment.presentation.cart.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.SIPStatus
-import org.sharad.velvetinvestment.domain.models.usercart.CartItemDomain
+import org.sharad.velvetinvestment.domain.models.usercart.SipItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
@@ -47,7 +47,6 @@ class CartScreenViewModel(
     private val checkSipPurchaseStatusUseCase: CheckSipPurchaseStatusUseCase,
     private val purchaseSipUseCase: PurchaseSipFundUseCase,
     private val purchaseLumpSumUseCase: PurchaseLumpsumFundUseCase,
-    private val browserLauncher: LaunchBrowserUseCase
 ) : ViewModel() {
 
     private var currentCartType = CartType.LUMPSUM
@@ -61,37 +60,51 @@ class CartScreenViewModel(
     private val _loading= MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
+    val isPurchaseEnabled: StateFlow<Boolean> =
+        uiState
+            .map { state ->
+                if (state !is UiState.Success) {
+                    return@map false
+                }
+                val data = state.data
+                when (data.selectedCartType) {
+                    CartType.LUMPSUM -> {
+                        data.cartData.lumpSumItems.isNotEmpty()
+                    }
+                    CartType.SIP -> {
+                        data.cartData.sipItems.isNotEmpty() &&
+                                data.cartData.sipItems.none { sip ->
+                                    sip.stepUpRequired &&
+                                            sip.stepUpAmount < sip.minStepUpAmount
+                                }
+                    }
+                }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = false
+            )
+
     private val _confirmationPopupVisible= MutableStateFlow(false)
     val confirmationPopupVisible: StateFlow<Boolean> = _confirmationPopupVisible.asStateFlow()
 
-
-    val visibleItems: StateFlow<List<CartItemDomain>> =
-        uiState
-            .map { state ->
-                when (state) {
-                    is UiState.Success -> {
-                        when (state.data.selectedCartType) {
-                            CartType.SIP -> state.data.cartData.sipItems
-                            CartType.LUMPSUM -> state.data.cartData.lumpSumItems
-                        }
-                    }
-                    else -> emptyList()
-                }
+    val totalAmount = uiState.map {
+        if (it is UiState.Success){
+            val sipTotal = it.data.cartData.sipItems.sumOf {item-> item.sipDetails.sipAmount + item.stepUpAmount }
+            val lumpSumTotal = it.data.cartData.lumpSumItems.sumOf { item-> item.amount }
+            when(it.data.selectedCartType){
+                CartType.SIP -> sipTotal
+                CartType.LUMPSUM -> lumpSumTotal
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val totalAmount: StateFlow<Long> =
-        visibleItems
-            .map { items ->
-                items.sumOf {
-                    if (it.type == CartType.SIP) {
-                        it.sipDetails?.sipAmount ?: 0
-                    } else {
-                        it.amount
-                    }
-                }
-            }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+        }
+        else 0L
+    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 0L
+        )
 
 
     init {
@@ -179,9 +192,13 @@ class CartScreenViewModel(
     }
 
     fun initiateSip() {
+        val sipData = if (_uiState.value is UiState.Success){
+            (_uiState.value as UiState.Success).data.cartData.sipItems
+        }else return
+
         viewModelScope.launch {
             _loading.value = true
-            initiateSipPurchaseUseCase()
+            initiateSipPurchaseUseCase(sipData)
                 .onSuccess {
                     _loading.value = false
                     _cartSideEffect.emit(
@@ -241,7 +258,7 @@ class CartScreenViewModel(
             val data = current.data
             viewModelScope.launch {
                 _uiState.value = UiState.Loading
-                purchaseSipUseCase(mandateId=mandateId)
+                purchaseSipUseCase(mandateId=mandateId, sipItems = data.cartData.sipItems)
                     .onSuccess {
                         _uiState.value = UiState.Success(data)
                         _cartSideEffect.emit(
@@ -278,6 +295,84 @@ class CartScreenViewModel(
         }
 
     }
+
+    fun enableStepUp(item: SipItemDomain) {
+        val current = _uiState.value
+        if (current !is UiState.Success) return
+
+        val updatedSipItems = current.data.cartData.sipItems.map { sip ->
+            if (sip.id == item.id) {
+                sip.copy(
+                    stepUpRequired = true,
+                    stepUpAmount = sip.minStepUpAmount
+                )
+            } else {
+                sip
+            }
+        }
+
+        _uiState.value = UiState.Success(
+            current.data.copy(
+                cartData = current.data.cartData.copy(
+                    sipItems = updatedSipItems
+                )
+            )
+        )
+    }
+
+    fun disableStepUp(item: SipItemDomain) {
+        val current = _uiState.value
+        if (current !is UiState.Success) return
+
+        val updatedSipItems = current.data.cartData.sipItems.map { sip ->
+            if (sip.id == item.id) {
+                sip.copy(
+                    stepUpRequired = false,
+                    stepUpAmount = 0
+                )
+            } else {
+                sip
+            }
+        }
+
+        _uiState.value = UiState.Success(
+            current.data.copy(
+                cartData = current.data.cartData.copy(
+                    sipItems = updatedSipItems
+                )
+            )
+        )
+    }
+
+    fun updateStepUpAmount(
+        item: SipItemDomain,
+        amount: String
+    ) {
+        val current = _uiState.value
+        if (current !is UiState.Success) return
+
+        val amountValue = amount.toLongOrNull() ?: 0L
+
+        val updatedSipItems = current.data.cartData.sipItems.map { sip ->
+            if (sip.id == item.id) {
+                sip.copy(
+                    stepUpAmount = amountValue
+                )
+            } else {
+                sip
+            }
+        }
+
+        _uiState.value = UiState.Success(
+            current.data.copy(
+                cartData = current.data.cartData.copy(
+                    sipItems = updatedSipItems
+                )
+            )
+        )
+    }
+
+
 
     fun showPopup(){
         _confirmationPopupVisible.value=true

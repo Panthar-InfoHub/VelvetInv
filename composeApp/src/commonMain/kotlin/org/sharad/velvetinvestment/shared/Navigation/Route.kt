@@ -38,9 +38,6 @@ object Route {
     data object OnBoardingGoalAdd
     @Serializable
     data object OnBoardingSummary
-
-    @Serializable
-    data object ApplicationFLow
     @Serializable
     data object BottomNav
     @Serializable
@@ -90,7 +87,7 @@ object Route {
     @Serializable
     data class MutualFundSearchResult(val search:String="", val fundCategory:String?=null)
     @Serializable
-    data class MutualFundDetails(val id:String)
+    data class MutualFundDetails(val id:String, val folioId:String?=null)
     @Serializable
     data object FireReport
     @Serializable
@@ -144,6 +141,10 @@ object Route {
     data object TermsAndConditions
     @Serializable
     data object AboutUs
+    @Serializable
+    data object AboutVelvet
+    @Serializable
+    data object AboutFire
 
     @Serializable
     data object FixedDepositCategory
@@ -155,6 +156,14 @@ object Route {
     data class PurchaseFixedDeposit(val id:String)
     @Serializable
     data object CartScreen
+
+    @Serializable
+    data class FolioFundScreen(val folioId: String)
+
+    @Serializable
+    data object ExistingFundScreen
+    @Serializable
+    data object ExistingFundLumpSumScreen
 
     @Serializable
     data object TradingAccountNavigation

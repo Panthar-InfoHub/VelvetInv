@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.mutualfund.compose
+package org.sharad.velvetinvestment.presentation.cart.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

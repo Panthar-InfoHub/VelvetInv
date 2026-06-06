@@ -50,6 +50,7 @@ import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.utils.withInterRupee
 
 @Composable
@@ -156,7 +157,7 @@ fun FDPurchaseScreen(
                     modifier = Modifier.fillMaxWidth(),
                     list = data.tenures,
                     textConvertor = {
-                        it.tenureLabel
+                        it.tenureLabel+ " (${it.interestRate.trimDoubleTo(1)}%)"
                     }
                 )
             }
@@ -164,6 +165,10 @@ fun FDPurchaseScreen(
 
             item {
                 data.selectedTenure?.let{ FDProjectedReturnsCard(data.selectedTenure, data.amount?: 0) }
+            }
+
+            item {
+                BlostemFooter()
             }
 
 

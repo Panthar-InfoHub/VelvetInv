@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.mutualfund.compose
+package org.sharad.velvetinvestment.presentation.cart.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -135,7 +135,7 @@ fun CartPopup(
                     amount = cartState.amount,
                     onAmountChange = onAmountChange,
                     onChipClick = { onAmountChange(it.toString()) },
-                    minAmount = cartState.minAmount,
+                    minAmount = cartState.minLumpSumAmount,
                     onAddClick=onAddClick,
                     loading = cartState.loading,
 
@@ -145,7 +145,7 @@ fun CartPopup(
                     amount = cartState.amount,
                     onAmountChange = onAmountChange,
                     onChipClick = { onAmountChange(it.toString()) },
-                    minAmount = cartState.minAmount,
+                    minAmount = cartState.minSipAmount,
                     onAddClick=onAddClick,
                     loading = cartState.loading,
                     frequency = cartState.selectedFrequency?.label,
@@ -250,7 +250,7 @@ fun SIPCart(
             placeholder = "Select Duration",
             onClick = showDurationDropDown,
             label = "Duration",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.fillMaxWidth()
         )
 
         AppButton(

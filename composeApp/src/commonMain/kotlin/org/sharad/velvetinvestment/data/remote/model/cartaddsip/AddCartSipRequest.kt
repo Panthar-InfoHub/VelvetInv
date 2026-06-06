@@ -10,5 +10,6 @@ data class AddCartSipRequest(
     val sip_en_date: String,
     val sip_freq: String,
     val sip_day: Int,
-    val sip_amt: Long
+    val sip_amt: Long,
+    val folio:String = ""
 )

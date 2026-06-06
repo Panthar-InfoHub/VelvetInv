@@ -52,6 +52,7 @@ import org.sharad.velvetinvestment.domain.usecases.report.ExportCapitalReportUse
 import org.sharad.velvetinvestment.domain.usecases.report.ExportPortfolioReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.ExportSoaReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.ExportTaxReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.GetTradingAccountPrefilledDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
 import org.sharad.velvetinvestment.domain.usecases.user.LoginWithNumberUseCase
@@ -72,9 +73,11 @@ import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUs
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDPortfolioByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDRedirectUrlUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFolioFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetGoalByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetInvestmentRateDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.InvestMoreLumpsumUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.MapGoalUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.UnMapGoalUseCase
 
@@ -91,6 +94,7 @@ val useCaseModule= module {
     factory { UpdateProfileUseCase(get()) }
     factory { UpdateGoalsUseCase(get()) }
     factory { GetUserDataUseCase(get()) }
+    factory { GetTradingAccountPrefilledDataUseCase(get()) }
     factory { VerifyPANUseCase(get()) }
     factory { SubmitTradingAccountFormUseCase(get()) }
     factory { TradingAccountConfirmationUseCase(get()) }
@@ -128,6 +132,7 @@ val useCaseModule= module {
         GetFireReportUseCase(get())
     }
     factory { GetPortfolioUseCase(get()) }
+    factory { GetFolioFundsUseCase(get()) }
     factory { GetFDPortfolioByIdUseCase(get()) }
     factory { GetFDRedirectUrlUseCase(get()) }
     factory { DownloadFirePdfUseCase(get(),get()) }
@@ -198,5 +203,6 @@ val useCaseModule= module {
     factory { ExportSoaReportUseCase(get()) }
     factory { DownloadPdfByUrlUseCase(get()) }
     factory { GetPendingOrdersUseCase(get()) }
+    factory { InvestMoreLumpsumUseCase(get()) }
 
 }

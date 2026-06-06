@@ -171,6 +171,16 @@ class UserAuthenticationRepo(
         return  response
     }
 
+    override suspend fun getTradingAccountPrefilledData(): NetworkResponse<org.sharad.velvetinvestment.domain.models.tradingaccount.prefilled.TradingAccountPrefilledDomain, ErrorDomain> {
+        val response = safeRequest<org.sharad.velvetinvestment.data.remote.model.tradingaccount.prefilled.TradingAccountPrefilledResponseDto> {
+            client.get(getUrl("/kyc/get-form-data"))
+        }
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
     override suspend fun verifyPAN(pan: String): NetworkResponse<PANVerifyDomain, ErrorDomain> {
         val response= safeRequest<PANVerifyDto> {
             client.get(
@@ -210,13 +220,41 @@ class UserAuthenticationRepo(
         }
     }
 
-    override suspend fun tradingAccountConfirmation(): NetworkResponse<Unit, ErrorDomain> {
-        val response= safeUnitRequest {
+    override suspend fun tradingAccountConfirmation(
+        taxStatus: String,
+        holdingNature: String,
+        jointHolderName1: String,
+        jointHolderName2: String,
+        guardianName: String,
+        isMinor: Boolean
+    ): NetworkResponse<Unit, ErrorDomain> {
+
+        val body = buildMap<String, String> {
+            put("tax_status", taxStatus)
+            put("holding_nature", holdingNature)
+
+            when {
+                isMinor -> {
+                    put("guardian_name", guardianName)
+                }
+
+                holdingNature == "JO" -> {
+                    put("jh1_name", jointHolderName1)
+
+                    if (jointHolderName2.isNotBlank()) {
+                        put("jh2_name", jointHolderName2)
+                    }
+                }
+            }
+        }
+
+        return safeUnitRequest {
             client.post(
                 getUrl("/kyc/trading-confirmation")
-            )
+            ) {
+                setBody(body)
+            }
         }
-        return response
     }
 
     override suspend fun updateAssets(

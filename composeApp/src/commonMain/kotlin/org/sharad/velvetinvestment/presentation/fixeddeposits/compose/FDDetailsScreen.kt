@@ -209,6 +209,10 @@ fun FDDetailsScreen(
             item { Spacer(Modifier.height(16.dp)) }
 
             item { FDFaqSection(data.faqs) }
+
+            item {
+                BlostemFooter(modifier = Modifier.padding(vertical = 20.dp))
+            }
         }
 
         NextButtonFooter(

@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.domain.repository
 
+import org.sharad.velvetinvestment.data.remote.model.investmore.InvestMoreDto
 import org.sharad.velvetinvestment.data.remote.model.goalmapping.GoalMapBodyDto
 import org.sharad.velvetinvestment.data.remote.model.loan.UpdateLoanRequest
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
@@ -8,6 +9,7 @@ import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.domain.models.loan.LoanDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.FolioFundDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
@@ -69,4 +71,8 @@ interface UserFinance {
     ): NetworkResponse<String, ErrorDomain>
 
     suspend fun getPendingOrders(): NetworkResponse<List<PendingOrderDomain>, ErrorDomain>
+
+    suspend fun getFolioFunds(folioId: String): NetworkResponse<List<FolioFundDomain>, ErrorDomain>
+
+    suspend fun investMoreLumpsum(body: InvestMoreDto): NetworkResponse<String, ErrorDomain>
 }

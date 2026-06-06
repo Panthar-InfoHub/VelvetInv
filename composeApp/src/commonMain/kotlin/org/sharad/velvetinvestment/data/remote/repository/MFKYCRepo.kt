@@ -125,7 +125,7 @@ class MFKYCRepo(
                                     append(HttpHeaders.ContentType, mimeType)
                                     append(
                                         HttpHeaders.ContentDisposition,
-                                        "form-data; name=\"file\"; filename=\"image.jpg\""
+                                        "form-data; name=\"file\"; filename=\"x.jpg\""
                                     )
                                 }
                             )

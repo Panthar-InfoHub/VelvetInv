@@ -128,6 +128,12 @@ val Typography @Composable get() = Typography(
         fontSize = 18.sp,
     ),
 
+    titleSmall = TextStyle(
+        fontFamily = Poppins,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+    )
+
 )
 
 val buttonTextStyle @Composable get() = TextStyle(

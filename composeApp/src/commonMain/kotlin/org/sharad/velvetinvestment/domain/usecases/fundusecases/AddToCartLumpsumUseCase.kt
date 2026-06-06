@@ -9,11 +9,13 @@ class AddToCartLumpsumUseCase(
 ) {
     suspend operator fun invoke(
         id: String,
-        amount: Long
+        amount: Long,
+        folioId: String?
     ): NetworkResponse<Unit, ErrorDomain> {
         return repository.addToCartLumSumFund(
             id = id,
-            amount = amount
+            amount = amount,
+            folioId = folioId
         )
     }
 }

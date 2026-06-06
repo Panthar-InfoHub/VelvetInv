@@ -24,13 +24,17 @@ import org.sharad.velvetinvestment.data.remote.model.loan.UpdateLoanRequest
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
 import org.sharad.velvetinvestment.data.remote.model.investmentratedto.InvestmentRateDto
 import org.sharad.velvetinvestment.data.remote.model.pendingorders.PendingOrdersDto
+import org.sharad.velvetinvestment.data.remote.model.portfolio.FolioFundsDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalDomain
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
+import org.sharad.velvetinvestment.domain.models.portfolio.FolioFundDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.user.InvestmentRateDomain
+import org.sharad.velvetinvestment.data.remote.model.investmore.InvestMoreDto
+import org.sharad.velvetinvestment.data.remote.model.investmore.InvestMoreLumpsumResponseDto
 import org.sharad.velvetinvestment.data.remote.model.loan.UserLoanDto
 import org.sharad.velvetinvestment.data.remote.model.report.ReportExportDto
 import org.sharad.velvetinvestment.domain.models.PaginatedData
@@ -368,6 +372,36 @@ class UserFinanceRepo(
                 NetworkResponse.Success(
                     response.data.data?.pending_orders?.map { it.toDomain() } ?: emptyList()
                 )
+            }
+        }
+    }
+
+    override suspend fun getFolioFunds(folioId: String): NetworkResponse<List<FolioFundDomain>, ErrorDomain> {
+        val response = safeRequest<FolioFundsDto> {
+            client.get(getUrl("/user/portfolio/$folioId"))
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(
+                    response.data.data.map { it.toDomain() }
+                )
+            }
+        }
+    }
+
+    override suspend fun investMoreLumpsum(body: InvestMoreDto): NetworkResponse<String, ErrorDomain> {
+        val response= safeRequest<InvestMoreLumpsumResponseDto> {
+            client.post(getUrl("/mf/invest-more")) {
+                setBody(body)
+            }
+        }
+        when(response){
+            is NetworkResponse.Error -> {
+                return NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                return NetworkResponse.Success(response.data.paymentUrl)
             }
         }
     }

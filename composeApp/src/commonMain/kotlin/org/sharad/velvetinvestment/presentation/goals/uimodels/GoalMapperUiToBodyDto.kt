@@ -10,7 +10,7 @@ fun List<SelectableSchemeUiModel>.toBody(goalId: Int): GoalMapBodyDto{
         map_data = this.map {
             MapData(
                 folio = it.folio,
-                scheme_id = it.schemeId
+                scheme_id = it.schemeId.toString()
             )
         }
     )

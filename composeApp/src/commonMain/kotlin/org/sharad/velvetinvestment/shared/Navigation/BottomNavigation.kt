@@ -57,6 +57,8 @@ fun BottomNavigation(
     navigateToPrivacyPolicy: () -> Unit,
     navigateToTermsAndConditions: () -> Unit,
     navigateToAboutUs: () -> Unit,
+    navigateToAboutVelvet: () -> Unit = {},
+    navigateToAboutFire: () -> Unit = {},
     navigateToKYC: () -> Unit,
     navigateToInvestmentRateScree: () -> Unit,
     navigateToPortfolioFdDetailsScreen: (String)-> Unit
@@ -227,7 +229,7 @@ fun BottomNavigation(
             composable<Route.PortFolio> {
                 PortfolioScreenMain(
                     viewModel = portfolioViewModel,
-                    onSIPClick = {
+                    onFolioItemClick = {
                         navigateToSIPDetailsScreen(it)
                     },
                     onFDClick = navigateToPortfolioFdDetailsScreen,
@@ -244,6 +246,8 @@ fun BottomNavigation(
                     navigateToPrivacyPolicy=navigateToPrivacyPolicy,
                     navigateToTermsAndConditions=navigateToTermsAndConditions,
                     navigateToAboutUs=navigateToAboutUs,
+                    navigateToAboutVelvet=navigateToAboutVelvet,
+                    navigateToAboutFire=navigateToAboutFire,
                     onSignOut=onSignOut,
                     viewModel=homeViewModel
                 )

@@ -59,6 +59,8 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.Metrics
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
+import org.sharad.velvetinvestment.presentation.cart.compose.CartFab
+import org.sharad.velvetinvestment.presentation.cart.compose.CartPopup
 import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
 import org.sharad.velvetinvestment.presentation.mutualfund.Duration
@@ -70,6 +72,7 @@ import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundD
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.AppDialogList
 import org.sharad.velvetinvestment.shared.UiStateContainer
+import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.NavLineChart
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
@@ -79,6 +82,7 @@ import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.utils.trimTo
 import org.sharad.velvetinvestment.utils.withInterRupee
@@ -92,11 +96,10 @@ fun MutualFundDetailsScreenRoot(
     id: String,
     onBackClick: () -> Unit,
     pv: PaddingValues,
-    onTopFundClick: (String) -> Unit,
-    onFundClick: (String) -> Unit,
     onCartClick: () -> Unit,
     onKycClick: () -> Unit,
     onTradingAccountClick: () -> Unit,
+    folioId: String?,
 ) {
 
     val viewModel = koinViewModel<MutualFundDetailsScreenViewModel> { parametersOf(id) }
@@ -146,13 +149,31 @@ fun MutualFundDetailsScreenRoot(
                         )
                     },
                     bottomBar = {
-                        NextButtonFooter(
-                            onClick = {
-                                viewModel.showBottomSheet()
-                            },
-                            pv = pv,
-                            value = "Add to Cart"
-                        )
+                        if (!folioId.isNullOrBlank()){
+                            ContinueBackButtonFooter(
+                                continueText = "SIP",
+                                backText = "LumpSum",
+                                onContinue = {
+                                    FundTypeSelector.updateFundTypeToSIP()
+                                    viewModel.showBottomSheet()
+                                },
+                                onBack = {
+                                    FundTypeSelector.updateFundTypeToLumpSum()
+                                    viewModel.showBottomSheet()
+                                },
+                                pv = pv,
+                                enabled = true
+                            )
+                        }
+                        else{
+                            NextButtonFooter(
+                                onClick = {
+                                    viewModel.showBottomSheet()
+                                },
+                                pv = pv,
+                                value = "Add to Cart"
+                            )
+                        }
                     }
                 ) { padding ->
                     MutualFundDetailsScreen(
@@ -255,7 +276,7 @@ fun MutualFundDetailsScreenRoot(
                                     onAmountChange = viewModel::onCartAmountChange,
                                     onTypeChange = viewModel::onCartTypeChange,
                                     onAddClick = {
-                                        viewModel.addToCart()
+                                        viewModel.addToCart(folioId = folioId)
                                     },
                                     showFrequencyDropDown = viewModel::showCartFrequenciesDropDown,
                                     showDateDropDown = viewModel::showCartDateDropDown,
@@ -270,7 +291,7 @@ fun MutualFundDetailsScreenRoot(
     }
 }
 
-fun DetailsState.toUiState(): UiState<org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain> {
+fun DetailsState.toUiState(): UiState<MutualFundDetailsDomain> {
     return when (this) {
         is DetailsState.Loading -> UiState.Loading
         is DetailsState.Success -> UiState.Success(this.data)
@@ -421,37 +442,6 @@ fun MutualFundDetailsScreen(
             item {
                 Spacer(Modifier.height( 20.dp))
             }
-
-
-//            item {
-//                BarHeader(
-//                    heading = "Asset Allocation",
-//                    modifier = Modifier.padding(horizontal = 16.dp)
-//                )
-//            }
-
-//            item {
-//                AssetAllocationCard(assets = detailsState.data.assets)
-//            }
-//            item { Spacer(Modifier.height(20.dp)) }
-//
-//            item {
-//                BarHeader(
-//                    heading = "Other Top Rated Funds",
-//                    modifier = Modifier.padding(horizontal = 16.dp),
-//                    showArrow = true,
-//                    onArrowClick = { onFundTopClick("topRated") }
-//                )
-//            }
-
-//            item {
-//                TopRatedFunds(
-//                    topFunds = detailsState.data.topFunds,
-//                    onFundClick = onFundClick
-//                )
-//            }
-
-
         }
 
     }

@@ -41,13 +41,18 @@ import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.AllBundlesScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.BundleResultScreenRoot
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.CartScreen
+import org.sharad.velvetinvestment.presentation.cart.compose.CartScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentMethodScreen
+import org.sharad.velvetinvestment.presentation.portfolio.compose.ExistingFundLumpSumScreen
+import org.sharad.velvetinvestment.presentation.portfolio.compose.FolioFundMFScreen
+import org.sharad.velvetinvestment.presentation.portfolio.compose.ExistingFundScreenRoot
 import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.CheckKYCScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCheckAnimationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutUsScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutVelvetScreen
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutFireScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.PrivacyPolicyScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.TermsAndConditionsScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
@@ -127,23 +132,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.BottomNav> {
                 BottomNavigation(
                     navigateToSIPDetailsScreen = {
-                        navController.navigate(
-                            Route.SIPPortfolioDetails(
-                                id = it.id,
-                                title = it.title,
-                                category = it.category,
-                                amount = it.amount,
-                                isSip = it.isSip,
-                                startDate = it.startDate,
-                                returnPercentage = it.returnPercentage,
-                                returnAmount = it.returnAmount,
-                                xirr = it.xirr,
-                                currentNav = it.currentNav,
-                                avgNav = it.avgNav,
-                                folio = it.folio,
-                                balanceUnits = it.balanceUnits
-                            )
-                        ) {
+                        navController.navigate(Route.FolioFundScreen(it.folio)) {
                             launchSingleTop = true
                         }
                     },
@@ -247,6 +236,16 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     },
                     navigateToAboutUs = {
                         navController.navigate(Route.AboutUs) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToAboutVelvet = {
+                        navController.navigate(Route.AboutVelvet) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToAboutFire = {
+                        navController.navigate(Route.AboutFire) {
                             launchSingleTop = true
                         }
                     },
@@ -365,22 +364,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
             }
             composable<Route.MutualFundDetails> {
                 val id = it.toRoute<Route.MutualFundDetails>().id
+                val folioId = it.toRoute<Route.MutualFundDetails>().folioId
                 MutualFundDetailsScreenRoot(
                     onBackClick = { navController.popBackStack() },
                     pv = pv,
                     id = id,
-                    onTopFundClick = {
-                        navController.navigate(Route.MutualFundSearchResult()) {
-                            launchSingleTop = true
-
-                        }
-                    },
-                    onFundClick = {
-                        navController.navigate(Route.MutualFundDetails(it)) {
-                            launchSingleTop = true
-
-                        }
-                    },
+                    folioId=folioId,
                     onCartClick = {
                         navController.navigate(Route.CartScreen)
                     },
@@ -621,6 +610,16 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     onBack = { navController.popBackStack() }
                 )
             }
+            composable<Route.AboutVelvet> {
+                AboutVelvetScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable<Route.AboutFire> {
+                AboutFireScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
 
             composable<Route.CheckKYCAnimation> {
                 KYCCheckAnimationScreen(
@@ -729,6 +728,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         navController.navigate(Route.CategoryMutualFund) {
                             launchSingleTop = true
                         }},
+                    onExistingSIPFundClick = {
+                        navController.navigate(Route.ExistingFundScreen)
+                    },
+                    onExistingLumpSumFundClick = {
+                        navController.navigate(Route.ExistingFundLumpSumScreen)
+                    },
                     onBackClick = { navController.popBackStack() },
                 )
             }
@@ -771,6 +776,61 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     onBackClick = {
                         navController.popBackStack()
                     }
+                )
+            }
+
+            composable<Route.ExistingFundScreen> {
+                ExistingFundScreenRoot(
+                    onBack = { navController.popBackStack() },
+                    onFundClick = { id, folio ->
+                        navController.navigate(Route.MutualFundDetails(id, folio)) {
+                            launchSingleTop = true
+                        }
+                    },
+                    pv = pv
+                )
+            }
+
+            composable<Route.ExistingFundLumpSumScreen> {
+                ExistingFundLumpSumScreen(
+                    onBack = { navController.popBackStack() },
+                    pv = pv
+                )
+            }
+
+            composable<Route.FolioFundScreen> {
+                val id = it.toRoute<Route.FolioFundScreen>().folioId
+                FolioFundMFScreen(
+                    folioId = id,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onFundClick = {
+                        navController.navigate(Route.SIPPortfolioDetails(
+                            id = it.schemeId,
+                            title = it.title,
+                            category = it.category,
+                            amount = it.amount.toDouble(),
+                            isSip = it.isSip,
+                            startDate = it.startDate,
+                            returnPercentage = it.returnPercentage,
+                            returnAmount = it.`return`.toInt(),
+                            xirr = it.xirr,
+                            currentNav = it.currentNav,
+                            avgNav = it.avgNav,
+                            folio = it.folio,
+                            balanceUnits = it.balanceUnits,
+                            img_url = it.imgUrl
+                        )) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onTopUp = {prod_id->
+                        navController.navigate(Route.MutualFundDetails(id=prod_id, folioId = id)){
+                            launchSingleTop=true
+                        }
+                    },
+                    pv = pv
                 )
             }
 

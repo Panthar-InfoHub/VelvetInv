@@ -87,7 +87,8 @@ fun TradingAccountBankDetailsScreen(
                         .weight(1f)
                         .fillMaxSize()
                         .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
                         item {
                             SecureNote()

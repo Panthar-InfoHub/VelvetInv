@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Month
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.PathGray
@@ -76,7 +75,7 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.FixedDepositCard
 import org.sharad.velvetinvestment.shared.compose.GenericTabSwitcher
-import org.sharad.velvetinvestment.shared.compose.MutualFundsCard
+import org.sharad.velvetinvestment.shared.compose.FolioFundCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
@@ -98,7 +97,7 @@ import kotlin.math.abs
 @Composable
 fun PortfolioScreenMain(
     viewModel: PortfolioScreenViewModel,
-    onSIPClick: (MutualFundPortfolioDomain) -> Unit,
+    onFolioItemClick: (MutualFundPortfolioDomain) -> Unit,
     onFDClick: (String) -> Unit,
     pv: PaddingValues,
     navigateToCategoryMutualFundScreen: () -> Unit,
@@ -132,14 +131,14 @@ fun PortfolioScreenMain(
                         selectedTab = selectedTab,
                         portfolioData = data,
                         changeTab = viewModel::onTabSelected,
-                        onSIPClick = onSIPClick,
+                        onSIPClick = onFolioItemClick,
                         onFDClick = onFDClick,
                         navigateToCategoryFDScreen = navigateToCategoryFDScreen,
                         navigateToCategoryMutualFundScreen = navigateToCategoryMutualFundScreen,
                         reload = viewModel::loadPortfolio,
                         onDownloadPortfolioReport = viewModel::downloadPortfolioReport,
                         onDownloadCapitalReport = viewModel::downloadCapitalReport,
-                        onDownloadTaxReport = { viewModel.downloadTaxReport(2024) },
+                        onDownloadTaxReport = { viewModel.downloadTaxReport() },
                         isExportingPortfolio = isExportingPortfolio,
                         isExportingCapital = isExportingCapital,
                         isExportingTax = isExportingTax,
@@ -292,7 +291,7 @@ fun DashboardPortfolio(
                     )
                 }
                 items(mutualFunds.take(2), key = { "mf_${it.id}" }) { item ->
-                    MutualFundsCard(fundItem = item, onClick = { onSIPClick(item) })
+                    FolioFundCard(fundItem = item, onClick = { onSIPClick(item) })
                 }
             }
 
@@ -361,18 +360,17 @@ fun MutualFundPortfolio(
                         isExportingTax = isExportingTax
                     )
                 }
-
+                item { BarHeader(heading = "Mutual Funds") }
+                items(mutualFund, key = { it.id }) { item ->
+                    FolioFundCard(fundItem = item, onClick = {
+                        onFundClick(item)
+                    })
+                }
                 if (pendingOrders.isNotEmpty()) {
                     item { BarHeader(heading = "Pending Payments") }
                     items(pendingOrders, key = { it.id }) { item ->
                         PendingPaymentsCard(item)
                     }
-                }
-                item { BarHeader(heading = "Mutual Funds") }
-                items(mutualFund, key = { it.id }) { item ->
-                    MutualFundsCard(fundItem = item, onClick = {
-                        onFundClick(item)
-                    })
                 }
                 item { Spacer(modifier = Modifier.height(20.dp)) }
             }
@@ -1052,36 +1050,34 @@ private val previewPortfolioData = PortfolioDomain(
     ),
     mutualFunds = listOf(
         MutualFundPortfolioDomain(
-            id = 1,
+            id = "f49b4800-6016-4123-bd17-7303bc2b18c3",
             title = "Axis Bluechip Fund",
             category = "Equity",
             amount = 50000.0,
-            isSip = true,
-            startDate = "2021-01-01",
-            returnPercentage = "15.5",
-            returnAmount = 7500,
-            xirr = "18.2",
-            currentNav = 45.2,
-            avgNav = 38.5,
+            currentValue = 57500.0,
+            returnAmount = 7500.0,
+            returnPercentage = "15.5%",
             folio = "12345678",
-            balanceUnits = 1298.7,
-            icon = ""
+            icon = "",
+            minSipAmount = 100,
+            minLumpSumAmount = 500,
+            schemeId = 1,
+            balanceUnits = 40.04,
         ),
         MutualFundPortfolioDomain(
-            id = 2,
+            id = "0e222090-712c-4748-bbf0-bddd989822ae",
             title = "SBI Small Cap Fund",
             category = "Equity",
             amount = 30000.0,
-            isSip = false,
-            startDate = "2021-06-15",
-            returnPercentage = "22.1",
-            returnAmount = 6630,
-            xirr = "25.4",
-            currentNav = 112.5,
-            avgNav = 92.1,
+            currentValue = 36630.0,
+            returnAmount = 6630.0,
+            returnPercentage = "22.1%",
             folio = "87654321",
-            balanceUnits = 266.6,
-            icon = ""
+            icon = "",
+            minSipAmount = 500,
+            minLumpSumAmount = 1000,
+            schemeId = 2,
+            balanceUnits = 20.34,
         )
     ),
     fixedDeposits = listOf(

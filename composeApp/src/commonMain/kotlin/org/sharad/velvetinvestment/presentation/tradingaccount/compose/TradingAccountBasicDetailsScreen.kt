@@ -135,7 +135,7 @@ fun TradingAccountBasicDetailsScreen(
 
                         item {
                             DropDownSelector(
-                                value = data.tax_status,
+                                value = TaxStatus.fromCode(data.tax_status)?.code ?: "",
                                 onValueChange = {
                                     viewModel.onTaxStatusChange(it.code)
                                 },
@@ -145,11 +145,10 @@ fun TradingAccountBasicDetailsScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 list = TaxStatus.entries,
                                 textConvertor = {
-                                    it.displayName
+                                    it.displayName+ " (${it.code})"
                                 }
                             )
                         }
-
 
 
                         item {
@@ -193,7 +192,7 @@ fun TradingAccountBasicDetailsScreen(
                         onClick = onClick,
                         pv = pv,
                         value = "Next",
-                        enabled = buttonEnabled
+                        enabled = buttonEnabled,
                     )
                 }
         }

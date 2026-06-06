@@ -28,7 +28,6 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.tradingaccount.ClientType
 import org.sharad.velvetinvestment.utils.tradingaccount.DefaultDp
-import org.sharad.velvetinvestment.utils.tradingaccount.FatcaOccupationType
 import org.sharad.velvetinvestment.utils.tradingaccount.SourceOfWealth
 import org.sharad.velvetinvestment.utils.tradingaccount.YesNo
 
@@ -199,19 +198,19 @@ fun TradingAccountClientInfoScreen(
                                 }
                             )
                         }
-                        item {
-                            DropDownSelector(
-                                value = FatcaOccupationType.getDisplayName(data.occ_type),
-                                onValueChange = { viewModel.onOccTypeChange(it.code) },
-                                placeHolder = "Occupation Category",
-                                label = "Occupation Category",
-                                mandatory = true,
-                                list = FatcaOccupationType.entries,
-                                textConvertor = {
-                                    it.displayName
-                                }
-                            )
-                        }
+//                        item {
+//                            DropDownSelector(
+//                                value = FatcaOccupationType.getDisplayName(data.occ_type),
+//                                onValueChange = { viewModel.onOccTypeChange(it.code) },
+//                                placeHolder = "Occupation Type",
+//                                label = "Occupation Type",
+//                                mandatory = true,
+//                                list = FatcaOccupationType.entries,
+//                                textConvertor = {
+//                                    it.displayName
+//                                }
+//                            )
+//                        }
 
                         item {
                             Spacer(modifier = Modifier.height(pv.calculateBottomPadding()))

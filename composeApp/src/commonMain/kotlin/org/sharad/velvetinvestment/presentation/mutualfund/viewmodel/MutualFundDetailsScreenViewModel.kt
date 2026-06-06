@@ -206,7 +206,7 @@ class MutualFundDetailsScreenViewModel(
             getDetailsUseCase(id)
                 .onSuccess {
                     _detailsState.value = DetailsState.Success(it)
-                    _cartSheetState.value = _cartSheetState.value.copy(minAmount = it.minAmount)
+                    _cartSheetState.value = _cartSheetState.value.copy(minLumpSumAmount = it.minLumpSumAmount, minSipAmount = it.minSipAmount)
                 }
                 .onError {
                     _detailsState.value = DetailsState.Error(it.message)
@@ -241,17 +241,18 @@ class MutualFundDetailsScreenViewModel(
         _bottomSheetVisibility.value=null
     }
 
-    fun addToCart(){
+    fun addToCart(folioId: String?) {
         when(FundTypeSelector.fundType.value){
             SelectedFundType.LUMSUM -> {
                 val amount= _cartSheetState.value.amount
-                if (amount== null || amount < _cartSheetState.value.minAmount)
+                if (amount== null || amount < _cartSheetState.value.minLumpSumAmount)
                     return
                 viewModelScope.launch {
                     startCartSheetLoading()
                     addToCartLumpsumUseCase(
                         id = id,
-                        amount = amount
+                        amount = amount,
+                        folioId= folioId
                     ).onSuccess {
                         stopCartSheetLoading()
                         hideBottomSheet()
@@ -271,7 +272,7 @@ class MutualFundDetailsScreenViewModel(
             }
             SelectedFundType.SIP -> {
                 val state = _cartSheetState.value
-                val request = state.toSipRequest(id) ?: return
+                val request = state.toSipRequest(id, folioId=folioId) ?: return
                 viewModelScope.launch {
                     startCartSheetLoading()
                     addToCartSIPUseCase(

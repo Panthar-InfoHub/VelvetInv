@@ -44,7 +44,7 @@ data class ProjectionImpactUiData(
 )
 
 data class SelectableSchemeUiModel(
-    val schemeId: String,
+    val schemeId: Int,
     val name: String,
     val units: String,
     val value: Double,
@@ -362,14 +362,15 @@ class ProjectionImpactViewModel(
                 .onSuccess {
                     _portfolioData.value = UiState.Success(it.mutualFunds.map {
                         SelectableSchemeUiModel(
-                            schemeId = it.id.toString(),
+                            schemeId = it.schemeId,
                             name = it.title,
                             units = it.balanceUnits.toString(),
                             value = it.amount,
                             folio =it.folio,
                             isSelected = false
                         )
-                    })
+                    }
+                    )
                 }
                 .onError {
                     _portfolioData.value = UiState.Error(it.message)
@@ -402,7 +403,7 @@ class ProjectionImpactViewModel(
         _portfolioData.value = UiState.Success(
             currentState.data.map { scheme ->
 
-                if (scheme.schemeId.toInt() == id) {
+                if (scheme.schemeId == id) {
                     scheme.copy(
                         isSelected = !scheme.isSelected
                     )

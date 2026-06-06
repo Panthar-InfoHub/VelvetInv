@@ -4,18 +4,22 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MutualFund(
-    val amount: Double,
-    val avg_nav: Double,
-    val balance_units: Double,
-    val category: String,
-    val current_nav: Double,
-    val folio: String,
-    val id: Int,
-    val is_sip: Boolean,
-    val `return`: Int,
-    val return_percentage: String,
-    val start_date: String,
+    val id: String,
+    val scheme_id: Int,
+    val bal_units: Double,
     val title: String,
-    val xirr: String,
-    val img_url: String?= null
+    val category: String,
+    val amount: Double,
+    val current_value: Double,
+    val `return`: Double,
+    val return_percentage: String,
+    val folio: String,
+    val img_url: String? = null,
+    val transaction_rules: TransactionRules
+)
+
+@Serializable
+data class TransactionRules(
+    val min_sip_amount: String,
+    val min_lump_sum_amount: String
 )

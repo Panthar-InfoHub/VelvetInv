@@ -7,6 +7,7 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
+import org.sharad.velvetinvestment.data.remote.mapper.toInitiateBodyDto
 import org.sharad.velvetinvestment.data.remote.mapper.toPaginatedDomain
 import org.sharad.velvetinvestment.data.remote.model.allbundles.AllBundlesDto
 import org.sharad.velvetinvestment.data.remote.model.allbundles.toDomain
@@ -28,7 +29,6 @@ import org.sharad.velvetinvestment.data.remote.model.initiatemfpurchase.Initiate
 import org.sharad.velvetinvestment.data.remote.model.mfdetails.MutualFundsDetailDto
 import org.sharad.velvetinvestment.data.remote.model.mfgraph.MFGraphDto
 import org.sharad.velvetinvestment.data.remote.model.mfpurchasemandatestatus.CheckMFPurchaseMandateStatusDto
-import org.sharad.velvetinvestment.data.remote.model.mfpurchasemandatestatus.PurchaseBodyDto
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.CombinedFundsDto
 import org.sharad.velvetinvestment.data.remote.model.usercart.UserCartDto
 import org.sharad.velvetinvestment.domain.SIPStatus
@@ -39,6 +39,7 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDo
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
+import org.sharad.velvetinvestment.domain.models.usercart.SipItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
 import org.sharad.velvetinvestment.utils.CartInfo
@@ -181,13 +182,15 @@ class MutualFundRepo(
     override suspend fun addToCartLumSumFund(
         id: String,
         amount: Long,
+        folioId: String?,
     ): NetworkResponse<Unit, ErrorDomain> {
         val response= safeRequest<AddCartLumpSumResponseDto> {
             client.post(getUrl("/mf/lumpsum-cart")){
                 setBody(
                     AddCartLumpSumRequest(
                         amount = amount,
-                        mf_product_id = id
+                        mf_product_id = id,
+                        folio= folioId?:""
                     )
                 )
             }
@@ -236,9 +239,13 @@ class MutualFundRepo(
         }
     }
 
-    override suspend fun initiateSipPurchase(): NetworkResponse<MutualFundPurchaseInitiateDomain, ErrorDomain> {
+    override suspend fun initiateSipPurchase(sipData: List<SipItemDomain>): NetworkResponse<MutualFundPurchaseInitiateDomain, ErrorDomain> {
         val response = safeRequest<InitiateMFPurchaseDto> {
-            client.post(getUrl("/mf/initiate-sip"))
+            client.post(getUrl("/mf/initiate-sip")){
+                setBody(
+                    sipData.toInitiateBodyDto()
+                )
+            }
         }
         return when(response){
             is NetworkResponse.Error -> {
@@ -265,19 +272,17 @@ class MutualFundRepo(
                 if (status != null){
                     NetworkResponse.Success(status)
                 }else {
-                    NetworkResponse.Error(ErrorDomain(0, "Unknown", ErrorType.UNKNOWN))
+                    NetworkResponse.Error(ErrorDomain(0, response.data.data.enach_status, ErrorType.UNKNOWN))
                 }
             }
         }
     }
 
-    override suspend fun purchaseSipFund(mandateId: String): NetworkResponse<String, ErrorDomain> {
+    override suspend fun purchaseSipFund(mandateId: String, sipItems: List<SipItemDomain>): NetworkResponse<String, ErrorDomain> {
         val response=safeRequest<CartPurchaseSIPDto> {
             client.post(getUrl("/mf/purchase-sip")){
                 setBody(
-                    PurchaseBodyDto(
-                        mandate_id = mandateId
-                    )
+                    sipItems.toInitiateBodyDto()
                 )
             }
         }

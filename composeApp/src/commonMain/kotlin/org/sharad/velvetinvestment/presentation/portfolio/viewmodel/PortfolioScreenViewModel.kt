@@ -14,6 +14,7 @@ import org.sharad.velvetinvestment.domain.usecases.report.ExportTaxReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
 import org.sharad.velvetinvestment.domain.usecases.portfolio.GetPendingOrdersUseCase
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -116,7 +117,8 @@ class PortfolioScreenViewModel(
         }
     }
 
-    fun downloadTaxReport(year: Int) {
+    fun downloadTaxReport() {
+        val year = DateTimeUtils.getCurrentYear()
         viewModelScope.launch {
             _isExportingTax.value = true
             exportTaxReportUseCase(year = year)

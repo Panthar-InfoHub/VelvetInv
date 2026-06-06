@@ -3,8 +3,9 @@ package org.sharad.velvetinvestment.data.remote.mapper
 import org.sharad.velvetinvestment.data.remote.model.usercart.LumpSumItem
 import org.sharad.velvetinvestment.data.remote.model.usercart.SipItem
 import org.sharad.velvetinvestment.data.remote.model.usercart.UserCartDto
-import org.sharad.velvetinvestment.domain.models.usercart.CartItemDomain
+import org.sharad.velvetinvestment.domain.models.usercart.SipItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
+import org.sharad.velvetinvestment.domain.models.usercart.LumpSumItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.SipDetails
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 
@@ -15,10 +16,12 @@ fun UserCartDto.toDomain(): UserCartDomain {
     )
 }
 
-fun SipItem.toSipDomain(): CartItemDomain {
-    return CartItemDomain(
+fun SipItem.toSipDomain(): SipItemDomain {
+    return SipItemDomain(
         id = id,
+        inv_id=inv_id,
         amcName = amc_name,
+        amcCode = amc_code,
         productName = prod_name,
         amount = sip_amt.toLongOrNull() ?: 0,
         type = CartType.SIP,
@@ -30,20 +33,27 @@ fun SipItem.toSipDomain(): CartItemDomain {
             day = sip_day.toIntOrNull() ?: 0,
             sipAmount = sip_amt.toLongOrNull() ?: 0
         ),
-        imageUrl = img_url?:""
+        imageUrl = img_url?:"",
+        prodCode= prod_code,
+        folio = folio,
+        minStepUpAmount = min_step_up_amt?: 0,
+        stepUpAmount = min_step_up_amt?: 0,
+        minStepUpPercent = min_step_up_percent,
     )
 }
 
-fun LumpSumItem.toLumpSumDomain(): CartItemDomain {
-    return CartItemDomain(
+fun LumpSumItem.toLumpSumDomain(): LumpSumItemDomain {
+    return LumpSumItemDomain(
         id = id,
         amcName = amc_name,
+        amcCode = amc_code,
         productName = prod_name,
         amount = txn_amount.toLongOrNull() ?: 0,
         type = CartType.LUMPSUM,
         date = adddate,
-        sipDetails = null,
-        imageUrl = img_url?:""
-
+        imageUrl = img_url?:"",
+        inv_id = inv_id,
+        prodCode = prod_code,
+        folio = folio
     )
 }

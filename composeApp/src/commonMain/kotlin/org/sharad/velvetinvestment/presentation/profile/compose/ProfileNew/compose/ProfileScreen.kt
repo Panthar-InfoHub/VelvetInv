@@ -53,6 +53,7 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
+import velvet.composeapp.generated.resources.fire_icon
 import velvet.composeapp.generated.resources.info_icon
 import velvet.composeapp.generated.resources.kyc_icon
 import velvet.composeapp.generated.resources.kyc_person_icon
@@ -70,6 +71,8 @@ fun ProfileScreen(
     navigateToPrivacyPolicy: () -> Unit = {},
     navigateToTermsAndConditions: () -> Unit = {},
     navigateToAboutUs: () -> Unit = {},
+    navigateToAboutVelvet: () -> Unit = {},
+    navigateToAboutFire: () -> Unit = {},
     onSignOut: () -> Unit,
     viewModel: HomeScreenViewModel
 ) {
@@ -153,7 +156,9 @@ fun ProfileScreen(
                     LegalCard(
                         onPrivacyPolicyClick = navigateToPrivacyPolicy,
                         onTermsAndConditionsClick = navigateToTermsAndConditions,
-                        onAboutUsClick = navigateToAboutUs
+                        onAboutUsClick = navigateToAboutUs,
+                        onAboutVelvetClick = navigateToAboutVelvet,
+                        onAboutFireClick = navigateToAboutFire
                     )
                 }
 
@@ -321,7 +326,9 @@ fun KYCCard(status: String, onKYCClick: () -> Unit) {
 fun LegalCard(
     onPrivacyPolicyClick: () -> Unit = {},
     onTermsAndConditionsClick: () -> Unit = {},
-    onAboutUsClick: () -> Unit
+    onAboutUsClick: () -> Unit,
+    onAboutVelvetClick: () -> Unit = {},
+    onAboutFireClick: () -> Unit = {}
 ) {
     val openBrowser: LaunchBrowserUseCase = koinInject()
     ShadowCard(
@@ -352,10 +359,26 @@ fun LegalCard(
             )
             HorizontalDivider(color = Color.LightGray)
 
+//            RowItem(
+//                icon = Res.drawable.info_icon,
+//                title = "About Us",
+//                onCLick = onAboutUsClick
+//            )
+//
+//            HorizontalDivider(color = Color.LightGray)
+
             RowItem(
                 icon = Res.drawable.info_icon,
-                title = "About Us",
-                onCLick = onAboutUsClick
+                title = "About Velvet",
+                onCLick = onAboutVelvetClick
+            )
+
+            HorizontalDivider(color = Color.LightGray)
+
+            RowItem(
+                icon = Res.drawable.fire_icon,
+                title = "About F.I.R.E. Report",
+                onCLick = onAboutFireClick
             )
         }
     }

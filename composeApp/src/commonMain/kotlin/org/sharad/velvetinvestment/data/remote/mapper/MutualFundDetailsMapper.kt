@@ -38,6 +38,8 @@ fun MutualFundsDetailDto.toDomain(): MutualFundDetailsDomain {
         investmentFrequency = d.transaction_rules?.sip_frequencies?.mapNotNull { InvestmentFrequency.fromCode(it) }?: emptyList(),
         updatedAt = d.updatedAt?:"",
         icon = d.img_url?:"",
-        minAmount = d.transaction_rules?.min_investment_amount?.toLong()?:0
+        minAmount = d.transaction_rules?.min_investment_amount?.toLong()?:0,
+        minSipAmount = d.transaction_rules?.min_sip_amount?.toLong()?:0,
+        minLumpSumAmount = d.transaction_rules?.min_lump_sum_amount?.toLong()?:0,
     )
 }
