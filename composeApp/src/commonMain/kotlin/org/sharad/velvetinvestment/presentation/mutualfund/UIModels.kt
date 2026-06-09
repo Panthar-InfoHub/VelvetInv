@@ -72,7 +72,7 @@ enum class Duration(
     val label: String,
     val months: Int // null = perpetual
 ) {
-    PERPETUAL("Perpetual (Until 2099)", 0),
+    PERPETUAL("Perpetual (Until Cancelled)", 0),
 
     SIX_MONTHS("6 Months", 6),
     ONE_YEAR("1 Year", 12),
