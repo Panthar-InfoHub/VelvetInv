@@ -53,7 +53,9 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
+import velvet.composeapp.generated.resources.clipboard
 import velvet.composeapp.generated.resources.fire_icon
+import velvet.composeapp.generated.resources.ic_delete
 import velvet.composeapp.generated.resources.info_icon
 import velvet.composeapp.generated.resources.kyc_icon
 import velvet.composeapp.generated.resources.kyc_person_icon
@@ -148,7 +150,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
-                        "Legal"
+                        "Help Center"
                     )
                 }
 
@@ -335,10 +337,25 @@ fun LegalCard(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         Column(modifier = Modifier) {
+            RowItem(
+                icon = Res.drawable.info_icon,
+                title = "About Velvet",
+                onCLick = onAboutVelvetClick
+            )
+
+            HorizontalDivider(color = Color.LightGray)
+
+            RowItem(
+                icon = Res.drawable.fire_icon,
+                title = "About F.I.R.E. Report",
+                onCLick = onAboutFireClick
+            )
+
+            HorizontalDivider(color = Color.LightGray)
 
             RowItem(
                 icon = Res.drawable.termcondition,
-                title = "Terms & Condition",
+                title = "Terms & Conditions",
                 onCLick = onTermsAndConditionsClick
             )
 
@@ -359,6 +376,20 @@ fun LegalCard(
             )
             HorizontalDivider(color = Color.LightGray)
 
+            RowItem(
+                icon = Res.drawable.clipboard,
+                title = "FAQs",
+                onCLick = { openBrowser("https://velvetinvesting.com/faqs") }
+            )
+
+            HorizontalDivider(color = Color.LightGray)
+
+            RowItem(
+                icon = Res.drawable.ic_delete,
+                title = "Delete Account",
+                onCLick = { openBrowser("https://velvetinvesting.com/delete-account") }
+            )
+
 //            RowItem(
 //                icon = Res.drawable.info_icon,
 //                title = "About Us",
@@ -367,19 +398,6 @@ fun LegalCard(
 //
 //            HorizontalDivider(color = Color.LightGray)
 
-            RowItem(
-                icon = Res.drawable.info_icon,
-                title = "About Velvet",
-                onCLick = onAboutVelvetClick
-            )
-
-            HorizontalDivider(color = Color.LightGray)
-
-            RowItem(
-                icon = Res.drawable.fire_icon,
-                title = "About F.I.R.E. Report",
-                onCLick = onAboutFireClick
-            )
         }
     }
 }

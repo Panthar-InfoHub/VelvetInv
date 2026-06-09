@@ -147,7 +147,7 @@ fun SplashScreenContent(
     }
     val textList= remember{
         listOf(
-            "Know when you can became financially independent with Velvet’s personalised F.I.R.E Report",
+            "Know when you can became financially independent with Velvet.",
             "Velvet Show you what to focus on  and how to close you F.I.R.E gap",
             "Track your net worth, savings rate, goals, retirement path and financial gaps in one Place",
             "Take your right actions today to create the life you dream of tomorrow"

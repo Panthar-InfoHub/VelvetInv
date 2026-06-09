@@ -404,7 +404,7 @@ private fun PdfReportsRow(
         )
 
         PdfDownloadCard(
-            text = "Tax Saving PDF",
+            text = "Capital PDF",
             loading = isExportingTax,
             onClick = onDownloadTaxReport,
             iconTint = Color(0xff006495),

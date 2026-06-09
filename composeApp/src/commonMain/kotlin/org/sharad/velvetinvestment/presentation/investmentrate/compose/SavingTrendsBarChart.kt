@@ -190,7 +190,6 @@ private fun BarColumn(
             fontFamily = Poppins,
             textAlign = TextAlign.Center,
             color = TextGray,
-            modifier = Modifier.width(IntrinsicSize.Min)
         )
     }
 }

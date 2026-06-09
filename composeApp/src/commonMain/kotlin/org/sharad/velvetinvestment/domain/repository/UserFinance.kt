@@ -75,4 +75,6 @@ interface UserFinance {
     suspend fun getFolioFunds(folioId: String): NetworkResponse<List<FolioFundDomain>, ErrorDomain>
 
     suspend fun investMoreLumpsum(body: InvestMoreDto): NetworkResponse<String, ErrorDomain>
+
+    suspend fun requestConnection(type: String, message: String): NetworkResponse<Unit, ErrorDomain>
 }

@@ -166,7 +166,7 @@ fun KYCNotCompletedScreen() {
                                     )
                                     PendingText()
                                 }
-                                Text("Upload Aadhar/PAN card", fontSize = 12.sp, fontFamily = Poppins, color = grayColor)
+                                Text("Upload Aadhaar/PAN card", fontSize = 12.sp, fontFamily = Poppins, color = grayColor)
 
                             }
                         }
@@ -208,7 +208,7 @@ fun KYCNotCompletedScreen() {
                     Column (verticalArrangement = Arrangement.spacedBy(8.dp)){
                         Text("Document Required", fontFamily = Poppins, fontSize = 14.sp)
                         DocumentRequiredListText("PAN Card")
-                        DocumentRequiredListText("Aadhar Card")
+                        DocumentRequiredListText("Aadhaar Card")
                         DocumentRequiredListText("Driving Licence")
 
                     }

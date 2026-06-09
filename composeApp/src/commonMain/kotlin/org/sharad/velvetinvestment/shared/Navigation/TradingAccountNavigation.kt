@@ -29,7 +29,7 @@ import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TradingAc
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 
 @Composable
-fun TradingAccountNavigation(onBackClick: () -> Boolean, onCompletion: () -> Unit) {
+fun TradingAccountNavigation(onBackClick: () -> Unit, onCompletion: () -> Unit) {
 
     val navController = rememberNavController()
     val viewModel: TradingAccountViewModel= koinViewModel()

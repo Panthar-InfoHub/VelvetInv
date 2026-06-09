@@ -79,6 +79,7 @@ import org.sharad.velvetinvestment.domain.usecases.userfinance.GetInvestmentRate
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.InvestMoreLumpsumUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.MapGoalUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.RequestConnectionUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.UnMapGoalUseCase
 
 val useCaseModule= module {
@@ -204,5 +205,6 @@ val useCaseModule= module {
     factory { DownloadPdfByUrlUseCase(get()) }
     factory { GetPendingOrdersUseCase(get()) }
     factory { InvestMoreLumpsumUseCase(get()) }
+    factory { RequestConnectionUseCase(get()) }
 
 }

@@ -10,7 +10,7 @@ enum class NomineeIdentityType(
     ),
     AADHAR(
         code = "2",
-        displayName = "Aadhar"
+        displayName = "Aadhaar"
     ),
     DRIVING_LICENSE(
         code = "3",

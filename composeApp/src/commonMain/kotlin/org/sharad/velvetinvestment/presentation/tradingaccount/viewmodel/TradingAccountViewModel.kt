@@ -51,7 +51,7 @@ class TradingAccountViewModel(
 
     // GLOBAL STATE
     private val _formState = MutableStateFlow<UiState<TradingAccountFormDomain>>(UiState.Loading)
-    val formState = _formState.asStateFlow()
+    val     formState = _formState.asStateFlow()
 
     private val _launchedBrowser = MutableStateFlow(false)
     val launchedBrowser = _launchedBrowser.asStateFlow()
@@ -230,7 +230,10 @@ class TradingAccountViewModel(
     }
     fun onGenderChange(value: String) = updateData { it.copy(gender = value.trim().toUpperCase(Locale.current)) }
     fun onEmailChange(value: String) = updateData { it.copy(email = value.trim()) }
-    fun onPhoneChange(value: String) = updateData { it.copy(indian_mobile_no = value.trim().toUpperCase(Locale.current)) }
+    fun onPhoneChange(value: String) {
+        if (value.length> 10) return
+        updateData { it.copy(indian_mobile_no = value.trim().toUpperCase(Locale.current)) }
+    }
     fun onTaxStatusChange(value: String) = updateData { it.copy(tax_status = value.trim().toUpperCase(Locale.current)) }
     fun onOccupationChange(value: String) = updateData { it.copy(occupation_code = value.trim().toUpperCase(Locale.current)) }
     fun onOccTypeChange(value: String) = updateData { it.copy(occ_type = value.trim().toUpperCase(Locale.current)) }
@@ -374,7 +377,10 @@ class TradingAccountViewModel(
     fun onNominee1Address2Change(value: String) = updateData { it.copy(nominee_1_address2 = value.toUpperCase(Locale.current)) }
     fun onNominee1Address3Change(value: String) = updateData { it.copy(nominee_1_address3 = value.toUpperCase(Locale.current)) }
     fun onNominee1CityChange(value: String) = updateData { it.copy(nominee_1_city = value.toUpperCase(Locale.current)) }
-    fun onNominee1PincodeChange(value: String) = updateData { it.copy(nominee_1_pin = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1PincodeChange(value: String) {
+        if (value.length>6) return
+        updateData { it.copy(nominee_1_pin = value.trim().toUpperCase(Locale.current)) }
+    }
     fun onNominee1CountryChange(value: String) = updateData { it.copy(nominee_1_country = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1MinorFlagChange(value: String) = updateData { it.copy(nominee_1_minor_flag = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1GuardianChange(value: String) = updateData { it.copy(nominee_1_guardian = value.toUpperCase(Locale.current)) }

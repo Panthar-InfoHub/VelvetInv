@@ -33,6 +33,7 @@ import org.sharad.velvetinvestment.domain.models.portfolio.FolioFundDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.user.InvestmentRateDomain
+import org.sharad.velvetinvestment.data.remote.model.connection.RequestConnectionDto
 import org.sharad.velvetinvestment.data.remote.model.investmore.InvestMoreDto
 import org.sharad.velvetinvestment.data.remote.model.investmore.InvestMoreLumpsumResponseDto
 import org.sharad.velvetinvestment.data.remote.model.loan.UserLoanDto
@@ -402,6 +403,17 @@ class UserFinanceRepo(
             }
             is NetworkResponse.Success -> {
                 return NetworkResponse.Success(response.data.paymentUrl)
+            }
+        }
+    }
+
+    override suspend fun requestConnection(
+        type: String,
+        message: String
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return safeRequest<Unit> {
+            client.post(getUrl("/frontend/request-connection")) {
+                setBody(RequestConnectionDto(type, message))
             }
         }
     }

@@ -157,6 +157,22 @@ fun FormContent(
             }
 
             item {
+                DropDownSelector(
+                    value = state.occupationCode,
+                    onValueChange ={
+                        viewModel.updateOccupationCode(it)
+                    },
+                    placeHolder = "Occupation",
+                    label = "Occupation Code",
+                    list = OccupationType.entries,
+                    textConvertor = {
+                        it.code+":" +it.name
+                    },
+                    mandatory = true
+                )
+            }
+
+            item {
                 OnBoardingTextField(
                     value = state.panNumber,
                     onValueChange = viewModel::updatePANNumber,
@@ -209,21 +225,6 @@ fun FormContent(
                     onValueChange = viewModel::updatePlaceOfBirth,
                     placeHolder = "Place of Birth",
                     label = "Place of Birth",
-                    mandatory = true
-                )
-            }
-            item {
-                DropDownSelector(
-                    value = state.occupationCode,
-                    onValueChange ={
-                        viewModel.updateOccupationCode(it)
-                    },
-                    placeHolder = "Occupation",
-                    label = "Occupation Code",
-                    list = OccupationType.entries,
-                    textConvertor = {
-                        it.code+":" +it.name
-                    },
                     mandatory = true
                 )
             }

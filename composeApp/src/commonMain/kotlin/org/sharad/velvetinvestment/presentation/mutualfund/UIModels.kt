@@ -93,7 +93,7 @@ fun CartBottomSheetState.toSipRequest(
     val duration = selectedDuration ?: return null
     val day = selectedSIPDate?.toIntOrNull() ?: return null
 
-    if (amount < minLumpSumAmount) return null
+    if (amount < minSipAmount) return null
 
     val today = Clock.System.now()
         .toLocalDateTime(TimeZone.currentSystemDefault())

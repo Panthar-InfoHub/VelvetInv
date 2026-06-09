@@ -37,7 +37,6 @@ fun SipItem.toSipDomain(): SipItemDomain {
         prodCode= prod_code,
         folio = folio,
         minStepUpAmount = min_step_up_amt?: 0,
-        stepUpAmount = min_step_up_amt?: 0,
         minStepUpPercent = min_step_up_percent,
     )
 }

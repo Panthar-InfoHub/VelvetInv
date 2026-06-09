@@ -231,22 +231,6 @@ fun MutualFundsFolioCard(
                         maxLines = 2
                     )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Folio no. ",
-                            color = titleColor,
-                            style = tinyLabel
-                        )
-
-                        Text(
-                            text = folio,
-                            color = Color(0xff919191),
-                            style = tinyLabel
-                        )
-                    }
                 }
                 Text(
                     text = if (isSip) "SIP" else "Lumpsum",

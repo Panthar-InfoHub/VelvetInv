@@ -45,6 +45,7 @@ import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.utils.LoadingState
@@ -174,22 +175,37 @@ fun CategoryMutualFundScreen(
             item{
                 BarHeader(
                     heading = "Curated Bundles",
-                    showArrow = true,
+                    showArrow = false,
                     onArrowClick = {onBundleClick()},
                     modifier = Modifier.padding(vertical = 4.dp)
 
                 )
             }
 
-            items(
-                items = bundles,
-                key = {it.key},
-            ){bundle->
-                BundleCardExtended(
-                    onClick = { onBundledFundClick(bundle.key) },
-                    bundleData = bundle,
-                )
+            item{
+                ShadowCard {
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .height(120.dp),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            text = "Coming Soon !",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                }
             }
+
+//            items(
+//                items = bundles,
+//                key = {it.key},
+//            ){bundle->
+//                BundleCardExtended(
+//                    onClick = { onBundledFundClick(bundle.key) },
+//                    bundleData = bundle,
+//                )
+//            }
         }
 
         funds.forEach {category->

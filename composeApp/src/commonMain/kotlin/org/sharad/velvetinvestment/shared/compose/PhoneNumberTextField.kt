@@ -56,7 +56,7 @@ fun PhoneNumberTextField(
             ) {
                 if (value.isEmpty()) {
                     Text(
-                        text = "(000) 000-0000",
+                        text = "Enter Mobile Number",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xffC5C5C5)
                     )

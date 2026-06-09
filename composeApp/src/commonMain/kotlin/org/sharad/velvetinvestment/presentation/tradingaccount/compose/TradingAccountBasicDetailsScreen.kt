@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -44,7 +48,7 @@ import org.sharad.velvetinvestment.utils.tradingaccount.TaxStatus
 fun TradingAccountBasicDetailsScreen(
     pv: PaddingValues,
     onClick: () -> Unit,
-    onBackClick: () -> Boolean,
+    onBackClick: () -> Unit,
     viewModel: TradingAccountViewModel
 ) {
     val state by viewModel.formState.collectAsStateWithLifecycle()
@@ -135,7 +139,7 @@ fun TradingAccountBasicDetailsScreen(
 
                         item {
                             DropDownSelector(
-                                value = TaxStatus.fromCode(data.tax_status)?.code ?: "",
+                                value = TaxStatus.fromCode(data.tax_status)?.displayName ?: "",
                                 onValueChange = {
                                     viewModel.onTaxStatusChange(it.code)
                                 },
@@ -163,7 +167,7 @@ fun TradingAccountBasicDetailsScreen(
                         }
 
                         item {
-                            OnBoardingTextField(
+                            PhoneDisplayField(
                                 value = data.indian_mobile_no,
                                 onValueChange = viewModel::onPhoneChange,
                                 placeHolder = "Enter Phone Number",
@@ -245,6 +249,89 @@ fun GenderBoxComposable(
     }
 
 }
+
+@Composable
+fun PhoneDisplayField(
+    value:String,
+    onValueChange:(String)->Unit,
+    placeHolder:String,
+    label:String,
+    mandatory: Boolean=false,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType= KeyboardType.Text,
+    enabled:Boolean=true
+){
+
+    Column(
+        modifier=modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row (
+            verticalAlignment = Alignment.Top
+        ){
+            Text(
+                text=label,
+                style = subHeadingMedium,
+                color = Color.Black
+            )
+            if (mandatory){
+                Text(
+                    text = "*",
+                    color = Color.Red,
+                    style = subHeadingMedium
+                )
+            }
+        }
+
+        BasicTextField(
+            enabled=enabled,
+            value = value,
+            onValueChange = {it-> onValueChange(it) },
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodySmall,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            modifier = modifier.fillMaxWidth()
+                .height(54.dp)
+                .shadow(elevation = 8.dp,RoundedCornerShape(15.dp), spotColor = Color.Black.copy(alpha = 0.4f))
+                .clip(RoundedCornerShape(15.dp))
+                .background(Color.White, RoundedCornerShape(15.dp))
+                .border(
+                    width = 0.7.dp,
+                    shape = RoundedCornerShape(15.dp),
+                    color = Color(0xFFC5A572)
+                ),
+        ) {
+
+            Box(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Text(
+                        style = MaterialTheme.typography.bodySmall,
+                        text = "+91 | "
+                    )
+                    if (value.isEmpty()) {
+                        Text(
+                            text = placeHolder,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xffC5C5C5),
+                            maxLines = 1
+                        )
+                    }
+                    it()
+                }
+            }
+
+        }
+
+    }
+
+}
+
 
 
 @Composable

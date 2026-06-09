@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
@@ -709,7 +710,10 @@ fun InfoCard(
         {
 
             SubcomposeAsyncImage(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(48.dp)
+                    .shadow(
+                        elevation = 16.dp
+                    ),
                 model = detailsState.icon,
                 contentDescription = null,
                 loading = {

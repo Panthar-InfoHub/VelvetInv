@@ -334,7 +334,7 @@ fun TradingAccountFinancialDetailsScreen(
                         }
                     }
                     item {
-                        OnBoardingTextField(
+                        PhoneDisplayField(
                             value = data.nominee_1_mobile,
                             onValueChange = viewModel::onNominee1MobileChange,
                             placeHolder = "Nominee Mobile number",
