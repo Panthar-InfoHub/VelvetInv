@@ -530,14 +530,16 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             composable<Route.KYCCompleteScreen> {
                 val name = it.toRoute<Route.KYCCompleteScreen>().name
-                val date= it.toRoute<Route.KYCCompleteScreen>().verifiedDate
-                KYCCompletedScreen(name=name, verifiedDate = date, onBackClick ={
-                    navController.popBackStack()
-                },
+                val date = it.toRoute<Route.KYCCompleteScreen>().verifiedDate
+                KYCCompletedScreen(
+                    name = name, verifiedDate = date,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
                     buttonClick = {
-                        navController.navigate(Route.MutualFundSearchResult()) {
-                            popUpTo(Route.MutualFundSearchResult()) {
-                                inclusive = false
+                        navController.navigate(Route.TradingAccountNavigation) {
+                            popUpTo<Route.KYCCompleteScreen> {
+                                inclusive = true
                             }
                             launchSingleTop = true
                         }

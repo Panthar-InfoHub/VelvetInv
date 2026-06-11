@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.velvetinvestment.shared.theme.buttonTextStyle
@@ -25,10 +27,20 @@ fun AppButton(
     onClick:()->Unit,
     loading:Boolean=false,
     enabled: Boolean=true,
+    clearFocusOnClick: Boolean = true,
     shape: Shape = CircleShape
 ){
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Button(
-        onClick=onClick,
+        onClick = {
+            if (clearFocusOnClick) {
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
+            }
+            onClick()
+        },
         modifier=modifier.fillMaxWidth().height(50.dp),
         enabled = enabled && !loading,
         shape=shape,

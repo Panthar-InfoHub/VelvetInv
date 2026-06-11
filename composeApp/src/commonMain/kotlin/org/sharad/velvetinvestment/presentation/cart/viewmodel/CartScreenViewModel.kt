@@ -13,16 +13,19 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.SIPStatus
-import org.sharad.velvetinvestment.domain.models.usercart.SipItemDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MandateStatus
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
+import org.sharad.velvetinvestment.domain.models.usercart.SipItemDomain
 import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
-import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.CheckSipPurchaseStatusUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.ClearCartUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.DeleteCartItemUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetUserCartUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.InitiateSipPurchaseUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseLumpsumFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseSipFundUseCase
+import org.sharad.velvetinvestment.utils.FundTypeSelector
+import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
@@ -43,13 +46,17 @@ sealed interface CartSideEffects{
 class CartScreenViewModel(
     private val getUserCartUseCase: GetUserCartUseCase,
     private val deleteCartItemUseCase: DeleteCartItemUseCase,
+    private val clearCartUseCase: ClearCartUseCase,
     private val initiateSipPurchaseUseCase: InitiateSipPurchaseUseCase,
     private val checkSipPurchaseStatusUseCase: CheckSipPurchaseStatusUseCase,
     private val purchaseSipUseCase: PurchaseSipFundUseCase,
     private val purchaseLumpSumUseCase: PurchaseLumpsumFundUseCase,
 ) : ViewModel() {
 
-    private var currentCartType = CartType.LUMPSUM
+    private var currentCartType = when (FundTypeSelector.fundType.value) {
+        SelectedFundType.SIP -> CartType.SIP
+        SelectedFundType.LUMSUM -> CartType.LUMPSUM
+    }
 
     private val _cartSideEffect = MutableSharedFlow<CartSideEffects>()
     val cartSideEffect = _cartSideEffect.asSharedFlow()
@@ -143,6 +150,27 @@ class CartScreenViewModel(
         }
     }
 
+    fun clearCart() {
+        val currentState = uiState.value
+        if (currentState is UiState.Success) {
+            val data = currentState.data
+            viewModelScope.launch {
+                _loading.value = true
+                _uiState.value = UiState.Loading
+                clearCartUseCase()
+                    .onSuccess {
+                        _loading.value = false
+                        loadCart()
+                    }
+                    .onError {
+                        _loading.value = false
+                        _uiState.value = UiState.Success(data)
+                        SnackBarController.showError(it.message)
+                    }
+            }
+        }
+    }
+
     fun loadCart() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
@@ -201,12 +229,22 @@ class CartScreenViewModel(
             initiateSipPurchaseUseCase(sipData)
                 .onSuccess {
                     _loading.value = false
-                    _cartSideEffect.emit(
-                        CartSideEffects.OpenForInitiation(
-                            url = it.url,
-                            mandateId = it.mandateId
-                        )
-                    )
+
+                    when(it.status){
+                        MandateStatus.PENDING -> {
+                            _cartSideEffect.emit(
+                                CartSideEffects.OpenForInitiation(
+                                    url = it.url,
+                                    mandateId = it.mandateId
+                                )
+                            )
+                        }
+                        MandateStatus.APPROVED -> {
+                            purchaseSip(it.mandateId)
+                        }
+                    }
+
+
                 }
                 .onError {
                     _loading.value = false

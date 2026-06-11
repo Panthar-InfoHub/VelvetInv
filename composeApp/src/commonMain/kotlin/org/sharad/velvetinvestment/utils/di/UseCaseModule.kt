@@ -14,6 +14,7 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddBundleToCartS
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartLumpsumUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.CheckSipPurchaseStatusUseCase
+import org.sharad.velvetinvestment.domain.usecases.fundusecases.ClearCartUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.DeleteCartItemUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCombinedCategoryMutualFundsUseCase
@@ -174,6 +175,7 @@ val useCaseModule= module {
 
     factory { GetUserCartUseCase(get()) }
     factory { DeleteCartItemUseCase(get()) }
+    factory { ClearCartUseCase(get()) }
     factory { PurchaseLumpsumFundUseCase(get()) }
     factory { PurchaseSipFundUseCase(get()) }
     factory { InitiateSipPurchaseUseCase(get()) }

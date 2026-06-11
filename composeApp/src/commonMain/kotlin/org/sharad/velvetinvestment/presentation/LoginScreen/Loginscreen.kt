@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.presentation.LoginScreen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,6 +55,8 @@ fun LoginScreen(
     val password by viewModel.password.collectAsStateWithLifecycle()
     val buttonEnabled by viewModel.buttonEnabled.collectAsStateWithLifecycle()
     val loading by viewModel.loading.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
 
     when (windowSize) {
@@ -66,6 +74,8 @@ fun LoginScreen(
                 onEmailChange = { viewModel.onUserNameChange(it) },
                 onPasswordChange = { viewModel.onPasswordChange(it) },
                 onPhoneNumberChange = viewModel::onPhoneNumberChange,
+                keyboardController=keyboardController,
+                focusManager=focusManager,
                 onButtonClick = {
                     when(authMode){
                         AuthMode.Login.OTP -> {
@@ -110,6 +120,8 @@ fun LoginScreen(
                 onEmailChange = { viewModel.onUserNameChange(it) },
                 onPasswordChange = { viewModel.onPasswordChange(it) },
                 onPhoneNumberChange = viewModel::onPhoneNumberChange,
+                keyboardController=keyboardController,
+                focusManager=focusManager,
                 onButtonClick = {
                     when(authMode){
                         AuthMode.Login.OTP -> {
@@ -154,9 +166,17 @@ fun LoginScreenPortrait(
     onLoginPasswordTabClick: () -> Unit,
     onPhoneNumberChange: (String) -> Unit,
     number: String,
+    focusManager: FocusManager,
+    keyboardController: SoftwareKeyboardController?,
 ) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                }
+            },
     ) {
         LightGradient()
         Image(
@@ -212,10 +232,19 @@ fun LoginScreenLandscape(
     onLoginPasswordTabClick: () -> Unit,
     onPhoneNumberChange: (String) -> Unit,
     number: String,
+    keyboardController: SoftwareKeyboardController?,
+    focusManager: FocusManager,
 
     ) {
+
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                }
+            },
     ) {
         LightGradient()
         Image(

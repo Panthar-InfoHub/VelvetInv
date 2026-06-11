@@ -179,6 +179,20 @@ class MutualFundRepo(
         }
     }
 
+    override suspend fun clearCart(): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeUnitRequest {
+            client.delete(getUrl("/mf/clear-cart"))
+        }
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
     override suspend fun addToCartLumSumFund(
         id: String,
         amount: Long,

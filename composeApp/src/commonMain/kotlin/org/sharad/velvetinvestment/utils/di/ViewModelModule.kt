@@ -106,7 +106,7 @@ val viewModelModule= module {
     viewModel { KycContractViewModel(get(), get(), get(), get()) }
     viewModel {(id:String)-> FDDetailsViewModel(id,get()) }
     viewModel {(id:String)-> FDPurchaseViewModel(id,get(),get(), get()) }
-    viewModel { CartScreenViewModel(get(),get(),get(),get(),get(), get()) }
+    viewModel { CartScreenViewModel(get(),get(),get(),get(),get(),get(), get()) }
     viewModel { SingleGoalViewModel(get(), get()) }
     viewModel { (id: String) -> ProjectionImpactViewModel(get(),get(), get(),get(),get(),get(),id) }
     viewModel { FinancialFlowEditScreenViewModel(get(), get()) }

@@ -37,6 +37,7 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.usercart.CartType
 import org.sharad.velvetinvestment.domain.models.usercart.SipDetails
@@ -113,7 +114,10 @@ fun CartScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             CartHeader(
-                onBack = onBack
+                onBack = onBack,
+                onClearClick = {
+                    viewModel.clearCart()
+                }
             )
 
             MFTypeSelector(
@@ -222,7 +226,10 @@ fun CartScreenContent(
 }
 
 @Composable
-fun CartHeader(onBack: () -> Unit) {
+fun CartHeader(
+    onBack: () -> Unit,
+    onClearClick: () -> Unit
+) {
     Row(
         modifier=Modifier.fillMaxWidth()
             .padding(vertical = 16.dp, horizontal =  16.dp ),
@@ -243,7 +250,19 @@ fun CartHeader(onBack: () -> Unit) {
         Text(
             text = "Cart",
             color = Primary,
-            style = MaterialTheme.typography.headlineLarge
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = " Clear Cart",
+            color = appRed,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.clickable(
+                onClick = onClearClick,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            )
         )
     }
 }

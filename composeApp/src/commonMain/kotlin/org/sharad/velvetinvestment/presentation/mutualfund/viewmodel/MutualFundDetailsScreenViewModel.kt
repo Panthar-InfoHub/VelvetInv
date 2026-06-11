@@ -265,6 +265,11 @@ class MutualFundDetailsScreenViewModel(
                             showKYCBottomSheet()
                             return@onError
                         }
+
+                        if (it.type == ErrorType.MF_TRADING_ACCOUNT_REQUIRED){
+                            showTradingAccountBottomSheet()
+                            return@onError
+                        }
                         hideBottomSheet()
                         SnackBarController.showError(it.message)
                     }
@@ -287,6 +292,11 @@ class MutualFundDetailsScreenViewModel(
                         stopCartSheetLoading()
                         if (it.type == ErrorType.MF_KYC_REQUIRED){
                             showKYCBottomSheet()
+                            return@onError
+                        }
+
+                        if (it.type == ErrorType.MF_TRADING_ACCOUNT_REQUIRED){
+                            showTradingAccountBottomSheet()
                             return@onError
                         }
                         hideBottomSheet()

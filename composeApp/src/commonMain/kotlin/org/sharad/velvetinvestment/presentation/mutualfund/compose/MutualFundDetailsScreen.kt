@@ -73,17 +73,16 @@ import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundD
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.AppDialogList
 import org.sharad.velvetinvestment.shared.UiStateContainer
-import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.NavLineChart
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.VelvetLoader
-import org.sharad.velvetinvestment.utils.CartInfo
-import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.FundTypeSelector
+import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.utils.trimTo
 import org.sharad.velvetinvestment.utils.withInterRupee
@@ -151,19 +150,13 @@ fun MutualFundDetailsScreenRoot(
                     },
                     bottomBar = {
                         if (!folioId.isNullOrBlank()){
-                            ContinueBackButtonFooter(
-                                continueText = "SIP",
-                                backText = "LumpSum",
-                                onContinue = {
+                            NextButtonFooter(
+                                onClick = {
                                     FundTypeSelector.updateFundTypeToSIP()
                                     viewModel.showBottomSheet()
                                 },
-                                onBack = {
-                                    FundTypeSelector.updateFundTypeToLumpSum()
-                                    viewModel.showBottomSheet()
-                                },
                                 pv = pv,
-                                enabled = true
+                                value = "Add to Cart"
                             )
                         }
                         else{

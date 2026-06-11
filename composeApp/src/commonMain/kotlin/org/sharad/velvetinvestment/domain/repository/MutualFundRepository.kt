@@ -46,6 +46,8 @@ interface MutualFundRepository {
 
     suspend fun deleteCartItem(id: String) : NetworkResponse<Unit, ErrorDomain>
 
+    suspend fun clearCart() : NetworkResponse<Unit, ErrorDomain>
+
     suspend fun addToCartLumSumFund(id: String, amount: Long, folioId: String?): NetworkResponse<Unit, ErrorDomain>
     suspend fun addToCartSipFund(request: AddCartSipRequest): NetworkResponse<Unit, ErrorDomain>
 

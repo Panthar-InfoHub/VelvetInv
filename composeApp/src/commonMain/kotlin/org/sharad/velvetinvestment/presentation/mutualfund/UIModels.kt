@@ -89,8 +89,9 @@ fun CartBottomSheetState.toSipRequest(
 ): AddCartSipRequest? {
 
     val amount = amount ?: return null
-    val frequency = selectedFrequency ?: return null
-    val duration = selectedDuration ?: return null
+//    val frequency = selectedFrequency ?: return null
+//    val duration = selectedDuration ?: return null
+    val duration = Duration.PERPETUAL
     val day = selectedSIPDate?.toIntOrNull() ?: return null
 
     if (amount < minSipAmount) return null
@@ -119,7 +120,7 @@ fun CartBottomSheetState.toSipRequest(
         mf_product_id = productId,
         sip_st_date = startDate.toString(),
         sip_en_date = endDate.toString(),
-        sip_freq = frequency.code,
+//        sip_freq = frequency.code,
         sip_day = day,
         sip_amt = amount,
         folio = folioId?:""

@@ -4,11 +4,13 @@ import org.sharad.velvetinvestment.data.remote.model.bundledfundbyid.BundledFund
 import org.sharad.velvetinvestment.data.remote.model.getmf.Metrics
 import org.sharad.velvetinvestment.data.remote.model.getmf.MutualFund
 import org.sharad.velvetinvestment.data.remote.model.getmf.MutualFundDto
+import org.sharad.velvetinvestment.data.remote.model.initiatemfpurchase.Data
 import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundItemDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.FundMetricsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.InvestmentFrequency
+import org.sharad.velvetinvestment.domain.models.mutualfunds.MandateStatus
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
@@ -112,9 +114,10 @@ fun BundledFundByIdDto.toDomain(): BundledMutualFundDomain {
     )
 }
 
-fun org.sharad.velvetinvestment.data.remote.model.initiatemfpurchase.Data.toDomain(): MutualFundPurchaseInitiateDomain {
+fun Data.toDomain(): MutualFundPurchaseInitiateDomain {
     return MutualFundPurchaseInitiateDomain(
         mandateId = mandate_id,
-        url = mandate_short_url
+        url = mandate_short_url,
+        status = if (status=="MANDATE_APPROVED") MandateStatus.APPROVED else MandateStatus.PENDING,
     )
 }

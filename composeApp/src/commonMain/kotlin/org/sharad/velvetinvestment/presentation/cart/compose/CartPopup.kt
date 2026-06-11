@@ -13,13 +13,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -75,6 +78,7 @@ fun CartPopup(
     showDurationDropDown: () -> Unit,
 
     ) {
+    val scrollState = rememberScrollState()
     val fundType by FundTypeSelector.fundType.collectAsStateWithLifecycle()
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -84,7 +88,10 @@ fun CartPopup(
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ){
         Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp, horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth()
+                .verticalScroll(state = scrollState)
+                .imePadding()
+                .padding(vertical = 20.dp, horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Column(
@@ -228,13 +235,13 @@ fun SIPCart(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ){
-            DropDownField(
-                text = frequency ?: "",
-                placeholder = "Select Frequency",
-                onClick = showFrequencyDropDown,
-                label = "Frequency",
-                modifier = Modifier.weight(1f)
-            )
+//            DropDownField(
+//                text = frequency ?: "",
+//                placeholder = "Select Frequency",
+//                onClick = showFrequencyDropDown,
+//                label = "Frequency",
+//                modifier = Modifier.weight(1f)
+//            )
             DropDownField(
                 text = date ?: "",
                 placeholder = "Select Date",
@@ -245,13 +252,13 @@ fun SIPCart(
         }
 
 
-        DropDownField(
-            text = duration?.label ?: "",
-            placeholder = "Select Duration",
-            onClick = showDurationDropDown,
-            label = "Duration",
-            modifier = Modifier.fillMaxWidth()
-        )
+//        DropDownField(
+//            text = duration?.label ?: "",
+//            placeholder = "Select Duration",
+//            onClick = showDurationDropDown,
+//            label = "Duration",
+//            modifier = Modifier.fillMaxWidth()
+//        )
 
         AppButton(
             modifier = Modifier.fillMaxWidth(),

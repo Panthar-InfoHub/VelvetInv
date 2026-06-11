@@ -229,7 +229,7 @@ fun KYCCompletedScreen(
                             modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth()
                         ) {
                             Text(
-                                "Start Investing",
+                                "Continue Setup",
                                 fontSize = 18.sp,
                                 fontFamily = Poppins,
                                 color = Color.White,
