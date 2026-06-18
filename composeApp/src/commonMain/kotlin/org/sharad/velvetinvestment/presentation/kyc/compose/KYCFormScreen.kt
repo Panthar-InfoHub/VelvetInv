@@ -23,6 +23,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.shared.DropDownSelector
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.tradingaccount.OccupationType
 
 @Composable
@@ -64,6 +65,7 @@ fun FormContent(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .clearFocusOnTap()
     ) {
         BackHeader(
             heading = "KYC Form",

@@ -18,6 +18,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTex
 import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.MoneyTextField
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 
 @Composable
 fun AddLoanScreen(
@@ -34,6 +35,7 @@ fun AddLoanScreen(
 
     Column(
         modifier=modifier.fillMaxSize()
+            .clearFocusOnTap()
     ){
         LazyColumn(
             modifier = Modifier

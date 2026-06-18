@@ -67,6 +67,7 @@ import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.delete_box
@@ -93,6 +94,7 @@ fun SIPScreenContent(
         isRefreshing = false,
         onRefresh = onRefresh,
         modifier = Modifier.fillMaxSize()
+            .clearFocusOnTap()
     ){
         if (items.isEmpty()) {
             Box(
@@ -301,7 +303,7 @@ fun SIPCartItem(
                 )
 
                 Text(
-                    text = "Want to Step Up SIP ?",
+                    text = "Want to Step Up SIP Anually?",
                     style = subHeading,
                     color = Primary,
                     modifier = Modifier.weight(1f)

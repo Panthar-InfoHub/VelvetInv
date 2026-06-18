@@ -43,6 +43,7 @@ import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_food
@@ -68,7 +69,8 @@ fun FinancialFlowScreen(
     val financialSummary by viewModel.financialSummary.collectAsStateWithLifecycle()
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize()
+            .clearFocusOnTap(),
         contentAlignment = Alignment.BottomCenter
     ) {
         LazyColumn(

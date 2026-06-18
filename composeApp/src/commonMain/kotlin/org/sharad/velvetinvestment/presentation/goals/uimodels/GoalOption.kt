@@ -7,6 +7,6 @@ data class GoalOption(
     val title: String,
     val color: Color,
     val type: GoalType,
-    val goalItemId: Int? = null,   // only for wealth goals
+    val goalItemId: Int? = null,
     val goalItemName: String? = null
 )

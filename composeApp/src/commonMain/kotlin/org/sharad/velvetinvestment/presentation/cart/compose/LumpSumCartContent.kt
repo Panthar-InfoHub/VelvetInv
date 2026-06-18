@@ -46,6 +46,7 @@ import org.sharad.velvetinvestment.domain.models.usercart.LumpSumItemDomain
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.delete_box
@@ -61,6 +62,7 @@ fun LumpSumScreenContent(
         isRefreshing = false,
         onRefresh = onRefresh,
         modifier = Modifier.fillMaxSize()
+            .clearFocusOnTap()
     ){
         if (items.isEmpty()) {
             Box(

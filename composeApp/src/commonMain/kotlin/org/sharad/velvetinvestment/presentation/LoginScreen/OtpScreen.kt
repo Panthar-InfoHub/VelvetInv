@@ -30,6 +30,7 @@ import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.OtpGrid
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 
 @Composable
 fun OtpScreen(
@@ -48,6 +49,7 @@ fun OtpScreen(
 
     Column(
         modifier = Modifier.fillMaxSize()
+            .clearFocusOnTap()
             .navigationBarsPadding()
     ) {
 

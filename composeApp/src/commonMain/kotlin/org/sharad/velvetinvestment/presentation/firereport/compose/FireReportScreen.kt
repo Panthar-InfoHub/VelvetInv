@@ -521,7 +521,7 @@ fun FireToggle(text: String, value: Boolean, onToggle: () -> Unit) {
 fun FireBackHeader(
     heading: String,
     showBack: Boolean = false,
-    modifier: Modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 12.dp),
+    modifier: Modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp, start = 12.dp,  end= 12.dp, top = 8.dp),
     onBackClick: () -> Unit = {},
     onIconClick: () -> Unit,
     downloading: Boolean

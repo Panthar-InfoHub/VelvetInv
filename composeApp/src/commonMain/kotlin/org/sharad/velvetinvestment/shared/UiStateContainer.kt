@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 
 @Composable
 fun <T> UiStateContainer(
@@ -23,7 +24,8 @@ fun <T> UiStateContainer(
     successContent: @Composable (T) -> Unit
 ) {
     Box(
-        modifier = modifier,
+        modifier = modifier
+            .clearFocusOnTap(),
         contentAlignment = Alignment.Center
     ) {
         when (uiState) {

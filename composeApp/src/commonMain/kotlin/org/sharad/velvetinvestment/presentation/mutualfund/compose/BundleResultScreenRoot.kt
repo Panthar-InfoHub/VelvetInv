@@ -70,6 +70,7 @@ import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.SelectedFundType
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.trimTo
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,7 +114,8 @@ fun BundleResultScreenRoot(
 
         LoadingState.Success -> {
             Scaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
+                    .clearFocusOnTap(),
                 topBar = {
                     BackHeader(
                         heading = heading,
@@ -377,7 +379,8 @@ fun BundleCartPopup(
         ) {
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .clearFocusOnTap(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 

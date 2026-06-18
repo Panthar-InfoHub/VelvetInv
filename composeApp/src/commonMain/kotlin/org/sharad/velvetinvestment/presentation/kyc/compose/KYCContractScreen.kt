@@ -61,7 +61,6 @@ fun KycContractScreen(
 
     val viewModel: KycContractViewModel = koinViewModel()
     val uiState by viewModel.contractPdfUrl.collectAsStateWithLifecycle()
-//    val uiState = UiState.Success("https://persist.signzy.tech/api/files/1680365517/download/130496b49bb94dd7a28ed6c8ec2e27ef267c3c59dd564758a19653a9910637cd.pdf")
     val finalizeLoading by viewModel.submitLoading.collectAsStateWithLifecycle()
     val successState by viewModel.successState.collectAsStateWithLifecycle()
     val checked by viewModel.markedAsRead.collectAsStateWithLifecycle()

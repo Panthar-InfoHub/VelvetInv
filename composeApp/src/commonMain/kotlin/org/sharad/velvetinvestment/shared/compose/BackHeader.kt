@@ -31,7 +31,7 @@ fun BackHeader(
     Box(
         modifier=modifier
             .background(Color.White)
-            .padding(vertical = 16.dp, horizontal = 12.dp),
+            .padding(bottom = 16.dp, start = 12.dp, end = 12.dp, top = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(

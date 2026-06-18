@@ -49,6 +49,7 @@ import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.cart_icon
@@ -106,6 +107,7 @@ fun CategoryMutualFundScreenRootContent(
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
+            .clearFocusOnTap()
             .background(Color.White)
     ) {
         ScreenHeader(

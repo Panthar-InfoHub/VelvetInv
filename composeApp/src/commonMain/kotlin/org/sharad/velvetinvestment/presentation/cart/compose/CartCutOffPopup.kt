@@ -44,6 +44,7 @@ import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.utils.AmfiLink
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_cross
 import velvet.composeapp.generated.resources.info_icon
@@ -64,7 +65,8 @@ fun CartCutOffPopup(
         containerColor = Color.White,
     ){
         Column(
-            modifier=Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            modifier=Modifier.fillMaxWidth().padding(vertical = 16.dp)
+                .clearFocusOnTap(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
             Row(

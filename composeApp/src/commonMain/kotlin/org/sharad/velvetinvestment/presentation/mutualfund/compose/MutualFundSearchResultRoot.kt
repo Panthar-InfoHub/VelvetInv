@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -60,13 +61,13 @@ import org.sharad.velvetinvestment.shared.compose.FilterChip
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.PaginationEffect
 import org.sharad.velvetinvestment.shared.compose.PaginationFooter
-import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.MutualFundLabel
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_filter
 
@@ -95,7 +96,10 @@ fun MutualFundSearchScreenRoot(
     val hasNextPage by viewModel.hasNextPage.collectAsStateWithLifecycle()
 
 
-    Box(modifier = Modifier.fillMaxSize())
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .clearFocusOnTap()
+    )
     {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -106,6 +110,7 @@ fun MutualFundSearchScreenRoot(
             Box(
                 modifier = Modifier.weight(1f)
                     .fillMaxSize()
+                    .imePadding()
             ) {
                 when (uiState) {
                     is LoadingState.Error -> {

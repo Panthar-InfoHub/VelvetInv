@@ -39,6 +39,7 @@ import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_fd
@@ -66,7 +67,8 @@ fun CurrentAssetScreen(
 
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize()
+            .clearFocusOnTap(),
         contentAlignment = Alignment.BottomCenter
     ) {
         LazyColumn(

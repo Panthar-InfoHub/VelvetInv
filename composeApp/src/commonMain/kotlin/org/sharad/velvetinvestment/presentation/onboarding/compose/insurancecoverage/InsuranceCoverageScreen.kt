@@ -28,6 +28,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.utils.AppBackHandler
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
@@ -53,6 +54,7 @@ fun InsuranceCoverageScreen(
 
     Column(
         modifier=modifier.fillMaxSize()
+            .clearFocusOnTap()
     ) {
         LazyColumn(
             modifier = Modifier

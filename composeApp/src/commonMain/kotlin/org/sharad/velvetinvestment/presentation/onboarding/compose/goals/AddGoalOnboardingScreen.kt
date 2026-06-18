@@ -21,6 +21,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenOnboardingViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.goalOptions
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 
 @Composable
 fun AddGoalOnboardingScreen(
@@ -59,7 +60,8 @@ fun AddGoalOnboardingScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()
+        .clearFocusOnTap()) {
 
         LazyColumn(
             modifier = Modifier

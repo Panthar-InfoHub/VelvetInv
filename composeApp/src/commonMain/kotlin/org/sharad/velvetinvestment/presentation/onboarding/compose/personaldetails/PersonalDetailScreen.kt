@@ -33,6 +33,7 @@ import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.Log
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_callender
 import velvet.composeapp.generated.resources.icon_clock
@@ -55,7 +56,8 @@ fun PersonalDetailScreen(
 
 
 
-    Box(modifier = modifier.fillMaxSize(),
+    Box(modifier = modifier.fillMaxSize()
+        .clearFocusOnTap(),
         contentAlignment = Alignment.BottomCenter){
 
         Column(

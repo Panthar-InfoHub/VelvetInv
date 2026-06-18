@@ -23,6 +23,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow
 import org.sharad.velvetinvestment.presentation.onboarding.compose.loan.LoanSelectionDropDown
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.compose.BackHeader
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 
 @Composable
 fun AddLoanScreen(
@@ -46,6 +47,7 @@ fun AddLoanScreen(
 
     Column(
         modifier = Modifier.fillMaxSize()
+            .clearFocusOnTap()
     ) {
         BackHeader(
             heading = if (loanId == null) "Add Loan" else "Edit Loan",

@@ -59,6 +59,7 @@ import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
@@ -91,7 +92,8 @@ fun CartPopup(
             modifier = Modifier.fillMaxWidth()
                 .verticalScroll(state = scrollState)
                 .imePadding()
-                .padding(vertical = 20.dp, horizontal = 16.dp),
+                .padding(vertical = 20.dp, horizontal = 16.dp)
+                .clearFocusOnTap(),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Column(

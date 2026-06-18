@@ -290,7 +290,7 @@ fun DashboardPortfolio(
                         onArrowClick = onSeeAllMF
                     )
                 }
-                items(mutualFunds.take(2), key = { "mf_${it.id}" }) { item ->
+                items(mutualFunds.take(2), key = { "mf_${it.folio}" }) { item ->
                     FolioFundCard(fundItem = item, onClick = { onSIPClick(item) })
                 }
             }
@@ -361,7 +361,7 @@ fun MutualFundPortfolio(
                     )
                 }
                 item { BarHeader(heading = "Mutual Funds") }
-                items(mutualFund, key = { it.id }) { item ->
+                items(mutualFund, key = { it.folio}) { item ->
                     FolioFundCard(fundItem = item, onClick = {
                         onFundClick(item)
                     })
