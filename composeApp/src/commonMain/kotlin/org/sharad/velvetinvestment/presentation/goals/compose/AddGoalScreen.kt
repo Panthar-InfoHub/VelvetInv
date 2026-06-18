@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.presentation.goals.compose
 
 
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,7 +14,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,6 +32,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.GoalEnt
 import org.sharad.velvetinvestment.presentation.onboarding.compose.goals.GoalSelectionDropDown
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.goalOptions
+import org.sharad.velvetinvestment.presentation.tradingaccount.compose.YearPicker
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 
@@ -41,6 +47,9 @@ fun SingleGoalScreen(
 
     val state by vm.state.collectAsStateWithLifecycle()
     val loading by vm.loading.collectAsStateWithLifecycle()
+    var showYearPicker by remember {
+        mutableStateOf(false)
+    }
 
 
     UiStateContainer(
@@ -63,7 +72,10 @@ fun SingleGoalScreen(
                 item {
                     GoalFormSection(
                         form = data.form,
-                        onChange = vm::updateForm
+                        onChange = vm::updateForm,
+                        showYearPicker = {
+                            showYearPicker = true
+                        }
                     )
                 }
 
@@ -94,14 +106,33 @@ fun SingleGoalScreen(
                 loading = loading
             )
         }
+        if (showYearPicker) {
+            YearPicker(
+                selectedYear = data.form.targetYear.toIntOrNull(),
+                onYearSelected = { year ->
+                        vm.updateForm {
+                            copy(
+                                targetYear = year.toString()
+                            )
+                        }
+                },
+                onDismiss = {
+                    showYearPicker = false
+                }
+            )
+        }
     }
 }
 @Composable
 fun GoalFormSection(
     form: GoalFormState,
     onChange: (GoalFormState.() -> GoalFormState) -> Unit,
+    showYearPicker: () -> Unit,
     retirementAgeDefault: Int? = null
-) {
+){
+
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         if (form.retirementAge.isEmpty()) {
@@ -171,22 +202,39 @@ fun GoalFormSection(
 
                     OnBoardingTextField(
                         value = form.inflation,
-                        onValueChange = {
-                            onChange { copy(inflation = it) }
+                        onValueChange = { input ->
+
+                            if (input.isEmpty()) {
+                                onChange { copy(inflation = "") }
+                                return@OnBoardingTextField
+                            }
+
+                            val isValid = input.matches(
+                                Regex("""^\d+(\.\d{0,2})?$""")
+                            )
+
+                            if (isValid) {
+                                onChange {
+                                    copy(inflation = input)
+                                }
+                            }
                         },
                         placeHolder = "Inflation %",
                         label = "Inflation Rate(%)",
-                        keyboardType = KeyboardType.Number
+                        keyboardType = KeyboardType.Decimal
                     )
 
                     OnBoardingTextField(
                         value = form.targetYear,
-                        onValueChange = {
-                            onChange { copy(targetYear = it) }
-                        },
-                        placeHolder = "Target Year For Goal",
+                        onValueChange = {},
+                        enabled = false,
+                        placeHolder = "Select Target Year",
                         label = "Target Year",
-                        keyboardType = KeyboardType.Number
+                        modifier = Modifier.clickable {
+                            keyboardController.clearFocus()
+                            focusManager.clearFocus()
+                            showYearPicker()
+                        }
                     )
                 }
 
@@ -195,12 +243,26 @@ fun GoalFormSection(
 
                     OnBoardingTextField(
                         value = form.inflation,
-                        onValueChange = {
-                            onChange { copy(inflation = it) }
+                        onValueChange = { input ->
+
+                            if (input.isEmpty()) {
+                                onChange { copy(inflation = "") }
+                                return@OnBoardingTextField
+                            }
+
+                            val isValid = input.matches(
+                                Regex("""^\d+(\.\d{0,2})?$""")
+                            )
+
+                            if (isValid) {
+                                onChange {
+                                    copy(inflation = input)
+                                }
+                            }
                         },
                         placeHolder = "Inflation %",
                         label = "Inflation Rate(%)",
-                        keyboardType = KeyboardType.Number
+                        keyboardType = KeyboardType.Decimal
                     )
 
                     OnBoardingTextField(
@@ -225,12 +287,26 @@ fun GoalFormSection(
 
                     OnBoardingTextField(
                         value = form.postReturn,
-                        onValueChange = {
-                            onChange { copy(postReturn = it) }
+                        onValueChange = { input ->
+
+                            if (input.isEmpty()) {
+                                onChange { copy(inflation = "") }
+                                return@OnBoardingTextField
+                            }
+
+                            val isValid = input.matches(
+                                Regex("""^\d+(\.\d{0,2})?$""")
+                            )
+
+                            if (isValid) {
+                                onChange {
+                                    copy(postReturn = input)
+                                }
+                            }
                         },
                         placeHolder = "Post Retirement Return %",
                         label = "Post Retirement Return(%)",
-                        keyboardType = KeyboardType.Number
+                        keyboardType = KeyboardType.Decimal
                     )
                 }
 
@@ -266,22 +342,39 @@ fun GoalFormSection(
 
                     OnBoardingTextField(
                         value = form.inflation,
-                        onValueChange = {
-                            onChange { copy(inflation = it) }
+                        onValueChange = { input ->
+
+                            if (input.isEmpty()) {
+                                onChange { copy(inflation = "") }
+                                return@OnBoardingTextField
+                            }
+
+                            val isValid = input.matches(
+                                Regex("""^\d+(\.\d{0,2})?$""")
+                            )
+
+                            if (isValid) {
+                                onChange {
+                                    copy(inflation = input)
+                                }
+                            }
                         },
                         placeHolder = "Inflation %",
                         label = "Inflation Rate(%)",
-                        keyboardType = KeyboardType.Number
+                        keyboardType = KeyboardType.Decimal
                     )
 
                     OnBoardingTextField(
                         value = form.targetYear,
-                        onValueChange = {
-                            onChange { copy(targetYear = it) }
-                        },
-                        placeHolder = "Target Year For Goal",
+                        onValueChange = {},
+                        enabled = false,
+                        placeHolder = "Select Target Year",
                         label = "Target Year",
-                        keyboardType = KeyboardType.Number
+                        modifier = Modifier.clickable {
+                            keyboardController.clearFocus()
+                            focusManager.clearFocus()
+                            showYearPicker()
+                        }
                     )
                 }
             }

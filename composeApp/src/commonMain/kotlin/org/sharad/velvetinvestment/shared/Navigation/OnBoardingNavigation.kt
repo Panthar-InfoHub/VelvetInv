@@ -40,7 +40,8 @@ fun OnBoardingNavigation(
     insuranceCoverageViewModel: InsuranceCoverageViewModel,
     goalViewModel: GoalScreenOnboardingViewModel,
     navController: NavHostController,
-    onLoginSuccessNavigation: () -> Unit
+    onLoginSuccessNavigation: () -> Unit,
+    showYearPicker: () -> Unit
 ) {
 
     val personalData by personalDetailsViewModel.personalDetails.collectAsStateWithLifecycle()
@@ -62,6 +63,8 @@ fun OnBoardingNavigation(
     val emiExpense = monthlyEMI
     val netSurplus = monthlyIncome - housingExpense - otherExpenses - emiExpense
     val totalLiabilities= loans.sumOf { it.outstandingAmount }
+
+
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
@@ -214,6 +217,8 @@ fun OnBoardingNavigation(
                 viewModel = goalViewModel,
                 onBack = { navController.popBackStack() },
                 retirementAgeMain = personalData.retirementAge,
+                monthlyCalculatedExpense = housingExpense+ otherExpenses,
+                showYearPicker = showYearPicker,
                 pv = pv,
             )
         }

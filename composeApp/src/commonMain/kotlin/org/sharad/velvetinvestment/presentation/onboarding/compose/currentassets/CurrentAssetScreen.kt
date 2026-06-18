@@ -66,13 +66,14 @@ fun CurrentAssetScreen(
     val totalAssets by viewModel.totalAssets.collectAsStateWithLifecycle()
 
 
-    Box(
+    Column(
         modifier = modifier.fillMaxSize()
             .clearFocusOnTap(),
-        contentAlignment = Alignment.BottomCenter
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxSize()
+                .weight(1f)
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         )
         {

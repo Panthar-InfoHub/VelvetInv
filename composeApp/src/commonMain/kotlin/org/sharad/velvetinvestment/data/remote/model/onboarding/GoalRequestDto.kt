@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 
 interface GoalRequestDto {
     val goal_type_id: Int
-    val inflation_rate: Int
-    val return_rate: Int
+    val inflation_rate: Double
+    val return_rate: Double
     val current_saved_amount: Long
 }
 
@@ -19,8 +19,8 @@ interface GoalRequestDto {
 @Serializable
 data class ChildEducationGoalRequest(
     override val goal_type_id: Int = 1,
-    override val inflation_rate: Int,
-    override val return_rate: Int,
+    override val inflation_rate: Double,
+    override val return_rate: Double,
     override val current_saved_amount: Long,
 
     val child_name: String,
@@ -32,8 +32,8 @@ data class ChildEducationGoalRequest(
 @Serializable
 data class ChildMarriageGoalRequest(
     override val goal_type_id: Int = 2,
-    override val inflation_rate: Int,
-    override val return_rate: Int,
+    override val inflation_rate: Double,
+    override val return_rate: Double,
     override val current_saved_amount: Long,
 
     val child_name: String,
@@ -48,15 +48,15 @@ data class ChildMarriageGoalRequest(
 @Serializable
 data class RetirementGoalRequest(
     override val goal_type_id: Int = 3,
-    override val inflation_rate: Int,
-    override val return_rate: Int,
+    override val inflation_rate: Double,
+    override val return_rate: Double,
     override val current_saved_amount: Long,
 
     val current_age: Int,
     val retirement_age: Int,
     val life_expectancy: Int,
     val current_monthly_expense: Long,
-    val post_retirement_return: Int
+    val post_retirement_return: Double
 ) : GoalRequestDto
 
 
@@ -66,8 +66,8 @@ data class RetirementGoalRequest(
 @Serializable
 data class CustomGoalRequest(
     override val goal_type_id: Int = 4,
-    override val inflation_rate: Int,
-    override val return_rate: Int,
+    override val inflation_rate: Double,
+    override val return_rate: Double,
     override val current_saved_amount: Long,
 
     val goal_name: String,

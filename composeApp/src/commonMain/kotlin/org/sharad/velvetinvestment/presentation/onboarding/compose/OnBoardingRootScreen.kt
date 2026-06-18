@@ -9,6 +9,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -24,6 +27,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.GoalScreenO
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.InsuranceCoverageViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.LoanScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.viewmodel.PersonalDetailsScreenViewModel
+import org.sharad.velvetinvestment.presentation.tradingaccount.compose.YearPicker
 import org.sharad.velvetinvestment.shared.Navigation.OnBoardingNavigation
 import org.sharad.velvetinvestment.shared.Navigation.Route
 import org.sharad.velvetinvestment.utils.SnackBarController
@@ -53,11 +57,13 @@ fun OnboardingScreenRoot(
     val loanScreenViewModel: LoanScreenViewModel=koinViewModel()
     val insuranceCoverageViewModel: InsuranceCoverageViewModel=koinViewModel()
     val goalViewModel: GoalScreenOnboardingViewModel=koinViewModel()
+    val targetYear by goalViewModel.targetYear.collectAsStateWithLifecycle()
+
+    var showYearPicker by remember {
+        mutableStateOf(false)
+    }
 
     val navController = rememberNavController()
-
-
-
 
 
     Scaffold(
@@ -119,7 +125,10 @@ fun OnboardingScreenRoot(
                         goalViewModel=goalViewModel,
                         financialFlowScreenViewModel = financialFlowScreenViewModel,
                         navController = navController,
-                        onLoginSuccessNavigation=onLoginSuccessNavigation
+                        onLoginSuccessNavigation=onLoginSuccessNavigation,
+                        showYearPicker={
+                            showYearPicker=true
+                        }
                     )
                 }
             }
@@ -134,6 +143,21 @@ fun OnboardingScreenRoot(
                 )
             }
         }
+    }
+
+    if (showYearPicker) {
+        YearPicker(
+            selectedYear = targetYear
+                .toIntOrNull(),
+            onYearSelected = {
+                goalViewModel.onTargetYearChange(
+                    it.toString()
+                )
+            },
+            onDismiss = {
+                showYearPicker = false
+            }
+        )
     }
 
 }

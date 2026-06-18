@@ -148,8 +148,8 @@ class SingleGoalViewModel(
 
         val option = form.selectedOption ?: return null
 
-        val inflation = form.inflation.toIntOrNull() ?: return null
-        val returns = form.returns.toIntOrNull() ?: return null
+        val inflation = form.inflation.toDoubleOrNull() ?: return null
+        val returns = form.returns.toDoubleOrNull() ?: return null
 
         return when (option.type) {
 
@@ -197,9 +197,15 @@ class SingleGoalViewModel(
                 val retirementAge = form.retirementAge.toIntOrNull()
                 val life = form.lifeExpectancy.toIntOrNull()
                 val expense = form.monthlyExpense.toLongOrNull()
-                val post = form.postReturn.toIntOrNull()
+                val post = form.postReturn.toDoubleOrNull()
 
-                if (retirementAge == null || life == null || expense == null || post == null) return null
+                if (
+                    retirementAge == null ||
+                    life == null ||
+                    expense == null ||
+                    post == null
+                ) return null
+
                 if (retirementAge <= currentAge || life <= retirementAge) return null
 
                 GoalRequest.Retirement(

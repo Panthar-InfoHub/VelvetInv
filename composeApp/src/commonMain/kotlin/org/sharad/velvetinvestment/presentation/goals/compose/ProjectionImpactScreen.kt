@@ -144,13 +144,13 @@ fun ProjectionImpactScreen(
                     item{
                         ProjectedImpactCard(data = data, onClick=onMapClick)
                     }
-                    item{
-                        ExploreBundleGoalsSection(
-                            onArrowClick = navigateToAllBundles,
-                            onBundleClick = navigateToSpecificBundle,
-                            state = bundleState
-                        )
-                    }
+//                    item{
+//                        ExploreBundleGoalsSection(
+//                            onArrowClick = navigateToAllBundles,
+//                            onBundleClick = navigateToSpecificBundle,
+//                            state = bundleState
+//                        )
+//                    }
                 }
             }
         }

@@ -10,6 +10,6 @@ data class ChildGoalBodyDto(
     val current_saved_amount: Long,
     val goal_type_id: Int,
     val inflation_rate: Double,
-    val return_rate: Int,
+    val return_rate: Double,
     val years_left: Int
 )

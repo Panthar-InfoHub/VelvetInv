@@ -2,7 +2,7 @@ package org.sharad.velvetinvestment.utils.GoalUtils
 
 import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 
-fun GoalRequest.getGoalInputs(): Triple<Long, Int, Int> {
+fun GoalRequest.getGoalInputs(): Triple<Long, Double, Int> {
     return when (this) {
         is GoalRequest.ChildEducation -> Triple(currentGoalCost, inflationRate, yearsToGoal)
         is GoalRequest.ChildMarriage -> Triple(currentGoalCost, inflationRate, yearsToGoal)

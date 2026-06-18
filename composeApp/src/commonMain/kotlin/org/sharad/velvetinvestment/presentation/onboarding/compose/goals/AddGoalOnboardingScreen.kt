@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.presentation.onboarding.compose.goals
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,7 +31,9 @@ fun AddGoalOnboardingScreen(
     viewModel: GoalScreenOnboardingViewModel,
     onBack: () -> Unit,
     pv: PaddingValues,
-    retirementAgeMain: Int?
+    retirementAgeMain: Int?,
+    showYearPicker:()-> Unit,
+    monthlyCalculatedExpense: Long
 ) {
 
     val selectedOption by viewModel.selectedGoalOption.collectAsStateWithLifecycle()
@@ -54,9 +58,13 @@ fun AddGoalOnboardingScreen(
     val goalItemName by viewModel.goalItemNameInput.collectAsStateWithLifecycle()
     val buttonEnabled by viewModel.isFormValid.collectAsStateWithLifecycle()
 
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalFocusManager.current
+
     LaunchedEffect(Unit){
         if (retirementAge.isEmpty()){
             retirementAgeMain?.let{ viewModel.onRetirementAgeChange(it.toString()) }
+            viewModel.onMonthlyExpenseChange(monthlyCalculatedExpense.toString())
         }
     }
 
@@ -132,13 +140,26 @@ fun AddGoalOnboardingScreen(
                         item {
                             OnBoardingTextField(
                                 value = inflation,
-                                onValueChange = viewModel::onInflationChange,
+                                onValueChange = { input ->
+
+                                    if (input.isEmpty()) {
+                                        viewModel.onInflationChange("")
+                                        return@OnBoardingTextField
+                                    }
+
+                                    val isValid = input.matches(
+                                        Regex("""^\d+(\.\d{0,2})?$""")
+                                    )
+
+                                    if (isValid) {
+                                        viewModel.onInflationChange(input)
+                                    }
+                                },
                                 placeHolder = "Inflation %",
                                 label = "Inflation Rate(%)",
-                                keyboardType = KeyboardType.Number
+                                keyboardType = KeyboardType.Decimal
                             )
                         }
-
 //                        item {
 //                            MoneyTextField(
 //                                value = saved,
@@ -151,10 +172,15 @@ fun AddGoalOnboardingScreen(
                         item {
                             OnBoardingTextField(
                                 value = targetYear,
-                                onValueChange = viewModel::onTargetYearChange,
-                                placeHolder = "Target Year For Goal",
+                                onValueChange = {},
+                                placeHolder = "Select Target Year",
                                 label = "Target Year",
-                                keyboardType = KeyboardType.Number
+                                enabled = false,
+                                modifier = Modifier.clickable {
+                                    keyboardController.clearFocus()
+                                    focusManager.clearFocus()
+                                    showYearPicker()
+                                }
                             )
                         }
 
@@ -172,22 +198,36 @@ fun AddGoalOnboardingScreen(
 //                            )
 //                        }
 
-                        item {
-                            MoneyTextField(
-                                value = monthlyExpense,
-                                onValueChange = viewModel::onMonthlyExpenseChange,
-                                placeHolder = "Monthly Expense",
-                                label = "Monthly Expense"
-                            )
-                        }
+//                        item {
+//                            MoneyTextField(
+//                                value = monthlyExpense,
+//                                onValueChange = viewModel::onMonthlyExpenseChange,
+//                                placeHolder = "Monthly Expense",
+//                                label = "Monthly Expense"
+//                            )
+//                        }
 
                         item {
                             OnBoardingTextField(
                                 value = inflation,
-                                onValueChange = viewModel::onInflationChange,
+                                onValueChange = { input ->
+
+                                    if (input.isEmpty()) {
+                                        viewModel.onInflationChange("")
+                                        return@OnBoardingTextField
+                                    }
+
+                                    val isValid = input.matches(
+                                        Regex("""^\d+(\.\d{0,2})?$""")
+                                    )
+
+                                    if (isValid) {
+                                        viewModel.onInflationChange(input)
+                                    }
+                                },
                                 placeHolder = "Inflation %",
                                 label = "Inflation Rate(%)",
-                                keyboardType = KeyboardType.Number
+                                keyboardType = KeyboardType.Decimal
                             )
                         }
 
@@ -223,10 +263,24 @@ fun AddGoalOnboardingScreen(
                         item {
                             OnBoardingTextField(
                                 value = postReturn,
-                                onValueChange = viewModel::onPostReturnChange,
+                                onValueChange = { input ->
+
+                                    if (input.isEmpty()) {
+                                        viewModel.onPostReturnChange("")
+                                        return@OnBoardingTextField
+                                    }
+
+                                    val isValid = input.matches(
+                                        Regex("""^\d+(\.\d{0,2})?$""")
+                                    )
+
+                                    if (isValid) {
+                                        viewModel.onPostReturnChange(input)
+                                    }
+                                },
                                 placeHolder = "Post Retirement Return %",
                                 label = "Post Retirement Return(%)",
-                                keyboardType = KeyboardType.Number
+                                keyboardType = KeyboardType.Decimal
                             )
                         }
                     }
@@ -263,10 +317,24 @@ fun AddGoalOnboardingScreen(
                         item {
                             OnBoardingTextField(
                                 value = inflation,
-                                onValueChange = viewModel::onInflationChange,
+                                onValueChange = { input ->
+
+                                    if (input.isEmpty()) {
+                                        viewModel.onInflationChange("")
+                                        return@OnBoardingTextField
+                                    }
+
+                                    val isValid = input.matches(
+                                        Regex("""^\d+(\.\d{0,2})?$""")
+                                    )
+
+                                    if (isValid) {
+                                        viewModel.onInflationChange(input)
+                                    }
+                                },
                                 placeHolder = "Inflation %",
                                 label = "Inflation Rate(%)",
-                                keyboardType = KeyboardType.Number
+                                keyboardType = KeyboardType.Decimal
                             )
                         }
 
@@ -283,10 +351,15 @@ fun AddGoalOnboardingScreen(
                         item {
                             OnBoardingTextField(
                                 value = targetYear,
-                                onValueChange = viewModel::onTargetYearChange,
-                                placeHolder = "Target Year For Goal",
+                                onValueChange = {},
+                                placeHolder = "Select Target Year",
                                 label = "Target Year",
-                                keyboardType = KeyboardType.Number
+                                enabled = false,
+                                modifier = Modifier.clickable {
+                                    keyboardController.clearFocus()
+                                    focusManager.clearFocus()
+                                    showYearPicker()
+                                }
                             )
                         }
                     }

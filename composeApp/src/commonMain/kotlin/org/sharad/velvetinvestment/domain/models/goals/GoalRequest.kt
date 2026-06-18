@@ -3,8 +3,8 @@ package org.sharad.velvetinvestment.domain.models.goals
 sealed interface GoalRequest {
 
     val goalTypeId: Int
-    val inflationRate: Int
-    val returnRate: Int
+    val inflationRate: Double
+    val returnRate: Double
     val currentSavedAmount: Long
     val yearsToGoal:Int
     val title: String
@@ -16,8 +16,8 @@ sealed interface GoalRequest {
         val childAge: Int,
         override val yearsToGoal: Int,
         val currentGoalCost: Long,
-        override val inflationRate: Int,
-        override val returnRate: Int,
+        override val inflationRate: Double,
+        override val returnRate: Double,
         override val currentSavedAmount: Long, override val title: String
     ) : GoalRequest
 
@@ -27,8 +27,8 @@ sealed interface GoalRequest {
         val childAge: Int,
         override val yearsToGoal: Int,
         val currentGoalCost: Long,
-        override val inflationRate: Int,
-        override val returnRate: Int,
+        override val inflationRate: Double,
+        override val returnRate: Double,
         override val currentSavedAmount: Long, override val title: String
     ) : GoalRequest
 
@@ -40,9 +40,9 @@ sealed interface GoalRequest {
         val retirementAge: Int,
         val lifeExpectancy: Int,
         val currentMonthlyExpense: Long,
-        val postRetirementReturn: Int,
-        override val inflationRate: Int,
-        override val returnRate: Int,
+        val postRetirementReturn: Double,
+        override val inflationRate: Double,
+        override val returnRate: Double,
         override val currentSavedAmount: Long,
         override val yearsToGoal: Int, override val title: String
     ) : GoalRequest
@@ -56,8 +56,8 @@ sealed interface GoalRequest {
         val goalItemName: String,
         override val yearsToGoal: Int,
         val currentGoalCost: Long,
-        override val inflationRate: Int,
-        override val returnRate: Int,
+        override val inflationRate: Double,
+        override val returnRate: Double,
         override val currentSavedAmount: Long, override val title: String
     ) : GoalRequest
 }

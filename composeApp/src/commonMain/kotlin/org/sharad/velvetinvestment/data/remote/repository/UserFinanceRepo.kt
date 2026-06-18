@@ -85,7 +85,7 @@ class UserFinanceRepo(
             current_goal_cost = goal.currentGoalCost,
             current_saved_amount = goal.currentSavedAmount,
             goal_type_id = goal.goalTypeId,
-            inflation_rate = goal.inflationRate.toDouble(),
+            inflation_rate = goal.inflationRate,
             return_rate = goal.returnRate,
             years_left = goal.yearsToGoal
         )
@@ -103,7 +103,7 @@ class UserFinanceRepo(
             current_goal_cost = goal.currentGoalCost,
             current_saved_amount = goal.currentSavedAmount,
             goal_type_id = goal.goalTypeId,
-            inflation_rate = goal.inflationRate.toDouble(),
+            inflation_rate = goal.inflationRate,
             return_rate = goal.returnRate,
             years_left = goal.yearsToGoal
         )
@@ -120,11 +120,11 @@ class UserFinanceRepo(
             current_monthly_expense = goal.currentMonthlyExpense,
             current_saved_amount = goal.currentSavedAmount,
             goal_type_id = goal.goalTypeId,
-            inflation_rate = goal.inflationRate.toDouble(),
+            inflation_rate = goal.inflationRate,
             life_expectancy = goal.lifeExpectancy,
-            post_retirement_return = goal.postRetirementReturn.toDouble(),
+            post_retirement_return = goal.postRetirementReturn,
             retirement_age = goal.retirementAge,
-            return_rate = goal.returnRate.toDouble()
+            return_rate = goal.returnRate
         )
         return safeRequest<Unit> {
             client.post(getUrl("/user-goal")) {
@@ -141,8 +141,8 @@ class UserFinanceRepo(
             goal_item_name = goal.goalItemName,
             goal_name = goal.goalName,
             goal_type_id = goal.goalTypeId,
-            inflation_rate = goal.inflationRate.toDouble(),
-            return_rate = goal.returnRate.toDouble(),
+            inflation_rate = goal.inflationRate,
+            return_rate = goal.returnRate,
             years_left = goal.yearsToGoal
         )
         return safeRequest<Unit> {

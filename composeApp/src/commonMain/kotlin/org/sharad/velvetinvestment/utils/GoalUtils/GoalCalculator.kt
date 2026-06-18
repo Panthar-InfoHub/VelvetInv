@@ -8,7 +8,7 @@ object GoalCalculator {
 
     fun calculateFutureValue(
         presentValue: Long,
-        inflationRate: Int,
+        inflationRate: Double,
         years: Int
     ): Double {
         val i = inflationRate / 100.0
@@ -17,7 +17,7 @@ object GoalCalculator {
 
     fun calculateSip(
         futureValue: Double,
-        annualReturnRate: Int,
+        annualReturnRate: Double,
         years: Int
     ): Double {
 

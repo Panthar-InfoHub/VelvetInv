@@ -101,8 +101,8 @@ class GoalScreenOnboardingViewModel : ViewModel() {
 
         val option = values[0] as GoalOption?
 
-        val inflation = (values[1] as String).toIntOrNull()
-        val returns = (values[2] as String).toIntOrNull()
+        val inflation = (values[1] as String).toDoubleOrNull()
+        val returns = (values[2] as String).toDoubleOrNull()
 
         if (option == null || inflation == null || returns == null) return@combine false
 
@@ -128,7 +128,7 @@ class GoalScreenOnboardingViewModel : ViewModel() {
                 val retirementAge = (values[9] as? String)?.toIntOrNull()
                 val lifeExpectancy = (values[10] as? String)?.toIntOrNull()
                 val expense = (values[11] as? String)?.toLongOrNull()
-                val postReturn = (values[12] as? String)?.toIntOrNull()
+                val postReturn = (values[12] as? String)?.toDoubleOrNull()
 
                 currentAge != null &&
                         retirementAge != null &&
@@ -157,8 +157,8 @@ class GoalScreenOnboardingViewModel : ViewModel() {
     fun addGoal(onSuccess: () -> Unit) {
         val option = _selectedGoalOption.value ?: return
 
-        val inflation = _inflationRate.value.toIntOrNull() ?: return
-        val returns = _returnRate.value.toIntOrNull() ?: return
+        val inflation = _inflationRate.value.toDoubleOrNull() ?: return
+        val returns = _returnRate.value.toDoubleOrNull() ?: return
         val saved = _currentSavedAmount.value.toLongOrNull() ?: 0L
         val title= option.title
 
@@ -273,8 +273,8 @@ class GoalScreenOnboardingViewModel : ViewModel() {
 
 
     private fun createChildEducationGoal(
-        inflation: Int,
-        returns: Int,
+        inflation: Double,
+        returns: Double,
         saved: Long,
         title: String
     ): GoalRequest.ChildEducation? {
@@ -299,8 +299,8 @@ class GoalScreenOnboardingViewModel : ViewModel() {
     }
 
     private fun createChildMarriageGoal(
-        inflation: Int,
-        returns: Int,
+        inflation: Double,
+        returns: Double,
         saved: Long,
         title: String
     ): GoalRequest.ChildMarriage? {
@@ -326,8 +326,8 @@ class GoalScreenOnboardingViewModel : ViewModel() {
     }
 
     private fun createRetirementGoal(
-        inflation: Int,
-        returns: Int,
+        inflation: Double,
+        returns: Double,
         saved: Long,
         title: String
     ): GoalRequest.Retirement? {
@@ -336,7 +336,7 @@ class GoalScreenOnboardingViewModel : ViewModel() {
         val retirementAge = _retirementAge.value.toIntOrNull()
         val lifeExpectancy = _lifeExpectancy.value.toIntOrNull()
         val expense = _currentMonthlyExpense.value.toLongOrNull()
-        val postReturn = _postRetirementReturn.value.toIntOrNull()
+        val postReturn = _postRetirementReturn.value.toDoubleOrNull()
 
         if (currentAge == null || retirementAge == null || lifeExpectancy == null || expense == null || postReturn == null) return null
 
@@ -356,8 +356,8 @@ class GoalScreenOnboardingViewModel : ViewModel() {
 
     private fun createWealthGoal(
         option: GoalOption,
-        inflation: Int,
-        returns: Int,
+        inflation: Double,
+        returns: Double,
         saved: Long,
         title: String
     ): GoalRequest.WealthBuildingGoal? {
