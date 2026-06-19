@@ -10,5 +10,6 @@ data class PendingOrderDomain(
     val statusRemark: String,
     val amc: String,
     val frequency: String,
-    val startDate: String
+    val startDate: String,
+    val icon: String
 )

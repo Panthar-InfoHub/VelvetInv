@@ -53,7 +53,7 @@ fun InvestmentFilterScreen(
     onClose: () -> Unit,
     onCancelClick: () -> Unit,
     onApplyClick: (InvestmentFilter) -> Unit,
-    pv: PaddingValues
+    pv: PaddingValues = PaddingValues(0.dp)
 ) {
     var selectedGroupIndex by remember { mutableStateOf(0) }
 

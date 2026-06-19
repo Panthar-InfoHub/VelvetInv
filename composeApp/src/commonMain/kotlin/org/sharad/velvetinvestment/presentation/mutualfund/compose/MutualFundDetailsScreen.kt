@@ -95,7 +95,6 @@ import velvet.composeapp.generated.resources.icon_warning
 fun MutualFundDetailsScreenRoot(
     id: String,
     onBackClick: () -> Unit,
-    pv: PaddingValues,
     onCartClick: () -> Unit,
     onKycClick: () -> Unit,
     onTradingAccountClick: () -> Unit,
@@ -155,7 +154,6 @@ fun MutualFundDetailsScreenRoot(
                                     FundTypeSelector.updateFundTypeToSIP()
                                     viewModel.showBottomSheet()
                                 },
-                                pv = pv,
                                 value = "Add to Cart"
                             )
                         }
@@ -164,7 +162,6 @@ fun MutualFundDetailsScreenRoot(
                                 onClick = {
                                     viewModel.showBottomSheet()
                                 },
-                                pv = pv,
                                 value = "Add to Cart"
                             )
                         }

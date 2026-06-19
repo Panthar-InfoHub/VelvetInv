@@ -6,9 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
@@ -39,7 +37,6 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 
 @Composable
 fun SingleGoalScreen(
-    pv: PaddingValues,
     onBack: () -> Unit
 ) {
 
@@ -66,7 +63,8 @@ fun SingleGoalScreen(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 28.dp)
             ) {
 
                 item {
@@ -89,9 +87,6 @@ fun SingleGoalScreen(
                         )
                     }
                 }
-                item {
-                    Spacer(modifier = Modifier.height(pv.calculateBottomPadding() + 16.dp))
-                }
             }
 
             NextButtonFooter(
@@ -101,7 +96,6 @@ fun SingleGoalScreen(
                         onBack()
                     }
                 },
-                pv = pv,
                 enabled = data.isValid,
                 loading = loading
             )

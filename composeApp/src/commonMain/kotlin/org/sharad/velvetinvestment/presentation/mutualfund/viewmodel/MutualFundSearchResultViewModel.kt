@@ -42,7 +42,7 @@ class MutualFundSearchResultViewModel(
             emptyList()
         )
 
-    private val _selectedFilter = MutableStateFlow<LabelFilter?>(null)
+    private val _selectedFilter = MutableStateFlow<LabelFilter?>(fundCategory.toMutualFundLabel())
     val selectedFilter: StateFlow<LabelFilter?> = _selectedFilter
 
     private val _showFilterScreen = MutableStateFlow(false)
@@ -75,7 +75,7 @@ class MutualFundSearchResultViewModel(
 
             getMutualFundSearchResultUseCase(
                 search = search,
-                fundCategory = fundCategoryFilter ?: fundCategory,
+                fundCategory = fundCategoryFilter ?: selectedFilter.value?.id,
                 risk = risk,
                 category = category,
                 page = 1,
@@ -110,7 +110,7 @@ class MutualFundSearchResultViewModel(
 
             getMutualFundSearchResultUseCase(
                 search = search,
-                fundCategory = fundCategoryFilter ?: fundCategory,
+                fundCategory = fundCategoryFilter ?: selectedFilter.value?.id,
                 risk = risk,
                 category = category,
                 page = nextPage,
@@ -251,6 +251,19 @@ val defaultFilters: List<LabelFilter> = listOf(
     MutualFundLabel.LargeMidCap,
     MutualFundLabel.GlobalOthers
 )
+
+private fun String?.toMutualFundLabel(): MutualFundLabel? {
+
+    if (this == null) return null
+
+    return defaultFilters
+        .filterIsInstance<MutualFundLabel>()
+        .firstOrNull { it.id == this }
+        ?: MutualFundLabel.CustomLabel(
+            title = "Filter",
+            id = this
+        )
+}
 
 enum class SelectedReturnRatePeriod(val displayText: String){
     THREE_MONTH("3M"),

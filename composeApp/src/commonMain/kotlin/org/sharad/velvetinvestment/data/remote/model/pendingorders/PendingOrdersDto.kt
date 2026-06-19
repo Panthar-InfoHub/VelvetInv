@@ -70,5 +70,6 @@ data class RawDataDto(
     val second_holder_mobile: String? = null,
     val third_holder_email: String? = null,
     val third_holder_mobile: String? = null,
-    val member_unique_id: String? = null
+    val member_unique_id: String? = null,
+    val img_url: String? = null,
 )

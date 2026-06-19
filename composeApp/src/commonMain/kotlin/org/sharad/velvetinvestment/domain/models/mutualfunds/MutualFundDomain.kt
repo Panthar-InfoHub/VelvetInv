@@ -11,6 +11,8 @@ data class MutualFundDomain(
     val type: String,
     val returnYearsRate: ReturnYearsRateDomain,
     val latestNav: String,
+    val shortName1: String,
+    val shortName2: String,
 )
 
 data class ReturnYearsRateDomain(

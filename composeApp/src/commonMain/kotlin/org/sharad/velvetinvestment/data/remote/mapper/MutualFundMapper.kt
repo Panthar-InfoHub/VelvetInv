@@ -28,6 +28,8 @@ fun MutualFund.toDomain(): MutualFundDomain {
         type = scheme_type?:"",
         returnYearsRate = metrics.toReturnDomain(),
         latestNav = latest_nav?: "n/a",
+        shortName1 = display_name_001?:"",
+        shortName2 = display_name_002?:""
     )
 }
 

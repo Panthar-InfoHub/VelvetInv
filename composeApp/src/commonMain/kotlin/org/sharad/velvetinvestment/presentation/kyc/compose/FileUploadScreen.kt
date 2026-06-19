@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,8 +42,8 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.dottedBorder
-import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.SnackBarController
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.image_icon
 import velvet.composeapp.generated.resources.sign_icon
@@ -53,7 +52,6 @@ import velvet.composeapp.generated.resources.sign_icon
 fun FileUploadScreen(
     onBack: () -> Unit,
     onSuccessfulUpload: () -> Unit,
-    pv: PaddingValues
 ){
 
     val scope= rememberCoroutineScope()
@@ -153,7 +151,6 @@ fun FileUploadScreen(
                     onSuccessfulUpload()
                 }
             },
-            pv = pv,
             value = "Save and Continue",
             loading = loading,
             enabled = buttonEnabled

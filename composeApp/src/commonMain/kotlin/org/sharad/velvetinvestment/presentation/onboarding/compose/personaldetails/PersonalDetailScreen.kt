@@ -178,7 +178,7 @@ fun PersonalDetailScreen(
 }
 
 @Composable
-fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues, value: String = "Next", enabled: Boolean=true, loading: Boolean=false) {
+fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues = PaddingValues(0.dp), value: String = "Next", enabled: Boolean=true, loading: Boolean=false) {
     Box(
         modifier = Modifier
             .fillMaxWidth()

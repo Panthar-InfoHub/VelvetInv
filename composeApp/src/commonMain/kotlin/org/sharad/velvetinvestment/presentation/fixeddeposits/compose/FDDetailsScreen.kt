@@ -81,7 +81,6 @@ import org.sharad.velvetinvestment.utils.withInterRupee
 fun FDDetailsScreenRoot(
     id: String,
     onBackClick: () -> Unit,
-    pv: PaddingValues,
     onPurchaseClick: () -> Unit,
 ) {
     val viewModel: FDDetailsViewModel = koinViewModel { parametersOf(id) }
@@ -147,7 +146,6 @@ fun FDDetailsScreenRoot(
             }
             FDDetailsScreen(
                 data = data,
-                pv = pv,
                 showPayout = { viewModel.openSheet(FDModalType.PAYOUT) },
                 showApplicable = { viewModel.openSheet(FDModalType.APPLICABLE) },
                 showInvestAmount= {viewModel.openSheet(FDModalType.INVEST)},
@@ -160,7 +158,6 @@ fun FDDetailsScreenRoot(
 @Composable
 fun FDDetailsScreen(
     data: FDDetailsDomain,
-    pv: PaddingValues,
     showPayout: () -> Unit,
     showApplicable: () -> Unit,
     showInvestAmount: () -> Unit,
@@ -216,7 +213,6 @@ fun FDDetailsScreen(
         }
 
         NextButtonFooter(
-            pv = pv,
             onClick = {onPurchaseClick()},
             value = "Invest Now",
             enabled = true,

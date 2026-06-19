@@ -21,7 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,10 +46,10 @@ import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUi
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
+import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
-import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
 import velvet.composeapp.generated.resources.clipboard
@@ -87,98 +86,94 @@ fun ProfileScreen(
         uiState = state,
         onRetry = { viewModel.loadHomeData() }
     ) { data: HomeScreenUiData ->
-        Scaffold(
-            containerColor = Color.White
-        ) { pv ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(pv),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                contentPadding = PaddingValues(bottom = 60.dp),
-            ) {
-                item {
-                    ProfileTopBar()
-                }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(bottom = 60.dp),
+        ) {
+            item {
+                ProfileTopBar()
+            }
 
-                item {
-                    BarHeader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        "Account Setting"
-                    )
-                }
+            item {
+                BarHeader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    "Account Setting"
+                )
+            }
 
-                item {
-                    AccountSettingsCard(
-                        onPersonalInfoClick = navigateToPersonalInfo
-                    )
-                }
+            item {
+                AccountSettingsCard(
+                    onPersonalInfoClick = navigateToPersonalInfo
+                )
+            }
 
-                item {
-                    BarHeader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        "Preferences"
-                    )
-                }
+            item {
+                BarHeader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    "Preferences"
+                )
+            }
 
-                item {
-                    PreferencesCard(
-                        onNotificationClick = navigateToNotification
-                    )
-                }
+            item {
+                PreferencesCard(
+                    onNotificationClick = navigateToNotification
+                )
+            }
 
-                item {
-                    BarHeader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        "KYC"
-                    )
-                }
+            item {
+                BarHeader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    "KYC"
+                )
+            }
 
-                item {
-                    KYCCard(
-                        status = if (data.kycCompletion && data.tradingAccountCompletion) "Verified" else "Pending verification",
-                        onKYCClick = navigateToKYC
-                    )
-                }
+            item {
+                KYCCard(
+                    status = if (data.kycCompletion && data.tradingAccountCompletion) "Verified" else "Pending verification",
+                    onKYCClick = navigateToKYC
+                )
+            }
 
-                item {
-                    BarHeader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        "Help Center"
-                    )
-                }
+            item {
+                BarHeader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    "Help Center"
+                )
+            }
 
-                item {
-                    LegalCard(
-                        onPrivacyPolicyClick = navigateToPrivacyPolicy,
-                        onTermsAndConditionsClick = navigateToTermsAndConditions,
-                        onAboutUsClick = navigateToAboutUs,
-                        onAboutVelvetClick = navigateToAboutVelvet,
-                        onAboutFireClick = navigateToAboutFire
-                    )
-                }
+            item {
+                LegalCard(
+                    onPrivacyPolicyClick = navigateToPrivacyPolicy,
+                    onTermsAndConditionsClick = navigateToTermsAndConditions,
+                    onAboutUsClick = navigateToAboutUs,
+                    onAboutVelvetClick = navigateToAboutVelvet,
+                    onAboutFireClick = navigateToAboutFire
+                )
+            }
 
-                item {
-                    SignOutButton(
-                        onClick = {
-                            scope.launch {
-                                signOutUseCase()
-                                    .onSuccess {
-                                        onSignOut()
-                                    }
-                                    .onError {
-                                        SnackBarController.showError(it.message)
-                                    }
-                            }
+            item {
+                SignOutButton(
+                    onClick = {
+                        scope.launch {
+                            signOutUseCase()
+                                .onSuccess {
+                                    onSignOut()
+                                }
+                                .onError {
+                                    SnackBarController.showError(it.message)
+                                }
                         }
-                    )
-                }
+                    }
+                )
             }
         }
     }
@@ -189,7 +184,7 @@ fun ProfileTopBar() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(start = 16.dp, end = 16.dp, top=8.dp),
         contentAlignment = Alignment.Center
     ) {
 
@@ -217,52 +212,6 @@ fun ProfileTopBar() {
 //        }
     }
 }
-
-@Composable
-fun ProfileHeader(image: String, name: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(color = Primary, shape = CircleShape),
-            contentAlignment = Alignment.Center
-        ){
-
-            Text(
-                text = name.take(1),
-                fontFamily = Poppins,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 40.sp
-            )
-
-//            AsyncImage(
-//                modifier = Modifier.fillMaxSize(),
-//                contentDescription = null,
-//                model = image,
-//                fallback = painterResource(Res.drawable.profile_icon),
-//                error = painterResource(Res.drawable.profile_icon),
-//                placeholder = painterResource(Res.drawable.profile_icon)
-//            )
-        }
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        Text(
-            text = name,
-            fontFamily = Poppins,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 24.sp
-        )
-    }
-}
-
 @Composable
 fun AccountSettingsCard(onPersonalInfoClick: () -> Unit) {
     ShadowCard(
@@ -296,7 +245,7 @@ fun AccountSettingsCard(onPersonalInfoClick: () -> Unit) {
 fun PreferencesCard(onNotificationClick: () -> Unit) {
     ShadowCard(
         modifier = Modifier.padding(horizontal = 16.dp)
-        ) {
+    ) {
         Column(modifier = Modifier) {
             RowItem(
                 icon = Res.drawable.notification_icon,
@@ -410,27 +359,29 @@ fun RowItem(
     onCLick: () -> Unit = {}
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().clickable{onCLick()},
+        modifier = Modifier.fillMaxWidth().clickable { onCLick() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal=16.dp, vertical = 12.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        )
         {
 
             Box(
-                modifier=Modifier.size(40.dp)
+                modifier = Modifier.size(40.dp)
                     .clip(RoundedCornerShape(15.dp))
                     .background(
                         color = Color(0xFFDEE2F6),
                         shape = RoundedCornerShape(8.dp)
                     ),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Icon(
                     painter = painterResource(icon),
                     contentDescription = title,
-                    tint= Primary,
+                    tint = Primary,
                     modifier = Modifier
                         .size(24.dp)
                 )
@@ -439,7 +390,7 @@ fun RowItem(
             Spacer(modifier = Modifier.width(20.dp))
 
             Column(
-                modifier=Modifier.weight(1f)
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = title,
@@ -489,9 +440,11 @@ fun SignOutButton(onClick: () -> Unit) {
                 contentDescription = "Signup Button Icon"
             )
             Spacer(modifier = Modifier.width(5.dp))
-            Text("Sign Out",
+            Text(
+                "Sign Out",
                 fontFamily = Poppins,
-                fontSize = 20.sp)
+                fontSize = 20.sp
+            )
         }
     }
 }

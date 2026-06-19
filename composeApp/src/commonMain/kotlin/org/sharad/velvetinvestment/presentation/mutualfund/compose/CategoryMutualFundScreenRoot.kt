@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -59,7 +59,6 @@ fun CategoryMutualFundScreenRoot(
     onBackClick: () -> Unit,
     onIconClick: () -> Unit,
     onFundClick: (String) -> Unit,
-    pv: PaddingValues,
     onSearchClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
     onBundleClick:() -> Unit,
@@ -79,7 +78,6 @@ fun CategoryMutualFundScreenRoot(
         onBackClick = onBackClick,
         onIconClick = onIconClick,
         onFundClick = onFundClick,
-        pv = pv,
         onSearchClick = onSearchClick,
         onCategoryClick = onCategoryClick,
         onBundleClick = onBundleClick,
@@ -97,7 +95,6 @@ fun CategoryMutualFundScreenRootContent(
     onBackClick: () -> Unit,
     onIconClick: () -> Unit,
     onFundClick: (String) -> Unit,
-    pv: PaddingValues,
     onSearchClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
     onBundleClick: () -> Unit,
@@ -109,6 +106,7 @@ fun CategoryMutualFundScreenRootContent(
         modifier = Modifier.fillMaxSize()
             .clearFocusOnTap()
             .background(Color.White)
+            .imePadding()
     ) {
         ScreenHeader(
             onBackClick = { onBackClick() },
@@ -134,7 +132,6 @@ fun CategoryMutualFundScreenRootContent(
                         onFundClick = {onFundClick(it)},
                         searchText =searchText,
                         onTextChange = onSearchTextChange,
-                        pv =pv,
                         onSearchClick = {onSearchClick(searchText)},
                         onBundledFundClick = {onBundledFundClick(it)},
                         onBundleClick = {onBundleClick()}
@@ -152,7 +149,6 @@ fun CategoryMutualFundScreen(
     onFundClick: (String) -> Unit,
     searchText: String,
     onTextChange: (String) -> Unit,
-    pv: PaddingValues,
     onSearchClick: (String) -> Unit,
     funds: List<CategoryMutualFundDomain>,
     onBundledFundClick: (String) -> Unit,
@@ -162,7 +158,7 @@ fun CategoryMutualFundScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 28.dp )
     ) {
         item {
             AppSearchBar(
@@ -243,9 +239,6 @@ fun CategoryMutualFundScreen(
                 }
             }
         }
-        item{
-            Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp))
-        }
     }
 
 }
@@ -255,7 +248,8 @@ fun CategoryMutualFundScreen(
 @Composable
 private fun ScreenHeader(onIconClick: () -> Unit, onBackClick: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 12.dp),
+        modifier = Modifier.fillMaxWidth()
+            .padding(bottom = 16.dp, start = 12.dp, end = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -313,7 +307,8 @@ private fun CategoryMutualFundScreenRootPreview() {
                 year1 = 15.0,
                 year3 = 45.0
             ),
-            latestNav = "78.5"
+            latestNav = "78.5",
+            "",""
         ),
         MutualFundDomain(
             id = "2",
@@ -329,7 +324,7 @@ private fun CategoryMutualFundScreenRootPreview() {
                 year1 = 13.4,
                 year3 = 38.0
             ),
-            latestNav = "52.7"
+            latestNav = "52.7","",""
         ),
         MutualFundDomain(
             id = "3",
@@ -345,7 +340,7 @@ private fun CategoryMutualFundScreenRootPreview() {
                 year1 = 11.2,
                 year3 = 31.5
             ),
-            latestNav = "102.3"
+            latestNav = "102.3","",""
         ),
         MutualFundDomain(
             id = "4",
@@ -361,7 +356,7 @@ private fun CategoryMutualFundScreenRootPreview() {
                 year1 = 18.7,
                 year3 = 49.2
             ),
-            latestNav = "36.2"
+            latestNav = "36.2","",""
         )
     )
 
@@ -409,7 +404,6 @@ private fun CategoryMutualFundScreenRootPreview() {
             onBackClick = {},
             onIconClick = {},
             onFundClick = {},
-            pv = PaddingValues(0.dp),
             onSearchClick = {},
             onCategoryClick = {},
             onBundleClick = {},

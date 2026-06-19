@@ -56,7 +56,6 @@ import org.sharad.velvetinvestment.utils.withInterRupee
 @Composable
 fun FDPurchaseScreenRoot(
     onBackClick: () -> Unit,
-    pv: PaddingValues,
     id: String,
 ) {
 
@@ -84,7 +83,6 @@ fun FDPurchaseScreenRoot(
                     onAmountChange=viewModel::updateAmount,
                     onTenureChange=viewModel::updateTenure,
                     onFrequencyChange=viewModel::updateFrequency,
-                    pv=pv,
                     buttonEnabled = buttonEnabled,
                     onButtonClick = { viewModel.purchaseFD(){
                         onBackClick()
@@ -101,7 +99,6 @@ fun FDPurchaseScreen(
     onAmountChange: (String) -> Unit,
     onTenureChange: (FDTenureDomain) -> Unit,
     onFrequencyChange: (PayoutType) -> Unit,
-    pv: PaddingValues,
     buttonEnabled: Boolean,
     onButtonClick: () -> Unit
 ) {
@@ -185,7 +182,6 @@ fun FDPurchaseScreen(
                 onButtonClick()
             },
             enabled = buttonEnabled,
-            pv = pv,
             loading = data.loading
         )
     }

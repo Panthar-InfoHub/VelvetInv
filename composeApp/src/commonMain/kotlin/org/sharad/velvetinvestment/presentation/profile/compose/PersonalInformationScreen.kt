@@ -2,7 +2,6 @@ package org.sharad.velvetinvestment.presentation.profile.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +15,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
@@ -30,7 +31,6 @@ import org.sharad.velvetinvestment.shared.theme.Poppins
 @Composable
 fun PersonalInformationScreen(
     onBack: () -> Unit,
-    pv: PaddingValues,
     viewModel: PersonalInfoViewModel = koinViewModel()
 ) {
     val state by viewModel.personalInfoState.collectAsState()
@@ -90,10 +90,10 @@ fun PersonalInfoContent(data: PersonalInfoUiData) {
         }
 
         item {
-            DisplayRow(label = "Trading Account Status", value = data.kycStatusTrading)
+            DisplayRow(label = "Trading Account Status", value = data.kycStatusTrading.capitalize(Locale.current))
         }
         item {
-            DisplayRow(label = "KYC Status", value = data.kycStatusMf)
+            DisplayRow(label = "KYC Status", value = data.kycStatusMf.capitalize(Locale.current))
         }
 
         item { Spacer(modifier = Modifier.height(32.dp)) }

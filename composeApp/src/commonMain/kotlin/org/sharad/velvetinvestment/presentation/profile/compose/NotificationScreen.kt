@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,7 +36,7 @@ import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.push_notifications_rafiki_1
 
 @Composable
-fun NotificationScreen(onBack: () -> Unit, pv: PaddingValues) {
+fun NotificationScreen(onBack: () -> Unit, ) {
     var selected by remember { mutableStateOf("Alert") }
     Column() {
         BackHeader(

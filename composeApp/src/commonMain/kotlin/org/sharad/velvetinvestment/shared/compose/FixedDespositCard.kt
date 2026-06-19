@@ -22,9 +22,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import org.jetbrains.compose.resources.painterResource
+import org.sharad.emify.core.ui.theme.appOrange
 import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
@@ -86,6 +88,7 @@ fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
                     Text(
                         text = fdData.issuerDisplayName,
                         style = MaterialTheme.typography.labelLarge,
+                        lineHeight = 22.sp,
                         color = Color.Black
                     )
                     Text(
@@ -123,6 +126,13 @@ fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
                     style = tinyLabel.copy(fontWeight = FontWeight.Normal)
                 )
             }
+            if (fdData.maturityAmount==null){
+                Text(
+                    text = "Action Pending",
+                    color = appOrange,
+                    style = tinyLabel
+                )
+            }
 
         }
     }
@@ -138,7 +148,7 @@ private fun FixedDepositCardPreview() {
         tenureAtBooking = 12,
         fdIssuedAt = "2023-10-12",
         status = "Active",
-        maturityAmount = "107500",
+        maturityAmount = null,
         userId = "user123",
         userFullName = "John Doe",
         userEmail = "john@example.com",

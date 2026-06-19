@@ -3,7 +3,6 @@ package org.sharad.velvetinvestment.presentation.kyc.compose
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,7 +26,7 @@ import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import org.sharad.velvetinvestment.utils.tradingaccount.OccupationType
 
 @Composable
-fun KYCFormScreen(pv: PaddingValues, onNext: (String) -> Unit, onBack: () -> Unit){
+fun KYCFormScreen(onNext: (String) -> Unit, onBack: () -> Unit){
     val viewModel: KYCFormScreenViewModel = koinViewModel()
     val loading by viewModel.isLoading.collectAsStateWithLifecycle()
     val isDataLoaded by viewModel.isDataLoaded.collectAsStateWithLifecycle()
@@ -47,13 +46,12 @@ fun KYCFormScreen(pv: PaddingValues, onNext: (String) -> Unit, onBack: () -> Uni
         LoaderScreen()
     }
     else{
-        FormContent(pv=pv, onNext= {it-> onNext(it) }, onBack=onBack, viewModel=viewModel)
+        FormContent(onNext= {it-> onNext(it) }, onBack=onBack, viewModel=viewModel)
     }
 }
 
 @Composable
 fun FormContent(
-    pv: PaddingValues,
     onNext: (String) -> Unit,
     onBack: () -> Unit,
     viewModel: KYCFormScreenViewModel
@@ -237,7 +235,6 @@ fun FormContent(
                     onNext(state.name)
                 }
             },
-            pv=pv,
             value = "Confirm",
             loading=loading,
             enabled = buttonEnabled

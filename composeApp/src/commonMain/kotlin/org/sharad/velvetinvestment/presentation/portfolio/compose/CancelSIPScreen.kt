@@ -3,7 +3,6 @@ package org.sharad.velvetinvestment.presentation.portfolio.compose
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,7 +29,6 @@ fun CancelSIPConfirmationScreen(
     onConfirmClick: (String) -> Unit,
     onCancelClick: () -> Unit,
     id: String,
-    pv: PaddingValues
 ){
 
     Column(
@@ -78,7 +76,6 @@ fun CancelSIPConfirmationScreen(
             backText ="Don’t Cancel",
             onContinue = { onConfirmClick(id) },
             onBack = onCancelClick,
-            pv = pv,
         )
     }
 

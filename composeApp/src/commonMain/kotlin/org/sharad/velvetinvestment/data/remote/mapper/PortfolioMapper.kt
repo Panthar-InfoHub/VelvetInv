@@ -183,7 +183,8 @@ fun PendingOrderDto.toDomain(): PendingOrderDomain {
         statusRemark = status_remark ?: "",
         amc = amc ?: "",
         frequency = frequency ?: "",
-        startDate = start_date ?: ""
+        startDate = start_date ?: "",
+        icon = raw_data?.img_url ?: "",
     )
 }
 

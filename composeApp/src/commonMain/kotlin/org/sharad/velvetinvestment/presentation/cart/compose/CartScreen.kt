@@ -6,7 +6,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -60,7 +59,6 @@ import velvet.composeapp.generated.resources.wallet_icon
 
 @Composable
 fun CartScreen(
-    pv: PaddingValues,
     onBack: () -> Unit
 ){
 
@@ -155,7 +153,6 @@ fun CartScreen(
                 onClick = {
                     viewModel.showPopup()
                 },
-                pv = pv,
                 value = if (total == 0L) "No Fund Added to the Cart" else "Pay ₹${formatMoneyAfterL(total)}",
                 loading = loading,
                 enabled = isPurchaseEnabled

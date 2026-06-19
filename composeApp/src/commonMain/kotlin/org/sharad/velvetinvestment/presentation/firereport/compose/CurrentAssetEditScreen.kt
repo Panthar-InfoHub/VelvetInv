@@ -1,26 +1,30 @@
 package org.sharad.velvetinvestment.presentation.firereport.compose
 
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-
 import org.sharad.velvetinvestment.presentation.firereport.viewmodel.CurrentAssetEditViewModel
-import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.*
+import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.AssetHolding
+import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.CASUploadScreenDialog
+import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.InfoHeader
+import org.sharad.velvetinvestment.presentation.onboarding.compose.currentassets.TotalAssets
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
-import org.sharad.velvetinvestment.presentation.onboarding.models.AssetFlowDetails
-
 import org.sharad.velvetinvestment.shared.UiStateContainer
-import org.sharad.velvetinvestment.shared.compose.*
+import org.sharad.velvetinvestment.shared.compose.BackHeader
 
 @Composable
 fun CurrentAssetEditScreen(
     onBackClick: () -> Unit,
-    pv: PaddingValues
 ) {
     val viewModel: CurrentAssetEditViewModel = koinViewModel()
 
@@ -47,7 +51,8 @@ fun CurrentAssetEditScreen(
                     .weight(1f)
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                contentPadding = PaddingValues(bottom = 28.dp)
             ) {
 
                 item {
@@ -70,16 +75,10 @@ fun CurrentAssetEditScreen(
                     TotalAssets(totalAssets = totalAssets)
                 }
 
-                item {
-                    Spacer(
-                        modifier = Modifier.height(80.dp + pv.calculateBottomPadding())
-                    )
-                }
             }
 
             NextButtonFooter(
                 onClick = { viewModel.onSubmit { onBackClick() } },
-                pv = pv,
                 value = "Submit Changes",
                 loading = loading
             )

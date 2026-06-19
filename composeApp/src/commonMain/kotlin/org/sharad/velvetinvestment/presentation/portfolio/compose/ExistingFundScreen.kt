@@ -24,7 +24,6 @@ import org.sharad.velvetinvestment.shared.compose.FolioFundCard
 fun ExistingFundScreenRoot(
     onBack: () -> Unit,
     onFundClick: (id: String, folio: String) -> Unit,
-    pv: PaddingValues
 ) {
     val viewModel: PortfolioScreenViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
@@ -44,7 +43,8 @@ fun ExistingFundScreenRoot(
         ) { data ->
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 28.dp)
             ) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
                 items(data.mutualFunds, key = { it.id }) { fund ->
@@ -53,7 +53,6 @@ fun ExistingFundScreenRoot(
                         onClick = { onFundClick(fund.id, fund.folio) }
                     )
                 }
-                item { Spacer(modifier = Modifier.height(pv.calculateBottomPadding() + 16.dp)) }
             }
         }
     }

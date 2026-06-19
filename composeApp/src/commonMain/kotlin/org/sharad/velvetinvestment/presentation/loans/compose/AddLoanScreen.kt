@@ -2,7 +2,6 @@ package org.sharad.velvetinvestment.presentation.loans.compose
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -28,7 +27,6 @@ import org.sharad.velvetinvestment.utils.clearFocusOnTap
 @Composable
 fun AddLoanScreen(
     loanId: String? = null,
-    pv: PaddingValues,
     onBack: () -> Unit
 ) {
     val viewModel: AddLoanViewModel = koinViewModel { parametersOf(loanId) }
@@ -115,7 +113,6 @@ fun AddLoanScreen(
                     onBack()
                 }
             },
-            pv = pv,
             loading = loading
         )
     }

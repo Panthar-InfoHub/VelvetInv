@@ -37,7 +37,6 @@ fun LoansScreen(
     onBack: () -> Unit,
     onAddClick: () -> Unit,
     onEditClick: (String) -> Unit,
-    pv: PaddingValues
 ) {
     val viewModel: LoanInfoViewModel = koinViewModel()
     val uiState by viewModel.loans.collectAsStateWithLifecycle()
@@ -79,7 +78,7 @@ fun LoansScreen(
                 )
             }
         }
-        Box(modifier = Modifier.padding(pv).padding(16.dp)) {
+        Box(modifier = Modifier.padding(16.dp)) {
             AppButton(
                 text = "Add Loan",
                 onClick = onAddClick,

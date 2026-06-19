@@ -64,7 +64,6 @@ import org.sharad.velvetinvestment.utils.SnackBarController
 
 @Composable
 fun AppNavigation(onSignOut: () -> Unit) {
-
     LaunchedEffect(Unit){
         AppEventsController.appEvent.collect {
             when(it){
@@ -81,7 +80,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
     Scaffold(
         containerColor = Color.White
     ) {
-        val pv=it
         val navController= rememberNavController()
         NavHost(
             navController = navController,
@@ -278,7 +276,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     data = data,
-                    pv = pv
                 )
             }
             composable<Route.SIPCancellationScreen> {
@@ -291,7 +288,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     onCancelClick = { navController.popBackStack() },
-                    pv = pv
                 )
             }
             composable<Route.CancelSIPReason> {
@@ -300,7 +296,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     id = id,
                     onConfirmClick = {},
                     onBackClick = { navController.popBackStack() },
-                    pv = pv
                 )
             }
 
@@ -309,14 +304,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 FDPortfolioDetailsScreen(
                     id = id,
                     onBackClick = { navController.popBackStack() },
-                    pv = pv,
                 )
             }
 
             composable<Route.CategoryMutualFund> {
                 CategoryMutualFundScreenRoot(
                     onBackClick = { navController.popBackStack() },
-                    pv = pv,
                     onIconClick = {
                         navController.navigate(Route.CartScreen){
                             launchSingleTop=true
@@ -348,7 +341,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.MutualFundSearchResult> {
                 MutualFundSearchScreenRoot(
                     onBackClick = { navController.popBackStack() },
-                    pv = pv,
                     heading = "Mutual Funds",
                     onFundClick = {
                         navController.navigate(Route.MutualFundDetails(it)) {
@@ -367,7 +359,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 val folioId = it.toRoute<Route.MutualFundDetails>().folioId
                 MutualFundDetailsScreenRoot(
                     onBackClick = { navController.popBackStack() },
-                    pv = pv,
                     id = id,
                     folioId=folioId,
                     onCartClick = {
@@ -433,21 +424,18 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.FinancialFlowEdit> {
                 FinancialFlowEditScreen(
                     onBackClick = { navController.popBackStack() },
-                    pv = pv
                 )
             }
 
             composable<Route.InsuranceCoverageEdit> {
                 InsuranceCoverageEditScreen(
                     onBackClick = { navController.popBackStack() },
-                    pv = pv
                 )
             }
 
             composable<Route.CurrentAssetEdit> {
                 CurrentAssetEditScreen(
                     onBackClick = { navController.popBackStack() },
-                    pv = pv
                 )
             }
 
@@ -478,7 +466,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
                         }
                     },
-                    pv = pv
                 )
             }
             composable<Route.KYCFormScreen> {
@@ -490,7 +477,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
                         }
                     },
-                    pv = pv
                 )
             }
             composable<Route.KYCImageUploadScreen> {
@@ -503,7 +489,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
                         }
                     },
-                    pv = pv
                 )
             }
             composable<Route.KYCContractScreen> {
@@ -524,7 +509,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
-                    pv = pv
                 )
             }
 
@@ -554,7 +538,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
-                    pv = pv,
                     onGoalClick = {id->
                         navController.navigate(Route.GoalProjectionFlow(id))
                     }
@@ -580,7 +563,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             composable<Route.LoansFlowScreen> {
                 LoanFlowScreen(
-                    pv = pv,
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -588,13 +570,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.Notifications> {
                 NotificationScreen(
                     onBack = { navController.popBackStack() },
-                    pv = pv,
                 )
             }
             composable<Route.PersonalInformation> {
                 PersonalInformationScreen(
                     onBack = { navController.popBackStack() },
-                    pv = pv,
                 )
             }
             composable<Route.PrivacyPolicy> {
@@ -654,7 +634,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 FDSearchScreenRoot(
                     search=search,
                     onBackClick = { navController.popBackStack() },
-                    pv = pv,
                     heading = "Fixed Deposit",
                     onFDClick = {id->
                         navController.navigate(Route.FixedDepositDetails(id))
@@ -668,7 +647,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 val id = it.toRoute<Route.FixedDepositDetails>().id
                 FDDetailsScreenRoot(
                     onBackClick = { navController.popBackStack() },
-                    pv = pv,
                     id = id,
                     onPurchaseClick = { navController.navigate(Route.PurchaseFixedDeposit(id)) }
                 )
@@ -677,13 +655,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 val id = it.toRoute<Route.PurchaseFixedDeposit>().id
                 FDPurchaseScreenRoot(
                     onBackClick = { navController.popBackStack() },
-                    pv = pv,
                     id = id
                 )
             }
             composable<Route.CartScreen> {
                 CartScreen(
-                    pv = pv,
                     onBack = {
                         navController.popBackStack()
                     }
@@ -713,7 +689,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             composable<Route.SingleGoadAdd> {
                 SingleGoalScreen(
-                    pv = pv,
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -769,7 +744,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     onCartClick = {
                         navController.navigate(Route.CartScreen)
                     },
-                    pv = pv
                 )
             }
 
@@ -789,14 +763,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
-                    pv = pv
                 )
             }
 
             composable<Route.ExistingFundLumpSumScreen> {
                 ExistingFundLumpSumScreen(
                     onBack = { navController.popBackStack() },
-                    pv = pv
                 )
             }
 
@@ -832,7 +804,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop=true
                         }
                     },
-                    pv = pv
                 )
             }
 

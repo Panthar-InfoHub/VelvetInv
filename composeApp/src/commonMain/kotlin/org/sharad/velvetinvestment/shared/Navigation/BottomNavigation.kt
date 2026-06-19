@@ -1,5 +1,7 @@
 package org.sharad.velvetinvestment.shared.Navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -11,8 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -114,10 +114,10 @@ fun BottomNavigation(
         },
         containerColor = Color.White
     ) {
-        val pv=it
         NavHost(
             navController = navController,
-            modifier=Modifier.fillMaxSize().padding(bottom = pv.calculateBottomPadding()),
+            modifier=Modifier.fillMaxSize()
+                .padding(bottom = it.calculateBottomPadding()),
             startDestination = Route.Home,
             // Dynamic horizontal animations based on bottom nav index
             enterTransition = {
@@ -189,7 +189,6 @@ fun BottomNavigation(
             composable<Route.Home> {
                 HomeScreenMain(
                     viewModel = homeViewModel,
-                    pv = pv,
                     navigateToFireReportScreen=navigateToFireReportScreen,
                     navigateToKYCScreen=navigateToKYCScreen,
                     navigateToGoalScreen=navigateToGoalScreen,
@@ -217,7 +216,6 @@ fun BottomNavigation(
             }
             composable<Route.FundScreener> {
                 ExploreFundScreen(
-                    pv=pv,
                     onMFClick={navigateToCategoryMutualFundScreen()},
                     onFDClick=navigateToCategoryFDScreen,
                     navigateToSpecificMF = {mf->navigateToMutualFundDetailScreen(mf)},
@@ -233,7 +231,6 @@ fun BottomNavigation(
                         navigateToSIPDetailsScreen(it)
                     },
                     onFDClick = navigateToPortfolioFdDetailsScreen,
-                    pv=pv,
                     navigateToCategoryMutualFundScreen=navigateToCategoryMutualFundScreen,
                     navigateToCategoryFDScreen=navigateToCategoryFDScreen
                 )

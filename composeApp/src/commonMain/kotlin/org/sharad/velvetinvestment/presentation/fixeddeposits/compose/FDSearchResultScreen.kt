@@ -60,7 +60,6 @@ fun FDSearchScreenRoot(
     onFDClick: (String) -> Unit,
     onSearchClick: (String) -> Unit,
     heading: String,
-    pv: PaddingValues,
     search: String?,
 ) {
 
@@ -98,7 +97,6 @@ fun FDSearchScreenRoot(
                     FDSearchScreen(
                         result = sortedFD,
                         onFDClick = onFDClick,
-                        pv = pv,
                         isLoadingNext =isLoadingNext,
                         hasNextPage = hasNextPage,
                         loadNext =viewModel::loadNext,
@@ -143,7 +141,6 @@ fun FDSearchScreenRoot(
                     viewModel.applyFilter(it)
                     viewModel.toggleFilterScreen()
                 },
-                pv = pv
             )
         }
 
@@ -162,7 +159,6 @@ fun LoadingState.toUiState(): UiState<Unit> {
 fun FDSearchScreen(
     result: List<FixedDepositDomain>,
     onFDClick: (String) -> Unit,
-    pv: PaddingValues,
     selectedYear: Int,
     selectedFilter: LabelFilter?,
     onFilterSelected: (LabelFilter) -> Unit,
@@ -190,7 +186,8 @@ fun FDSearchScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(top=4.dp),
-        state = lazyListState
+        state = lazyListState,
+        contentPadding = PaddingValues(bottom = 28.dp)
     ) {
 
         item {
@@ -239,7 +236,6 @@ fun FDSearchScreen(
             }
         }
 
-        item { Spacer(Modifier.height(pv.calculateBottomPadding()+20.dp)) }
         item {
             PaginationFooter(hasNextPage = hasNextPage)
         }

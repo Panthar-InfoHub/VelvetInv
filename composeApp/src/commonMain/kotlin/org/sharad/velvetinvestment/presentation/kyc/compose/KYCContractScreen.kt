@@ -7,7 +7,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,8 +46,8 @@ import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KycContractViewMo
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
-import org.sharad.velvetinvestment.utils.pdfutils.PdfViewer
 import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.utils.pdfutils.PdfViewer
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.sign_icon
 
@@ -56,7 +55,6 @@ import velvet.composeapp.generated.resources.sign_icon
 fun KycContractScreen(
     onBack: () -> Unit,
     onSuccessfulUpload: () -> Unit,
-    pv: PaddingValues
 ){
 
     val viewModel: KycContractViewModel = koinViewModel()
@@ -92,7 +90,6 @@ fun KycContractScreen(
     ) { data ->
         KycContactScreenMain(
             onBack = onBack,
-            pv = pv,
             pfd = data,
             finalizeLoading = finalizeLoading,
             isChecked = checked,
@@ -111,7 +108,6 @@ fun KycContractScreen(
 @Composable
 fun KycContactScreenMain(
     onBack: () -> Unit,
-    pv: PaddingValues,
     finalizeLoading: Boolean,
     onFinalizeClick: () -> Unit,
     pfd: String,
@@ -151,7 +147,6 @@ fun KycContactScreenMain(
 
         NextButtonFooter(
             onClick = onFinalizeClick,
-            pv = pv,
             value = "Complete KYC",
             loading = finalizeLoading,
             enabled = isChecked

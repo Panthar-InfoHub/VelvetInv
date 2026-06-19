@@ -3,7 +3,9 @@ package org.sharad.velvetinvestment.shared.Navigation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -11,6 +13,7 @@ import androidx.navigation.toRoute
 import org.koin.compose.koinInject
 import org.sharad.velvetinvestment.presentation.onboarding.compose.OnboardingScreenRoot
 import org.sharad.velvetinvestment.utils.WindowSize
+import org.sharad.velvetinvestment.utils.isAndroid
 import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
 
@@ -29,10 +32,12 @@ fun BaseNavigation(windowSize: WindowSize, pv: PaddingValues) {
         else -> Route.MainAppFlow
     }
 
+    val isAndroid = remember{ isAndroid() }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = Modifier.padding(top=pv.calculateTopPadding())
+        modifier = Modifier.padding(top = pv.calculateTopPadding(), bottom = if (isAndroid) pv.calculateBottomPadding() else 8.dp)
     ){
         composable<Route.LoginFlow>{
             LoginNavigation(

@@ -76,7 +76,6 @@ fun MutualFundSearchScreenRoot(
     onBackClick: () -> Unit,
     onFundClick: (String) -> Unit,
     heading: String,
-    pv: PaddingValues,
     searchText: String,
     onSearchClick: (String) -> Unit,
     category: String?,
@@ -125,7 +124,6 @@ fun MutualFundSearchScreenRoot(
                         MutualFundSearchScreen(
                             result = sortedFunds,
                             onFundClick = onFundClick,
-                            pv = pv,
                             isLoadingNext = isLoadingNext,
                             hasNextPage = hasNextPage,
                             loadNext = viewModel::loadNext,
@@ -172,7 +170,6 @@ fun MutualFundSearchScreenRoot(
                     viewModel.applyFilter(it)
                     viewModel.toggleFilterScreen()
                 },
-                pv = pv
             )
         }
 
@@ -184,7 +181,6 @@ fun MutualFundSearchScreenRoot(
 fun MutualFundSearchScreen(
     result: List<MutualFundDomain>,
     onFundClick: (String) -> Unit,
-    pv: PaddingValues,
     selectedYear: SelectedReturnRatePeriod,
     isLoadingNext: Boolean,
     hasNextPage: Boolean,
@@ -304,7 +300,7 @@ fun MutualFundListCard(
         ) {
             Row{
                 Text(
-                    text = fund.name,
+                    text = fund.shortName2.ifBlank { fund.shortName1.ifBlank { fund.name } },
                     style = subHeading,
                     color = Color.Black,
                     maxLines = 1,

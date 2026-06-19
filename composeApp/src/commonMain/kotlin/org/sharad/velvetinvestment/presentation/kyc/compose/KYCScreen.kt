@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,7 +53,6 @@ import velvet.composeapp.generated.resources.plain_credit_card_rafiki_1
 fun KYCScreen(
     onBackClick: () -> Unit,
     onKYCInitSuccess: () -> Unit,
-    pv: PaddingValues
 ) {
 
     val viewModel: KYCScreenViewModel= koinViewModel()
@@ -133,7 +131,6 @@ fun KYCScreen(
                     hasLaunchedBrowser=true
                 }
             },
-            pv= pv,
             loading = loading
         )
 

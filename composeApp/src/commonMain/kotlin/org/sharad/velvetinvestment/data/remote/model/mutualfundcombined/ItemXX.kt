@@ -30,5 +30,7 @@ data class ItemXX(
     val structure: String,
     val switch_allowed: Boolean,
     val updatedAt: String,
-    val img_url: String? = null
+    val img_url: String? = null,
+    val display_name_001: String? = null,
+    val display_name_002: String? = null
 )

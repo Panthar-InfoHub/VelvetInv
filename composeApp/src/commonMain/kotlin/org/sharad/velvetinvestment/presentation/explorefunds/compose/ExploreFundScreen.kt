@@ -67,7 +67,6 @@ import velvet.composeapp.generated.resources.icon_fd
 
 @Composable
 fun ExploreFundScreen(
-    pv: PaddingValues,
     onMFClick: () -> Unit,
     onFDClick: () -> Unit,
     navigateToSpecificMF: (String) -> Unit,
@@ -86,7 +85,6 @@ fun ExploreFundScreen(
         ExploreFundScreenContent(
             onMFClick = onMFClick,
             onFDClick = onFDClick,
-            pv = pv,
             navigateToSpecificFD = navigateToSpecificFD,
             navigateToSpecificMF = navigateToSpecificMF,
             uiState = uiState,
@@ -100,7 +98,6 @@ fun ExploreFundScreen(
 fun ExploreFundScreenContent(
     onMFClick: () -> Unit,
     onFDClick: () -> Unit,
-    pv: PaddingValues,
     navigateToSpecificFD: (String) -> Unit,
     navigateToSpecificMF: (String) -> Unit,
     uiState: UiState<TopPickCombinedUiModel>,
@@ -109,6 +106,7 @@ fun ExploreFundScreenContent(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
+        contentPadding = PaddingValues(bottom = 20.dp)
     ) {
 
         item {
@@ -152,7 +150,6 @@ fun ExploreFundScreenContent(
                 item{
                     FDTopPicks(topFd = data.fixedDeposits, onClick = navigateToSpecificFD)
                 }
-                item { Spacer(modifier = Modifier.padding(bottom = pv.calculateBottomPadding())) }
             }
         }
 

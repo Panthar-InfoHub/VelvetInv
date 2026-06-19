@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -85,7 +84,6 @@ import velvet.composeapp.generated.resources.rupeesign
 fun MFPortfolioDetailsScreen(
     onBackClick: () -> Unit,
     onCancelClick: (String) -> Unit,
-    pv: PaddingValues,
     data: Route.SIPPortfolioDetails,
 ) {
 
@@ -180,7 +178,6 @@ fun MFPortfolioDetailsScreen(
                 LoadingState.Success -> {
                     SIPDetailsLoadedScreen(
                         data = data,
-                        pv = pv,
                         onWithdrawClick = { viewModel.onShowRedemptionSheet() }
                     )
                 }
@@ -218,7 +215,6 @@ fun MFPortfolioDetailsScreen(
 @Composable
 fun SIPDetailsLoadedScreen(
     data: Route.SIPPortfolioDetails,
-    pv: PaddingValues,
     onWithdrawClick: () -> Unit,
     folioIcon: DrawableResource = Res.drawable.document_kyc_icon,
     calendarIcon: DrawableResource = Res.drawable.icon_callender,
@@ -286,7 +282,6 @@ fun SIPDetailsLoadedScreen(
         NextButtonFooter(
             value = "Proceed to withdraw",
             onClick = onWithdrawClick,
-            pv = pv,
         )
     }
 }
@@ -494,7 +489,6 @@ fun SIPDetailsLoadedScreenPreview() {
                 folio = "CM_10534533",
                 balanceUnits = 13125.567
             ),
-            pv = PaddingValues(0.dp),
             onWithdrawClick = {}
         )
     }

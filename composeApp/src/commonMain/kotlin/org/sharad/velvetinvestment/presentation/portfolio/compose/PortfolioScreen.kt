@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -44,10 +43,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -66,6 +68,7 @@ import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationIt
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.TotalInvestmentsDomain
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.presentation.portfolio.models.SelectedPortfolio
 import org.sharad.velvetinvestment.presentation.portfolio.models.label
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
@@ -85,6 +88,7 @@ import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.toTitleCase
 import org.sharad.velvetinvestment.utils.trimTo
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
@@ -99,7 +103,6 @@ fun PortfolioScreenMain(
     viewModel: PortfolioScreenViewModel,
     onFolioItemClick: (MutualFundPortfolioDomain) -> Unit,
     onFDClick: (String) -> Unit,
-    pv: PaddingValues,
     navigateToCategoryMutualFundScreen: () -> Unit,
     navigateToCategoryFDScreen: () -> Unit
 ) {
@@ -290,7 +293,7 @@ fun DashboardPortfolio(
                         onArrowClick = onSeeAllMF
                     )
                 }
-                items(mutualFunds.take(2), key = { "mf_${it.folio}" }) { item ->
+                items(mutualFunds.take(2), key = { "mf_${it.folio}_${it}" }) { item ->
                     FolioFundCard(fundItem = item, onClick = { onSIPClick(item) })
                 }
             }
@@ -360,6 +363,7 @@ fun MutualFundPortfolio(
                         isExportingTax = isExportingTax
                     )
                 }
+
                 item { BarHeader(heading = "Mutual Funds") }
                 items(mutualFund, key = { it.folio}) { item ->
                     FolioFundCard(fundItem = item, onClick = {
@@ -368,7 +372,7 @@ fun MutualFundPortfolio(
                 }
                 if (pendingOrders.isNotEmpty()) {
                     item { BarHeader(heading = "Pending Payments") }
-                    items(pendingOrders, key = { it.id }) { item ->
+                    items(pendingOrders, key = { it.id+ it.startDate }) { item ->
                         PendingPaymentsCard(item)
                     }
                 }
@@ -920,18 +924,42 @@ fun PendingPaymentsCard(item: PendingOrderDomain) {
                 verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = item.schemeName,
-                        color = Color.Black,
-                        style = MaterialTheme.typography.labelSmall.copy(lineHeight = 20.sp),
-                        maxLines = 2
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = item.amc,
-                        color = titleColor,
-                        style = titlesStyle
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+
+                        SubcomposeAsyncImage(
+                            modifier = Modifier.size(44.dp),
+                            model = item.icon,
+                            contentDescription = null,
+
+                            loading = {
+                                MutualFundIcon(
+                                    schemeName = item.schemeName, size = 44.dp
+                                )
+                            },
+
+                            error = {
+                                MutualFundIcon(
+                                    schemeName = item.schemeName, size = 44.dp,
+                                    backgroundColor = Color(0xffEFEDF3),
+                                    textColor = Primary
+                                )
+                            },
+
+                            success = {
+                                SubcomposeAsyncImageContent()
+                            }
+                        )
+                        Text(
+                            text = item.schemeName.toTitleCase(),
+                            color = Color.Black,
+                            style = MaterialTheme.typography.labelSmall.copy(lineHeight = 20.sp),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
@@ -1003,14 +1031,15 @@ private val samplePendingOrders = listOf(
     PendingOrderDomain(
         id = "1",
         type = "SIP",
-        schemeName = "SBI Bluechip Fund - Direct Plan - Growth",
+        schemeName = "SBI BLUECHIP FUND - DIRECT PLAN - GROWTH",
         amount = 5000.0,
         date = "2023-10-25T10:00:00Z",
         status = "Payment Pending",
         statusRemark = "Action required: Complete payment to start SIP",
         amc = "SBI Mutual Fund",
         frequency = "Monthly",
-        startDate = "2023-11-01"
+        startDate = "2023-11-01",
+        ""
     ),
 //    PendingOrderDomain(
 //        id = "2",

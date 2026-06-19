@@ -74,13 +74,15 @@ fun ItemXX.toDomain(): MutualFundDomain {
     return MutualFundDomain(
         id = id,
         name = scheme_name.toTitleCase(),
-        icon = img_url?:"",
+        icon = img_url ?: "",
         category = asset_type,
         remark = null,
         riskText = risk_name,
         type = scheme_type,
         returnYearsRate = metrics.toDomain(),
-        latestNav=latest_nav
+        latestNav = latest_nav,
+        shortName1 = display_name_001?:"",
+        shortName2 = display_name_002?:"",
     )
 }
 

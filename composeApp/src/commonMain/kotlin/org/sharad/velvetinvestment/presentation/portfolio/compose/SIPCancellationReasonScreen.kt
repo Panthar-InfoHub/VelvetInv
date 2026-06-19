@@ -2,7 +2,6 @@ package org.sharad.velvetinvestment.presentation.portfolio.compose
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -29,7 +28,6 @@ fun SIPCancellationReasonScreen(
     onBackClick: () -> Unit,
     id: String,
     onConfirmClick: (String) -> Unit,
-    pv: PaddingValues
 ){
 
     var selectedReasonId by remember { mutableStateOf<Int?>(null) }
@@ -88,7 +86,6 @@ fun SIPCancellationReasonScreen(
         NextButtonFooter(
             value = "Continue",
             onClick = {},
-            pv = pv
         )
     }
 

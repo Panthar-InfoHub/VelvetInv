@@ -28,7 +28,6 @@ import org.sharad.velvetinvestment.utils.AppEvent
 fun GoalScreen(
     onBack:()->Unit,
     onAddClick:()->Unit,
-    pv: PaddingValues,
     onGoalClick:(String)->Unit
 ){
     val viewModel: GoalInfoScreenViewModel= koinViewModel()
@@ -65,7 +64,6 @@ fun GoalScreen(
         NextButtonFooter(
             value = "Add Goals",
             onClick = onAddClick,
-            pv=pv
         )
     }
 }

@@ -64,7 +64,6 @@ import org.sharad.velvetinvestment.utils.withInterRupee
 @Composable
 fun ExistingFundLumpSumScreen(
     onBack: () -> Unit,
-    pv: PaddingValues = PaddingValues(0.dp)
 ) {
     val viewModel: ExistingFundsLumpSumViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -100,7 +99,6 @@ fun ExistingFundLumpSumScreen(
                 FolioFundsLumpSumContent(
                     funds = data.mutualFunds,
                     selectedFunds =selectedFunds,
-                    pv =pv,
                     onTopUpClick = {
                         viewModel.investMoreLumpsum()
                     },
@@ -124,7 +122,6 @@ fun ExistingFundLumpSumScreen(
 @Composable
 fun FolioFundsLumpSumContent(
     funds: List<MutualFundPortfolioDomain>,
-    pv: PaddingValues,
     onTopUpClick: () -> Unit,
     selectedFunds: List<LumpSumAdd>,
     onAddFund: (String, String, Long) -> Unit,
@@ -173,7 +170,6 @@ fun FolioFundsLumpSumContent(
             value = "Top Up",
             onClick = { onTopUpClick() },
             enabled = selectedFunds.isNotEmpty(),
-            pv = pv,
             loading = buttonLoading
         )
     }
@@ -533,7 +529,6 @@ fun FolioFundsContentLSPreview() {
     VelvetTheme {
         FolioFundsLumpSumContent(
             funds = sampleFunds,
-            pv = PaddingValues(),
             onTopUpClick = {},
             selectedFunds = emptyList(),
             { _, _, _ ->},

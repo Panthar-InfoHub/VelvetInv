@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,7 +60,6 @@ import velvet.composeapp.generated.resources.plus_icon
 @Composable
 fun HomeScreenMain(
     viewModel: HomeScreenViewModel,
-    pv: PaddingValues,
     navigateToFireReportScreen: () -> Unit,
     navigateToKYCScreen: () -> Unit,
     navigateToGoalScreen: () -> Unit,
@@ -97,7 +95,6 @@ fun HomeScreenMain(
                 onHiddenToggle = { viewModel.toggleHidden() },
                 onNotificationIconClick = { navigateToNotification() },
                 onSettingsIconClick = navigateToInsurance,
-                pv = pv,
                 onFireReportClick = navigateToFireReportScreen,
                 navigateToKYCScreen = navigateToKYCScreen,
                 navigateToGoalScreen = navigateToGoalScreen,
@@ -123,7 +120,6 @@ fun HomeScreen(
     goals: List<GoalsSummaryDomain>,
     onNotificationIconClick: () -> Unit,
     onSettingsIconClick: () -> Unit,
-    pv: PaddingValues,
     onFireReportClick: () -> Unit,
     navigateToKYCScreen: () -> Unit,
     navigateToGoalScreen: () -> Unit,
@@ -143,7 +139,7 @@ fun HomeScreen(
         modifier=Modifier.fillMaxSize()
             .padding( start = 16.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(top = 26.dp)
+        contentPadding = PaddingValues(vertical = 26.dp)
     ) {
         item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick) }
         item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick=navigateToInvestmentRateScree, hidden=hidden, onHiddenToggle=onHiddenToggle)}
@@ -184,10 +180,6 @@ fun HomeScreen(
             item{
                 AddCustomGoalCard(onClick={navigateToAddGoal()})
             }
-        }
-
-        item {
-            Spacer(modifier=Modifier.height(pv.calculateBottomPadding()))
         }
     }
 

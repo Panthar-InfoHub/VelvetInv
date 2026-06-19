@@ -7,7 +7,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,12 +48,12 @@ import org.sharad.velvetinvestment.presentation.portfolio.models.FDNomineeUiMode
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FDPortFolioDetailsViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
-import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.withInterRupee
 import org.sharad.velvetinvestment.shared.theme.buttonTextStyle
 import org.sharad.velvetinvestment.shared.theme.subHeading
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 
@@ -62,7 +61,6 @@ import velvet.composeapp.generated.resources.back_arrow
 fun FDPortfolioDetailsScreen(
     onBackClick: () -> Unit,
     id: String,
-    pv: PaddingValues
 ){
 
     val viewModel: FDPortFolioDetailsViewModel = koinViewModel{ parametersOf(id) }
@@ -77,7 +75,6 @@ fun FDPortfolioDetailsScreen(
             details = data,
             onBackClick = onBackClick,
             onClick = viewModel::onClick,
-            pv = pv
         )
     }
 
@@ -87,7 +84,6 @@ fun FDPortfolioDetailsScreen(
 fun FDPortfolioDetailsMain(
     details: FixedDepositTransactionDomain,
     onBackClick: () -> Unit,
-    pv: PaddingValues,
     onClick: () -> Unit,
 ) {
     val shouldShowButton = details.status !in listOf(

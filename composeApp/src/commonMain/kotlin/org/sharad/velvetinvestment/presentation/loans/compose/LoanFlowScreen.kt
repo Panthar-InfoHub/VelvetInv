@@ -4,7 +4,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,7 +13,6 @@ import org.sharad.velvetinvestment.shared.Navigation.Route
 
 @Composable
 fun LoanFlowScreen(
-    pv: PaddingValues,
     onBack: () -> Unit
 ){
     val navController = rememberNavController()
@@ -68,7 +66,6 @@ fun LoanFlowScreen(
                 onEditClick = { id ->
                     navController.navigate(Route.AddLoanScreen(id))
                 },
-                pv = pv
             )
         }
 
@@ -76,7 +73,6 @@ fun LoanFlowScreen(
             val route: Route.AddLoanScreen = backStackEntry.toRoute()
             AddLoanScreen(
                 loanId = route.loanId,
-                pv = pv,
                 onBack = {
                     navController.popBackStack()
                 }
