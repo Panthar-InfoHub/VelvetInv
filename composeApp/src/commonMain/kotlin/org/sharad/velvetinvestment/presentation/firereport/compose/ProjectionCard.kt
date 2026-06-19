@@ -146,7 +146,7 @@ fun UnExtendedProjectionPart(
             horizontalAlignment = Alignment.End
         ) {
             Text(
-                text = "FIRE %",
+                text = "F.I.R.E %",
                 fontFamily = Poppins,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 12.sp,
@@ -250,7 +250,7 @@ fun ExtendedProjectionPart(
 
                 DataCard(
                     modifier = Modifier.weight(1f),
-                    title = "FIRE No.",
+                    title = "F.I.R.E No.",
                     value = formatMoneyWithUnits(fireNumber),
                     valueColor = Primary
                 )

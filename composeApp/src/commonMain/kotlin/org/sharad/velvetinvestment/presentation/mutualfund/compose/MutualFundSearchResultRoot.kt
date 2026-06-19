@@ -433,6 +433,17 @@ private fun FundFilterRowMF(
     onFilterSelected: (LabelFilter) -> Unit,
     toggleFilterScreen: () -> Unit
 ) {
+    val orderedFilters = remember(filters, selectedFilter) {
+        if (selectedFilter == null) {
+            filters
+
+        } else {
+            filters.sortedByDescending {
+                it == selectedFilter
+            }
+        }
+    }
+
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
@@ -463,11 +474,13 @@ private fun FundFilterRowMF(
                 }
             }
         }
-        items(filters) { filter ->
+        items(orderedFilters) { filter ->
             FilterChip(
-                title=filter.title,
+                title = filter.title,
                 isSelected = selectedFilter == filter,
-                onClick = { onFilterSelected(filter) }
+                onClick = {
+                    onFilterSelected(filter)
+                }
             )
         }
     }

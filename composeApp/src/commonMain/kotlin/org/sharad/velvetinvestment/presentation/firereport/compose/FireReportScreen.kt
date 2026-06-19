@@ -299,7 +299,7 @@ fun FireProjectionChart(
                     verticalAlignment = Alignment.CenterVertically
                 ){
                     Text(
-                        text = "FIRE % "+  when(selectedYear){
+                        text = "F.I.R.E % "+  when(selectedYear){
                             SelectedYear.FIVE_YEARS -> "(5 yrs)"
                             SelectedYear.TEN_YEARS -> "(10 yrs)"
                             SelectedYear.TWENTY_YEARS -> "(20 yrs)"
@@ -353,7 +353,7 @@ fun FireReportHeadSwitcher(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ){
                     Text(
-                        text = "FIRE Report",
+                        text = "F.I.R.E Report",
                         style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
                         color = Color.Black
                     )
