@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
+import org.sharad.velvetinvestment.domain.usecases.cancelorder.CancelLumpSumOrderUseCase
+import org.sharad.velvetinvestment.domain.usecases.cancelorder.CancelSipOrderUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.DownloadPdfByUrlUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.ExportCapitalReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.ExportPortfolioReportUseCase
@@ -26,7 +28,9 @@ class PortfolioScreenViewModel(
     private val exportTaxReportUseCase: ExportTaxReportUseCase,
     private val exportPortfolioReportUseCase: ExportPortfolioReportUseCase,
     private val downloadPdfByUrlUseCase: DownloadPdfByUrlUseCase,
-    private val getPendingOrdersUseCase: GetPendingOrdersUseCase
+    private val getPendingOrdersUseCase: GetPendingOrdersUseCase,
+    private val cancelLumpSumOrderUseCase: CancelLumpSumOrderUseCase,
+    private val cancelSipOrderUseCase: CancelSipOrderUseCase
 ) : ViewModel() {
 
 
@@ -175,5 +179,44 @@ class PortfolioScreenViewModel(
                 }
         }
     }
+
+    fun cancelPendingOrder(order: PendingOrderDomain) {
+        viewModelScope.launch {
+
+            val cachedState = uiState.value
+            _loadingState.value = UiState.Loading
+
+            val result = when (order.type.uppercase()) {
+
+                "LUMPSUM" -> cancelLumpSumOrderUseCase(order.id)
+
+                "SIP" -> cancelSipOrderUseCase(order.id)
+
+                else -> {
+                    _loadingState.value = cachedState
+                    SnackBarController.showError("Unsupported order type")
+                    return@launch
+                }
+            }
+
+            result
+                .onSuccess {
+
+                    SnackBarController.showSuccess(
+                        "${order.type} order cancelled successfully"
+                    )
+
+                    refresh()
+                }
+
+                .onError {
+
+                    _loadingState.value = cachedState
+
+                    SnackBarController.showError(it.message)
+                }
+        }
+    }
+
 }
 

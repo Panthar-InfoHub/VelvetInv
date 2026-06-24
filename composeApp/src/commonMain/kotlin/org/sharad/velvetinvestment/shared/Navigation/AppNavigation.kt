@@ -270,11 +270,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 val data = it.toRoute<Route.SIPPortfolioDetails>()
                 MFPortfolioDetailsScreen(
                     onBackClick = { navController.popBackStack() },
-                    onCancelClick = {
-                        navController.navigate(Route.SIPCancellationScreen(it)) {
-                            launchSingleTop = true
-                        }
-                    },
+//                    onCancelClick = {
+//                        navController.navigate(Route.SIPCancellationScreen(it)) {
+//                            launchSingleTop = true
+//                        }
+//                    },
                     data = data,
                 )
             }
@@ -794,7 +794,8 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             avgNav = it.avgNav,
                             folio = it.folio,
                             balanceUnits = it.balanceUnits,
-                            img_url = it.imgUrl
+                            img_url = it.imgUrl,
+                            orderId = it.orderId
                         )) {
                             launchSingleTop = true
                         }

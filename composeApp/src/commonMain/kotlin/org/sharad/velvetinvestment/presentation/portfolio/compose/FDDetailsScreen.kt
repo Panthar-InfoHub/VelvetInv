@@ -364,6 +364,7 @@ fun FDDetailsHeader(onBackClick: () -> Unit, bankName: String, fdId: String) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
             Icon(
@@ -383,11 +384,6 @@ fun FDDetailsHeader(onBackClick: () -> Unit, bankName: String, fdId: String) {
                     text = bankName,
                     style = MaterialTheme.typography.headlineLarge,
                     color = Primary,
-                )
-                Text(
-                    text = fdId,
-                    style = titlesStyle,
-                    color = titleColor
                 )
             }
 

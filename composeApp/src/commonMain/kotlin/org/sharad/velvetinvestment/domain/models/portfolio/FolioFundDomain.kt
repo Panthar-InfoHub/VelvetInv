@@ -16,4 +16,5 @@ data class FolioFundDomain(
     val folio: String,
     val balanceUnits: Double,
     val imgUrl: String,
+    val orderId: String
 )

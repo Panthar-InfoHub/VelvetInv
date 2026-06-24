@@ -79,5 +79,8 @@ interface MutualFundRepository {
     suspend fun redeemPartialFund(data: PartialRedemptionRequestDto): NetworkResponse<String, ErrorDomain>
     suspend fun redeemFullFund(data: FullRedemptionRequestDto): NetworkResponse<String, ErrorDomain>
 
+    suspend fun cancelLumpSumOrder(orderId: String): NetworkResponse<Unit, ErrorDomain>
+    suspend fun cancelSipOrder(xsipRegNo: String): NetworkResponse<Unit, ErrorDomain>
+
 }
 

@@ -80,10 +80,12 @@ fun FormContent(
             item {
                 OnBoardingTextField(
                     value = state.name,
-                    onValueChange = {},
+                    onValueChange = {
+                        viewModel.updateName(it)
+                    },
                     placeHolder = "Full Name",
                     label = "Full Name",
-                    enabled = false
+                    enabled = true
                 )
             }
 

@@ -26,13 +26,17 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,6 +56,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioSideEffects
 import org.sharad.velvetinvestment.shared.Navigation.Route
+import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
@@ -83,7 +88,6 @@ import velvet.composeapp.generated.resources.rupeesign
 @Composable
 fun MFPortfolioDetailsScreen(
     onBackClick: () -> Unit,
-    onCancelClick: (String) -> Unit,
     data: Route.SIPPortfolioDetails,
 ) {
 
@@ -97,6 +101,9 @@ fun MFPortfolioDetailsScreen(
     val isSubmitting by viewModel.isSubmitting.collectAsStateWithLifecycle()
     val soaDownloading by viewModel.soaDownloading.collectAsStateWithLifecycle()
     val browserLauncher = rememberBrowserReturnLauncher()
+    var showCancelDialog by remember {
+        mutableStateOf(false)
+    }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -108,6 +115,13 @@ fun MFPortfolioDetailsScreen(
                             AppEventsController.sendPortfolioRefreshEvent()
                             onBackClick()
                         }
+                    }
+                }
+
+                MFPortfolioSideEffects.OrderCancelled -> {
+                    scope.launch {
+                        AppEventsController.sendPortfolioRefreshEvent()
+                        onBackClick()
                     }
                 }
             }
@@ -178,7 +192,10 @@ fun MFPortfolioDetailsScreen(
                 LoadingState.Success -> {
                     SIPDetailsLoadedScreen(
                         data = data,
-                        onWithdrawClick = { viewModel.onShowRedemptionSheet() }
+                        onWithdrawClick = { viewModel.onShowRedemptionSheet() },
+                        onCancelClick= {
+                            showCancelDialog=true
+                        }
                     )
                 }
             }
@@ -210,6 +227,19 @@ fun MFPortfolioDetailsScreen(
             loading = isSubmitting
         )
     }
+
+    if (showCancelDialog) {
+        CancelConfirmationDialog(
+            onDismiss = {
+                showCancelDialog = false
+            },
+            onConfirm = {
+                viewModel.cancelSipOrder(data.orderId)
+                showCancelDialog = false
+
+            }
+        )
+    }
 }
 
 @Composable
@@ -225,7 +255,8 @@ fun SIPDetailsLoadedScreen(
     avgNavIcon: DrawableResource = Res.drawable.ic_graph,
     balanceUnitsIcon: DrawableResource = Res.drawable.icon_clock,
     investmentTypeIcon: DrawableResource = Res.drawable.ic_menu,
-    infoIcon: DrawableResource = Res.drawable.info_icon
+    infoIcon: DrawableResource = Res.drawable.info_icon,
+    onCancelClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -279,10 +310,20 @@ fun SIPDetailsLoadedScreen(
             item { Spacer(Modifier.height(16.dp)) }
         }
 
-        NextButtonFooter(
-            value = "Proceed to withdraw",
-            onClick = onWithdrawClick,
-        )
+        if (data.isSip){
+            ContinueBackButtonFooter(
+                continueText = "Withdraw",
+                backText = "Cancel",
+                onContinue = onWithdrawClick,
+                onBack = onCancelClick
+            )
+        }
+        else{
+            NextButtonFooter(
+                value = "Proceed to withdraw",
+                onClick = onWithdrawClick,
+            )
+        }
     }
 }
 
@@ -441,6 +482,59 @@ fun FundDetailItem(
 }
 
 @Composable
+fun CancelConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+
+        title = {
+            Text(
+                text = "Cancel Withdrawal?",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+
+        text = {
+            Text(
+                text = "Are you sure you want to cancel? Any unsaved progress will be lost.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+
+        dismissButton = {
+            Text(
+                text = "No",
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable(onClick = onDismiss)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                color = Primary,
+                fontWeight = FontWeight.Medium
+            )
+        },
+
+        confirmButton = {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(appRed)
+                    .clickable(onClick = onConfirm)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Yes, Cancel",
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    )
+}
+
+@Composable
 fun BottomNotice(icon: DrawableResource) {
     Row(
         modifier = Modifier
@@ -469,7 +563,7 @@ fun BottomNotice(icon: DrawableResource) {
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun SIPDetailsLoadedScreenPreview() {
     VelvetTheme {
@@ -487,9 +581,10 @@ fun SIPDetailsLoadedScreenPreview() {
                 currentNav = 82.693,
                 avgNav = 52.947,
                 folio = "CM_10534533",
-                balanceUnits = 13125.567
+                balanceUnits = 13125.567,
+                orderId = ""
             ),
-            onWithdrawClick = {}
-        )
+            {}
+        ) {}
     }
 }

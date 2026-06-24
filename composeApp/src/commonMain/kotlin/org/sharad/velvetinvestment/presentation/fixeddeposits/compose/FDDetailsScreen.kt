@@ -57,6 +57,7 @@ import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.domain.models.fd.FDDetailsDomain
 import org.sharad.velvetinvestment.domain.models.fd.FDFaqDomain
 import org.sharad.velvetinvestment.domain.models.fd.FDTenureDomain
+import org.sharad.velvetinvestment.domain.models.fd.FdCustomerType
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.RiskLevel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.toUIModel
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.FDDetailsViewModel
@@ -85,6 +86,7 @@ fun FDDetailsScreenRoot(
 ) {
     val viewModel: FDDetailsViewModel = koinViewModel { parametersOf(id) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val selectedCustomerType by viewModel.selectedCustomerType.collectAsStateWithLifecycle()
 
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
@@ -125,12 +127,12 @@ fun FDDetailsScreenRoot(
 
                         FDModalType.APPLICABLE ->   FDOptionsBottomSheet(
                             "Applicable For",
-                            options = data.applicableFor,
+                            options = FdCustomerType.entries,
                             onOptionCLick = viewModel::updateApplicable,
                             onDismiss = viewModel::closeSheet,
-                            selectedOption = data.applicable,
+                            selectedOption = selectedCustomerType,
                             optionDisplayString = {option->
-                                option
+                                option.displayName
                             }
                         )
 
@@ -149,7 +151,8 @@ fun FDDetailsScreenRoot(
                 showPayout = { viewModel.openSheet(FDModalType.PAYOUT) },
                 showApplicable = { viewModel.openSheet(FDModalType.APPLICABLE) },
                 showInvestAmount= {viewModel.openSheet(FDModalType.INVEST)},
-                onPurchaseClick=onPurchaseClick
+                onPurchaseClick=onPurchaseClick,
+                selectedCustomerType=selectedCustomerType
             )
         }
     }
@@ -162,6 +165,7 @@ fun FDDetailsScreen(
     showApplicable: () -> Unit,
     showInvestAmount: () -> Unit,
     onPurchaseClick: () -> Unit,
+    selectedCustomerType: FdCustomerType,
 ) {
 
     Column(
@@ -182,7 +186,11 @@ fun FDDetailsScreen(
 
             item { Spacer(Modifier.height(16.dp)) }
 
-            item { FDInvestSection(data, onPayoutClick =showPayout, onApplicableClick = showApplicable, showInvestAmount=showInvestAmount) }
+            item { FDInvestSection(data,
+                onPayoutClick =showPayout,
+                onApplicableClick = showApplicable,
+                showInvestAmount=showInvestAmount,
+                selectedCustomerType=selectedCustomerType) }
 
             item { Spacer(Modifier.height(16.dp)) }
 
@@ -191,7 +199,6 @@ fun FDDetailsScreen(
                     list = data.interestRates,
                     invest = data.invest,
                     selectedPayoutMode = data.selectedPayout,
-                    selectedApplicable = data.applicable
                 )
             }
 
@@ -273,7 +280,8 @@ fun FDInvestSection(
     data: FDDetailsDomain,
     onPayoutClick: () -> Unit,
     onApplicableClick: () -> Unit,
-    showInvestAmount: () -> Unit
+    showInvestAmount: () -> Unit,
+    selectedCustomerType: FdCustomerType
 ) {
 
     LazyVerticalGrid(
@@ -305,7 +313,7 @@ fun FDInvestSection(
         item {
             FDInfoCard(
                 title = "Applicable For",
-                value = data.applicableFor.firstOrNull() ?: "-",
+                value = selectedCustomerType.displayName,
                 onClick = onApplicableClick
             )
         }
@@ -367,10 +375,9 @@ fun FDInterestRatesCard(
     list: List<FDTenureDomain>,
     invest: Long,
     selectedPayoutMode: PayoutType?,
-    selectedApplicable: String,
 ) {
 
-    val uiList = remember(list, invest, selectedPayoutMode?.id, selectedApplicable) {
+    val uiList = remember(list, invest, selectedPayoutMode?.id) {
         list
             .filter { it.payoutFrequency == selectedPayoutMode }
             .map { it.toUIModel(invest) }
@@ -401,9 +408,28 @@ fun FDInterestRatesCard(
 
             Spacer(Modifier.height(16.dp))
 
-            uiList.forEach {
-                FDTenureRow(it)
+            if (uiList.isEmpty()){
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ){
+                    Text(
+                        text = "No Available Interest Rates",
+                        fontFamily = Poppins,
+                        fontSize = 16.sp,
+                        color = Secondary,
+                        modifier = Modifier
+                            .padding(vertical = 12.dp, horizontal = 12.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
+            else{
+                uiList.forEach {
+                    FDTenureRow(it)
+                }
+            }
+
         }
     }
 }
@@ -496,11 +522,12 @@ fun <T> FDOptionsBottomSheet(
                     Box(
                         modifier = Modifier
                             .size(22.dp)
+                            .clip(CircleShape)
                             .border(
                                 width = 2.dp,
                                 color = Secondary,
                                 shape = CircleShape
-                            ),
+                            ).clickable { onOptionCLick(it) },
                         contentAlignment = Alignment.Center
                     ) {
 

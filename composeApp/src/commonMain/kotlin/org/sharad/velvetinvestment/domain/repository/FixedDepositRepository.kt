@@ -19,7 +19,7 @@ interface FixedDepositRepository {
         search: String?,
     ): NetworkResponse<PaginatedData<FixedDepositDomain>, ErrorDomain>
 
-    suspend fun getFDDetails(id: String): NetworkResponse<FDDetailsDomain, ErrorDomain>
+    suspend fun getFDDetails(id: String, customerType:String?): NetworkResponse<FDDetailsDomain, ErrorDomain>
 
     suspend fun purchaseFD(data: PurchaseFDBodyDto): NetworkResponse<String, ErrorDomain>
 }

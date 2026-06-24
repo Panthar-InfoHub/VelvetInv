@@ -92,7 +92,8 @@ fun TradingAccountBasicDetailsScreen(
                                 placeHolder = "Enter First Name",
                                 label = "First Name",
                                 mandatory = true,
-                                keyboardType = KeyboardType.Text
+                                keyboardType = KeyboardType.Text,
+                                enabled = true
                             )
                         }
                         item {

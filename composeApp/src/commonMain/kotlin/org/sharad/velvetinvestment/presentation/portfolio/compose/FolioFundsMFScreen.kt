@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +46,8 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
+import org.sharad.velvetinvestment.utils.AppEvent
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
@@ -59,6 +62,17 @@ fun FolioFundMFScreen(
 ) {
     val viewModel: FolioFundsMFViewModel = koinViewModel(parameters = { parametersOf(folioId) })
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit){
+        AppEventsController.appEvent.collect {
+            when(it){
+                AppEvent.PortfolioRefreshEvent ->{
+                    viewModel.loadFolioFunds()
+                }
+                else -> {}
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(Color.White),
@@ -340,7 +354,8 @@ fun FolioFundsContentPreview() {
             folio = "12345678/90",
             balanceUnits = 961.53,
             imgUrl = "",
-            schemeId = 1
+            schemeId = 1,
+            orderId = ""
         ),
         FolioFundDomain(
             id = "2",
@@ -357,7 +372,8 @@ fun FolioFundsContentPreview() {
             folio = "98765432/11",
             balanceUnits = 588.23,
             imgUrl = "",
-            schemeId = 2
+            schemeId = 2,
+            orderId = ""
         )
     )
 

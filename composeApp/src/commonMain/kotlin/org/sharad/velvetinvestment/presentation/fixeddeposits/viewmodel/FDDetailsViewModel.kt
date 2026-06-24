@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.domain.models.fd.FDDetailsDomain
+import org.sharad.velvetinvestment.domain.models.fd.FdCustomerType
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFDDetailsUseCase
 import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.UiState
@@ -27,6 +28,9 @@ class FDDetailsViewModel(
 
     val uiState: StateFlow<UiState<FDDetailsDomain>> =
         _uiState.asStateFlow()
+
+    private val _selectedCustomerType = MutableStateFlow<FdCustomerType>(FdCustomerType.STANDARD)
+    val selectedCustomerType = _selectedCustomerType.asStateFlow()
 
     private val _activeSheet = MutableStateFlow<FDModalType?>(null)
     val activeSheet = _activeSheet.asStateFlow()
@@ -47,12 +51,9 @@ class FDDetailsViewModel(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
 
-            getFDDetailsUseCase(id)
+            getFDDetailsUseCase(id, selectedCustomerType.value.name)
                 .onSuccess { data ->
                     _uiState.value = UiState.Success(data)
-                    data.interestRates.forEach {
-                        Log(it.tenureLabel, it.tenureDays.toString())
-                    }
                 }
                 .onError { error ->
                     _uiState.value = UiState.Error(error.message)
@@ -87,17 +88,9 @@ class FDDetailsViewModel(
         closeSheet()
     }
 
-    fun updateApplicable(applicable: String) {
-        _uiState.update { state ->
-            if (state is UiState.Success) {
-                state.copy(
-                    data = state.data.copy(
-                        applicable = applicable
-                    )
-                )
-            } else state
-        }
-
+    fun updateApplicable(applicable: FdCustomerType) {
+        _selectedCustomerType.value = applicable
+        loadFDDetails()
         closeSheet()
     }
 

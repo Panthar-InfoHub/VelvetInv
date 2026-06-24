@@ -25,5 +25,6 @@ data class FolioFundDataDto(
     val avg_nav: Double,
     val folio: String,
     val balance_units: Double,
-    val img_url: String
+    val img_url: String,
+    val order_id: String? = ""
 )

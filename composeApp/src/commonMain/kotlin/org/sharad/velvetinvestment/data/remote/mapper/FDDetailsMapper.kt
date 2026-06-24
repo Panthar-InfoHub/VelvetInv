@@ -19,7 +19,6 @@ fun FDDetailsDto.toDomain(): FDDetailsDomain {
         id = data.id,
         invest =  data.min_deposit.toLongOrNull() ?: 1000,
         selectedPayout = selectedPayout,
-        applicable = data.interest_rates.firstOrNull()?.customer_type ?: "",
 
 
         // Header
@@ -34,11 +33,6 @@ fun FDDetailsDto.toDomain(): FDDetailsDomain {
         minDeposit = data.min_deposit.toLongOrNull() ?: 0L,
 
         payoutOptions = payouts,
-
-        applicableFor = data.interest_rates
-            .map { it.customer_type }
-            .distinct()
-            .map { it.toReadableCustomerType() },
 
         // Interest Table
         interestRates = data.interest_rates.map {

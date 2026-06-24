@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.model.fundredeem.FullRedemptionRequestDto
 import org.sharad.velvetinvestment.data.remote.model.fundredeem.PartialRedemptionRequestDto
 import org.sharad.velvetinvestment.domain.models.portfolio.SIPDetailsDomain
+import org.sharad.velvetinvestment.domain.usecases.cancelorder.CancelLumpSumOrderUseCase
+import org.sharad.velvetinvestment.domain.usecases.cancelorder.CancelSipOrderUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.RedeemFullFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.RedeemPartialFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.ExportSoaReportUseCase
@@ -24,12 +26,15 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 
 sealed interface MFPortfolioSideEffects{
     data class openRedeemptionUrl(val url: String): MFPortfolioSideEffects
+    data object OrderCancelled : MFPortfolioSideEffects
 }
 class MFPortfolioDetailsViewModel(
     private val partialRedemptionUseCase: RedeemPartialFundUseCase,
     private val redeemFullFundUseCase: RedeemFullFundUseCase,
     private val soaReportUseCase: ExportSoaReportUseCase,
-    private val downloadPdfByUrlUseCase: DownloadPdfByUrlUseCase
+    private val downloadPdfByUrlUseCase: DownloadPdfByUrlUseCase,
+    private val cancelLumpSumOrderUseCase: CancelLumpSumOrderUseCase,
+    private val cancelSipOrderUseCase: CancelSipOrderUseCase
 ): ViewModel() {
 
     private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Success)
@@ -196,6 +201,38 @@ class MFPortfolioDetailsViewModel(
                 }
                 .onError { 
                     _soaDownloading.value = false
+                    SnackBarController.showError(it.message)
+                }
+        }
+    }
+
+    fun cancelLumpSumOrder(orderId: String) {
+        viewModelScope.launch {
+            _isSubmitting.value = true
+            cancelLumpSumOrderUseCase(orderId)
+                .onSuccess {
+                    _isSubmitting.value = false
+                    SnackBarController.showSuccess("Order cancelled successfully")
+                    _sideEffects.emit(MFPortfolioSideEffects.OrderCancelled)
+                }
+                .onError {
+                    _isSubmitting.value = false
+                    SnackBarController.showError(it.message)
+                }
+        }
+    }
+
+    fun cancelSipOrder(xsipRegNo: String) {
+        viewModelScope.launch {
+            _isSubmitting.value = true
+            cancelSipOrderUseCase(xsipRegNo)
+                .onSuccess {
+                    _isSubmitting.value = false
+                    SnackBarController.showSuccess("SIP cancelled successfully")
+                    _sideEffects.emit(MFPortfolioSideEffects.OrderCancelled)
+                }
+                .onError {
+                    _isSubmitting.value = false
                     SnackBarController.showError(it.message)
                 }
         }

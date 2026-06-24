@@ -3,6 +3,8 @@ package org.sharad.velvetinvestment.utils.di
 import org.koin.dsl.module
 import org.sharad.velvetinvestment.domain.models.mfkyc.GetContractPdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
+import org.sharad.velvetinvestment.domain.usecases.cancelorder.CancelLumpSumOrderUseCase
+import org.sharad.velvetinvestment.domain.usecases.cancelorder.CancelSipOrderUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDPortFolioDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetBundleFundsUseCase
@@ -208,5 +210,7 @@ val useCaseModule= module {
     factory { GetPendingOrdersUseCase(get()) }
     factory { InvestMoreLumpsumUseCase(get()) }
     factory { RequestConnectionUseCase(get()) }
+    factory { CancelLumpSumOrderUseCase(get()) }
+    factory { CancelSipOrderUseCase(get()) }
 
 }

@@ -72,11 +72,11 @@ val viewModelModule= module {
             get(),
             get(),
             get(),
-            get()
+            get(), get(), get()
         )
     }
 
-    viewModel { MFPortfolioDetailsViewModel(get(), get(), get(), get()) }
+    viewModel { MFPortfolioDetailsViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel {(id:String)-> FDPortFolioDetailsViewModel(get(), get(),get(), fdId = id) }
     viewModel { ExploreFundScreenViewModel(get(), get()) }
     viewModel { CategoryMutualFundViewModel(get()) }

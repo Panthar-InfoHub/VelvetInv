@@ -8,7 +8,6 @@ data class FDDetailsDomain(
 
     val invest: Long =1000,
     val selectedPayout: PayoutType?,
-    val applicable: String ="",
 
     val bankName: String,
     val bankLogo: String,
@@ -19,7 +18,6 @@ data class FDDetailsDomain(
     val minDeposit: Long,
 
     val payoutOptions: List<PayoutType>,
-    val applicableFor: List<String>,
 
     val interestRates: List<FDTenureDomain>,
 

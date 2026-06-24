@@ -393,9 +393,22 @@ fun ProjectedImpactCard(
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+                    val progress =
+                        if (data.targetAmount > 0)
+                            (data.currentSaved.toFloat() / data.targetAmount).coerceIn(0f, 1f)
+                        else
+                            0f
+
+                    val progressColor = when {
+                        progress < 0.25f -> Color(0xFFF44336) // Red
+                        progress < 0.50f -> Color(0xFFFF9800) // Orange
+                        progress < 0.75f -> Color(0xFFFFC107) // Amber
+                        else -> Color(0xFF4CAF50) // Green
+                    }
+
                     CustomProgressFillBar(
-                        progress = if (data.targetAmount > 0) (data.currentSaved.toFloat() / data.targetAmount) else 0f,
-                        progressColor = appOrange,
+                        progress = progress,
+                        progressColor = progressColor,
                         trackColor = Color(0xFFE0E0E0),
                         thickness = 10.dp,
                         modifier = Modifier.fillMaxWidth()
@@ -548,7 +561,7 @@ fun ProjectionImpactScreenPreview() {
                     targetYear = 2035,
                     monthlySip = 12000.0,
                     feasibilityScore = 0.8f,
-                    currentSaved = 200000,
+                    currentSaved = 1000000,
                     targetAmount = 2500000,
                     increasedBy = 1500000.0,
                     requiredMonthly = 12000.0,

@@ -101,6 +101,10 @@ class KYCFormScreenViewModel(
         _formState.value = _formState.value.copy(placeOfBirth = value.toUpperCase(Locale.current))
     }
 
+    fun updateName(value: String){
+        _formState.value= _formState.value.copy(name = value.toUpperCase(Locale.current))
+    }
+
     fun loadData(
         onSuccess: () -> Unit,
         onFailure: () -> Unit

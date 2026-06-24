@@ -141,6 +141,7 @@ fun PortfolioScreenMain(
                         reload = viewModel::loadPortfolio,
                         onDownloadPortfolioReport = viewModel::downloadPortfolioReport,
                         onDownloadCapitalReport = viewModel::downloadCapitalReport,
+                        onCancelPendingOrder= viewModel::cancelPendingOrder,
                         onDownloadTaxReport = { viewModel.downloadTaxReport() },
                         isExportingPortfolio = isExportingPortfolio,
                         isExportingCapital = isExportingCapital,
@@ -172,7 +173,8 @@ fun PortfolioScreen(
     isExportingCapital: Boolean,
     isExportingTax: Boolean,
     pendingOrders: List<PendingOrderDomain>,
-    pagerState: PagerState
+    pagerState: PagerState,
+    onCancelPendingOrder: (PendingOrderDomain) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -246,7 +248,8 @@ fun PortfolioScreen(
                         isExportingTax = isExportingTax,
                         onDownloadPortfolioReport = onDownloadPortfolioReport,
                         isExportingPortfolio = isExportingPortfolio,
-                        pendingOrders = pendingOrders
+                        pendingOrders = pendingOrders,
+                        onCancelPendingOrder=onCancelPendingOrder
                     )
                 }
                 2-> {
@@ -328,7 +331,8 @@ fun MutualFundPortfolio(
     isExportingTax: Boolean,
     onDownloadPortfolioReport: () -> Unit,
     isExportingPortfolio: Boolean,
-    pendingOrders: List<PendingOrderDomain>
+    pendingOrders: List<PendingOrderDomain>,
+    onCancelPendingOrder: (PendingOrderDomain) -> Unit
 ) {
     if (mutualFund.isEmpty()) {
         EmptyFundScreen(
@@ -373,7 +377,10 @@ fun MutualFundPortfolio(
                 if (pendingOrders.isNotEmpty()) {
                     item { BarHeader(heading = "Pending Payments") }
                     items(pendingOrders, key = { it.id+ it.startDate }) { item ->
-                        PendingPaymentsCard(item)
+                        PendingPaymentsCard(item, onCancel = {
+                            onCancelPendingOrder(item)
+                        }
+                        )
                     }
                 }
                 item { Spacer(modifier = Modifier.height(20.dp)) }
@@ -861,7 +868,7 @@ fun DashboardPortfolioPreview() {
             isExportingCapital = false,
             isExportingTax = false,
             pendingOrders = samplePendingOrders,
-            pagerState=pagerState
+            pagerState=pagerState,{}
         )
     }
 }
@@ -887,7 +894,7 @@ fun MutualFundPortfolioPreview() {
             isExportingCapital = false,
             isExportingTax = false,
             pendingOrders = samplePendingOrders,
-            pagerState=pagerState
+            pagerState=pagerState,{}
         )
     }
 }
@@ -906,7 +913,7 @@ fun FixedDepositPortfolioPreview() {
 }
 
 @Composable
-fun PendingPaymentsCard(item: PendingOrderDomain) {
+fun PendingPaymentsCard(item: PendingOrderDomain, onCancel: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -1019,9 +1026,9 @@ fun PendingPaymentsCard(item: PendingOrderDomain) {
             AppButton(
                 modifier = Modifier
                     .padding(top = 4.dp).height(40.dp),
-                text = "Complete Action",
-                onClick = {},
-                enabled = false
+                text = "Cancel order",
+                onClick = onCancel,
+                enabled = true
             )
         }
     }

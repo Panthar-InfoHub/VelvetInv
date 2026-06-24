@@ -9,8 +9,9 @@ class GetFDDetailsUseCase(
     private val repository: FixedDepositRepository
 ) {
     suspend operator fun invoke(
-        id: String
+        id: String,
+        customerType: String? = null
     ): NetworkResponse<FDDetailsDomain, ErrorDomain> {
-        return repository.getFDDetails(id)
+        return repository.getFDDetails(id, customerType)
     }
 }

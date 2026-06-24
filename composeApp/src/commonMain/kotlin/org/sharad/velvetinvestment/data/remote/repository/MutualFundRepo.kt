@@ -15,6 +15,10 @@ import org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleLumpsum
 import org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleSipRequest
 import org.sharad.velvetinvestment.data.remote.model.bundledfundbyid.BundledFundByIdDto
 import org.sharad.velvetinvestment.data.remote.model.bundledfunds.BundledFundsDto
+import org.sharad.velvetinvestment.data.remote.model.cancelorder.CancelOrderRequestDto
+import org.sharad.velvetinvestment.data.remote.model.cancelorder.CancelOrderResponseDto
+import org.sharad.velvetinvestment.data.remote.model.cancelorder.CancelXsipRequestDto
+import org.sharad.velvetinvestment.data.remote.model.cancelorder.CancelXsipResponseDto
 import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumRequest
 import org.sharad.velvetinvestment.data.remote.model.cartaddlumpsum.AddCartLumpSumResponseDto
 import org.sharad.velvetinvestment.data.remote.model.cartaddsip.AddCartSipRequest
@@ -430,6 +434,38 @@ class MutualFundRepo(
             }
             is NetworkResponse.Success -> {
                 NetworkResponse.Success(response.data.data.payment_link)
+            }
+        }
+    }
+
+    override suspend fun cancelLumpSumOrder(orderId: String): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeRequest<CancelOrderResponseDto> {
+            client.post(getUrl("/mf/cancel-order")) {
+                setBody(CancelOrderRequestDto(order_no = orderId))
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
+    override suspend fun cancelSipOrder(xsipRegNo: String): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeRequest<CancelXsipResponseDto> {
+            client.post(getUrl("/mf/cancel-xsip")) {
+                setBody(CancelXsipRequestDto(xsip_reg_no = xsipRegNo))
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
             }
         }
     }

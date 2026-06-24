@@ -56,11 +56,15 @@ class FixedDepositRepo(
         }
     }
 
-    override suspend fun getFDDetails(id: String): NetworkResponse<FDDetailsDomain, ErrorDomain> {
+    override suspend fun getFDDetails(id: String, customerType: String?): NetworkResponse<FDDetailsDomain, ErrorDomain> {
         val response= safeRequest<FDDetailsDto> {
             client.get(
                 getUrl("/fd/$id")
-            )
+            ){
+                customerType?.let {
+                    parameter("customer_type", customerType)
+                }
+            }
         }
         when (response) {
             is NetworkResponse.Error -> {
