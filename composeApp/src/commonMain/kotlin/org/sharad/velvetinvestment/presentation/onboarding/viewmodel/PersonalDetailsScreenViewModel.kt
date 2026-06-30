@@ -1,5 +1,7 @@
 package org.sharad.velvetinvestment.presentation.onboarding.viewmodel
 
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,7 +53,7 @@ class PersonalDetailsScreenViewModel(
     }
 
     fun onNameChange(name:String){
-        _personalDetails.update { it.copy(fullName = name) }
+        _personalDetails.update { it.copy(fullName = name.toUpperCase(Locale.current)) }
     }
 
     fun onEmailChange(email:String) {
@@ -65,7 +67,7 @@ class PersonalDetailsScreenViewModel(
     }
 
     fun onCityChange(city:String) {
-        _personalDetails.update { it.copy(city = city) }
+        _personalDetails.update { it.copy(city = city.toUpperCase(Locale.current)) }
     }
 
     fun onDobChange(dob: Long?) {

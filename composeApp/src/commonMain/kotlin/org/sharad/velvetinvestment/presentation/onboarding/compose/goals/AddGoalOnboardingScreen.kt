@@ -94,15 +94,15 @@ fun AddGoalOnboardingScreen(
 
             if (selectedOption != null) {
 
-                item {
-                    OnBoardingTextField(
-                        value = returns,
-                        onValueChange = viewModel::onReturnChange,
-                        placeHolder = "Return %",
-                        label = "Return Rate",
-                        keyboardType = KeyboardType.Number
-                    )
-                }
+//                item {
+//                    OnBoardingTextField(
+//                        value = returns,
+//                        onValueChange = viewModel::onReturnChange,
+//                        placeHolder = "Return %",
+//                        label = "Return Rate",
+//                        keyboardType = KeyboardType.Decimal
+//                    )
+//                }
 
                 when (selectedOption?.type) {
 

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.sharad.velvetinvestment.domain.LoanTypes
 import org.sharad.velvetinvestment.presentation.onboarding.models.LoanInfo
-import org.sharad.velvetinvestment.utils.parseSafeLong
 
 class LoanScreenViewModel: ViewModel() {
 
@@ -85,7 +84,7 @@ class LoanScreenViewModel: ViewModel() {
                 tenure = tenureValue
             )
 
-            _loanList.value = _loanList.value + loan
+            _loanList.value += loan
             clearLoan()
         }
     }

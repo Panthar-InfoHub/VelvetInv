@@ -2,6 +2,8 @@ package org.sharad.velvetinvestment.presentation.onboarding.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -191,15 +193,15 @@ class GoalScreenOnboardingViewModel : ViewModel() {
     fun onGoalOptionSelected(option: GoalOption) {
         _selectedGoalOption.value = option
         _goalName.value = option.title
-        _goalItemNameInput.value = option.goalItemName ?: option.title
+        _goalItemNameInput.value = (option.goalItemName ?: option.title)
     }
 
     fun onGoalItemNameChange(value: String) {
-        _goalItemNameInput.value = value
+        _goalItemNameInput.value = value.toUpperCase(Locale.current)
     }
 
     fun onGoalNameChange(value: String) {
-        _goalName.value = value
+        _goalName.value = value.toUpperCase(Locale.current)
     }
 
     fun onInflationChange(value: String) {
@@ -215,7 +217,7 @@ class GoalScreenOnboardingViewModel : ViewModel() {
     }
 
     fun onChildNameChange(value: String) {
-        _childName.value = value
+        _childName.value = value.toUpperCase(Locale.current)
     }
 
     fun onChildAgeChange(value: String) {
