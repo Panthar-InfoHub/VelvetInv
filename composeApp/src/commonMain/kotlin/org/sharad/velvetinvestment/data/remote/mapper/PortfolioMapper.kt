@@ -6,7 +6,7 @@ import org.sharad.velvetinvestment.data.remote.model.portfolio.FolioFundDataDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.portfolio.FolioFundDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FDStatus
-import org.sharad.velvetinvestment.data.remote.model.portfolio.MutualFund as MutualFundDto
+import org.sharad.velvetinvestment.data.remote.model.portfolio.MutualFundDto as MutualFundDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.FdTransaction as FdTransactionDto
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDashboardDomain

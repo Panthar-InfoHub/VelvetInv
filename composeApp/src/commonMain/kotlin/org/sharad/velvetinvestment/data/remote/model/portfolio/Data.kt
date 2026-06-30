@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Data(
     val total_investments: TotalInvestments,
     val invested_amount_breakdown: InvestedAmountBreakdown,
-    val mutual_funds: List<MutualFund>,
+    val mutual_funds: List<MutualFundDto>,
     val fixed_deposits: List<FdTransaction>
 )
 

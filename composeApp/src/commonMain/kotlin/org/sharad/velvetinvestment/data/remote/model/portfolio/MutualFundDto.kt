@@ -3,7 +3,7 @@ package org.sharad.velvetinvestment.data.remote.model.portfolio
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MutualFund(
+data class MutualFundDto(
     val id: String,
     val scheme_id: Int,
     val bal_units: Double,
