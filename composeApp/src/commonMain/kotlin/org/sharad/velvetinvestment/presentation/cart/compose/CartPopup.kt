@@ -35,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -131,14 +133,6 @@ fun CartPopup(
                 )
             }
 
-//            TwoWaySwitch(
-//                isFirstSelected = cartState.selectedType== MFPurchaseTypes.LUMP_SUM,
-//                firstText = "Lumpsum",
-//                secondText = "SIP",
-//                onFirstClick = {onTypeChange(MFPurchaseTypes.LUMP_SUM)},
-//                onSecondClick = {onTypeChange(MFPurchaseTypes.SIP)}
-//            )
-
             when(fundType){
                 SelectedFundType.LUMSUM -> LumpSumCart(
                     amount = cartState.amount,
@@ -185,6 +179,7 @@ fun SIPCart(
     showDateDropDown: () -> Unit,
     showDurationDropDown: () -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val chips = generateInvestmentChips(
         minAmount = minAmount,
         isSip = true
@@ -237,30 +232,18 @@ fun SIPCart(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ){
-//            DropDownField(
-//                text = frequency ?: "",
-//                placeholder = "Select Frequency",
-//                onClick = showFrequencyDropDown,
-//                label = "Frequency",
-//                modifier = Modifier.weight(1f)
-//            )
+
             DropDownField(
                 text = date ?: "",
                 placeholder = "Select Date",
-                onClick = showDateDropDown,
+                onClick = {
+                    keyboardController?.hide()
+                    showDateDropDown()
+                },
                 label = "SIP Day",
                 modifier = Modifier.weight(1f)
             )
         }
-
-
-//        DropDownField(
-//            text = duration?.label ?: "",
-//            placeholder = "Select Duration",
-//            onClick = showDurationDropDown,
-//            label = "Duration",
-//            modifier = Modifier.fillMaxWidth()
-//        )
 
         AppButton(
             modifier = Modifier.fillMaxWidth(),

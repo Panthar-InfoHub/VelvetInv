@@ -4,6 +4,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
@@ -32,10 +33,9 @@ import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.tradingaccount.ClientType
 import org.sharad.velvetinvestment.utils.tradingaccount.DefaultDp
-import org.sharad.velvetinvestment.utils.tradingaccount.FatcaOccupationType
 import org.sharad.velvetinvestment.utils.tradingaccount.Holding
 import org.sharad.velvetinvestment.utils.tradingaccount.KycType
-import org.sharad.velvetinvestment.utils.tradingaccount.SourceOfWealth
+import org.sharad.velvetinvestment.utils.tradingaccount.OccupationSourceOfWealthMapper
 import org.sharad.velvetinvestment.utils.tradingaccount.StateCode
 import org.sharad.velvetinvestment.utils.tradingaccount.TaxStatus
 import kotlin.time.Clock
@@ -122,21 +122,39 @@ class TradingAccountViewModel(
             val successState = previousState as? UiState.Success ?: return@launch
 
             _formState.value = UiState.Loading
+            var currentRetry = 0
+            val maxRetries = 2
 
-            submitTradingAccountFormUseCase(successState.data)
-                .onSuccess { response ->
-                    _formState.value = previousState
-                    _launchedBrowser.value=true
-                    openBrowserLauncher.launchBrowser(response)
-                }
-                .onError { error ->
-                    _formState.value = previousState
-                    SnackBarController.showError(
-                        error.message.ifBlank {
-                            "Failed to submit trading account form"
+            while (currentRetry <= maxRetries) {
+
+                var success = false
+
+                submitTradingAccountFormUseCase(successState.data)
+                    .onSuccess { response ->
+                        _formState.value = previousState
+                        _launchedBrowser.value = true
+                        openBrowserLauncher.launchBrowser(response)
+                        success = true
+                    }
+                    .onError { error ->
+                        if (currentRetry == maxRetries) {
+                            _formState.value = previousState
+                            SnackBarController.showError(
+                                error.message.ifBlank {
+                                    "Failed to submit trading account form"
+                                }
+                            )
                         }
-                    )
+                    }
+
+                if (success) break
+
+                currentRetry++
+
+                if (currentRetry <= maxRetries) {
+                    delay(1000)
                 }
+            }
         }
     }
 
@@ -235,7 +253,18 @@ class TradingAccountViewModel(
         updateData { it.copy(indian_mobile_no = value.trim().toUpperCase(Locale.current)) }
     }
     fun onTaxStatusChange(value: String) = updateData { it.copy(tax_status = value.trim().toUpperCase(Locale.current)) }
-    fun onOccupationChange(value: String) = updateData { it.copy(occupation_code = value.trim().toUpperCase(Locale.current)) }
+    fun onOccupationChange(value: String) {
+        val sourceOfWealth =
+            OccupationSourceOfWealthMapper.getSourceOfWealthCode(value) ?: ""
+
+        updateData {
+            it.copy(
+                occupation_code = value,
+                srce_wealt = sourceOfWealth,
+                occ_type = OccupationSourceOfWealthMapper.getFatcaOccupationTypeCode(sourceOfWealth)
+            )
+        }
+    }
     fun onOccTypeChange(value: String) = updateData { it.copy(occ_type = value.trim().toUpperCase(Locale.current)) }
     fun onPlaceOfBirthChange(value: String) = updateData { it.copy(po_bir_inc = value.toUpperCase(Locale.current)) }
     fun onPrimaryCkycChange(value: String) = updateData { it.copy(primary_holder_ckyc_number = value.trim().toUpperCase(Locale.current)) }
@@ -370,7 +399,10 @@ class TradingAccountViewModel(
     fun onNominee1RelationChange(value: String) = updateData { it.copy(nominee_1_relationship = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1DobChange(value: String) = updateData { it.copy(nominee_1_dob = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1EmailChange(value: String) = updateData { it.copy(nominee_1_email = value.trim()) }
-    fun onNominee1MobileChange(value: String) = updateData { it.copy(nominee_1_mobile = value.trim().toUpperCase(Locale.current)) }
+    fun onNominee1MobileChange(value: String) {
+        if (value.length> 10) return
+        updateData { it.copy(nominee_1_mobile = value.trim().toUpperCase(Locale.current)) }
+    }
     fun onNominee1IdentityTypeChange(value: String) = updateData { it.copy(nominee_1_identity_type = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1IdentityNumberChange(value: String) = updateData { it.copy(nominee_1_identity_number = value.trim().toUpperCase(Locale.current)) }
     fun onNominee1Address1Change(value: String) = updateData { it.copy(nominee_1_address1 = value.toUpperCase(Locale.current)) }
@@ -391,12 +423,16 @@ class TradingAccountViewModel(
     // BANK DETAILS
     private val _visibleBankAccounts = MutableStateFlow(listOf(1))
     val visibleBankAccounts = _visibleBankAccounts.asStateFlow()
+    private val _reEnteredAccountNumbers =
+        MutableStateFlow(List(5) { "" })
 
-    val bankScreenButtonEnabled = combine(_formState, visibleBankAccounts) { formState, visibleAccounts ->
+    val reEnteredAccountNumbers = _reEnteredAccountNumbers.asStateFlow()
+
+    val bankScreenButtonEnabled = combine(_formState, visibleBankAccounts,reEnteredAccountNumbers) { formState, visibleAccounts,reEntered ->
         println("Visible Accounts = $visibleAccounts")
         val data = (formState as? UiState.Success)?.data?.data ?: return@combine false
         data.div_pay_mode.isNotBlank() && visibleAccounts.all { index ->
-            when (index) {
+            val accountValid=when (index) {
                 1 -> data.account_type_1.isNotBlank() && data.account_no_1.isNotBlank() && data.ifsc_code_1.isNotBlank() && data.default_bank_flag_1.isNotBlank()
                 2 -> data.account_type_2.isNotBlank() && data.account_no_2.isNotBlank() && data.ifsc_code_2.isNotBlank() && data.default_bank_flag_2.isNotBlank()
                 3 -> data.account_type_3.isNotBlank() && data.account_no_3.isNotBlank() && data.ifsc_code_3.isNotBlank() && data.default_bank_flag_3.isNotBlank()
@@ -404,6 +440,7 @@ class TradingAccountViewModel(
                 5 -> data.account_type_5.isNotBlank() && data.account_no_5.isNotBlank() && data.ifsc_code_5.isNotBlank() && data.default_bank_flag_5.isNotBlank()
                 else -> false
             }
+            accountValid && !isBankAccountMismatch(index, data)
         }
     }.stateIn(scope = viewModelScope, started = WhileSubscribed(5000), initialValue = false)
 
@@ -416,10 +453,38 @@ class TradingAccountViewModel(
 
     fun removeBankAccount(index: Int) {
         if (index == 1) return
-        _visibleBankAccounts.value = _visibleBankAccounts.value - index
+        _visibleBankAccounts.value -= index
+        _reEnteredAccountNumbers.update { list ->
+            list.toMutableList().apply {
+                this[index - 1] = ""
+            }
+        }
         resetBankAccount(index)
     }
 
+    fun isBankAccountMismatch(
+        index: Int,
+        data: Data
+    ): Boolean {
+
+        val original = getAccountNumber(index, data)
+        val reEntered = getReEnteredAccountNumber(index)
+
+        if (reEntered.isBlank()) return false
+
+        return original != reEntered
+    }
+
+    fun getReEnteredAccountNumber(index: Int) =
+        _reEnteredAccountNumbers.value[index - 1]
+
+    fun onReEnteredAccountNumberChange(index: Int, value: String) {
+        _reEnteredAccountNumbers.update { list ->
+            list.toMutableList().apply {
+                this[index - 1] = value
+            }
+        }
+    }
     private fun resetBankAccount(index: Int) {
         updateData {
             when (index) {
@@ -591,30 +656,10 @@ class TradingAccountViewModel(
     fun onLeiValidityChange(value: String) = updateData { it.copy(lei_validity = value.trim().toUpperCase(Locale.current)) }
     fun onMapinIdChange(value: String) = updateData { it.copy(mapin_id = value.trim().toUpperCase(Locale.current)) }
     fun onSourceWealthChange(value: String) {
-
-        val occType = when (value) {
-            SourceOfWealth.SALARY.code ->
-                FatcaOccupationType.SERVICE.code
-
-            SourceOfWealth.BUSINESS_INCOME.code ->
-                FatcaOccupationType.BUSINESS.code
-
-            SourceOfWealth.GIFT.code,
-            SourceOfWealth.ANCESTRAL_PROPERTY.code,
-            SourceOfWealth.RENTAL_INCOME.code,
-            SourceOfWealth.PRIZE_MONEY.code,
-            SourceOfWealth.ROYALTY.code,
-            SourceOfWealth.OTHER.code ->
-                FatcaOccupationType.OTHERS.code
-
-            else ->
-                FatcaOccupationType.NOT_CATEGORIZED.code
-        }
-
         updateData {
             it.copy(
                 srce_wealt = value.trim(),
-                occ_type = occType
+                occ_type = OccupationSourceOfWealthMapper.getFatcaOccupationTypeCode(value)
             )
         }
     }

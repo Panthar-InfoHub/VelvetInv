@@ -53,7 +53,6 @@ import velvet.composeapp.generated.resources.notice
 
 @Composable
 fun TradingAccountPANDetailsScreen(
-    pv: PaddingValues,
     onClick: () -> Unit,
     onBackClick: () -> Boolean,
     viewModel: TradingAccountViewModel
@@ -67,7 +66,14 @@ fun TradingAccountPANDetailsScreen(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = { onBackClick() }
+            onBackClick = { onBackClick() },
+            rightContent = {
+                Text(
+                    text = "Step 2/5",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Gray
+                )
+            }
         )
 
         UiStateContainer(
@@ -81,7 +87,8 @@ fun TradingAccountPANDetailsScreen(
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
 
                     item {
@@ -243,15 +250,10 @@ fun TradingAccountPANDetailsScreen(
                             }
                         }
                     }
-
-                    item {
-                        Spacer(modifier = Modifier.height(pv.calculateBottomPadding()))
-                    }
                 }
 
                 NextButtonFooter(
                     onClick = onClick,
-                    pv = pv,
                     value = "Next",
                     enabled = panVerified && verifiedPanNumber == data.primary_holder_pan
                 )

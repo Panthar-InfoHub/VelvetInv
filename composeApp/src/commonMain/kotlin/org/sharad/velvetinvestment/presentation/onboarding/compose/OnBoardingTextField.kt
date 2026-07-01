@@ -22,6 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 
@@ -34,7 +36,9 @@ fun OnBoardingTextField(
     mandatory: Boolean=false,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType= KeyboardType.Text,
-    enabled:Boolean=true
+    enabled:Boolean=true,
+    isPassword:Boolean = false,
+    isError:Boolean = false
 ){
 
     Column(
@@ -63,6 +67,11 @@ fun OnBoardingTextField(
             value = value,
             onValueChange = {it-> onValueChange(it) },
             singleLine = true,
+            visualTransformation = if (isPassword) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
             textStyle = MaterialTheme.typography.bodySmall,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             modifier = modifier.fillMaxWidth()
@@ -71,9 +80,13 @@ fun OnBoardingTextField(
                 .clip(RoundedCornerShape(15.dp))
                 .background(Color.White, RoundedCornerShape(15.dp))
                 .border(
-                    width = 0.7.dp,
+                    width = if (isError) 1.dp else 0.7.dp,
                     shape = RoundedCornerShape(15.dp),
-                    color = Color(0xFFC5A572)
+                    color = if (isError) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        Color(0xFFC5A572)
+                    }
                 ),
         ) {
 

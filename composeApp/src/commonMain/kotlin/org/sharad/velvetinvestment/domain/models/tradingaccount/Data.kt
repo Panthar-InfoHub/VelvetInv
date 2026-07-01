@@ -6,6 +6,8 @@ import org.sharad.velvetinvestment.utils.tradingaccount.ClientType
 import org.sharad.velvetinvestment.utils.tradingaccount.DividendPayMode
 import org.sharad.velvetinvestment.utils.tradingaccount.Holding
 import org.sharad.velvetinvestment.utils.tradingaccount.InvestorOnboarding
+import org.sharad.velvetinvestment.utils.tradingaccount.KycType
+import org.sharad.velvetinvestment.utils.tradingaccount.NominationAuthentication
 import org.sharad.velvetinvestment.utils.tradingaccount.TaxStatus
 import org.sharad.velvetinvestment.utils.tradingaccount.YesNo
 
@@ -82,7 +84,7 @@ data class Data(
     val micr_no_4: String = "",
     val micr_no_5: String = "",
     val mobile_declaration_flag: String = "SE",
-    val nomination_authentication: String = "",
+    val nomination_authentication: String = NominationAuthentication.OTP_AUTHENTICATION.code,
     val nomination_opt: String = "Y",
     val nominee_1_address1: String = "",
     val nominee_1_address2: String = "",
@@ -151,7 +153,7 @@ data class Data(
     val primary_holder_exempt_category: String = "",
     val primary_holder_first_name: String = "",
     val primary_holder_kra_exempt_ref_no: String = "",
-    val primary_holder_kyc_type: String = "",
+    val primary_holder_kyc_type: String = KycType.AADHAAR_EKYC.code,
     val primary_holder_last_name: String = "",
     val primary_holder_middle_name: String = "",
     val primary_holder_pan: String = "",

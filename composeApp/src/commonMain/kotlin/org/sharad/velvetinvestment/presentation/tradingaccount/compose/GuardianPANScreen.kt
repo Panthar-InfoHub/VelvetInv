@@ -50,7 +50,6 @@ import velvet.composeapp.generated.resources.notice
 
 @Composable
 fun TAScreen8(
-    pv: PaddingValues,
     onClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: TradingAccountViewModel
@@ -62,7 +61,14 @@ fun TAScreen8(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            rightContent = {
+                Text(
+                    text = "Step 2/5",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Gray
+                )
+            }
         )
         UiStateContainer(
             uiState = state,
@@ -75,6 +81,7 @@ fun TAScreen8(
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
@@ -279,17 +286,9 @@ fun TAScreen8(
                             }
                         }
                     }
-                    item {
-                        Spacer(
-                            modifier = Modifier.height(
-                                pv.calculateBottomPadding()
-                            )
-                        )
-                    }
                 }
                 NextButtonFooter(
                     onClick = onClick,
-                    pv = pv,
                     value = "Next",
                     enabled = panVerified &&
                             verifiedPanNumber == data.guardian_pan

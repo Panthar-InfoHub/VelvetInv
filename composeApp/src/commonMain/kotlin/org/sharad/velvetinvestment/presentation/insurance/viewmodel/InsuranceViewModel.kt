@@ -25,7 +25,7 @@ class InsuranceViewModel(
     val showThankYouDialog = _showThankYouDialog.asSharedFlow()
 
     fun requestCallback() {
-        if (isLoading) requestCallback()
+        if (isLoading) return
         viewModelScope.launch {
             isLoading = true
             requestConnectionUseCase(type = "CALL", message = "Requesting For Insurance Advice.")

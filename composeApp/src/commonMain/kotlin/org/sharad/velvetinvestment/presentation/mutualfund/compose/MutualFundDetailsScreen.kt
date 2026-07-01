@@ -74,6 +74,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.shared.AppDialogList
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
+import org.sharad.velvetinvestment.shared.compose.ListWheelPicker
 import org.sharad.velvetinvestment.shared.compose.NavLineChart
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.VelvetLoader
@@ -184,17 +185,16 @@ fun MutualFundDetailsScreenRoot(
                     )
 
                     if (cartState.dayDropDownExpanded) {
-                        AppDialogList(
+                        ListWheelPicker(
+                            title = "Select SIP Date",
                             items = data.sipAllowedDated,
-                            textFormatter = {
-                                it.toString()
-                            },
-                            onSelect = {
+                            selectedItem = cartState.selectedSIPDate?.toIntOrNull(),
+                            onItemSelected = {
                                 viewModel.onCartDateChange(it.toString())
                             },
                             onDismiss = {
                                 viewModel.onCartDropDownDismiss()
-                            },
+                            }
                         )
                     }
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.ismoy.imagepickerkmp.domain.extensions.loadPainter
 import io.github.ismoy.imagepickerkmp.domain.models.PhotoResult
@@ -41,7 +42,9 @@ import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderS
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
+import org.sharad.velvetinvestment.shared.compose.InvertedAppButton
 import org.sharad.velvetinvestment.shared.dottedBorder
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.SnackBarController
 import velvet.composeapp.generated.resources.Res
@@ -52,10 +55,9 @@ import velvet.composeapp.generated.resources.sign_icon
 fun FileUploadScreen(
     onBack: () -> Unit,
     onSuccessfulUpload: () -> Unit,
-){
-
-    val scope= rememberCoroutineScope()
-    val viewModel: KYCImageUploaderScreenViewModel = koinViewModel()
+    viewModel: KYCImageUploaderScreenViewModel = koinViewModel()
+) {
+    val scope = rememberCoroutineScope()
 
     val signature by viewModel.signature.collectAsStateWithLifecycle()
     val photo by viewModel.photo.collectAsStateWithLifecycle()
@@ -64,46 +66,87 @@ fun FileUploadScreen(
     val loading by viewModel.loading.collectAsStateWithLifecycle()
     val buttonEnabled by viewModel.buttonEnabled.collectAsStateWithLifecycle()
 
+    FileUploadScreenContent(
+        onBack = onBack,
+        onSuccessfulUpload = {
+            viewModel.uploadImages {
+                onSuccessfulUpload()
+            }
+        },
+        signature = signature,
+        photo = photo,
+        showSignatureSelector = showSignatureSelector,
+        showPhotoSelector = showPhotoSelector,
+        loading = loading,
+        buttonEnabled = buttonEnabled,
+        onSignatureClick = { viewModel.showSignatureSelector() },
+        onPhotoClick = { viewModel.showPhotoSelector() },
+        onSignatureSelected = { viewModel.onSignatureSelected(it) },
+        onPhotoSelected = { viewModel.onPhotoSelected(it) },
+        onHideSignatureSelector = { viewModel.hideSignatureSelector() },
+        onHidePhotoSelector = { viewModel.hidePhotoSelector() },
+        showError = { scope.launch { SnackBarController.showError(it) } },
+        removeSignature={viewModel.removeSignature()},
+        removePhoto={viewModel.removePhoto()}
+    )
+}
+
+@Composable
+fun FileUploadScreenContent(
+    onBack: () -> Unit,
+    onSuccessfulUpload: () -> Unit,
+    signature: PhotoResult?,
+    photo: PhotoResult?,
+    showSignatureSelector: Boolean,
+    showPhotoSelector: Boolean,
+    loading: Boolean,
+    buttonEnabled: Boolean,
+    onSignatureClick: () -> Unit,
+    onPhotoClick: () -> Unit,
+    onSignatureSelected: (PhotoResult) -> Unit,
+    onPhotoSelected: (PhotoResult) -> Unit,
+    onHideSignatureSelector: () -> Unit,
+    onHidePhotoSelector: () -> Unit,
+    showError: (String) -> Unit,
+    removeSignature: () -> Unit,
+    removePhoto: () -> Unit
+) {
     if (showSignatureSelector) {
         ImageUploader(
             showGallery = showSignatureSelector,
-            onDismiss = {
-                viewModel.hideSignatureSelector()
-            },
+            onDismiss = onHideSignatureSelector,
             onSelected = {
-                it.fileSize?.let {size->
-                    if (size>5_242_880L) {
-                        scope.launch { SnackBarController.showError("File exceeds 5MB limit") }
-                        viewModel.hideSignatureSelector()
+                it.fileSize?.let { size ->
+                    if (size > 5_242_880L) {
+                        showError("File exceeds 5MB limit")
+                        onHideSignatureSelector()
                         return@ImageUploader
                     }
                 }
-                viewModel.onSignatureSelected(it)
+                onSignatureSelected(it)
             }
         )
     }
 
-    if (showPhotoSelector){
+    if (showPhotoSelector) {
         ImageUploader(
             showGallery = showPhotoSelector,
-            onDismiss = {
-                viewModel.hidePhotoSelector()
-            },
+            onDismiss = onHidePhotoSelector,
             onSelected = {
-                it.fileSize?.let {size->
-                    if (size>5_242_880L) {
-                        scope.launch { SnackBarController.showError("File exceeds 5MB limit") }
-                        viewModel.hidePhotoSelector()
+                it.fileSize?.let { size ->
+                    if (size > 5_242_880L) {
+                        showError("File exceeds 5MB limit")
+                        onHidePhotoSelector()
                         return@ImageUploader
                     }
                 }
-                viewModel.onPhotoSelected(it)
+                onPhotoSelected(it)
             }
         )
     }
 
     Column(
-        modifier=Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(Color.White)
     ) {
         BackHeader(
@@ -115,42 +158,52 @@ fun FileUploadScreen(
             modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item{ BarHeader(heading = "Upload Signature") }
+            item { BarHeader(heading = "Upload Signature") }
             item {
                 ImageSelectorBox(
-                    onClick = {
-                        viewModel.showSignatureSelector()
-                    },
-                    image = signature ,
+                    onClick = onSignatureClick,
+                    image = signature,
                     mainText = "Upload Signature",
                     subText = "JPEG, PNG up to 5 MB",
                     icon = Res.drawable.sign_icon,
                     uploadedText = "Signature Uploaded"
                 )
             }
-            item{ BarHeader(heading = "Upload Photo") }
+            if (signature!=null){
+                item {
+                    InvertedAppButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = removeSignature,
+                        text = "Remove Signature"
+                    )
+                }
+            }
+            item { BarHeader(heading = "Upload Photo") }
             item {
                 ImageSelectorBox(
-                    onClick = {
-                        viewModel.showPhotoSelector()
-                    },
-                    image = photo ,
+                    onClick = onPhotoClick,
+                    image = photo,
                     mainText = "Upload Photo",
                     subText = "JPEG, PNG up to 5 MB",
                     icon = Res.drawable.image_icon,
                     uploadedText = "Image Uploaded"
                 )
             }
+            if (photo!=null){
+                item {
+                    InvertedAppButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = removePhoto,
+                        text = "Remove Photo"
+                    )
+                }
+            }
             item {
                 Spacer(Modifier.height(8.dp))
             }
         }
         NextButtonFooter(
-            onClick = {
-                viewModel.uploadImages() {
-                    onSuccessfulUpload()
-                }
-            },
+            onClick = onSuccessfulUpload,
             value = "Save and Continue",
             loading = loading,
             enabled = buttonEnabled
@@ -253,4 +306,46 @@ fun ImageSelectorBox(onClick: () -> Unit, image: PhotoResult?, mainText: String,
         }
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FileUploadScreenPreview() {
+    VelvetTheme {
+        FileUploadScreenContent(
+            onBack = {},
+            onSuccessfulUpload = {},
+            signature = null,
+            photo = null,
+            showSignatureSelector = false,
+            showPhotoSelector = false,
+            loading = false,
+            buttonEnabled = false,
+            onSignatureClick = {},
+            onPhotoClick = {},
+            onSignatureSelected = {},
+            onPhotoSelected = {},
+            onHideSignatureSelector = {},
+            onHidePhotoSelector = {},
+            {},
+            {}
+        ) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ImageSelectorBoxPreview() {
+    VelvetTheme {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            ImageSelectorBox(
+                onClick = {},
+                image = null,
+                mainText = "Upload Signature",
+                subText = "JPEG, PNG up to 5 MB",
+                icon = Res.drawable.sign_icon,
+                uploadedText = "Signature Uploaded"
+            )
+        }
+    }
 }

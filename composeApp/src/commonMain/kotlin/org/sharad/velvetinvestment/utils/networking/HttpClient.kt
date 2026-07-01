@@ -57,8 +57,8 @@ fun getHttpClient(
         install(Auth) {
             bearer {
                 loadTokens {
-//                    val token = authPrefs.getBearerToken()
-                    val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmOWMzOWRiLWIyNTAtNDViMy05NGFlLWU4YmM0NWM0NjMzNCIsInBob25lX25vIjoiODkzMDQ5MjA5NiIsInVzciI6Ijg5MzA0OTIwOTYiLCJpbnZfaWQiOjU5LCJwd2QiOiIzOTI1MTMiLCJpYXQiOjE3ODI0ODE4NTcsImV4cCI6MTc4MzA4NjY1N30.51QJHx9FGhjUdCUaO5qA_EyBYJawE_amlCdTrRThZEE"
+                    val token = authPrefs.getBearerToken()
+//                    val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ4YjMwYmU3LTBmMjMtNGFhOS1hMmUzLTFhNDU4ZTIwMTZmNCIsInBob25lX25vIjoiODE4MTg3NzAwMCIsInVzciI6IjgxODE4NzcwMDAiLCJpbnZfaWQiOjk4LCJwd2QiOiIzMzExODgiLCJpYXQiOjE3ODI4MzE1MjQsImV4cCI6MTc4MzQzNjMyNH0.yA9N75NwX0-JWbKl7IItCcGscnfXtGwwTL6qcPRsreY"
                     val refresh = authPrefs.getRefreshToken()
                     if (token.isNullOrEmpty()) return@loadTokens null
                     BearerTokens(token, refresh ?: "")

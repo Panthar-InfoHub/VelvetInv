@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import velvet.composeapp.generated.resources.Res
@@ -32,12 +33,13 @@ import velvet.composeapp.generated.resources.tick_icon
 fun KYCCheckAnimationScreen(
     onButtonClick: () -> Unit,
     buttonText: String = "Start Investing",
+    onBack: () -> Unit,
 ) {
     var animationFinished by remember { mutableStateOf(false) }
     var showButton by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        delay(2500) // Play animation for 2.5 seconds
+        delay(2500)
         animationFinished = true
     }
 
@@ -46,11 +48,16 @@ fun KYCCheckAnimationScreen(
             showButton = true
         }
     }
-
     Box(
         modifier = Modifier.fillMaxSize().background(Color.White),
         contentAlignment = Alignment.Center
     ) {
+        BackHeader(
+            onBackClick = onBack,
+            heading = "",
+            showBack = true,
+            modifier = Modifier.align(Alignment.TopStart)
+        )
         SuccessIconAnimation()
 
         if (showButton) {
@@ -94,7 +101,7 @@ fun SuccessIconAnimation() {
         launch {
             alphaCheck.animateTo(1f, animationSpec = tween(700, easing = FastOutSlowInEasing))
         }
-        
+
         // Ripples fade in slightly after
         launch {
             delay(200)
@@ -199,8 +206,10 @@ private fun lerp(start: Float, stop: Float, fraction: Float): Float =
 
 @Composable
 @Preview
-fun Prev(){
+fun Prev() {
     VelvetTheme {
-        KYCCheckAnimationScreen(onButtonClick = {})
+        KYCCheckAnimationScreen(
+            {}
+        ) {}
     }
 }

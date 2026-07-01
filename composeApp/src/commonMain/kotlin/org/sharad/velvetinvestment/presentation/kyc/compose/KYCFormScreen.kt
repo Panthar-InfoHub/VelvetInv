@@ -160,7 +160,7 @@ fun FormContent(
 
             item {
                 DropDownSelector(
-                    value = state.occupationCode,
+                    value = OccupationType.fromCode(state.occupationCode)?.displayName ?: "",
                     onValueChange ={
                         viewModel.updateOccupationCode(it)
                     },
@@ -179,7 +179,8 @@ fun FormContent(
                     value = state.panNumber,
                     onValueChange = viewModel::updatePANNumber,
                     placeHolder = "PAN Number",
-                    label = "PAN Number"
+                    label = "PAN Number",
+                    mandatory = true
                 )
             }
 

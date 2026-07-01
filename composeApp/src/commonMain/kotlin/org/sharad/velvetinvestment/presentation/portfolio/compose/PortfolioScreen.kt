@@ -334,7 +334,7 @@ fun MutualFundPortfolio(
     pendingOrders: List<PendingOrderDomain>,
     onCancelPendingOrder: (PendingOrderDomain) -> Unit
 ) {
-    if (mutualFund.isEmpty()) {
+    if (mutualFund.isEmpty() && pendingOrders.isEmpty()) {
         EmptyFundScreen(
             onBrowseClick = onEmptyButtonClick,
             text = "Grow your wealth with Mutual Funds through SIPs for steady investing or Lumpsum for one-time opportunities.",
@@ -368,11 +368,13 @@ fun MutualFundPortfolio(
                     )
                 }
 
-                item { BarHeader(heading = "Mutual Funds") }
-                items(mutualFund, key = { it.folio}) { item ->
-                    FolioFundCard(fundItem = item, onClick = {
-                        onFundClick(item)
-                    })
+                if(mutualFund.isNotEmpty()){
+                    item { BarHeader(heading = "Mutual Funds") }
+                    items(mutualFund, key = { it.folio }) { item ->
+                        FolioFundCard(fundItem = item, onClick = {
+                            onFundClick(item)
+                        })
+                    }
                 }
                 if (pendingOrders.isNotEmpty()) {
                     item { BarHeader(heading = "Pending Payments") }

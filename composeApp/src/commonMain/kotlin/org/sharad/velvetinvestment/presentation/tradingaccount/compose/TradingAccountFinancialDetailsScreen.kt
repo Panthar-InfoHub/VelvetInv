@@ -62,12 +62,11 @@ import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.OnBoardingDateField
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.tradingaccount.Country
 import org.sharad.velvetinvestment.utils.tradingaccount.Holding
-import org.sharad.velvetinvestment.utils.tradingaccount.NominationAuthentication
 import org.sharad.velvetinvestment.utils.tradingaccount.NomineeIdentityType
 import org.sharad.velvetinvestment.utils.tradingaccount.NomineeRelationship
 import org.sharad.velvetinvestment.utils.tradingaccount.OccupationType
@@ -77,7 +76,6 @@ import velvet.composeapp.generated.resources.tick_icon
 
 @Composable
 fun TradingAccountFinancialDetailsScreen(
-    pv: PaddingValues,
     onClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: TradingAccountViewModel
@@ -92,7 +90,14 @@ fun TradingAccountFinancialDetailsScreen(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = { onBackClick() }
+            onBackClick = { onBackClick() },
+            rightContent = {
+                Text(
+                    text = "Step 3/5",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Gray
+                )
+            }
         )
 
         UiStateContainer(
@@ -106,7 +111,8 @@ fun TradingAccountFinancialDetailsScreen(
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
 
                     item {
@@ -210,22 +216,6 @@ fun TradingAccountFinancialDetailsScreen(
                     item {
                         BarHeader(heading = "Nomination Details")
                     }
-                    item {
-                        DropDownSelector(
-                            value = NominationAuthentication.fromCode(data.nomination_authentication)?.displayName
-                                ?: "",
-                            onValueChange = { viewModel.onNominationAuthChange(it.code) },
-                            placeHolder = "Nominee authentication",
-                            mandatory = true,
-                            label = "Nominee Authentication",
-                            modifier = Modifier.fillMaxWidth(),
-                            list = NominationAuthentication.getAllowedOptions(data.nomination_opt),
-                            textConvertor = {
-                                it.displayName
-                            }
-                        )
-                    }
-
                     item {
                         OnBoardingTextField(
                             value = data.nominee_1_name,
@@ -415,29 +405,10 @@ fun TradingAccountFinancialDetailsScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-
-//                        item {
-//                            DropDownSelector(
-//                                value = data.nominee_soa,
-//                                onValueChange = viewModel::onNomineeSoaChange,
-//                                placeHolder = "Y/N",
-//                                label = "Nomination SOA(Statement of Account)",
-//                                mandatory = true,
-//                                modifier = Modifier.fillMaxWidth(),
-//                                list = listOf("Y", "N"),
-//                                textConvertor = { it }
-//                            )
-//                        }
-
-
-                    item {
-                        Spacer(modifier = Modifier.height(pv.calculateBottomPadding() + 16.dp))
-                    }
                 }
 
                 NextButtonFooter(
                     onClick = onClick,
-                    pv = pv,
                     value = "Next",
                     enabled = buttonEnabled
                 )

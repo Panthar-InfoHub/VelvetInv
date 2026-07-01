@@ -113,19 +113,35 @@ class LoginScreenViewModel(
     ){
         viewModelScope.launch {
             _loadingLogin.value=true
-            loginWithNumberUseCase(_phoneNumber.value)
-                .onSuccess {
-                    _loadingLogin.value=false
-                    _otp.value=""
-                    _loadingOtp.value=false
-                    startOtpTimer()
-                    onSuccess()
+            var currentRetry = 0
+            val maxRetries = 2
+
+            while (currentRetry <= maxRetries) {
+                var success = false
+                loginWithNumberUseCase(_phoneNumber.value)
+                    .onSuccess {
+                        _loadingLogin.value=false
+                        _otp.value=""
+                        _loadingOtp.value=false
+                        startOtpTimer()
+                        onSuccess()
+                        success = true
+                    }
+                    .onError {
+                        if (currentRetry == maxRetries) {
+                            _loadingLogin.value=false
+                            onFailure(it.message)
+                            SnackBarController.showError(it.message)
+                        }
+                    }
+
+                if (success) break
+
+                currentRetry++
+                if (currentRetry <= maxRetries) {
+                    delay(1000)
                 }
-                .onError {
-                   _loadingLogin.value=false
-                    onFailure(it.message)
-                    SnackBarController.showError(it.message)
-                }
+            }
         }
     }
 
@@ -135,16 +151,32 @@ class LoginScreenViewModel(
     ){
         viewModelScope.launch {
             _loadingOtp.value=true
-            verifyOtpUseCase(_phoneNumber.value, _otp.value)
-                .onSuccess {
-                    _loadingOtp.value=false
-                    onSuccess(it)
+            var currentRetry = 0
+            val maxRetries = 2
+
+            while (currentRetry <= maxRetries) {
+                var success = false
+                verifyOtpUseCase(_phoneNumber.value, _otp.value)
+                    .onSuccess {
+                        _loadingOtp.value=false
+                        onSuccess(it)
+                        success = true
+                    }
+                    .onError {
+                        if (currentRetry == maxRetries) {
+                            _loadingOtp.value=false
+                            onFailure(it.message)
+                            SnackBarController.showError(it.message)
+                        }
+                    }
+
+                if (success) break
+
+                currentRetry++
+                if (currentRetry <= maxRetries) {
+                    delay(1000)
                 }
-                .onError {
-                    _loadingOtp.value=false
-                    onFailure(it.message)
-                    SnackBarController.showError(it.message)
-                }
+            }
         }
     }
 

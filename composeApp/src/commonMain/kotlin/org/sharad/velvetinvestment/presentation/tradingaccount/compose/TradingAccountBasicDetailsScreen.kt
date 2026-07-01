@@ -46,7 +46,6 @@ import org.sharad.velvetinvestment.utils.tradingaccount.TaxStatus
 
 @Composable
 fun TradingAccountBasicDetailsScreen(
-    pv: PaddingValues,
     onClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: TradingAccountViewModel
@@ -55,7 +54,18 @@ fun TradingAccountBasicDetailsScreen(
     val buttonEnabled by viewModel.basicDetailsNextEnabled.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        BackHeader("Trading account", showBack = true, onBackClick = { onBackClick() })
+        BackHeader(
+            "Trading account",
+            showBack = true,
+            onBackClick = { onBackClick() },
+            rightContent = {
+                Text(
+                    text = "Step 1/5",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Gray
+                )
+            }
+        )
         UiStateContainer(
             uiState = state,
             onRetry = { viewModel.getUserData() },
@@ -65,7 +75,8 @@ fun TradingAccountBasicDetailsScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.weight(1f).fillMaxSize().padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 )
                 {
                         item {
@@ -89,31 +100,11 @@ fun TradingAccountBasicDetailsScreen(
                             OnBoardingTextField(
                                 value = data.primary_holder_first_name,
                                 onValueChange = viewModel::onFirstNameChange,
-                                placeHolder = "Enter First Name",
-                                label = "First Name",
+                                placeHolder = "Enter Full Name",
+                                label = "Full Name",
                                 mandatory = true,
                                 keyboardType = KeyboardType.Text,
                                 enabled = true
-                            )
-                        }
-                        item {
-                            OnBoardingTextField(
-                                value = data.primary_holder_middle_name,
-                                onValueChange = viewModel::onMiddleNameChange,
-                                placeHolder = "Enter Middle Name",
-                                label = "Middle Name (Optional)",
-                                mandatory = false,
-                                keyboardType = KeyboardType.Text
-                            )
-                        }
-                        item {
-                            OnBoardingTextField(
-                                value = data.primary_holder_last_name,
-                                onValueChange = viewModel::onLastNameChange,
-                                placeHolder = "Enter Last Name",
-                                label = "Last Name",
-                                mandatory = false,
-                                keyboardType = KeyboardType.Text
                             )
                         }
                         item {
@@ -189,13 +180,9 @@ fun TradingAccountBasicDetailsScreen(
                                 },
                             )
                         }
-
-                        item { Spacer(modifier = Modifier.height(pv.calculateBottomPadding())) }
-
                     }
                     NextButtonFooter(
                         onClick = onClick,
-                        pv = pv,
                         value = "Next",
                         enabled = buttonEnabled,
                     )
@@ -315,15 +302,17 @@ fun PhoneDisplayField(
                         style = MaterialTheme.typography.bodySmall,
                         text = "+91 | "
                     )
-                    if (value.isEmpty()) {
-                        Text(
-                            text = placeHolder,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xffC5C5C5),
-                            maxLines = 1
-                        )
+                    Box{
+                        if (value.isEmpty()) {
+                            Text(
+                                text = placeHolder,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xffC5C5C5),
+                                maxLines = 1
+                            )
+                        }
+                        it()
                     }
-                    it()
                 }
             }
 

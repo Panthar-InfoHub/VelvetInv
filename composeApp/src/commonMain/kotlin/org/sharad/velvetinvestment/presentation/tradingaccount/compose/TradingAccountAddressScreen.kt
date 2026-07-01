@@ -40,7 +40,6 @@ import org.sharad.velvetinvestment.utils.tradingaccount.TaxStatus
 
 @Composable
 fun TradingAccountAddressScreen(
-    pv: PaddingValues,
     onClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: TradingAccountViewModel
@@ -56,7 +55,14 @@ fun TradingAccountAddressScreen(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = { onBackClick() }
+            onBackClick = { onBackClick() },
+            rightContent = {
+                Text(
+                    text = "Step 5/5",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Gray
+                )
+            }
         )
 
         UiStateContainer(
@@ -77,7 +83,8 @@ fun TradingAccountAddressScreen(
                         .weight(1f)
                         .fillMaxSize()
                         .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
 
                     item {
@@ -115,25 +122,25 @@ fun TradingAccountAddressScreen(
                             )
                         }
 
-                        item {
-                            OnBoardingTextField(
-                                value = data.address_2,
-                                onValueChange = viewModel::onAddress2Change,
-                                placeHolder = "Street Name,Area",
-                                label = "Address Line 2 (Optional)",
-                                mandatory = false
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.address_3,
-                                onValueChange = viewModel::onAddress3Change,
-                                placeHolder = "Landmark",
-                                label = "Address Line 3 (Optional)",
-                                mandatory = false
-                            )
-                        }
+//                        item {
+//                            OnBoardingTextField(
+//                                value = data.address_2,
+//                                onValueChange = viewModel::onAddress2Change,
+//                                placeHolder = "Street Name,Area",
+//                                label = "Address Line 2 (Optional)",
+//                                mandatory = false
+//                            )
+//                        }
+//
+//                        item {
+//                            OnBoardingTextField(
+//                                value = data.address_3,
+//                                onValueChange = viewModel::onAddress3Change,
+//                                placeHolder = "Landmark",
+//                                label = "Address Line 3 (Optional)",
+//                                mandatory = false
+//                            )
+//                        }
 
                         item {
                             OnBoardingTextField(
@@ -184,202 +191,136 @@ fun TradingAccountAddressScreen(
                             )
                         }
 
-                        item {
-                            OnBoardingTextField(
-                                value = data.resi_phone,
-                                onValueChange = viewModel::onResiPhoneChange,
-                                placeHolder = "Enter Phone Number",
-                                label = "Phone (Optional)",
-                                mandatory = false,
-                                keyboardType = KeyboardType.Phone
-                            )
+                        ///////////////////////////////////////////////////////
+                        // FOREIGN ADDRESS
+                        ///////////////////////////////////////////////////////
+
+                        if (showForeignAddress) {
+
+                            item {
+                                OnBoardingTextField(
+                                    value = data.foreign_address_1,
+                                    onValueChange = viewModel::onForeignAddress1Change,
+                                    placeHolder = "Street Address",
+                                    label = "Foreign Address Line 1",
+                                    mandatory = true
+                                )
+                            }
+
+                            item {
+                                OnBoardingTextField(
+                                    value = data.foreign_address_2,
+                                    onValueChange = viewModel::onForeignAddress2Change,
+                                    placeHolder = "Apartment, suite, unit, etc.",
+                                    label = "Foreign Address Line 2 (Optional)",
+                                    mandatory = false
+                                )
+                            }
+
+                            item {
+                                OnBoardingTextField(
+                                    value = data.foreign_address_3,
+                                    onValueChange = viewModel::onForeignAddress3Change,
+                                    placeHolder = "Additional Info",
+                                    label = "Foreign Address Line 3 (Optional)",
+                                    mandatory = false
+                                )
+                            }
+
+                            item {
+                                OnBoardingTextField(
+                                    value = data.foreign_address_city,
+                                    onValueChange = viewModel::onForeignCityChange,
+                                    placeHolder = "Enter City",
+                                    label = "City",
+                                    mandatory = true
+                                )
+                            }
+
+                            item {
+                                OnBoardingTextField(
+                                    value = data.foreign_address_state,
+                                    onValueChange = viewModel::onForeignStateChange,
+                                    placeHolder = "Enter State",
+                                    label = "State/Province",
+                                    mandatory = true
+                                )
+                            }
+
+                            item {
+                                OnBoardingTextField(
+                                    value = data.foreign_address_pincode,
+                                    onValueChange = viewModel::onForeignPincodeChange,
+                                    placeHolder = "Postal Code",
+                                    label = "Postal Code",
+                                    mandatory = true,
+                                    keyboardType = KeyboardType.Number
+                                )
+                            }
+
+                            item {
+                                OnBoardingTextField(
+                                    value = Country.getDisplayNameFromCode(data.foreign_address_country)
+                                        ?: "",
+                                    onValueChange = {},
+                                    enabled = false,
+                                    placeHolder = "Select Country",
+                                    label = "Country",
+                                    mandatory = true,
+                                    modifier = Modifier.fillMaxWidth().clickable(
+                                        onClick = {
+                                            showCountryDialog = true
+                                        },
+                                        indication = null,
+                                        interactionSource = remember { MutableInteractionSource() }
+                                    ),
+                                )
+                            }
+
+                            item {
+                                OnBoardingTextField(
+                                    value = data.foreign_address_resi_phone,
+                                    onValueChange = viewModel::onForeignPhoneChange,
+                                    placeHolder = "Phone Number",
+                                    label = "Phone",
+                                    mandatory = false,
+                                    keyboardType = KeyboardType.Phone
+                                )
+                            }
                         }
 
-                        item {
-                            OnBoardingTextField(
-                                value = data.resi_fax,
-                                onValueChange = viewModel::onResiFaxChange,
-                                placeHolder = "Enter Fax number",
-                                label = "Fax Number (Optional)",
-                                mandatory = false,
-                                keyboardType = KeyboardType.Number
-                            )
-                        }
+                        ///////////////////////////////////////////////////////
+                        // KYC
+                        ///////////////////////////////////////////////////////
 
                         item {
-                            OnBoardingTextField(
-                                value = data.office_phone,
-                                onValueChange = viewModel::onOfficePhoneChange,
-                                placeHolder = "Enter Office Phone number",
-                                label = "Office Phone Number (Optional)",
-                                mandatory = false,
-                                keyboardType = KeyboardType.Phone
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.office_fax,
-                                onValueChange = viewModel::onOfficeFaxChange,
-                                placeHolder = "Enter Office Fax number",
-                                label = "Office Fax Number (Optional)",
-                                mandatory = false,
-                                keyboardType = KeyboardType.Number
-                            )
-                        }
-                    }
-
-                    ///////////////////////////////////////////////////////
-                    // FOREIGN ADDRESS
-                    ///////////////////////////////////////////////////////
-
-                    if (showForeignAddress) {
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.foreign_address_1,
-                                onValueChange = viewModel::onForeignAddress1Change,
-                                placeHolder = "Street Address",
-                                label = "Foreign Address Line 1",
-                                mandatory = true
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.foreign_address_2,
-                                onValueChange = viewModel::onForeignAddress2Change,
-                                placeHolder = "Apartment, suite, unit, etc.",
-                                label = "Foreign Address Line 2 (Optional)",
-                                mandatory = false
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.foreign_address_3,
-                                onValueChange = viewModel::onForeignAddress3Change,
-                                placeHolder = "Additional Info",
-                                label = "Foreign Address Line 3 (Optional)",
-                                mandatory = false
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.foreign_address_city,
-                                onValueChange = viewModel::onForeignCityChange,
-                                placeHolder = "Enter City",
-                                label = "City",
-                                mandatory = true
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.foreign_address_state,
-                                onValueChange = viewModel::onForeignStateChange,
-                                placeHolder = "Enter State",
-                                label = "State/Province",
-                                mandatory = true
-                            )
-                        }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.foreign_address_pincode,
-                                onValueChange = viewModel::onForeignPincodeChange,
-                                placeHolder = "Postal Code",
-                                label = "Postal Code",
+                            DropDownSelector(
+                                value = KycType.getDisplayName(data.primary_holder_kyc_type),
+                                onValueChange = { viewModel.onPrimaryKycTypeChange(it.code) },
+                                placeHolder = "KYC Type",
+                                label = "KYC Type",
                                 mandatory = true,
-                                keyboardType = KeyboardType.Number
+                                list = KycType.entries,
+                                textConvertor = { it.displayName }
                             )
                         }
 
-                        item {
-                            OnBoardingTextField(
-                                value = Country.getDisplayNameFromCode(data.foreign_address_country)
-                                    ?: "",
-                                onValueChange = {},
-                                enabled = false,
-                                placeHolder = "Select Country",
-                                label = "Country",
-                                mandatory = true,
-                                modifier = Modifier.fillMaxWidth().clickable(
-                                    onClick = {
-                                        showCountryDialog = true
-                                    },
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() }
-                                ),
-                            )
+                        if (data.primary_holder_kyc_type == KycType.CKYC_COMPLIANT.code) {
+                            item {
+                                OnBoardingTextField(
+                                    value = data.primary_holder_ckyc_number,
+                                    onValueChange = viewModel::onPrimaryCkycChange,
+                                    placeHolder = "Enter CKYC no.",
+                                    label = "CKYC No",
+                                    mandatory = true,
+                                    keyboardType = KeyboardType.Number
+                                )
+                            }
                         }
-
-                        item {
-                            OnBoardingTextField(
-                                value = data.foreign_address_resi_phone,
-                                onValueChange = viewModel::onForeignPhoneChange,
-                                placeHolder = "Phone Number",
-                                label = "Phone",
-                                mandatory = false,
-                                keyboardType = KeyboardType.Phone
-                            )
-                        }
-                    }
-
-                    ///////////////////////////////////////////////////////
-                    // KYC
-                    ///////////////////////////////////////////////////////
-
-                    item {
-                        DropDownSelector(
-                            value = KycType.getDisplayName(data.primary_holder_kyc_type),
-                            onValueChange = { viewModel.onPrimaryKycTypeChange(it.code) },
-                            placeHolder = "KYC Type",
-                            label = "KYC Type",
-                            mandatory = true,
-                            list = KycType.entries,
-                            textConvertor = { it.displayName }
-                        )
-                    }
-
-                    if (data.primary_holder_kyc_type == KycType.CKYC_COMPLIANT.code) {
-                        item {
-                            OnBoardingTextField(
-                                value = data.primary_holder_ckyc_number,
-                                onValueChange = viewModel::onPrimaryCkycChange,
-                                placeHolder = "Enter CKYC no.",
-                                label = "CKYC No",
-                                mandatory = true,
-                                keyboardType = KeyboardType.Number
-                            )
-                        }
-                    }
-
-                    item {
-                        DropDownSelector(
-                            value = InvestorOnboarding.getDisplayName(data.paperless_flag),
-                            onValueChange = { viewModel.onPaperlessFlagChange(it.code) },
-                            placeHolder = "Investor Onboarding",
-                            label = "Investor Onboarding",
-                            mandatory = true,
-                            list = InvestorOnboarding.entries,
-                            textConvertor = { it.displayName }
-                        )
-                    }
-
-                    item {
-                        Spacer(
-                            modifier = Modifier.height(
-                                pv.calculateBottomPadding()
-                            )
-                        )
                     }
                 }
-
                 NextButtonFooter(
                     onClick = onClick,
-                    pv = pv,
                     value = "Submit Form",
                     enabled = buttonEnabled
                 )

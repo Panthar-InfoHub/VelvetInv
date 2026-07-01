@@ -58,6 +58,14 @@ class KYCImageUploaderScreenViewModel(
         hidePhotoSelector()
     }
 
+    fun removeSignature(){
+        _signature.value = null
+    }
+
+    fun removePhoto(){
+        _photo.value = null
+    }
+
     fun showSignatureSelector() {
         _showSignatureSelector.value = true
     }

@@ -50,7 +50,6 @@ import velvet.composeapp.generated.resources.gurdian_icon
 
 @Composable
 fun GuardianDetail(
-    pv: PaddingValues,
     onClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: TradingAccountViewModel
@@ -65,7 +64,14 @@ fun GuardianDetail(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            rightContent = {
+                Text(
+                    text = "Step 2/5",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Gray
+                )
+            }
         )
 
         UiStateContainer(
@@ -81,7 +87,8 @@ fun GuardianDetail(
                         .weight(1f)
                         .fillMaxSize()
                         .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
 
                     item {
@@ -160,19 +167,10 @@ fun GuardianDetail(
                             keyboardType = KeyboardType.Text
                         )
                     }
-
-                    item {
-                        Spacer(
-                            modifier = Modifier.height(
-                                pv.calculateBottomPadding()
-                            )
-                        )
-                    }
                 }
 
                 NextButtonFooter(
                     onClick = onClick,
-                    pv = pv,
                     value = "Next",
                     enabled = enabled
                 )

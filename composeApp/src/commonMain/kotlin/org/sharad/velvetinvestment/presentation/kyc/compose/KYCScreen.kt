@@ -26,8 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -44,6 +49,7 @@ import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetai
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
@@ -53,9 +59,8 @@ import velvet.composeapp.generated.resources.plain_credit_card_rafiki_1
 fun KYCScreen(
     onBackClick: () -> Unit,
     onKYCInitSuccess: () -> Unit,
+    viewModel: KYCScreenViewModel = koinViewModel()
 ) {
-
-    val viewModel: KYCScreenViewModel= koinViewModel()
     val loading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -77,21 +82,43 @@ fun KYCScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    KYCScreenContent(
+        loading = loading,
+        onBackClick = onBackClick,
+        onCompleteKYCClick = {
+            viewModel.startKyc {
+                hasLaunchedBrowser = true
+            }
+        }
+    )
+}
+
+@Composable
+fun KYCScreenContent(
+    loading: Boolean,
+    onBackClick: () -> Unit,
+    onCompleteKYCClick: () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         BackHeader(heading = "KYC", onBackClick = onBackClick, showBack = true)
         LazyColumn(
             modifier = Modifier.fillMaxSize().weight(1f).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
-        ){
-            item{
-                Image(
-                    painter = painterResource(Res.drawable.plain_credit_card_rafiki_1),
-                    contentDescription = "Push Notification Image",
-                    modifier = Modifier.fillMaxWidth(),
-                    contentScale = ContentScale.FillWidth
-                )
+        ) {
+            item {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Image(
+                        painter = painterResource(Res.drawable.plain_credit_card_rafiki_1),
+                        contentDescription = "Push Notification Image",
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
             }
-            item{
+            item {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -112,7 +139,7 @@ fun KYCScreen(
                 Row(
                     modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ){
+                ) {
                     ZeroPriceCard(
                         text = "Account Maintenance Charges",
                         modifier = Modifier.weight(1f).fillMaxHeight()
@@ -123,14 +150,31 @@ fun KYCScreen(
                     )
                 }
             }
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                SpanStyle(fontWeight = FontWeight.SemiBold)
+                            ) {
+                                append("Disclaimer: ")
+                            }
+                            append("During DigiLocker verification, please select both your Aadhaar and PAN documents, as both are required to complete your KYC verification successfully.")                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = titleColor
+                    )
+                }
+            }
         }
         NextButtonFooter(
             value = "Complete your KYC",
-            onClick = {
-                viewModel.startKyc(){
-                    hasLaunchedBrowser=true
-                }
-            },
+            onClick = onCompleteKYCClick,
             loading = loading
         )
 
@@ -165,5 +209,28 @@ fun ZeroPriceCard(text: String, modifier: Modifier) {
                 color = titleColor
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun KYCScreenPreview() {
+    VelvetTheme {
+        KYCScreenContent(
+            loading = false,
+            onBackClick = {},
+            onCompleteKYCClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ZeroPriceCardPreview() {
+    VelvetTheme {
+        ZeroPriceCard(
+            text = "Account Maintenance Charges",
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }

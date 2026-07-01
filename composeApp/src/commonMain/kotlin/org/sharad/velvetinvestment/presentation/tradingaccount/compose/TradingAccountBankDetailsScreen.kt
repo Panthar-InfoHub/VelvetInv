@@ -58,7 +58,6 @@ import velvet.composeapp.generated.resources.secure
 
 @Composable
 fun TradingAccountBankDetailsScreen(
-    pv: PaddingValues,
     onClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: TradingAccountViewModel
@@ -66,13 +65,21 @@ fun TradingAccountBankDetailsScreen(
     val state by viewModel.formState.collectAsStateWithLifecycle()
     val visibleAccounts by viewModel.visibleBankAccounts.collectAsStateWithLifecycle()
     val buttonEnabled by viewModel.bankScreenButtonEnabled.collectAsStateWithLifecycle()
+    val reEnteredAccountNumbers by viewModel.reEnteredAccountNumbers.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
 
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = { onBackClick() }
+            onBackClick = { onBackClick() },
+            rightContent = {
+                Text(
+                    text = "Step 4/5",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Gray
+                )
+            }
         )
 
         UiStateContainer(
@@ -90,55 +97,54 @@ fun TradingAccountBankDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
-                        item {
-                            SecureNote()
-                        }
-
-                        item {
-                            DropDownSelector(
-                                value = DividendPayMode.getDisplayName(data.div_pay_mode),
-                                onValueChange = { viewModel.onDivPayModeChange(it.code) },
-                                label = "Dividend Payment Mode",
-                                placeHolder = "Payment Mode",
-                                mandatory = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                list = DividendPayMode.entries,
-                                textConvertor = {
-                                    it.displayName
-                                }
-                            )
-                        }
-                        items(visibleAccounts) { index ->
-
-                            BankAccountSection(
-                                index = index,
-                                data = data,
-                                viewModel = viewModel,
-                                removable = index != 1,
-                                onRemove = {
-                                    viewModel.removeBankAccount(index)
-                                }
-                            )
-                        }
-                        if (visibleAccounts.size < 5) {
-                            item {
-                                Text(
-                                    text = "+ Add Another Bank Account",
-                                    modifier = Modifier.clickable {
-                                        viewModel.addBankAccount()
-                                    }
-                                )
-                            }
-                        }
+                    item {
+                        SecureNote()
                     }
 
-                    NextButtonFooter(
-                        onClick = onClick,
-                        pv = pv,
-                        value = "Next",
-                        enabled = buttonEnabled
-                    )
+                    item {
+                        DropDownSelector(
+                            value = DividendPayMode.getDisplayName(data.div_pay_mode),
+                            onValueChange = { viewModel.onDivPayModeChange(it.code) },
+                            label = "Dividend Payment Mode",
+                            placeHolder = "Payment Mode",
+                            mandatory = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            list = DividendPayMode.entries,
+                            textConvertor = {
+                                it.displayName
+                            }
+                        )
+                    }
+                    items(visibleAccounts) { index ->
+                        BankAccountSection(
+                            index = index,
+                            data = data,
+                            reEnteredAccountNumber = reEnteredAccountNumbers[index - 1],
+                            viewModel = viewModel,
+                            removable = index != 1,
+                            onRemove = {
+                                viewModel.removeBankAccount(index)
+                            }
+                        )
+                    }
+                    if (visibleAccounts.size < 5) {
+                        item {
+                            Text(
+                                text = "+ Add Another Bank Account",
+                                modifier = Modifier.clickable {
+                                    viewModel.addBankAccount()
+                                }
+                            )
+                        }
+                    }
                 }
+
+                NextButtonFooter(
+                    onClick = onClick,
+                    value = "Next",
+                    enabled = buttonEnabled
+                )
+            }
         }
     }
 }
@@ -197,8 +203,9 @@ fun BankAccountSection(
     data: Data,
     viewModel: TradingAccountViewModel,
     removable: Boolean,
-    onRemove: () -> Unit
-){
+    onRemove: () -> Unit,
+    reEnteredAccountNumber: String
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -223,6 +230,8 @@ fun BankAccountSection(
             textConvertor = { it.displayName }
         )
 
+        val accountMismatch = viewModel.isBankAccountMismatch(index, data)
+
         OnBoardingTextField(
             value = viewModel.getAccountNumber(index, data),
             onValueChange = {
@@ -231,8 +240,34 @@ fun BankAccountSection(
             placeHolder = "Enter Account Number",
             label = "Account Number",
             mandatory = true,
-            keyboardType = KeyboardType.Number
+            keyboardType = KeyboardType.Number,
+            isPassword = true
         )
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            OnBoardingTextField(
+                value= reEnteredAccountNumber,
+                onValueChange = {
+                    viewModel.onReEnteredAccountNumberChange(index, it)
+                },
+                placeHolder = "Re-enter Account Number",
+                label = "Re-enter Account Number",
+                mandatory = true,
+                keyboardType = KeyboardType.Number,
+                isError = accountMismatch
+            )
+
+            if (accountMismatch) {
+                Text(
+                    text = "Account numbers do not match",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
 
         OnBoardingTextField(
             value = viewModel.getIfsc(index, data),
@@ -244,18 +279,6 @@ fun BankAccountSection(
             mandatory = true,
             keyboardType = KeyboardType.Text
         )
-
-        OnBoardingTextField(
-            value = viewModel.getMicr(index, data),
-            onValueChange = {
-                viewModel.onMicrChange(index, it)
-            },
-            placeHolder = "MICR",
-            label = "MICR",
-            mandatory = false,
-            keyboardType = KeyboardType.Number
-        )
-
         DropDownSelector(
             value = YesNo.displayNameFromCode(
                 viewModel.getDefaultBank(index, data)

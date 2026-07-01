@@ -26,7 +26,8 @@ fun BackHeader(
     heading: String,
     showBack: Boolean = false,
     modifier:Modifier=Modifier.fillMaxWidth(),
-    onBackClick: () -> Unit={}
+    onBackClick: () -> Unit={},
+    rightContent: @Composable () -> Unit={}
 ){
     Box(
         modifier=modifier
@@ -50,6 +51,12 @@ fun BackHeader(
                     interactionSource = remember { MutableInteractionSource() }
                 ).align(Alignment.CenterStart)
             )
+        }
+
+        Box(
+            modifier = Modifier.align(Alignment.CenterEnd)
+        ) {
+            rightContent()
         }
     }
 }

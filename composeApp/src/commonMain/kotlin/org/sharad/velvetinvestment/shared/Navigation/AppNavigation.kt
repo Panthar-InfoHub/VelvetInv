@@ -610,6 +610,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop= true
                         }
                     },
+                    onBack= {navController.popBackStack()},
                     buttonText = "Start Investing"
                 )
             }

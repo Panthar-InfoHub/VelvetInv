@@ -68,6 +68,7 @@ import org.sharad.velvetinvestment.utils.LabelFilter
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.MutualFundLabel
 import org.sharad.velvetinvestment.utils.clearFocusOnTap
+import org.sharad.velvetinvestment.utils.toTitleCase
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_filter
 
@@ -300,7 +301,7 @@ fun MutualFundListCard(
         ) {
             Row{
                 Text(
-                    text = fund.shortName2.ifBlank { fund.shortName1.ifBlank { fund.name } },
+                    text = fund.name.toTitleCase(),
                     style = subHeading,
                     color = Color.Black,
                     maxLines = 1,
