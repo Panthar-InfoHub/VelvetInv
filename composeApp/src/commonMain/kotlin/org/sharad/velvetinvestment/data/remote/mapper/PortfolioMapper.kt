@@ -205,6 +205,7 @@ fun FolioFundDataDto.toDomain(): FolioFundDomain {
         balanceUnits = balance_units,
         imgUrl = img_url,
         schemeId = scheme_id,
-        orderId = order_id?:""
+        orderId = order_id?:"",
+        actualFolio=actual_folio?:""
     )
 }

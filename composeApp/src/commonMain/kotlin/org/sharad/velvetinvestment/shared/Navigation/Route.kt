@@ -73,7 +73,8 @@ object Route {
         val folio: String,
         val balanceUnits: Double,
         val img_url: String? = "",
-        val orderId: String
+        val orderId: String,
+        val actualFolio: String
     )
     @Serializable
     data class SIPCancellationScreen(val id:String)
