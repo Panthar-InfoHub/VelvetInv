@@ -100,12 +100,12 @@ val viewModelModule= module {
     viewModel { SettingViewModel() }
     viewModel{ TradingAccountViewModel(get(),get(),get(),get(),get()) }
     viewModel { OnBoardingConfirmationViewModel(get()) }
-    viewModel{ KYCScreenViewModel(get(), get()) }
+    viewModel{ KYCScreenViewModel(get()) }
     viewModel{ KYCFormScreenViewModel(get(),get(),get()) }
     viewModel{ KYCImageUploaderScreenViewModel(get(),get(),get()) }
     viewModel { KycContractViewModel(get(), get(), get(), get()) }
     viewModel {(id:String)-> FDDetailsViewModel(id,get()) }
-    viewModel {(id:String)-> FDPurchaseViewModel(id,get(),get(), get()) }
+    viewModel {(id:String)-> FDPurchaseViewModel(id,get(),get()) }
     viewModel { CartScreenViewModel(get(),get(),get(),get(),get(),get(), get()) }
     viewModel { SingleGoalViewModel(get(), get()) }
     viewModel { (id: String) -> ProjectionImpactViewModel(get(),get(), get(),get(),get(),get(),id) }

@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.shared.Navigation
 
 import kotlinx.serialization.Serializable
+import org.sharad.velvetinvestment.domain.webview.WebViewUrlMatchType
 
 object Route {
 
@@ -204,4 +205,13 @@ object Route {
     data object AllBundleScreen
     @Serializable
     data object InvestmentRateScreen
+
+    @Serializable
+    data class WebViewScreen(
+        val url: String,
+        val exitUrlPatterns: List<String> = emptyList(),
+        val matchType: String = WebViewUrlMatchType.CONTAINS.name,
+        val title: String? = null,
+        val completionRouteKey: String? = null
+    )
 }

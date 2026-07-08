@@ -56,6 +56,7 @@ import org.sharad.velvetinvestment.utils.withInterRupee
 @Composable
 fun FDPurchaseScreenRoot(
     onBackClick: () -> Unit,
+    onLaunchWebView: (url: String) -> Unit,
     id: String,
 ) {
 
@@ -84,9 +85,7 @@ fun FDPurchaseScreenRoot(
                     onTenureChange=viewModel::updateTenure,
                     onFrequencyChange=viewModel::updateFrequency,
                     buttonEnabled = buttonEnabled,
-                    onButtonClick = { viewModel.purchaseFD(){
-                        onBackClick()
-                    } }
+                    onButtonClick = { viewModel.purchaseFD(onLaunchWebView) }
                 )
             }
         }
