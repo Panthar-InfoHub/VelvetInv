@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "357888765640",
+    "project_id": "project-da4a7edc-79b4-4e67-a82",
+    "storage_bucket": "project-da4a7edc-79b4-4e67-a82.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357888765640:android:48dac45d3e01d18703bffd",
+        "android_client_info": {
+          "package_name": "org.sharad.velvetinvestment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDSjZJZd8rcaAsHxRNiojbHB6rX48Xtac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

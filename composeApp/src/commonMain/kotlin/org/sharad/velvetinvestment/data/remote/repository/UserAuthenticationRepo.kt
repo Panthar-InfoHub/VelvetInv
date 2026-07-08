@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.data.remote.repository
 
+import com.mmk.kmpnotifier.notification.NotifierManager
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.authProviders
 import io.ktor.client.plugins.auth.clearAuthTokens
@@ -10,8 +11,8 @@ import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toLoginDto
 import org.sharad.velvetinvestment.data.remote.model.TradingAccountSubmissionDto.TradingAccountResultDto
-import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenBody
 import org.sharad.velvetinvestment.data.remote.model.auth.sendotp.SendOtpDto
+import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenBody
 import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpBodyDto
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpDto
@@ -84,7 +85,10 @@ class UserAuthenticationRepo(
                 setBody(
                     VerifyOtpBodyDto(
                         mob = number,
-                        otp = otp
+                        otp = otp,
+                        fcm_token = NotifierManager
+                            .getPushNotifier()
+                            .getToken() ?: ""
                     )
                 )
             }

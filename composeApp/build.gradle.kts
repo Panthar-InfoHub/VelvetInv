@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.google.services)
 }
 
 kotlin {
@@ -26,6 +27,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            export("io.github.mirzemehdi:kmpnotifier:1.6.1")
         }
     }
 
@@ -41,6 +43,7 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(project.dependencies.platform(libs.firebase.bom))
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -72,6 +75,8 @@ kotlin {
             implementation(libs.material3.window.size.class1)
             implementation(libs.adaptive)
             implementation("io.github.ismoy:imagepickerkmp:1.0.35")
+
+            api("io.github.mirzemehdi:kmpnotifier:1.6.1")
         }
 
         nativeMain.dependencies {

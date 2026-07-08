@@ -37,27 +37,19 @@ import kotlin.time.Clock
 object TermsAndConditionsTextStyle {
 
     @Composable
-
     fun screenTitle() =
-
         MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
 
     @Composable
-
     fun sectionTitle() =
-
         MaterialTheme.typography.labelLarge
 
     @Composable
-
     fun bodyTitle() =
-
         MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
 
     @Composable
-
     fun body() =
-
         MaterialTheme.typography.bodySmall
 
 }

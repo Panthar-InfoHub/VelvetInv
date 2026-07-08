@@ -6,6 +6,7 @@ import io.ktor.util.network.UnresolvedAddressException
 
 import kotlinx.serialization.SerializationException
 import org.sharad.velvetinvestment.data.remote.model.ServerError.ServerError
+import org.sharad.velvetinvestment.utils.Log
 
 suspend inline fun <reified T> safeRequest(
     execute: () -> HttpResponse
@@ -30,6 +31,7 @@ suspend inline fun <reified T> safeRequest(
             )
         )
     } catch (e: Exception) {
+        Log("Exception", e.message.toString())
         return NetworkResponse.Error(
             ErrorDomain(
                 code = -1,

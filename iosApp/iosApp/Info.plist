@@ -4,10 +4,13 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
-
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow access to photos so users can upload images inside the app.</string>
+    <key>FirebaseAppDelegateProxyEnabled</key>
+    <true/>
 </dict>
 </plist>
