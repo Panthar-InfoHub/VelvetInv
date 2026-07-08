@@ -56,6 +56,9 @@ import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compo
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.PrivacyPolicyScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.TermsAndConditionsScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
+import org.sharad.velvetinvestment.domain.webview.WebViewConfig
+import org.sharad.velvetinvestment.domain.webview.WebViewUrlMatchType
+import org.sharad.velvetinvestment.presentation.webview.WebViewScreen
 import org.sharad.velvetinvestment.utils.AppEvent
 import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.DateTimeUtils
@@ -460,11 +463,15 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.KYCScreen> {
                 KYCScreen(
                     onBackClick = { navController.popBackStack() },
-                    onKYCInitSuccess = {
-                        navController.navigate(Route.KYCFormScreen) {
-                            launchSingleTop = true
-
-                        }
+                    onLaunchWebView = { url ->
+                        navController.navigate(
+                            Route.WebViewScreen(
+                                url = url,
+                                exitUrlPatterns = listOf("https://digilocker.signzy.tech/success","https://digilocker.signzy.tech/digilocker-auth-complete"),
+                                title = "DigiLocker Verification",
+                                completionRouteKey = "kyc_form"
+                            )
+                        )
                     },
                 )
             }
@@ -656,6 +663,15 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 val id = it.toRoute<Route.PurchaseFixedDeposit>().id
                 FDPurchaseScreenRoot(
                     onBackClick = { navController.popBackStack() },
+                    onLaunchWebView = { url ->
+                        navController.navigate(
+                            Route.WebViewScreen(
+                                url = url,
+                                exitUrlPatterns = emptyList(),
+                                title = "Complete Payment"
+                            )
+                        )
+                    },
                     id = id
                 )
             }
@@ -753,6 +769,32 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     onBackClick = {
                         navController.popBackStack()
                     }
+                )
+            }
+
+            composable<Route.WebViewScreen> {
+                val route = it.toRoute<Route.WebViewScreen>()
+
+                val onWebViewDone: () -> Unit = {
+                    when (route.completionRouteKey) {
+                        "kyc_form" -> navController.navigate(Route.KYCFormScreen) {
+                            popUpTo<Route.WebViewScreen> { inclusive = true }
+                            launchSingleTop = true
+                        }
+                        else -> navController.popBackStack()
+                    }
+                }
+
+                WebViewScreen(
+                    config = WebViewConfig(
+                        url = route.url,
+                        exitUrlPatterns = route.exitUrlPatterns,
+                        matchType = WebViewUrlMatchType.valueOf(route.matchType),
+                        title = route.title
+
+                    ),
+                    onExitUrlReached = { onWebViewDone() },
+                    onBackClick = { onWebViewDone() }
                 )
             }
 

@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.data.remote.model.purchasefd.PurchaseFDBodyDto
 import org.sharad.velvetinvestment.domain.models.fd.FDTenureDomain
-import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFDDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.PurchaseFDUseCase
 import org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels.FDPurchaseUiModel
@@ -25,8 +24,7 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 class FDPurchaseViewModel(
     private val id: String,
     private val getFDDetailsUseCase: GetFDDetailsUseCase,
-    private val purchaseFDUseCase: PurchaseFDUseCase,
-    private val browserLaunchUseCase: LaunchBrowserUseCase
+    private val purchaseFDUseCase: PurchaseFDUseCase
 ) : ViewModel() {
 
     private val _uiState =
@@ -163,7 +161,7 @@ class FDPurchaseViewModel(
         }
     }
 
-    fun purchaseFD(onSuccess: () -> Unit) {
+    fun purchaseFD(onLaunchWebView: (url: String) -> Unit) {
         viewModelScope.launch {
 
             val currentState = _uiState.value
@@ -197,8 +195,7 @@ class FDPurchaseViewModel(
                             it.copy(data = it.data.copy(loading = false))
                         } else it
                     }
-                    browserLaunchUseCase(response)
-                    onSuccess()
+                    onLaunchWebView(response)
                 }
                 .onError { error ->
 

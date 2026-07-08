@@ -18,11 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,9 +31,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -58,37 +51,16 @@ import velvet.composeapp.generated.resources.plain_credit_card_rafiki_1
 @Composable
 fun KYCScreen(
     onBackClick: () -> Unit,
-    onKYCInitSuccess: () -> Unit,
+    onLaunchWebView: (url: String) -> Unit,
     viewModel: KYCScreenViewModel = koinViewModel()
 ) {
     val loading by viewModel.isLoading.collectAsStateWithLifecycle()
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    var hasLaunchedBrowser by remember { mutableStateOf(false) }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START && hasLaunchedBrowser) {
-                onKYCInitSuccess()
-                hasLaunchedBrowser = false
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     KYCScreenContent(
         loading = loading,
         onBackClick = onBackClick,
         onCompleteKYCClick = {
-            viewModel.startKyc {
-                hasLaunchedBrowser = true
-            }
+            viewModel.startKyc(onLaunchWebView)
         }
     )
 }
