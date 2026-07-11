@@ -5,6 +5,7 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,6 +25,7 @@ import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.tradingaccount.OccupationType
+import kotlin.time.Duration.Companion.milliseconds
 
 class KYCFormScreenViewModel(
     private val getDigiDetails: GetDigiLockerDetailsUseCase,
@@ -31,7 +33,7 @@ class KYCFormScreenViewModel(
     private val getUserPersonalInfo: GetUserPersonalInfo
 ) : ViewModel() {
 
-    private val _isLoading = MutableStateFlow(true)
+    private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
     private val _isDataLoaded=MutableStateFlow(false)
@@ -111,40 +113,56 @@ class KYCFormScreenViewModel(
     ) {
         viewModelScope.launch {
 
+            if (_isLoading.value) return@launch
+
             _isLoading.value = true
+            _isDataLoaded.value = false
 
-            val digiDeferred = async { getDigiDetails() }
-            val personalDeferred = async { getUserPersonalInfo() }
+            kotlinx.coroutines.supervisorScope {
 
-            val digiResult = digiDeferred.await()
-            val personalResult = personalDeferred.await()
+                val digiDeferred = async {
+                    retryRequest {
+                        getDigiDetails()
+                    }
+                }
 
-            if (digiResult is NetworkResponse.Error) {
-                handleError(digiResult.error, onFailure)
-                return@launch
+                val userDeferred = async {
+                    retryRequest {
+                        getUserPersonalInfo()
+                    }
+                }
+
+                val digiResult = digiDeferred.await()
+                val userResult = userDeferred.await()
+
+                when {
+                    digiResult is NetworkResponse.Error -> {
+                        handleError(digiResult.error, onFailure)
+                    }
+
+                    userResult is NetworkResponse.Error -> {
+                        handleError(userResult.error, onFailure)
+                    }
+
+                    digiResult is NetworkResponse.Success &&
+                            userResult is NetworkResponse.Success -> {
+
+                        setInitialData(digiResult.data)
+
+                        _formState.update {
+                            it.copy(
+                                mobileNumber = userResult.data.phone,
+                                emailId = userResult.data.email
+                            )
+                        }
+
+                        _isDataLoaded.value = true
+                        _isLoading.value = false
+
+                        onSuccess()
+                    }
+                }
             }
-
-            if (personalResult is NetworkResponse.Error) {
-                handleError(personalResult.error, onFailure)
-                return@launch
-            }
-
-            val digiData = (digiResult as NetworkResponse.Success).data
-            val personalData = (personalResult as NetworkResponse.Success).data
-
-            setInitialData(digiData)
-
-            _formState.update {
-                it.copy(
-                    mobileNumber = personalData.phone,
-                    emailId = personalData.email,
-                )
-            }
-
-            _isDataLoaded.value = true
-            _isLoading.value = false
-
-            onSuccess()
         }
     }
 
@@ -153,15 +171,31 @@ class KYCFormScreenViewModel(
         if (!_formState.value.isValid()) return
         _formSubmissionLoading.value=true
         viewModelScope.launch {
-            submitKycForm(_formState.value.toDomain())
-                .onSuccess {
-                    _formSubmissionLoading.value=false
-                    onSuccess()
+            var retryCount = 0
+            val maxRetries = 2
+
+            while (retryCount <= maxRetries) {
+                var success = false
+                submitKycForm(_formState.value.toDomain())
+                    .onSuccess {
+                        _formSubmissionLoading.value=false
+                        onSuccess()
+                        success = true
+                    }
+                    .onError {
+                        if (retryCount == maxRetries) {
+                            _formSubmissionLoading.value=false
+                            SnackBarController.showError(it.message)
+                        }
+                    }
+
+                if (success) break
+
+                retryCount++
+                if (retryCount <= maxRetries) {
+                    delay(5000.milliseconds)
                 }
-                .onError {
-                    _formSubmissionLoading.value=false
-                    SnackBarController.showError(it.message)
-                }
+            }
         }
     }
 
@@ -191,4 +225,29 @@ class KYCFormScreenViewModel(
 
         onFailure()
     }
+}
+
+private suspend fun <T> retryRequest(
+    maxRetries: Int = 2,
+    delayMillis: Long = 5000,
+    request: suspend () -> NetworkResponse<T, ErrorDomain>
+): NetworkResponse<T, ErrorDomain> {
+
+    repeat(maxRetries + 1) { attempt ->
+
+        when (val result = request()) {
+
+            is NetworkResponse.Success -> return result
+
+            is NetworkResponse.Error -> {
+                if (attempt == maxRetries) {
+                    return result
+                }
+
+                delay(delayMillis.milliseconds)
+            }
+        }
+    }
+
+    error("Unreachable")
 }

@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.mfkyc.GetContractPdfUseCase
-import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.FinalizeKycUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.GetESingKycUseCase
 import org.sharad.velvetinvestment.utils.AppEventsController
@@ -19,8 +18,7 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 class KycContractViewModel(
     private val getContractPdfUseCase: GetContractPdfUseCase,
     private val getESignKycUseCase: GetESingKycUseCase,
-    private val finalizeKycUseCase: FinalizeKycUseCase,
-    private val launchBrowserUseCase: LaunchBrowserUseCase
+    private val finalizeKycUseCase: FinalizeKycUseCase
 ): ViewModel() {
 
     private val _contractPdfUrl = MutableStateFlow<UiState<String>>(UiState.Loading)
@@ -52,14 +50,13 @@ class KycContractViewModel(
         }
     }
 
-    fun getESignUrl(onSuccess: () -> Unit) {
+    fun getESignUrl(onSuccess: (String) -> Unit) {
         viewModelScope.launch {
             _submitLoading.value = true
             getESignKycUseCase()
                 .onSuccess {
                     _submitLoading.value = false
-                    onSuccess()
-                    launchBrowserUseCase(it)
+                    onSuccess(it)
                 }
                 .onError {
                     _submitLoading.value = false

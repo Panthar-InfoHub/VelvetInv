@@ -25,7 +25,6 @@ import org.sharad.velvetinvestment.domain.usecases.user.SubmitTradingAccountForm
 import org.sharad.velvetinvestment.domain.usecases.user.TradingAccountConfirmationUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.VerifyPANUseCase
 import org.sharad.velvetinvestment.utils.AppEventsController
-import org.sharad.velvetinvestment.utils.BrowserLauncher
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
@@ -45,16 +44,12 @@ class TradingAccountViewModel(
     private val getTradingAccountPrefilledDataUseCase: GetTradingAccountPrefilledDataUseCase,
     private val verifyPANUseCase: VerifyPANUseCase,
     private val submitTradingAccountFormUseCase: SubmitTradingAccountFormUseCase,
-    private val tradingAccountConfirmationUseCase: TradingAccountConfirmationUseCase,
-    private val openBrowserLauncher: BrowserLauncher
+    private val tradingAccountConfirmationUseCase: TradingAccountConfirmationUseCase
 ) : ViewModel() {
 
     // GLOBAL STATE
     private val _formState = MutableStateFlow<UiState<TradingAccountFormDomain>>(UiState.Loading)
     val     formState = _formState.asStateFlow()
-
-    private val _launchedBrowser = MutableStateFlow(false)
-    val launchedBrowser = _launchedBrowser.asStateFlow()
 
     init {
         getUserData()
@@ -114,7 +109,7 @@ class TradingAccountViewModel(
     }
 
     fun submitForm(
-        onSuccessfulSubmit: () -> Unit
+        onLaunchWebView: (String) -> Unit
     ) {
         viewModelScope.launch {
 
@@ -132,8 +127,7 @@ class TradingAccountViewModel(
                 submitTradingAccountFormUseCase(successState.data)
                     .onSuccess { response ->
                         _formState.value = previousState
-                        _launchedBrowser.value = true
-                        openBrowserLauncher.launchBrowser(response)
+                        onLaunchWebView(response)
                         success = true
                     }
                     .onError { error ->
@@ -164,7 +158,6 @@ class TradingAccountViewModel(
         viewModelScope.launch {
 
             val previousState = _formState.value
-            _launchedBrowser.value=false
             val successState = previousState as? UiState.Success ?: return@launch
 
             _formState.value = UiState.Loading

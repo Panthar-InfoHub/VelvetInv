@@ -98,12 +98,12 @@ val viewModelModule= module {
     viewModel { NotificationCentreViewModel() }
     viewModel { CheckKYCViewModel(get()) }
     viewModel { SettingViewModel() }
-    viewModel{ TradingAccountViewModel(get(),get(),get(),get(),get()) }
+    viewModel{ TradingAccountViewModel(get(),get(),get(),get()) }
     viewModel { OnBoardingConfirmationViewModel(get()) }
     viewModel{ KYCScreenViewModel(get()) }
     viewModel{ KYCFormScreenViewModel(get(),get(),get()) }
     viewModel{ KYCImageUploaderScreenViewModel(get(),get(),get()) }
-    viewModel { KycContractViewModel(get(), get(), get(), get()) }
+    viewModel { KycContractViewModel(get(), get(), get()) }
     viewModel {(id:String)-> FDDetailsViewModel(id,get()) }
     viewModel {(id:String)-> FDPurchaseViewModel(id,get(),get()) }
     viewModel { CartScreenViewModel(get(),get(),get(),get(),get(),get(), get()) }
