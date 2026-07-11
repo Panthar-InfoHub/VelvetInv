@@ -7,7 +7,9 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -64,6 +66,9 @@ import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.SnackBarController
+
+private const val KYC_CONTRACT_WEBVIEW_RESULT = "kyc_contract_webview_completed"
+private const val CART_WEBVIEW_RESULT = "cart_webview_completed"
 
 @Composable
 fun AppNavigation(onSignOut: () -> Unit) {
@@ -501,6 +506,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.KYCContractScreen> {
                 val name = it.toRoute<Route.KYCContractScreen>().name
                 val date = DateTimeUtils.epochMillisToSlashDate(DateTimeUtils.getCurrentEpochMillis())
+                val webViewCompleted by it.savedStateHandle
+                    .getStateFlow(KYC_CONTRACT_WEBVIEW_RESULT, false)
+                    .collectAsStateWithLifecycle()
                 KycContractScreen(
                     onBack = { navController.popBackStack() },
                     onSuccessfulUpload = {
@@ -515,6 +523,21 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             }
                             launchSingleTop = true
                         }
+                    },
+                    onLaunchWebView = { url ->
+                        navController.navigate(
+                            Route.WebViewScreen(
+                                url = url,
+                                exitUrlPatterns = listOf("https://www.signzy.com/"),
+                                title = "DigiLocker Verification",
+                                completionRouteKey = "kyc_contract",
+                                matchType = WebViewUrlMatchType.EXACT.name
+                            )
+                        )
+                    },
+                    webViewCompleted = webViewCompleted,
+                    onWebViewConsumed = {
+                        it.savedStateHandle[KYC_CONTRACT_WEBVIEW_RESULT] = false
                     },
                 )
             }
@@ -676,9 +699,26 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
             composable<Route.CartScreen> {
+                val cartWebViewReturned by it.savedStateHandle
+                    .getStateFlow(CART_WEBVIEW_RESULT, false)
+                    .collectAsStateWithLifecycle()
                 CartScreen(
                     onBack = {
                         navController.popBackStack()
+                    },
+                    onLaunchWebView = { url ->
+                        navController.navigate(
+                            Route.WebViewScreen(
+                                url = url,
+                                exitUrlPatterns = emptyList(),
+                                title = "Complete Payment",
+                                completionRouteKey = "cart"
+                            )
+                        )
+                    },
+                    webViewReturned = cartWebViewReturned,
+                    onWebViewConsumed = {
+                        it.savedStateHandle[CART_WEBVIEW_RESULT] = false
                     }
                 )
             }
@@ -780,6 +820,20 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         "kyc_form" -> navController.navigate(Route.KYCFormScreen) {
                             popUpTo<Route.WebViewScreen> { inclusive = true }
                             launchSingleTop = true
+                        }
+                        "kyc_contract" -> {
+                            // Come back to the contract screen and let it finalize the KYC.
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set(KYC_CONTRACT_WEBVIEW_RESULT, true)
+                            navController.popBackStack()
+                        }
+                        "cart" -> {
+                            // Come back to the cart and run the queued payment follow-up.
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set(CART_WEBVIEW_RESULT, true)
+                            navController.popBackStack()
                         }
                         else -> navController.popBackStack()
                     }
