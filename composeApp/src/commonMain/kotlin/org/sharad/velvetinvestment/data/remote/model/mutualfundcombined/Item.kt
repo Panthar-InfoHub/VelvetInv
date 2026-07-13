@@ -4,9 +4,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Item(
-    val bundle_name: String,
-    val bundle_products: List<BundleProduct>,
     val id: String,
-    val accumulated_min_amount: Double,
-    val img_url: String? = null
+    val bundle_name: String,
+    val bundle_description: String,
+    val equity_percentage: Int,
+    val commodity_percentage: Int,
+    val debt_percentage: Int,
+    val hybrid_percentage: Int,
+    val meta_data: BundleMetaData
 )

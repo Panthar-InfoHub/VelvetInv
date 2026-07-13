@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.presentation.mutualfund.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -26,6 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,9 +37,12 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
+import org.sharad.emify.core.ui.theme.lightGray
 import org.sharad.emify.core.ui.theme.shadowColor
-import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
+import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.domain.models.mutualfunds.BundleMetaDataDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.CuratedBundleDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundDomain
@@ -47,7 +54,9 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.clearFocusOnTap
 import velvet.composeapp.generated.resources.Res
@@ -144,7 +153,7 @@ fun CategoryMutualFundScreenRootContent(
 
 @Composable
 fun CategoryMutualFundScreen(
-    bundles: List<BundledMutualFundDomain>,
+    bundles: List<CuratedBundleDomain>,
     onCategoryClick: (String) -> Unit,
     onFundClick: (String) -> Unit,
     searchText: String,
@@ -169,24 +178,24 @@ fun CategoryMutualFundScreen(
             )
         }
 
-        if (bundles.isNotEmpty()){
-            item{
-                BarHeader(
-                    heading = "Curated Bundles",
-                    showArrow = false,
-                    onArrowClick = {onBundleClick()},
-                    modifier = Modifier.padding(vertical = 4.dp)
 
-                )
-            }
+        item {
+            BarHeader(
+                heading = "Curated Bundles",
+                showArrow = true,
+                onArrowClick = { onBundleClick() },
+                modifier = Modifier.padding(vertical = 4.dp)
 
-            item{
+            )
+        }
+        if (bundles.isEmpty()) {
+            item {
                 ShadowCard {
                     Box(
                         modifier = Modifier.fillMaxWidth()
                             .height(120.dp),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         Text(
                             text = "Coming Soon !",
                             style = MaterialTheme.typography.headlineSmall
@@ -195,15 +204,26 @@ fun CategoryMutualFundScreen(
                 }
             }
 
-//            items(
-//                items = bundles,
-//                key = {it.key},
-//            ){bundle->
-//                BundleCardExtended(
-//                    onClick = { onBundledFundClick(bundle.key) },
-//                    bundleData = bundle,
-//                )
-//            }
+        }
+        else{
+            item{
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(
+                        items = bundles,
+                        key = { bundle -> bundle.id }
+                    ){bundle->
+                        CuratedBundleCard(
+                            type = bundle.name,
+                            title = bundle.description,
+                            onClick = {onBundledFundClick(bundle.id)}
+                        )
+                    }
+                }
+            }
         }
 
         funds.forEach {category->
@@ -244,6 +264,39 @@ fun CategoryMutualFundScreen(
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@Composable
+private fun CuratedBundleCard(
+    type: String,
+    title: String,
+    onClick: () -> Unit
+){
+    ShadowCard(
+        modifier = Modifier.fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = lightGray,
+                shape = LocalVelvetShapes.current.roundedDp12,
+            ),
+        shape = LocalVelvetShapes.current.roundedDp12,
+        onClick = onClick
+    ){
+        Column(
+            modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ){
+            Text(
+                text = type.toUpperCase(Locale.current),
+                style = titlesStyle,
+                color = titleColor
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
+}
 
 @Composable
 private fun ScreenHeader(onIconClick: () -> Unit, onBackClick: () -> Unit) {
@@ -383,12 +436,19 @@ private fun CategoryMutualFundScreenRootPreview() {
         )
     )
 
-    val sampleBundle = BundledMutualFundDomain(
-        categoryName = "Velvet Preserve",
-        key = "velvet_preserve",
-        mutualFunds = emptyList(),
-        minAmount = 10000.0,
-        img_url = ""
+    val sampleBundle = CuratedBundleDomain(
+        id = "1",
+        name = "Aggressive",
+        description = "Velvet Long Term Vision",
+        equityPercentage = 95,
+        commodityPercentage = 5,
+        debtPercentage = 0,
+        hybridPercentage = 0,
+        metaData = BundleMetaDataDomain(
+            riskLevel = "AGGRESSIVE",
+            investmentTime = "7+ YEARS",
+            investmentGrowth = "LONG-TERM WEALTH"
+        )
     )
 
     val sampleCombinedState = CombinedFundsDomain(

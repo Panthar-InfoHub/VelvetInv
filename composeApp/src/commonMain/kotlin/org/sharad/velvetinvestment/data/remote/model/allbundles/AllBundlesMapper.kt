@@ -18,7 +18,7 @@ fun Data.toDomain(): BundledMutualFundDomain {
         mutualFunds = bundle_products.map { product ->
             product.toDomain()
         },
-        minAmount = accumulated_min_amount.toDouble(), // Not provided in DTO
+        minAmount = accumulated_min_amount.toDouble(),
         allowedFrequencies = listOf(InvestmentFrequency.MONTHLY),
         img_url = img_url?:""
     )
