@@ -15,15 +15,7 @@ import org.sharad.velvetinvestment.utils.trimDoubleTo
 
 fun CombinedFundsDto.toDomain(): CombinedFundsDomain {
     return CombinedFundsDomain(
-        bundleFunds = data.bundle_funds.items.map { item ->
-            BundledMutualFundDomain(
-                categoryName = item.bundle_name,
-                key = item.id,
-                mutualFunds = item.bundle_products.map { it.toDomain() },
-                minAmount = item.accumulated_min_amount,
-                img_url = item.img_url?:""
-            )
-        },
+        bundleFunds = emptyList(),
         categoryMutualFundDomain = data.normal_funds.items.map { itemX ->
             CategoryMutualFundDomain(
                 categorySearchReference = itemX.key,
