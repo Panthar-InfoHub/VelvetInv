@@ -74,7 +74,7 @@ fun OnBoardingTextField(
             },
             textStyle = MaterialTheme.typography.bodySmall,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            modifier = modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .height(54.dp)
                 .shadow(elevation = 8.dp,RoundedCornerShape(15.dp), spotColor = Color.Black.copy(alpha = 0.4f))
                 .clip(RoundedCornerShape(15.dp))

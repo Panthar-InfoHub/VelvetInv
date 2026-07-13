@@ -615,6 +615,7 @@ class TradingAccountViewModel(
     // DECLARATIONS & FINANCE DETAILS
     val financeScreenButtonEnabled = _formState.map { formState ->
         val data = (formState as? UiState.Success)?.data?.data ?: return@map false
+        val occupationValid = data.occupation_code.isNotEmpty()
         val holdingNature = data.holding_nature
         val secondHolderValid = when (holdingNature) {
             Holding.JOINT.code -> data.second_holder_first_name.isNotBlank() && data.second_holder_pan.isNotBlank() && data.second_holder_email.isNotBlank() && data.second_holder_mobile.isNotBlank() && data.second_holder_dob.isNotBlank()
@@ -633,7 +634,7 @@ class TradingAccountViewModel(
             val authValid = data.nomination_authentication in listOf("W", "E", "O")
             nomineeFilled && authValid
         } else data.nomination_authentication in listOf("O", "V")
-        secondHolderValid && thirdHolderValid && nominationValid
+        secondHolderValid && thirdHolderValid && nominationValid && occupationValid
     }.stateIn(scope = viewModelScope, started = WhileSubscribed(5000), initialValue = false)
 
     fun onNominationOptChange(value: String) = updateData { it.copy(nomination_opt = value.trim().toUpperCase(Locale.current)) }

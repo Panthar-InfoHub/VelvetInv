@@ -58,7 +58,7 @@ fun getHttpClient(
             bearer {
                 loadTokens {
                     val token = authPrefs.getBearerToken()
-//                    val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmOWMzOWRiLWIyNTAtNDViMy05NGFlLWU4YmM0NWM0NjMzNCIsInBob25lX25vIjoiODkzMDQ5MjA5NiIsInVzciI6Ijg5MzA0OTIwOTYiLCJpbnZfaWQiOjU5LCJwd2QiOiIzOTI1MTMiLCJpYXQiOjE3ODI5ODIxMDcsImV4cCI6MTc4MzU4NjkwN30.SNPNxBNou3j79xPUkYAYBA4EMT-vcJm7TB4izinAK-c"
+//                    val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmOWMzOWRiLWIyNTAtNDViMy05NGFlLWU4YmM0NWM0NjMzNCIsInBob25lX25vIjoiODkzMDQ5MjA5NiIsInVzciI6Ijg5MzA0OTIwOTYiLCJpbnZfaWQiOjU5LCJwd2QiOiIzOTI1MTMiLCJpYXQiOjE3ODM5NDAxNjksImV4cCI6MTc4NDU0NDk2OX0.CnOee-Muoo9rwFSAojQdaIn-RA2XPbJfyKtvWDZ_J1A"
                     val refresh = authPrefs.getRefreshToken()
                     if (token.isNullOrEmpty()) return@loadTokens null
                     BearerTokens(token, refresh ?: "")
