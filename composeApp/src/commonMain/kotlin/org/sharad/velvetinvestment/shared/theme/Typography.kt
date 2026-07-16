@@ -109,6 +109,7 @@ val Typography @Composable get() = Typography(
         fontFamily = Poppins,
         fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
+        lineHeight = 32.sp
     ),
 
     displaySmall = TextStyle(

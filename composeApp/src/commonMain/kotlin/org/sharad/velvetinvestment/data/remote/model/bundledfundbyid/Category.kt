@@ -3,11 +3,12 @@ package org.sharad.velvetinvestment.data.remote.model.bundledfundbyid
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class BundleProduct(
-    val allocation_percentage: Int,
+data class Category(
     val bundle_id: String,
+    val category_name: String,
+    val display_name: String,
+    val funds: List<Fund>,
     val id: String,
-    val mf_product: MfProduct,
-    val mf_product_id: String,
-    val min_amount: String
+    val slots: List<Slot>,
+    val total_percentage: Double
 )

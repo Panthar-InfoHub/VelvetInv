@@ -5,9 +5,11 @@ class AddBundleToCartLumpsumUseCase(
 ) {
     suspend operator fun invoke(
         bundleId: String,
-        amount: Long
+        amount: Long,
+        selections: List<org.sharad.velvetinvestment.data.remote.model.bundlecart.BundleSelection>
     ) = repository.addBundleToCartLumpsum(
         bundleId = bundleId,
-        amount = amount
+        amount = amount,
+        selections = selections
     )
 }

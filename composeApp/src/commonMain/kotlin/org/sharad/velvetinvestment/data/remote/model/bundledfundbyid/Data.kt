@@ -4,11 +4,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Data(
-    val accumulated_min_amount: Double,
-    val allowed_dates: List<Int>,
-    val allowed_frequencies: List<String>,
+    val bundle_description: String,
     val bundle_name: String,
-    val bundle_products: List<BundleProduct>,
-    val id: String,
-    val img_url: String? = null
+    val categories: List<Category>,
+    val commodity_percentage: Double,
+    val debt_percentage: Double,
+    val equity_percentage: Double,
+    val hybrid_percentage: Double,
+    val meta_data: MetaData
 )

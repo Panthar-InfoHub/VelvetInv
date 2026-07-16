@@ -18,6 +18,7 @@ import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpBod
 import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
 import org.sharad.velvetinvestment.data.remote.model.panverification.PANVerifyDto
+import org.sharad.velvetinvestment.data.remote.model.tradingaccount.prefilled.TradingAccountPrefilledResponseDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.GoalsUpdateDto
@@ -176,7 +177,7 @@ class UserAuthenticationRepo(
     }
 
     override suspend fun getTradingAccountPrefilledData(): NetworkResponse<org.sharad.velvetinvestment.domain.models.tradingaccount.prefilled.TradingAccountPrefilledDomain, ErrorDomain> {
-        val response = safeRequest<org.sharad.velvetinvestment.data.remote.model.tradingaccount.prefilled.TradingAccountPrefilledResponseDto> {
+        val response = safeRequest<TradingAccountPrefilledResponseDto> {
             client.get(getUrl("/kyc/get-form-data"))
         }
         return when (response) {

@@ -113,7 +113,7 @@ class ProjectionImpactViewModel(
                 limit = 4
             )
                 .onSuccess { data ->
-                    _bundleData.value = UiState.Success(data)
+                    _bundleData.value = UiState.Success(data.items)
                 }
                 .onError { error ->
                     _bundleData.value = UiState.Error(error.message)

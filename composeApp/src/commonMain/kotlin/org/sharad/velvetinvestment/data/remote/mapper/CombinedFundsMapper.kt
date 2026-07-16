@@ -1,13 +1,11 @@
 package org.sharad.velvetinvestment.data.remote.mapper
 
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.BundleMetaData
-import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.BundleProduct
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.CombinedFundsDto
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.Item
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.ItemXX
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.Metrics
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundleMetaDataDomain
-import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundItemDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CuratedBundleDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
@@ -50,40 +48,6 @@ fun BundleMetaData.toDomain(): BundleMetaDataDomain {
     )
 }
 
-fun BundleProduct.toDomain(): BundledMutualFundItemDomain {
-    val product = this.mf_product
-
-    return BundledMutualFundItemDomain(
-        id = product.id,
-        scheme_id = product.scheme_id,
-        isin = product.isin,
-        mapping_code = product.mapping_code,
-        nse_scheme_code = product.nse_scheme_code,
-        platform_code = product.platform_code,
-        scheme_name = product.scheme_name.toTitleCase(),
-        amc_id = product.amc_id,
-        amc_code = product.amc_code,
-        amc_name = product.amc_name,
-        asset_type = product.asset_type,
-        scheme_type = product.scheme_type,
-        structure = product.structure,
-        risk_name = product.risk_name,
-        risk_level = product.risk_level,
-        latest_nav = product.latest_nav,
-        latest_nav_date = product.latest_nav_date,
-        purchase_allowed = product.purchase_allowed,
-        sip_allowed = product.sip_allowed,
-        redemption_allowed = product.redemption_allowed,
-        switch_allowed = product.switch_allowed,
-        maturity_date = product.maturity_date,
-        nfo_end_date = product.nfo_end_date,
-        createdAt = product.createdAt,
-        updatedAt = product.updatedAt,
-        allocation_percentage = allocation_percentage,
-        minAmount = min_amount,
-        icon = product.img_url ?: ""
-    )
-}
 
 
 fun ItemXX.toDomain(): MutualFundDomain {
@@ -108,5 +72,6 @@ fun Metrics.toDomain(): ReturnYearsRateDomain {
         month6 = return_6m?.trimDoubleTo(2),
         year1 = return_1y?.trimDoubleTo(2),
         year3 = return_3y?.trimDoubleTo(2),
+        year5 = return_5y?.trimDoubleTo(2)
     )
 }

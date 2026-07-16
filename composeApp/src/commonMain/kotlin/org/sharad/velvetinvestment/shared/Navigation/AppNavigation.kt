@@ -41,8 +41,7 @@ import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellatio
 import org.sharad.velvetinvestment.presentation.portfolio.compose.MFPortfolioDetailsScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
 import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.AllBundlesScreen
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.BundleResultScreenRoot
+import org.sharad.velvetinvestment.presentation.bundle.compose.AllBundlesScreen
 import org.sharad.velvetinvestment.presentation.cart.compose.CartScreen
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentMethodScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.ExistingFundLumpSumScreen
@@ -339,7 +338,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     onBundledFundClick={
-                        navController.navigate(Route.BundleResultScreen(it))
+                        navController.navigate(Route.BundleGraph(it))
                     },
                     onBundleClick = {
                         navController.navigate(Route.AllBundleScreen)
@@ -586,7 +585,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         navController.navigate(Route.AllBundleScreen)
                     },
                     navigateToSpecificBundle = {
-                        navController.navigate(Route.BundleResultScreen(it))
+                        navController.navigate(Route.BundleGraph(it))
                     }
                 )
             }
@@ -772,21 +771,11 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
 
-            composable<Route.BundleResultScreen> {
-                BundleResultScreenRoot(
-                    bundleKey = it.toRoute<Route.BundleResultScreen>().bundleKey,
-                    heading = "Bundle Funds",
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
-                    onCartClick = {
-                        navController.navigate(Route.CartScreen)
-                    },
-                    onFundClick = {
-                        navController.navigate(Route.MutualFundDetails(it)) {
-                            launchSingleTop = true
-                        }
-                    }
+            composable<Route.BundleGraph> {
+                val id = it.toRoute<Route.BundleGraph>().bundleId
+                BundleNavGraph(
+                    id = id,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -794,7 +783,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 AllBundlesScreen(
                     onBackClick = { navController.popBackStack() },
                     onBundleClick = { bundleKey ->
-                        navController.navigate(Route.BundleResultScreen(bundleKey)){
+                        navController.navigate(Route.BundleGraph(bundleKey)){
                             launchSingleTop=true
                         }
                     },

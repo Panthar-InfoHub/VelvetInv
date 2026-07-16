@@ -266,35 +266,36 @@ fun CategoryMutualFundScreen(
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @Composable
-private fun CuratedBundleCard(
+fun CuratedBundleCard(
     type: String,
     title: String,
-    onClick: () -> Unit
-){
-    ShadowCard(
-        modifier = Modifier.fillMaxWidth()
+    onClick: () -> Unit,
+    modifier: Modifier= Modifier
+) {
+
+    Column(
+        modifier = modifier
+            .clip(LocalVelvetShapes.current.roundedDp12)
             .border(
                 width = 1.dp,
                 color = lightGray,
                 shape = LocalVelvetShapes.current.roundedDp12,
-            ),
-        shape = LocalVelvetShapes.current.roundedDp12,
-        onClick = onClick
-    ){
-        Column(
-            modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ){
-            Text(
-                text = type.toUpperCase(Locale.current),
-                style = titlesStyle,
-                color = titleColor
             )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelLarge
+            .clickable(
+                onClick = onClick
             )
-        }
+            .padding(vertical = 20.dp, horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = type.toUpperCase(Locale.current),
+            style = titlesStyle,
+            color = titleColor
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }
 
@@ -358,10 +359,11 @@ private fun CategoryMutualFundScreenRootPreview() {
                 month3 = 5.0,
                 month6 = 10.0,
                 year1 = 15.0,
-                year3 = 45.0
+                year3 = 45.0,
+                year5 = 55.0
             ),
             latestNav = "78.5",
-            "",""
+            "", "",
         ),
         MutualFundDomain(
             id = "2",
@@ -375,9 +377,10 @@ private fun CategoryMutualFundScreenRootPreview() {
                 month3 = 4.2,
                 month6 = 9.1,
                 year1 = 13.4,
-                year3 = 38.0
+                year3 = 38.0,
+                year5 = 39.5
             ),
-            latestNav = "52.7","",""
+            latestNav = "52.7", "", "",
         ),
         MutualFundDomain(
             id = "3",
@@ -391,9 +394,10 @@ private fun CategoryMutualFundScreenRootPreview() {
                 month3 = 3.5,
                 month6 = 7.8,
                 year1 = 11.2,
-                year3 = 31.5
+                year3 = 31.5,
+                year5 = 42.0
             ),
-            latestNav = "102.3","",""
+            latestNav = "102.3", "", "",
         ),
         MutualFundDomain(
             id = "4",
@@ -407,9 +411,10 @@ private fun CategoryMutualFundScreenRootPreview() {
                 month3 = 6.5,
                 month6 = 12.4,
                 year1 = 18.7,
-                year3 = 49.2
+                year3 = 49.2,
+                year5 = 59.8
             ),
-            latestNav = "36.2","",""
+            latestNav = "36.2", "", "",
         )
     )
 

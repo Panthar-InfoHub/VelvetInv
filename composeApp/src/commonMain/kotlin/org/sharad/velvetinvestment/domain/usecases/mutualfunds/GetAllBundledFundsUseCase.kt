@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.domain.usecases.mutualfunds
 
+import org.sharad.velvetinvestment.domain.models.PaginatedData
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
@@ -11,7 +12,7 @@ class GetAllBundledFundsUseCase(
     suspend operator fun invoke(
         page: Int?=null,
         limit: Int?=null
-    ): NetworkResponse<List<BundledMutualFundDomain>, ErrorDomain> {
+    ): NetworkResponse<PaginatedData<BundledMutualFundDomain>, ErrorDomain> {
         return repository.getAllBundledFunds(
             page=page,
             limit=limit

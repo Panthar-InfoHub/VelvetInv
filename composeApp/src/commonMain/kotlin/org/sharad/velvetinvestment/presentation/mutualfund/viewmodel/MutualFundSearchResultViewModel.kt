@@ -52,7 +52,7 @@ class MutualFundSearchResultViewModel(
         MutableStateFlow<InvestmentFilter>(createInitialInvestmentFilter())
     val filterState: StateFlow<InvestmentFilter> = _filterState
 
-    private val _searchText = MutableStateFlow("")
+    private val _searchText = MutableStateFlow(search?:"")
     val searchText: StateFlow<String> = _searchText
 
     private var currentPage = 1
@@ -74,7 +74,7 @@ class MutualFundSearchResultViewModel(
             val (risk, category, fundCategoryFilter) = getSelectedFilters()
 
             getMutualFundSearchResultUseCase(
-                search = search,
+                search = _searchText.value,
                 fundCategory = fundCategoryFilter ?: selectedFilter.value?.id,
                 risk = risk,
                 category = category,

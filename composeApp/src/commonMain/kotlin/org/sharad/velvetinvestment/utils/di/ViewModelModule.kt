@@ -23,8 +23,8 @@ import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCImageUploaderS
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KYCScreenViewModel
 import org.sharad.velvetinvestment.presentation.kyc.viewmodels.KycContractViewModel
 import org.sharad.velvetinvestment.presentation.cart.viewmodel.CartScreenViewModel
-import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.AllBundlesViewModel
-import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.BundleResultViewModel
+import org.sharad.velvetinvestment.presentation.bundle.viewmodel.AllBundlesViewModel
+import org.sharad.velvetinvestment.presentation.bundle.viewmodel.BundleDetailsViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundSearchResultViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
@@ -114,8 +114,8 @@ val viewModelModule= module {
     viewModel { CurrentAssetEditViewModel(get(), get()) }
     viewModel { InsuranceScreenViewModel(get()) }
     viewModel { InsuranceViewModel(get()) }
-    viewModel { (bundleKey: String) -> BundleResultViewModel(bundleKey = bundleKey, get(),get(), get())}
     viewModel { AllBundlesViewModel(get()) }
+    viewModel { (bundleKey: String) -> BundleDetailsViewModel(bundleKey, get(), get(), get(), get()) }
     viewModel { (folioId: String) -> FolioFundsMFViewModel(folioId, get()) }
     viewModel { InvestmentRateScreenViewModel(get()) }
     viewModel { ExistingFundsLumpSumViewModel(get(),get())}
