@@ -220,7 +220,8 @@ fun BundleReviewScreen(
         NextButtonFooter(
             onClick = onProceedClick,
             value = "Proceed to Invest",
-            loading = isAddingToCart
+            loading = isAddingToCart,
+            enabled = selectedSipDay!=null
         )
     }
 }
