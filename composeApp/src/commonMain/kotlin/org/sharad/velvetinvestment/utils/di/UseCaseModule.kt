@@ -18,7 +18,6 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseC
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.CheckSipPurchaseStatusUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.ClearCartUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.DeleteCartItemUseCase
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetCombinedCategoryMutualFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGraphUseCase
@@ -125,7 +124,6 @@ val useCaseModule= module {
     factory { GetFDPortFolioDetailsUseCase(get()) }
 
     factory { GetMutualFundTopPicksUseCase(get()) }
-    factory { GetCategoryMutualFundsUseCase(get()) }
     factory { GetCombinedCategoryMutualFundsUseCase(get()) }
     factory { GetMutualFundSearchResultUseCase(get()) }
     factory { GetMutualFundDetailsUseCase(get()) }

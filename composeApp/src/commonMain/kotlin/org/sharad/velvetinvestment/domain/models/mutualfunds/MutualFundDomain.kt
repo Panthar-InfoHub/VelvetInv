@@ -13,6 +13,7 @@ data class MutualFundDomain(
     val latestNav: String,
     val shortName1: String,
     val shortName2: String,
+    val riskLevel: Int? = 0,
 )
 
 data class ReturnYearsRateDomain(
@@ -20,4 +21,5 @@ data class ReturnYearsRateDomain(
     val month6:Double?,
     val year1:Double?,
     val year3:Double?,
+    val year5:Double?
 )

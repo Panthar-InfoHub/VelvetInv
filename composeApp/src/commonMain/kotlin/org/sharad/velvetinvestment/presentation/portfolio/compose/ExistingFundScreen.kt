@@ -47,7 +47,7 @@ fun ExistingFundScreenRoot(
                 contentPadding = PaddingValues(bottom = 28.dp)
             ) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
-                items(data.mutualFunds, key = { it.id }) { fund ->
+                items(data.mutualFunds, key = {it.folio }) { fund ->
                     FolioFundCard(
                         fundItem = fund,
                         onClick = { onFundClick(fund.id, fund.folio) }

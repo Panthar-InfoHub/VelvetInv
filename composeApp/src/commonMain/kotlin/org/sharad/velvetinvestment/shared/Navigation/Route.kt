@@ -200,7 +200,13 @@ object Route {
     @Serializable
     data object GoalMapScreen
     @Serializable
-    data class BundleResultScreen(val bundleKey: String)
+    data object BundleResultScreen
+    @Serializable
+    data object BundleReviewScreen
+    @Serializable
+    data class SelectFundScreen(val categoryId: String)
+    @Serializable
+    data class ExploreCategoryFunds(val categoryId: String, val categoryName: String, val slotId: String, val categoryTitle:String)
     @Serializable
     data object AllBundleScreen
     @Serializable
@@ -214,4 +220,7 @@ object Route {
         val title: String? = null,
         val completionRouteKey: String? = null
     )
+
+    @Serializable
+    data class BundleGraph(val bundleId:String)
 }

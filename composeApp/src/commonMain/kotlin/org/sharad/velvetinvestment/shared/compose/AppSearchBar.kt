@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.shared.compose
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -12,6 +13,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +32,7 @@ fun AppSearchBar(
     onSearchClick: () -> Unit
 ) {
 
+    val keyboardController = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         value = value,
         onValueChange = {
@@ -38,7 +41,13 @@ fun AppSearchBar(
         modifier = modifier.height(52.dp),
         shape = CircleShape,
         singleLine = true,
-        placeholder = { Text(text="Search For Funds....", style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp), color = titleColor) },
+        placeholder = {
+            Text(
+                text = "Search For Funds....",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                color = titleColor
+            )
+        },
         textStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Primary,
@@ -49,15 +58,26 @@ fun AppSearchBar(
             focusedContainerColor = bgColor4.copy(0.1f),
             unfocusedContainerColor = bgColor4.copy(0.1f)
         ),
-        leadingIcon = { Icon(
-            painter = painterResource(Res.drawable.search_icon),
-            contentDescription = null,
-            tint = Primary,
-            modifier = Modifier.padding(start = 4.dp).height(22.dp)
-        )
+        trailingIcon = {
+            Icon(
+                painter = painterResource(Res.drawable.search_icon),
+                contentDescription = null,
+                tint = if (value.isEmpty()) titleColor.copy(alpha = 0.5f) else Primary,
+                modifier = Modifier.padding(end = 4.dp).height(22.dp)
+                    .clickable(
+                        enabled = value.isNotBlank(),
+                    ){
+                        onSearchClick()
+                        keyboardController?.hide()
+                    }
+            )
         },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { onSearchClick() })
+        keyboardActions = KeyboardActions(onSearch = {
+            onSearchClick()
+            keyboardController?.hide()
+        }
+        )
     )
 
 }

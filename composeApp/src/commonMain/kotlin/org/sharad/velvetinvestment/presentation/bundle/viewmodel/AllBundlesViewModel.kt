@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.mutualfund.viewmodel
+package org.sharad.velvetinvestment.presentation.bundle.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,7 +28,7 @@ class AllBundlesViewModel(
             _uiState.value = UiState.Loading
             getAllBundledFundsUseCase()
                 .onSuccess { data ->
-                    _uiState.value = UiState.Success(data)
+                    _uiState.value = UiState.Success(data.items)
                 }
                 .onError { error ->
                     _uiState.value = UiState.Error(error.message)

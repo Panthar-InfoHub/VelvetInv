@@ -1,8 +1,9 @@
-package org.sharad.velvetinvestment.presentation.mutualfund.compose
+package org.sharad.velvetinvestment.presentation.bundle.compose
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,7 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.velvetinvestment.presentation.cart.compose.CartFab
-import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.AllBundlesViewModel
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.CuratedBundleCard
+import org.sharad.velvetinvestment.presentation.bundle.viewmodel.AllBundlesViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.utils.CartInfo
@@ -60,9 +62,11 @@ fun AllBundlesScreen(
                 contentPadding = PaddingValues(16.dp)
             ) {
                 items(bundles) { bundle ->
-                    BundleCardExtended(
-                        onClick = { onBundleClick(bundle.key) },
-                        bundleData = bundle
+                    CuratedBundleCard(
+                        onClick = { onBundleClick(bundle.id) },
+                        type = bundle.bundleName,
+                        title = bundle.bundleDescription,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }

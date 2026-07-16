@@ -47,7 +47,6 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.emify.core.ui.theme.appOrange
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.greenColor
 import org.sharad.emify.core.ui.theme.orangeColor
@@ -57,7 +56,6 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDo
 import org.sharad.velvetinvestment.presentation.explorefunds.uimodel.MutualFundTopPicksUiModel
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.ProjectionImpactUiData
 import org.sharad.velvetinvestment.presentation.goals.viewmodel.ProjectionImpactViewModel
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.BundleCardExtended
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.CustomProgressFillBar
 import org.sharad.velvetinvestment.shared.UiStateContainer
@@ -455,12 +453,12 @@ fun ExploreBundleGoalsSection(
                     showArrow = true,
                     onArrowClick = onArrowClick
                 )
-                data.forEach { bundle->
-                    BundleCardExtended(
-                        onClick = { onBundleClick(bundle.key) },
-                        bundleData = bundle
-                    )
-                }
+//                data.forEach { bundle->
+//                    BundleCardExtended(
+//                        onClick = { onBundleClick(bundle.key) },
+//                        bundleData = bundle
+//                    )
+//                }
             }
         }
     }
