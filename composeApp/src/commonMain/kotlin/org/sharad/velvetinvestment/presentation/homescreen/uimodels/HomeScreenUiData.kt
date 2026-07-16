@@ -12,5 +12,6 @@ data class HomeScreenUiData(
     val goals: List<GoalsSummaryDomain>,
     val kycCompletion: Boolean,
     val tradingAccountCompletion: Boolean,
-    val hidden: Boolean=true
+    val hidden: Boolean=true,
+    val hasUnreadNotifications: Boolean = false
 )

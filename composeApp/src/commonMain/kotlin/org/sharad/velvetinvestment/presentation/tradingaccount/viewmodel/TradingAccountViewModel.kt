@@ -37,6 +37,7 @@ import org.sharad.velvetinvestment.utils.tradingaccount.KycType
 import org.sharad.velvetinvestment.utils.tradingaccount.OccupationSourceOfWealthMapper
 import org.sharad.velvetinvestment.utils.tradingaccount.StateCode
 import org.sharad.velvetinvestment.utils.tradingaccount.TaxStatus
+import org.sharad.velvetinvestment.utils.tradingaccount.YesNo
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -379,6 +380,41 @@ class TradingAccountViewModel(
         onNominationAuthChange("")
     }
 
+    /**
+     * Toggles the nomination flag from the Yes/No dropdown. When the user selects "No"
+     * (opts out of nomination) every nominee field is cleared back to its initial,
+     * unfilled state so no stale data is submitted.
+     */
+    fun onNominationOptChangeUi(value: YesNo) {
+        onNominationOptChange(value.code)
+        if (value == YesNo.NO) {
+            resetNominee1Data()
+        }
+    }
+
+    private fun resetNominee1Data() {
+        updateData {
+            it.copy(
+                nominee_1_name = "",
+                nominee_1_relationship = "",
+                nominee_1_identity_type = "",
+                nominee_1_identity_number = "",
+                nominee_1_dob = "",
+                nominee_1_email = "",
+                nominee_1_mobile = "",
+                nominee_1_address1 = "",
+                nominee_1_address2 = "",
+                nominee_1_address3 = "",
+                nominee_1_city = "",
+                nominee_1_pin = "",
+                nominee_1_country = "",
+                nominee_1_guardian = "",
+                nominee_1_guardian_pan = "",
+                nominee_1_minor_flag = "F"
+            )
+        }
+    }
+
     fun showCalender() = run { _showCalender.value = true }
     fun hideCalender() = run { _showCalender.value = false }
 
@@ -628,12 +664,14 @@ class TradingAccountViewModel(
         }
         val nominee1IsMinor = data.nominee_1_dob.isNotBlank() && isMinor(DateTimeUtils.slashDateToIsoUtc(data.nominee_1_dob))
         val nomineeGuardianValid = if (nominee1IsMinor) data.nominee_1_guardian.isNotBlank() && data.nominee_1_guardian_pan.isNotBlank() else true
-        val nominationEnabled = data.nomination_opt == "Y"
+        val nominationEnabled = data.nomination_opt == YesNo.YES.code
+        // When the user opts out of nomination (flag = N) none of the nominee data is
+        // required, so the button ignores all nominee-related rules.
         val nominationValid = if (nominationEnabled) {
             val nomineeFilled = data.nominee_1_name.isNotBlank() && data.nominee_1_relationship.isNotBlank() && data.nominee_1_identity_type.isNotBlank() && data.nominee_1_identity_number.isNotBlank() && data.nominee_1_dob.isNotBlank() && data.nominee_1_email.isNotBlank() && data.nominee_1_mobile.isNotBlank() && data.nominee_1_address1.isNotBlank() && data.nominee_1_city.isNotBlank() && data.nominee_1_pin.isNotBlank() && data.nominee_1_country.isNotBlank() && nomineeGuardianValid
             val authValid = data.nomination_authentication in listOf("W", "E", "O")
             nomineeFilled && authValid
-        } else data.nomination_authentication in listOf("O", "V")
+        } else true
         secondHolderValid && thirdHolderValid && nominationValid && occupationValid
     }.stateIn(scope = viewModelScope, started = WhileSubscribed(5000), initialValue = false)
 

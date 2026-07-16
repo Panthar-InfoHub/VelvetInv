@@ -584,10 +584,12 @@ fun SlotReviewItem(
                         style = titlesStyle.copy(fontSize = 10.sp),
                         color = titleColor
                     )
+                    val return1Y = fund.metrics.return1Y
+
                     Text(
-                        text = "+${fund.metrics.return1Y.trimTo(1)}% 1Y",
+                        text = "${if (return1Y >= 0) "+" else ""}${return1Y.trimTo(1)}% 1Y",
                         style = titlesStyle.copy(fontSize = 10.sp),
-                        color = appGreen
+                        color = if (return1Y >= 0) appGreen else Color.Red
                     )
                 }
             }

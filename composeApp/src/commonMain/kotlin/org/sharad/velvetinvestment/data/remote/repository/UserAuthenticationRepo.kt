@@ -6,10 +6,14 @@ import io.ktor.client.plugins.auth.authProviders
 import io.ktor.client.plugins.auth.clearAuthTokens
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toLoginDto
+import org.sharad.velvetinvestment.data.remote.model.notifications.NotificationResponseDto
+import org.sharad.velvetinvestment.data.remote.model.notifications.UnreadStatusResponseDto
+import org.sharad.velvetinvestment.domain.models.notifications.NotificationDomain
 import org.sharad.velvetinvestment.data.remote.model.TradingAccountSubmissionDto.TradingAccountResultDto
 import org.sharad.velvetinvestment.data.remote.model.auth.sendotp.SendOtpDto
 import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenBody
@@ -297,6 +301,34 @@ class UserAuthenticationRepo(
         data: GoalsUpdateDto
     ): NetworkResponse<Unit, ErrorDomain> {
         return postPartial(data)
+    }
+
+    override suspend fun getNotifications(): NetworkResponse<List<NotificationDomain>, ErrorDomain> {
+        val response = safeRequest<NotificationResponseDto> {
+            client.get(getUrl("/user/notifications"))
+        }
+
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun getUnreadStatus(): NetworkResponse<Boolean, ErrorDomain> {
+        val response = safeRequest<UnreadStatusResponseDto> {
+            client.get(getUrl("/user/notifications/unread-status"))
+        }
+
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.data.has_unread)
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun markNotificationsAsRead(): NetworkResponse<Unit, ErrorDomain> {
+        return safeUnitRequest {
+            client.patch(getUrl("/user/notifications/read"))
+        }
     }
 
     private suspend inline fun <reified T> postPartial(

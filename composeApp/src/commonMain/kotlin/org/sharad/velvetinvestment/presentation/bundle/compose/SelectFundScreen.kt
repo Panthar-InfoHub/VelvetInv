@@ -47,6 +47,9 @@ import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIco
 import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.shared.theme.buttonTextStyle
 import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.utils.FundTypeSelector
+import org.sharad.velvetinvestment.utils.SelectedFundType
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.toTitleCase
 import org.sharad.velvetinvestment.utils.trimTo
 import org.sharad.velvetinvestment.utils.withInterRupee
@@ -63,6 +66,8 @@ fun SelectFundScreenRoot(
     onExploreMoreClick: (String, String, String, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val fundType by FundTypeSelector.fundType.collectAsStateWithLifecycle()
+
 
     UiStateContainer(
         uiState = uiState.toUiState(),
@@ -77,7 +82,8 @@ fun SelectFundScreenRoot(
                     viewModel.updateSlots(categoryId, slots)
                 },
                 onFinalSave = onSaveClick,
-                onExploreMoreClick = onExploreMoreClick
+                onExploreMoreClick = onExploreMoreClick,
+                fundType=fundType
             )
         }
     }
@@ -89,13 +95,17 @@ fun SelectFundScreen(
     onBackClick: () -> Unit,
     onSaveCategory: (List<PortfolioSlotDomain>) -> Unit,
     onFinalSave: () -> Unit,
-    onExploreMoreClick: (String, String, String, String) -> Unit
+    onExploreMoreClick: (String, String, String, String) -> Unit,
+    fundType: SelectedFundType
 ){
     var pendingSelections by remember(category.id) {
         mutableStateOf<Map<String, FundDomain>>(emptyMap())
     }
     var activeSlotId by remember { mutableStateOf(category.slots.firstOrNull()?.id ?: "") }
     val activeSlot = category.slots.find { it.id == activeSlotId }
+
+    // Guards against a double-click / double pop-back-stack that lands on a blank screen.
+    var hasSaved by remember { mutableStateOf(false) }
 
     val selectedFundForActiveSlot =
         pendingSelections[activeSlotId]
@@ -169,7 +179,8 @@ fun SelectFundScreen(
                                     pendingSelections + (
                                             activeSlotId to preSelectedFund
                                             )
-                            }
+                            },
+                            fundType=fundType
                         )
                     }
                 }
@@ -201,6 +212,7 @@ fun SelectFundScreen(
                         fund = fund,
                         isSelected = fund.id == selectedFundForActiveSlot?.id,
                         isDisabled = false,
+                        fundType=fundType,
                         onSelect = {
                             pendingSelections =
                                 pendingSelections + (activeSlotId to fund)
@@ -220,6 +232,8 @@ fun SelectFundScreen(
         }
         NextButtonFooter(
             onClick = {
+                if (hasSaved) return@NextButtonFooter
+                hasSaved = true
 
                 val updatedSlots =
                     category.slots.map { slot ->
@@ -234,7 +248,7 @@ fun SelectFundScreen(
                 onFinalSave()
             },
             value = "Save Fund",
-            enabled = selectedFundForActiveSlot != null
+            enabled = selectedFundForActiveSlot != null && !hasSaved
         )
     }
 }
@@ -362,7 +376,8 @@ fun FundCard(
     isSelected: Boolean,
     isDisabled: Boolean,
     enabled: Boolean = true,
-    onSelect: () -> Unit
+    onSelect: () -> Unit,
+    fundType: SelectedFundType
 ) {
     ShadowCard(
         modifier = Modifier
@@ -450,6 +465,10 @@ fun FundCard(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FundTag(fund.assetType, backgroundLight)
                 FundTag(fund.riskName, Color(0xFFFFEBEE))
+                FundTag("Min ₹"+when(fundType){
+                    SelectedFundType.SIP -> formatMoneyAfterL(fund.transactionRules.minSipAmount)
+                    SelectedFundType.LUMSUM -> formatMoneyAfterL(fund.transactionRules.minLumpSumAmount)
+                }, Primary.copy(alpha = 0.1f))
             }
 
             Spacer(Modifier.height(16.dp))
@@ -612,7 +631,8 @@ private fun SelectFundScreenPreview() {
             onBackClick = {},
             onSaveCategory = { },
             onFinalSave = {},
-            onExploreMoreClick = { _, _, _ ,_-> }
+            onExploreMoreClick = { _, _, _ ,_-> },
+            fundType = SelectedFundType.SIP,
         )
     }
 }

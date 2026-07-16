@@ -70,6 +70,7 @@ import org.sharad.velvetinvestment.utils.tradingaccount.Holding
 import org.sharad.velvetinvestment.utils.tradingaccount.NomineeIdentityType
 import org.sharad.velvetinvestment.utils.tradingaccount.NomineeRelationship
 import org.sharad.velvetinvestment.utils.tradingaccount.OccupationType
+import org.sharad.velvetinvestment.utils.tradingaccount.YesNo
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.add_icon
 import velvet.composeapp.generated.resources.tick_icon
@@ -216,6 +217,21 @@ fun TradingAccountFinancialDetailsScreen(
                     item {
                         BarHeader(heading = "Nomination Details")
                     }
+
+                    item {
+                        DropDownSelector(
+                            value = YesNo.displayNameFromCode(data.nomination_opt),
+                            onValueChange = { viewModel.onNominationOptChangeUi(it) },
+                            placeHolder = "Select",
+                            mandatory = true,
+                            label = "Do you want to add a nominee?",
+                            modifier = Modifier.fillMaxWidth(),
+                            list = YesNo.entries,
+                            textConvertor = { it.displayName }
+                        )
+                    }
+
+                    if (data.nomination_opt == YesNo.YES.code) {
                     item {
                         OnBoardingTextField(
                             value = data.nominee_1_name,
@@ -404,6 +420,7 @@ fun TradingAccountFinancialDetailsScreen(
                             label = "Country",
                             modifier = Modifier.fillMaxWidth(),
                         )
+                    }
                     }
                 }
 

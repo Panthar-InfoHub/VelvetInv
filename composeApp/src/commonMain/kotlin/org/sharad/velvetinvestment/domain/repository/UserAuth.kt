@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.domain.repository
 
 import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
+import org.sharad.velvetinvestment.domain.models.notifications.NotificationDomain
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.GoalsUpdateDto
@@ -35,6 +36,12 @@ interface UserAuth {
     suspend fun updateProfile(data: ProfileUpdateDto): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun updateGoals(data: GoalsUpdateDto): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun getNotifications(): NetworkResponse<List<NotificationDomain>, ErrorDomain>
+
+    suspend fun getUnreadStatus(): NetworkResponse<Boolean, ErrorDomain>
+
+    suspend fun markNotificationsAsRead(): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun getUserData(): NetworkResponse<UserDataDto, ErrorDomain>
 

@@ -102,19 +102,19 @@ private fun TransactionRules.toDomain(): TransactionRulesDomain {
     return TransactionRulesDomain(
         id = id,
         mfProductId = mf_product_id,
-        minSipAmount = min_sip_amount.toIntOrNull() ?: 0,
-        minLumpSumAmount = min_lump_sum_amount.toIntOrNull() ?: 0,
-        minInvestmentAmount = min_investment_amount.toIntOrNull() ?: 0,
-        minLumpsumAddOnAmount = min_lumpsum_add_on_amount.toIntOrNull() ?: 0,
+        minSipAmount = min_sip_amount.toLongOrNull() ?: 0,
+        minLumpSumAmount = min_lump_sum_amount.toLongOrNull() ?: 0,
+        minInvestmentAmount = min_investment_amount.toLongOrNull() ?: 0,
+        minLumpsumAddOnAmount = min_lumpsum_add_on_amount.toLongOrNull() ?: 0,
         minRedemptionQty = min_redem_qty.toIntOrNull() ?: 0,
-        minRedemptionAmount = min_redem_amount.toIntOrNull() ?: 0,
-        minDailySipAmount = min_daily_sip_amount.toIntOrNull() ?: 0,
-        minWeeklySipAmount = min_weekly_sip_amount.toIntOrNull() ?: 0,
-        minFortnightlySipAmount = min_fortnightly_sip_amount.toIntOrNull() ?: 0,
-        minMonthlySipAmount = min_monthly_sip_amount.toIntOrNull() ?: 0,
-        minQuarterlySipAmount = min_quarterly_sip_amount.toIntOrNull() ?: 0,
-        minSemiAnnualSipAmount = min_semi_annual_sip_amount.toIntOrNull() ?: 0,
-        minAnnualSipAmount = min_annual_sip_amount.toIntOrNull() ?: 0,
+        minRedemptionAmount = min_redem_amount.toLongOrNull() ?: 0,
+        minDailySipAmount = min_daily_sip_amount.toLongOrNull() ?: 0,
+        minWeeklySipAmount = min_weekly_sip_amount.toLongOrNull() ?: 0,
+        minFortnightlySipAmount = min_fortnightly_sip_amount.toLongOrNull() ?: 0,
+        minMonthlySipAmount = min_monthly_sip_amount.toLongOrNull() ?: 0,
+        minQuarterlySipAmount = min_quarterly_sip_amount.toLongOrNull() ?: 0,
+        minSemiAnnualSipAmount = min_semi_annual_sip_amount.toLongOrNull() ?: 0,
+        minAnnualSipAmount = min_annual_sip_amount.toLongOrNull() ?: 0,
         sipAllowedDates = sip_allowed_dates,
         sipFrequencies = sip_frequencies,
         createdAt = createdAt,
@@ -193,7 +193,7 @@ fun BundleDomain.deriveTransactionRules(): BundleTransactionRules {
 
 private fun calculateBundleMinimum(
     slots: List<PortfolioSlotDomain>,
-    selector: (TransactionRulesDomain) -> Int
+    selector: (TransactionRulesDomain) -> Long
 ): Int {
 
     return slots
@@ -203,7 +203,7 @@ private fun calculateBundleMinimum(
 
             val min = selector(rules)
 
-            if (min == 0) {
+            if (min == 0L) {
                 0
             } else {
                 val required = ceil(

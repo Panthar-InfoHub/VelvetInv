@@ -20,7 +20,9 @@ import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.empty_funds_ic
 import velvet.composeapp.generated.resources.graphics_portfolio_empty
+import velvet.composeapp.generated.resources.ic_empty_notification
 
 @Composable
 fun EmptyFundScreen(onBrowseClick: () -> Unit, text:String, buttonText:String) {
@@ -37,27 +39,12 @@ fun EmptyFundScreen(onBrowseClick: () -> Unit, text:String, buttonText:String) {
         ) {
 
             Image(
-                painter = painterResource(Res.drawable.graphics_portfolio_empty),
+                painter = painterResource(Res.drawable.ic_empty_notification),
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                 contentScale = ContentScale.FillWidth
             )
 
-            Spacer(Modifier.height(16.dp))
-
-            Text(
-                text=text,
-                style = titlesStyle,
-                color = titleColor,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(Modifier.height(24.dp))
-
-            AppButton(
-                text = buttonText,
-                onClick = onBrowseClick
-            )
 
         }
 

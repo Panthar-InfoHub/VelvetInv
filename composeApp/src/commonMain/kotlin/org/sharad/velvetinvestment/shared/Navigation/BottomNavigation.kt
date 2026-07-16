@@ -92,6 +92,15 @@ fun BottomNavigation(
                     portfolioViewModel.refresh()
                     AppEventsController.clear()
                 }
+                AppEvent.NotificationClearEvent -> {
+                    homeViewModel.removeNotificationMark()
+                    AppEventsController.clear()
+                }
+
+                AppEvent.NotificationMarkEvent->{
+                    homeViewModel.addNotificationMark()
+                    AppEventsController.clear()
+                }
                 else -> {}
             }
         }

@@ -45,8 +45,8 @@ import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.FolioFundsMF
 import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.MFPortfolioDetailsViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.CheckKYCViewModel
 import org.sharad.velvetinvestment.presentation.settingscreens.viewmodels.SettingViewModel
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.NotificationCentreViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.PersonalInfoViewModel
+import org.sharad.velvetinvestment.presentation.profile.viewModel.NotificationViewModel
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 
 val viewModelModule= module {
@@ -62,7 +62,7 @@ val viewModelModule= module {
     viewModel { InsuranceCoverageViewModel() }
     viewModel { GoalScreenOnboardingViewModel() }
 
-    viewModel { HomeScreenViewModel(get(),get()) }
+    viewModel { HomeScreenViewModel(get(),get(),get()) }
     viewModel { PersonalInfoViewModel(get()) }
 
     viewModel {
@@ -95,7 +95,7 @@ val viewModelModule= module {
     viewModel { FireReportViewModel(get(),get()) }
     viewModel { GoalInfoScreenViewModel(get()) }
     viewModel {(search:String)->FDSearchResultViewModel(search=search,get()) }
-    viewModel { NotificationCentreViewModel() }
+    viewModel { NotificationViewModel(get(), get()) }
     viewModel { CheckKYCViewModel(get()) }
     viewModel { SettingViewModel() }
     viewModel{ TradingAccountViewModel(get(),get(),get(),get()) }

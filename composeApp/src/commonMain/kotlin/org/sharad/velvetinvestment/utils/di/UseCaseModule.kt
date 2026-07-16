@@ -54,11 +54,14 @@ import org.sharad.velvetinvestment.domain.usecases.report.ExportCapitalReportUse
 import org.sharad.velvetinvestment.domain.usecases.report.ExportPortfolioReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.ExportSoaReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.ExportTaxReportUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.GetNotificationsUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.GetUnreadStatusUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetTradingAccountPrefilledDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
 import org.sharad.velvetinvestment.domain.usecases.user.LoginWithNumberUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.LoginWithPasswordUseCase
+import org.sharad.velvetinvestment.domain.usecases.user.MarkNotificationsAsReadUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.OnBoardUserUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.SignOutUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.SubmitTradingAccountFormUseCase
@@ -98,6 +101,9 @@ val useCaseModule= module {
     factory { UpdateGoalsUseCase(get()) }
     factory { GetUserDataUseCase(get()) }
     factory { GetTradingAccountPrefilledDataUseCase(get()) }
+    factory { GetNotificationsUseCase(get()) }
+    factory { GetUnreadStatusUseCase(get()) }
+    factory { MarkNotificationsAsReadUseCase(get()) }
     factory { VerifyPANUseCase(get()) }
     factory { SubmitTradingAccountFormUseCase(get()) }
     factory { TradingAccountConfirmationUseCase(get()) }

@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.presentation.homescreen.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -92,6 +93,7 @@ fun HomeScreenMain(
                 fireReport = data.fireReport,
                 goals = data.goals,
                 hidden = data.hidden,
+                hasUnreadNotifications = data.hasUnreadNotifications,
                 onHiddenToggle = { viewModel.toggleHidden() },
                 onNotificationIconClick = { navigateToNotification() },
                 onSettingsIconClick = navigateToInsurance,
@@ -132,7 +134,8 @@ fun HomeScreen(
     navigateToMutualFund: () -> Unit,
     navigateToInsurance: () -> Unit,
     navigateToTradingAccountSetup: () -> Unit,
-    navigateToInvestmentRateScree: () -> Unit
+    navigateToInvestmentRateScree: () -> Unit,
+    hasUnreadNotifications: Boolean = false
 ) {
 
     LazyColumn(
@@ -141,7 +144,7 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(vertical = 26.dp)
     ) {
-        item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick) }
+        item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick, hasUnreadNotifications = hasUnreadNotifications) }
         item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick=navigateToInvestmentRateScree, hidden=hidden, onHiddenToggle=onHiddenToggle)}
         if (!kyc || !tradingKyc){ item { BarHeader(heading = "Finish Setting Up Account") } }
         if (!kyc){
@@ -360,7 +363,8 @@ fun FireReportHeader() {
 fun UserSettingsHeader(
     name: String,
     onSettingsIconClick: () -> Unit,
-    onNotificationIconClick: () -> Unit
+    onNotificationIconClick: () -> Unit,
+    hasUnreadNotifications: Boolean = false
 ) {
     Row(
         modifier=Modifier.fillMaxWidth(),
@@ -387,12 +391,23 @@ fun UserSettingsHeader(
         CircleButton(
             onClick = onNotificationIconClick,
             icon = {
-                Icon(
-                    painter = painterResource(Res.drawable.notification_icon),
-                    contentDescription = null,
-                    tint = Secondary,
-                    modifier = Modifier.size(24.dp)
-                )
+                Box {
+                    Icon(
+                        painter = painterResource(Res.drawable.notification_icon),
+                        contentDescription = null,
+                        tint = Secondary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    if (hasUnreadNotifications) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(Color.Red, CircleShape)
+                                .align(Alignment.TopEnd)
+                                .border(1.dp, Color.White, CircleShape)
+                        )
+                    }
+                }
             }
         )
 //        CircleButton(

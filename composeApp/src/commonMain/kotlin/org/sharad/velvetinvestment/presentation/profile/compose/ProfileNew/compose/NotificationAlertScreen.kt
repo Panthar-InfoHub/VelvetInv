@@ -31,20 +31,37 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.emify.core.ui.theme.grayColor
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.NotificationCentreViewModel
+import org.sharad.emify.core.ui.theme.redColor
+import org.sharad.velvetinvestment.presentation.profile.viewModel.NotificationViewModel
+import org.sharad.velvetinvestment.presentation.tradingaccount.uimodel.NotificationModel
 import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.icon__2_
 
-
-@Preview(showBackground = true)
 @Composable
-fun NotificationAlertScreenPreview() {
-    NotificationAlertScreen()
+fun NotificationAlertScreen(
+    viewModel: NotificationViewModel = koinViewModel()
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val firstNotification = state.notifications.firstOrNull()
+    
+    if (firstNotification != null) {
+        // Map NotificationDomain to NotificationModel if needed, 
+        // or just pass properties.
+        // For now, I'll just show it if there's data.
+        NotificationAlertContent(
+            NotificationModel(
+                heading = firstNotification.title,
+                body = firstNotification.body,
+                time = firstNotification.createdAt // Simplified
+            )
+        )
+    }
 }
 
 @Composable
-fun NotificationAlertScreen() {
-    val viewModel: NotificationCentreViewModel = koinViewModel()
-    val state by viewModel.notificationModel.collectAsStateWithLifecycle()
+fun NotificationAlertContent(state: NotificationModel) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceAround) {
         AlertComposable(
             color = state.color,
@@ -125,5 +142,22 @@ fun AlertComposable(
             Text("$time ago", fontSize = 12.sp, fontFamily = Poppins, color = Color(0xff8D94A5))
 
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NotificationAlertScreenPreview() {
+    VelvetTheme {
+        NotificationAlertContent(
+            state = NotificationModel(
+                color = redColor,
+                icon = Res.drawable.icon__2_,
+                heading = "Alert: High Usage",
+                body = "Your data usage has reached 90% of your monthly limit.",
+                time = "2h",
+                extraText = "Please upgrade your plan to avoid extra charges."
+            )
+        )
     }
 }
