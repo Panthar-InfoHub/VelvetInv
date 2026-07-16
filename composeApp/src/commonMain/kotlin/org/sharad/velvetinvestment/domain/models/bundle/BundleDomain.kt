@@ -34,7 +34,7 @@ data class PortfolioSlotDomain(
     val id: String,
     val allocationPercentage: Double,
     val rank: Int,
-    val selectedFund: FundDomain
+    val selectedFund: FundDomain?
 )
 
 data class FundDomain(

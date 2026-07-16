@@ -43,7 +43,7 @@ fun BaseNavigation(windowSize: WindowSize, pv: PaddingValues) {
             LoginNavigation(
                 windowSize=windowSize,
                 onLoginSuccessNavigation = {navController.navigate(Route.MainAppFlow){
-                    popUpTo(Route.MainAppFlow) {inclusive=true  }
+                    popUpTo(0) {inclusive=true  }
                 } },
                 navigateToOnboarding={it->
                     navController.navigate(Route.OnBoardingFlow(it)){

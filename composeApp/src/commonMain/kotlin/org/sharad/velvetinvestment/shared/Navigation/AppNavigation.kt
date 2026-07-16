@@ -139,7 +139,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.BottomNav> {
                 BottomNavigation(
                     navigateToSIPDetailsScreen = {
-                        navController.navigate(Route.FolioFundScreen(it.folio)) {
+                        navController.navigate(Route.FolioFundScreen(it.folio, it.actualFolio)) {
                             launchSingleTop = true
                         }
                     },
@@ -375,9 +375,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     },
                     searchText= it.toRoute<Route.MutualFundSearchResult>().search,
                     category = it.toRoute<Route.MutualFundSearchResult>().fundCategory,
-                    onSearchClick = {search->
-                        navController.navigate(Route.MutualFundSearchResult(search = search))
-                    }
                 )
             }
             composable<Route.MutualFundDetails> {
@@ -915,8 +912,10 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
             composable<Route.FolioFundScreen> {
                 val id = it.toRoute<Route.FolioFundScreen>().folioId
+                val actualFolio = it.toRoute<Route.FolioFundScreen>().actualFolio
                 FolioFundMFScreen(
                     folioId = id,
+                    actualFolio=actualFolio,
                     onBack = {
                         navController.popBackStack()
                     },

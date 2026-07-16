@@ -215,7 +215,7 @@ fun BundleOverviewCard(bundle: BundleDomain) {
             }
 
             Text(
-                text = "Velvet ${bundle.name}",
+                text = bundle.description,
                 style = MaterialTheme.typography.displayMedium,
                 color = Color.Black,
                 textAlign = TextAlign.Center
@@ -225,7 +225,7 @@ fun BundleOverviewCard(bundle: BundleDomain) {
                 val pieData = remember(bundle.assetAllocation) {
                     listOf(
                         PieChartEntry(bundle.assetAllocation.equity.toFloat(), Primary),
-                        PieChartEntry(bundle.assetAllocation.commodity.toFloat(), Color(0xFFD4AF37)),
+                        PieChartEntry(bundle.assetAllocation.commodity.toFloat(), Secondary),
                         PieChartEntry(bundle.assetAllocation.debt.toFloat(), Color(0xFF4CAF50)),
                         PieChartEntry(bundle.assetAllocation.hybrid.toFloat(), Color(0xFF2196F3))
                     )
@@ -287,7 +287,7 @@ fun BundleTag(text: String) {
 fun AssetLegend(allocation: AssetAllocationDomain) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (allocation.equity > 0) LegendItem("Equity", allocation.equity, Primary)
-        if (allocation.commodity > 0) LegendItem("Commodities", allocation.commodity, Color(0xFFD4AF37))
+        if (allocation.commodity > 0) LegendItem("Commodities", allocation.commodity, Secondary)
         if (allocation.debt > 0) LegendItem("Debt", allocation.debt, Color(0xFF4CAF50))
         if (allocation.hybrid > 0) LegendItem("Hybrid", allocation.hybrid, Color(0xFF2196F3))
     }
@@ -372,7 +372,7 @@ fun CategoryDistributionItem(
                     }
                 }
                 Text(
-                    text = category.slots.joinToString(" & ") { it.selectedFund.displayName1 },
+                    text = category.slots.joinToString(" & ") { it.selectedFund?.let { it.displayName1.ifEmpty { it.schemeName.ifEmpty { it.displayName2 } } }?:"--" },
                     style = titlesStyle,
                     color = titleColor.copy(alpha = 0.6f),
                 )

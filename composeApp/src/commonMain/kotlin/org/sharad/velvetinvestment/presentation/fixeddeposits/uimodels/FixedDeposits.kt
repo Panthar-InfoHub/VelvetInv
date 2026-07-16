@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels
 import org.sharad.velvetinvestment.domain.models.fd.FDTenureDomain
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.calculateMaturity
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
+import kotlin.math.round
 
 fun FDTenureDomain.toUIModel(invest: Long): FixedDepositTenureUIModel {
     val maturity = calculateMaturity(
@@ -12,9 +13,11 @@ fun FDTenureDomain.toUIModel(invest: Long): FixedDepositTenureUIModel {
         frequency = payoutFrequency
     )
 
+    val formattedRate = (round(interestRate * 100) / 100)
+
     return FixedDepositTenureUIModel(
         tenureText = tenureLabel,
-        interestText = "${interestRate}%",
+        interestText = "$formattedRate%",
         returnText = formatMoneyAfterL(maturity.toLong())
     )
 }

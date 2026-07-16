@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -95,6 +96,55 @@ fun BundleReviewScreenRoot(
     ) { bundle ->
         val rules = (uiState as? BundleDetailsState.Success)?.transactionRules
         if (rules != null) {
+            LaunchedEffect(bundle, rules) {
+                println("============= BUNDLE REVIEW =============")
+
+                bundle.categories.forEach { category ->
+                    println("")
+                    println("Category: ${category.displayName}")
+                    println("Category Allocation: ${category.allocationPercentage}%")
+
+                    category.slots.forEach { slot ->
+                        println("  -------------------------")
+                        println("  Slot Rank: ${slot.rank}")
+                        println("  Slot Allocation: ${slot.allocationPercentage}%")
+
+                        val fund = slot.selectedFund
+
+                        if (fund == null) {
+                            println("  Selected Fund: NULL")
+                        } else {
+                            val tr = fund.transactionRules
+
+                            println("  Selected Fund : ${fund.schemeName}")
+                            println("  SIP Min       : ${tr.minSipAmount}")
+                            println("  Lumpsum Min   : ${tr.minLumpSumAmount}")
+                            println("  Daily SIP     : ${tr.minDailySipAmount}")
+                            println("  Weekly SIP    : ${tr.minWeeklySipAmount}")
+                            println("  Fortnightly   : ${tr.minFortnightlySipAmount}")
+                            println("  Monthly SIP   : ${tr.minMonthlySipAmount}")
+                            println("  Quarterly SIP : ${tr.minQuarterlySipAmount}")
+                            println("  Semi Annual   : ${tr.minSemiAnnualSipAmount}")
+                            println("  Annual SIP    : ${tr.minAnnualSipAmount}")
+                        }
+                    }
+                }
+
+                println("")
+                println("============= DERIVED RULES =============")
+                println("Bundle SIP Min       : ${rules.minBundleSipAmount}")
+                println("Bundle Lumpsum Min   : ${rules.minBundleLumpsumAmount}")
+                println("Daily SIP            : ${rules.minDailySipAmount}")
+                println("Weekly SIP           : ${rules.minWeeklySipAmount}")
+                println("Fortnightly SIP      : ${rules.minFortnightlySipAmount}")
+                println("Monthly SIP          : ${rules.minMonthlySipAmount}")
+                println("Quarterly SIP        : ${rules.minQuarterlySipAmount}")
+                println("Semi Annual SIP      : ${rules.minSemiAnnualSipAmount}")
+                println("Annual SIP           : ${rules.minAnnualSipAmount}")
+                println("Allowed Dates        : ${rules.sipAllowedDates}")
+                println("Frequencies          : ${rules.sipFrequencies}")
+                println("=========================================")
+            }
             Box(modifier = Modifier.fillMaxSize()) {
                 BundleReviewScreen(
                     bundle = bundle,
@@ -147,6 +197,12 @@ fun BundleReviewScreen(
     onChangeFundClick: (BundleCategoryDomain) -> Unit,
     minAmount: Long
 ) {
+    val totalSlots = bundle.categories.sumOf { it.slots.size }
+    val selectedSlots = bundle.categories.sumOf { category ->
+        category.slots.count { it.selectedFund != null }
+    }
+    val allFundsSelected = selectedSlots == totalSlots
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -178,7 +234,7 @@ fun BundleReviewScreen(
                 }
             }
             item {
-                SuccessInfoBox("All ${bundle.categories.sumOf { it.slots.size }} of ${bundle.categories.sumOf { it.slots.size }} funds selected. Amounts auto-split by the locked allocation.")
+                SuccessInfoBox("$selectedSlots of $totalSlots funds selected. Amounts auto-split by the locked allocation.")
             }
 
             item {
@@ -221,7 +277,10 @@ fun BundleReviewScreen(
             onClick = onProceedClick,
             value = "Proceed to Invest",
             loading = isAddingToCart,
-            enabled = selectedSipDay!=null
+            enabled = allFundsSelected && when(fundType){
+                SelectedFundType.SIP -> selectedSipDay != null
+                SelectedFundType.LUMSUM -> true
+            }
         )
     }
 }
@@ -463,6 +522,15 @@ fun SlotReviewItem(
     amount: Long,
     onChangeClick: () -> Unit
 ) {
+    val fund = slot.selectedFund
+    if (fund == null) {
+        EmptySlotReviewItem(
+            allocationPercentage = slot.allocationPercentage,
+            onSelectClick = onChangeClick
+        )
+        return
+    }
+
     ShadowCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp)
@@ -480,17 +548,17 @@ fun SlotReviewItem(
                     )
                     .clip(LocalVelvetShapes.current.roundedDp12)
                     .background(Color.White),
-                model = slot.selectedFund.imageUrl,
+                model = fund.imageUrl,
                 contentDescription = null,
                 loading = {
                     MutualFundIcon(
-                        schemeName = slot.selectedFund.displayName1,
+                        schemeName = fund.displayName1,
                         size = 38.dp
                     )
                 },
                 error = {
                     MutualFundIcon(
-                        schemeName = slot.selectedFund.displayName1,
+                        schemeName = fund.displayName1,
                         size = 38.dp
                     )
                 },
@@ -502,7 +570,7 @@ fun SlotReviewItem(
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = slot.selectedFund.schemeName,
+                    Text(text = fund.schemeName,
                         style = titlesStyle.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
@@ -517,7 +585,7 @@ fun SlotReviewItem(
                         color = titleColor
                     )
                     Text(
-                        text = "+${slot.selectedFund.metrics.return1Y.trimTo(1)}% 1Y",
+                        text = "+${fund.metrics.return1Y.trimTo(1)}% 1Y",
                         style = titlesStyle.copy(fontSize = 10.sp),
                         color = appGreen
                     )
@@ -531,6 +599,63 @@ fun SlotReviewItem(
             ) {
                 Text(
                     text = "Change",
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = titlesStyle.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
+                    color = appGreen
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EmptySlotReviewItem(
+    allocationPercentage: Double,
+    onSelectClick: () -> Unit
+) {
+    ShadowCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier.size(38.dp)
+                    .clip(LocalVelvetShapes.current.roundedDp12)
+                    .background(Color(0xffF3F4F5)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.plus_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = titleColor.copy(alpha = 0.5f)
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "No fund selected for this category",
+                    style = titlesStyle.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "Allocation: ${allocationPercentage.toInt()}%",
+                    style = titlesStyle.copy(fontSize = 10.sp),
+                    color = titleColor
+                )
+            }
+
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = appGreen.copy(alpha = 0.1f),
+                modifier = Modifier.clickable { onSelectClick() }
+            ) {
+                Text(
+                    text = "Select",
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     style = titlesStyle.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
                     color = appGreen

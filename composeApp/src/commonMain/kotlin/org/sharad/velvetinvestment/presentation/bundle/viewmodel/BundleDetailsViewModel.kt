@@ -138,36 +138,51 @@ class BundleDetailsViewModel(
         val currentState = _uiState.value
         if (currentState !is BundleDetailsState.Success) return
 
+        val slots = currentState.data.categories.flatMap { it.slots }
+
+        if (slots.any { it.selectedFund == null }) {
+            viewModelScope.launch{
+                SnackBarController.showError("Please select a fund for all categories.")
+            }
+            return
+        }
+
         val amount = _investmentAmount.value
         val fundType = FundTypeSelector.fundType.value
 
-        val selections = currentState.data.categories.flatMap { category ->
-            category.slots.map { slot ->
-                org.sharad.velvetinvestment.data.remote.model.bundlecart.BundleSelection(
-                    mf_product_id = slot.selectedFund.id,
-                    allocation_percentage = slot.allocationPercentage.toInt()
-                )
-            }
+        val selections = slots.map { slot ->
+            org.sharad.velvetinvestment.data.remote.model.bundlecart.BundleSelection(
+                mf_product_id = slot.selectedFund!!.id,
+                allocation_percentage = slot.allocationPercentage
+            )
         }
 
         viewModelScope.launch {
             _isAddingToCart.value = true
-            if (fundType == SelectedFundType.SIP) {
-                val day = _selectedSipDay.value?: return@launch
-                val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-                val startDate = calculateSipStartDate(today, day)
-                val endDate = startDate.plus(DatePeriod(years = 40)).minus(DatePeriod(days = 1))
 
-                val request = org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleSipRequest(
-                    bundle_id = bundleKey,
-                    amount = amount,
-                    sip_st_date = startDate.toString(),
-                    sip_en_date = endDate.toString(),
-                    sip_freq = "OM",
-                    sip_day = day,
-                    sip_amt = amount,
-                    selections = selections
-                )
+            if (fundType == SelectedFundType.SIP) {
+                val day = _selectedSipDay.value ?: return@launch
+
+                val today = Clock.System.now()
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
+
+                val startDate = calculateSipStartDate(today, day)
+                val endDate = startDate
+                    .plus(DatePeriod(years = 40))
+                    .minus(DatePeriod(days = 1))
+
+                val request =
+                    org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleSipRequest(
+                        bundle_id = bundleKey,
+                        amount = amount,
+                        sip_st_date = startDate.toString(),
+                        sip_en_date = endDate.toString(),
+                        sip_freq = "OM",
+                        sip_day = day,
+                        sip_amt = amount,
+                        selections = selections
+                    )
 
                 addBundleToCartSipUseCase(request)
                     .onSuccess {

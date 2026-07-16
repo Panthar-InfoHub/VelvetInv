@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.lightGray
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.domain.models.bundle.FundMetricsDomain
@@ -139,29 +140,38 @@ fun SelectFundScreen(
                         color = titleColor
                     )
                 }
-                val originalFundSelectedElsewhere = category.slots
+                val preSelectedFund = activeSlot.selectedFund
+                val originalFundSelectedElsewhere = preSelectedFund != null && category.slots
                     .filter { it.id != activeSlotId }
                     .any { slot ->
                         val effectiveFund =
                             pendingSelections[slot.id] ?: slot.selectedFund
 
-                        effectiveFund.id == activeSlot.selectedFund.id
+                        effectiveFund?.id == preSelectedFund.id
                     }
 
                 item {
-                    FundCard(
-                        fund = activeSlot.selectedFund,
-                        isSelected =
-                            selectedFundForActiveSlot?.id == activeSlot.selectedFund.id,
-                        isDisabled = originalFundSelectedElsewhere,
-                        enabled = !originalFundSelectedElsewhere,
-                        onSelect = {
-                            pendingSelections =
-                                pendingSelections + (
-                                        activeSlotId to activeSlot.selectedFund
-                                        )
-                        }
-                    )
+                    if (preSelectedFund == null) {
+                        Text(
+                            text = "No fund has selected previously",
+                            style = titlesStyle.copy(fontSize = 13.sp),
+                            color = titleColor.copy(alpha = 0.6f)
+                        )
+                    } else {
+                        FundCard(
+                            fund = preSelectedFund,
+                            isSelected =
+                                selectedFundForActiveSlot?.id == preSelectedFund.id,
+                            isDisabled = originalFundSelectedElsewhere,
+                            enabled = !originalFundSelectedElsewhere,
+                            onSelect = {
+                                pendingSelections =
+                                    pendingSelections + (
+                                            activeSlotId to preSelectedFund
+                                            )
+                            }
+                        )
+                    }
                 }
 
                 item {
@@ -175,13 +185,13 @@ fun SelectFundScreen(
 
                 val selectedFundIdsInOtherSlots = category.slots
                     .filter { it.id != activeSlotId }
-                    .map { slot ->
-                        pendingSelections[slot.id]?.id ?: slot.selectedFund.id
+                    .mapNotNull { slot ->
+                        pendingSelections[slot.id]?.id ?: slot.selectedFund?.id
                     }
                     .toSet()
                 items(
                     items = category.funds.filter { fund ->
-                        fund.id != activeSlot.selectedFund.id &&
+                        fund.id != preSelectedFund?.id &&
                                 fund.id !in selectedFundIdsInOtherSlots
                     },
                     key = { it.id }
@@ -223,7 +233,8 @@ fun SelectFundScreen(
                 onSaveCategory(updatedSlots)
                 onFinalSave()
             },
-            value = "Save Fund"
+            value = "Save Fund",
+            enabled = selectedFundForActiveSlot != null
         )
     }
 }
@@ -334,7 +345,7 @@ fun SlotsRow(
                     Spacer(Modifier.height(4.dp))
 
                     Text(
-                        text = slot.selectedFund.displayName1,
+                        text = slot.selectedFund?.displayName1?.ifEmpty { slot.selectedFund.schemeName } ?: "--",
                         style = titlesStyle.copy(fontWeight = FontWeight.SemiBold),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -398,7 +409,7 @@ fun FundCard(
                         )
                     Column {
                         Text(
-                            text = fund.schemeName.toTitleCase(),
+                            text = fund.schemeName.toTitleCase().ifEmpty { fund.displayName1.ifEmpty { fund.displayName2 } },
                             style = MaterialTheme.typography.labelSmall,
                             maxLines = 1
                         )
@@ -444,9 +455,9 @@ fun FundCard(
             Spacer(Modifier.height(16.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                MetricItem("3Y RETURN*", "${fund.metrics.return3Y}%", appGreen)
-                MetricItem("Risk Level", fund.riskLevel.toString(), titleColor) // Placeholder expense
-                MetricItem("NAV", "₹${ fund.latestNav.toDouble().trimTo(2) }", titleColor) // Placeholder AUM
+                MetricItem("1Y Return", "${fund.metrics.return1Y.trimTo(2)}%", if (fund.metrics.return1Y>0) appGreen else appRed)
+                MetricItem("3Y Return (p.a.)", "${fund.metrics.return3Y.trimTo(2)}%",if (fund.metrics.return3Y>0) appGreen else appRed )
+                MetricItem("5Y RETURN (p.a.)", "${fund.metrics.return5Y.trimTo(2)}% ", if (fund.metrics.return5Y>0) appGreen else appRed)
             }
         }
     }

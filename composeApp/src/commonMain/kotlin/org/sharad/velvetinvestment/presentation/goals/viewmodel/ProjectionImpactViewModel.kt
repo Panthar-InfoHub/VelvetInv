@@ -397,13 +397,12 @@ class ProjectionImpactViewModel(
         }
     }
 
-    fun toggleSelection(id: Int) {
+    fun toggleSelection(id: String) {
         val currentState = _portfolioData.value
         if (currentState !is UiState.Success) return
         _portfolioData.value = UiState.Success(
             currentState.data.map { scheme ->
-
-                if (scheme.schemeId == id) {
+                if (scheme.folio == id) {
                     scheme.copy(
                         isSelected = !scheme.isSelected
                     )

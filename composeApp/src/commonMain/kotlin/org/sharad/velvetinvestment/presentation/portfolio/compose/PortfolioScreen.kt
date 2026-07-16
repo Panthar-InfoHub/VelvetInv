@@ -40,6 +40,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -703,7 +704,7 @@ fun MFInvestmentsCard(
                 verticalAlignment = Alignment.Top
             ) {
                 Column {
-                    Text(text = "Total Investments", style = titlesStyle, color = titleColor)
+                    Text(text = "Current Value", style = titlesStyle, color = titleColor)
                     Text(
                         text = "₹${formatMoneyAfterL(summary.currentValue.toLong())}".withInterRupee(),
                         style = subHeading.copy(fontSize = 24.sp),
@@ -940,7 +941,8 @@ fun PendingPaymentsCard(item: PendingOrderDomain, onCancel: () -> Unit) {
                     ){
 
                         SubcomposeAsyncImage(
-                            modifier = Modifier.size(44.dp),
+                            modifier = Modifier.size(44.dp)
+                                .shadow(elevation = 4.dp, shape = LocalVelvetShapes.current.roundedDp12),
                             model = item.icon,
                             contentDescription = null,
 

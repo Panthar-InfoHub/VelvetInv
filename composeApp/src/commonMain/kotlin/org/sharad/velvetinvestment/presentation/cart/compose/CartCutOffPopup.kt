@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,12 +58,13 @@ fun CartCutOffPopup(
     onDismiss:()->Unit,
     onPurchase:()->Unit
 ){
-    var isChecked by remember{ mutableStateOf(false) }
+    var isChecked by remember{ mutableStateOf(true) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         dragHandle = null,
         containerColor = Color.White,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ){
         Column(
             modifier=Modifier.fillMaxWidth().padding(vertical = 16.dp)

@@ -162,7 +162,7 @@ fun ExploreCategoryFundScreen(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "Showing only $categoryName funds • same sub-category",
+                text = "Showing only $categorTitle funds • same sub-category",
                 style = titlesStyle,
                 color = titleColor,
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -270,7 +270,7 @@ fun ExploreMutualFundCard(
                 )
                 Column {
                     Text(
-                        text = fund.name.toTitleCase(),
+                        text = fund.name.toTitleCase().ifEmpty { fund.shortName1.ifEmpty { fund.shortName2 } }.toTitleCase(),
                         style = buttonTextStyle,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -304,9 +304,9 @@ fun ExploreMutualFundCard(
             // Metrics Grid
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MetricItemExplore("1Y*", "${fund.returnYearsRate.year1?.trimTo(1) ?: "N/A"}%", fund.returnYearsRate.year1?.let { if (it>0.0) appGreen else appRed } ?: appRed, modifier=Modifier.weight(1f))
-                    MetricItemExplore("3Y*", "${fund.returnYearsRate.year3?.trimTo(1) ?: "N/A"}%", fund.returnYearsRate.year3?.let { if (it>0.0) appGreen else appRed } ?: appRed,modifier=Modifier.weight(1f))
-                    MetricItemExplore("5Y*", "${fund.returnYearsRate.year5?.trimTo(1) ?: "N/A"}%", fund.returnYearsRate.year5?.let { if (it>0.0) appGreen else appRed } ?: appRed,modifier=Modifier.weight(1f))
+                    MetricItemExplore("1Y", "${fund.returnYearsRate.year1?.trimTo(1) ?: "N/A"}%", fund.returnYearsRate.year1?.let { if (it>0.0) appGreen else appRed } ?: appRed, modifier=Modifier.weight(1f))
+                    MetricItemExplore("3Y (p.a.)", "${fund.returnYearsRate.year3?.trimTo(1) ?: "N/A"}%", fund.returnYearsRate.year3?.let { if (it>0.0) appGreen else appRed } ?: appRed,modifier=Modifier.weight(1f))
+                    MetricItemExplore("5Y (p.a.)", "${fund.returnYearsRate.year5?.trimTo(1) ?: "N/A"}%", fund.returnYearsRate.year5?.let { if (it>0.0) appGreen else appRed } ?: appRed,modifier=Modifier.weight(1f))
                 }
             }
 
@@ -352,7 +352,7 @@ fun MetricItemExplore(label: String, value: String, valueColor: Color, modifier:
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = label, style = titlesStyle.copy(fontSize = 10.sp), color = titleColor.copy(alpha = 0.4f))
+        Text(text = label, style = titlesStyle.copy(fontSize = 10.sp), color = titleColor)
         Text(text = value, style = buttonTextStyle, color = valueColor)
     }
 }

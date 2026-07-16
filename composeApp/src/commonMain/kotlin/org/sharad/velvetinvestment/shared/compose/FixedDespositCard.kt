@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,7 @@ import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
@@ -62,7 +64,10 @@ fun FixedDepositCard(fdData: FixedDepositPortfolioDomain, onClick: () -> Unit){
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SubcomposeAsyncImage(
-                    modifier = Modifier.size(44.dp),
+                    modifier = Modifier.size(44.dp)
+                        .shadow(
+                            elevation = 8.dp, shape = LocalVelvetShapes.current.roundedDp12
+                        ),
                     model = fdData.issuerLogoUrl,
                     contentDescription = null,
 

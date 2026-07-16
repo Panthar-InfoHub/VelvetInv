@@ -26,5 +26,5 @@ data class AddBundleSipRequest(
 @Serializable
 data class BundleSelection(
     val mf_product_id: String,
-    val allocation_percentage: Int
+    val allocation_percentage: Double
 )

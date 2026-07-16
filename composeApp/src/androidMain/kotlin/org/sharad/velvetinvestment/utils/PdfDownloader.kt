@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.utils
 
+import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -12,13 +13,10 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.headers
-import io.ktor.client.statement.readRawBytes
-import io.ktor.http.HttpHeaders
-import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -119,70 +117,82 @@ class PdfDownloader(
         onFailure: () -> Unit
     ) {
         try {
-            val response = client.get(url) {
-                headers {
-                    append(HttpHeaders.Accept, "application/pdf")
-                }
+            val downloadManager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+
+            val request = DownloadManager.Request(url.toUri()).apply {
+                setTitle("$fileName.pdf")
+                setDescription("Downloading PDF")
+                setMimeType("application/pdf")
+                addRequestHeader("Accept", "application/pdf")
+                // System posts its own progress + "download complete" notification.
+                // Tapping the completed notification opens the PDF via the MIME type set above.
+                setNotificationVisibility(
+                    DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+                )
+                // Saving to the public Downloads dir via DownloadManager needs no storage
+                // permission on any supported API level (DownloadManager owns the write).
+                setDestinationInExternalPublicDir(
+                    Environment.DIRECTORY_DOWNLOADS,
+                    "$fileName.pdf"
+                )
             }
 
-            if (!response.status.isSuccess()) {
-                onFailure()
-                return
-            }
+            val downloadId = downloadManager.enqueue(request)
 
-            val bytes = response.readRawBytes()
+            // Poll DownloadManager for progress/terminal status so we can keep the existing
+            // onProgress / onSuccess / onFailure callback contract.
+            withContext(Dispatchers.IO) {
+                var finished = false
+                while (!finished) {
+                    val query = DownloadManager.Query().setFilterById(downloadId)
+                    downloadManager.query(query).use { cursor ->
+                        if (!cursor.moveToFirst()) {
+                            // Row gone (e.g. cancelled/removed) — treat as failure.
+                            finished = true
+                            onFailure()
+                            return@use
+                        }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val status = cursor.getInt(
+                            cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS)
+                        )
 
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, "$fileName.pdf")
-                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                    put(
-                        MediaStore.MediaColumns.RELATIVE_PATH,
-                        Environment.DIRECTORY_DOWNLOADS
-                    )
-                }
+                        when (status) {
+                            DownloadManager.STATUS_SUCCESSFUL -> {
+                                finished = true
+                                onProgress(100)
+                                onSuccess()
+                            }
 
-                val resolver = context.contentResolver
+                            DownloadManager.STATUS_FAILED -> {
+                                finished = true
+                                onFailure()
+                            }
 
-                val uri = resolver.insert(
-                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                    contentValues
-                )
+                            else -> {
+                                val total = cursor.getLong(
+                                    cursor.getColumnIndexOrThrow(
+                                        DownloadManager.COLUMN_TOTAL_SIZE_BYTES
+                                    )
+                                )
+                                val downloaded = cursor.getLong(
+                                    cursor.getColumnIndexOrThrow(
+                                        DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR
+                                    )
+                                )
+                                if (total > 0) {
+                                    onProgress((downloaded * 100 / total).toInt())
+                                }
+                            }
+                        }
+                    }
 
-                if (uri == null) {
-                    onFailure()
-                    return
-                }
-
-                resolver.openOutputStream(uri)?.use { outputStream ->
-                    outputStream.write(bytes)
-                } ?: run {
-                    onFailure()
-                    return
-                }
-
-            } else {
-
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS
-                )
-
-                if (!downloadsDir.exists()) {
-                    downloadsDir.mkdirs()
-                }
-
-                val file = File(downloadsDir, "$fileName.pdf")
-
-                withContext(Dispatchers.IO) {
-                    FileOutputStream(file).use { outputStream ->
-                        outputStream.write(bytes)
+                    if (!finished) {
+                        delay(300)
                     }
                 }
             }
-
-            onSuccess()
-
         } catch (e: Exception) {
             e.printStackTrace()
             onFailure()

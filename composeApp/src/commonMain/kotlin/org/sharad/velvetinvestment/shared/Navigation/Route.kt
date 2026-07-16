@@ -160,7 +160,7 @@ object Route {
     data object CartScreen
 
     @Serializable
-    data class FolioFundScreen(val folioId: String)
+    data class FolioFundScreen(val folioId: String, val actualFolio: String)
 
     @Serializable
     data object ExistingFundScreen

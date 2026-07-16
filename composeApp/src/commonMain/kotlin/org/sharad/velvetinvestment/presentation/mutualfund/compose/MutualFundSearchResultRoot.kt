@@ -78,7 +78,6 @@ fun MutualFundSearchScreenRoot(
     onFundClick: (String) -> Unit,
     heading: String,
     searchText: String,
-    onSearchClick: (String) -> Unit,
     category: String?,
 ) {
 
@@ -135,7 +134,7 @@ fun MutualFundSearchScreenRoot(
                             toggleFilterScreen = viewModel::toggleFilterScreen,
                             searchText = searchText,
                             onTextChange = viewModel::onSearchTextChange,
-                            onSearchClick =onSearchClick
+                            onSearchClick = { viewModel.onSearch() }
                         )
                     }
                 }

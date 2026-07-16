@@ -109,7 +109,7 @@ class MutualFundSearchResultViewModel(
             val (risk, category, fundCategoryFilter) = getSelectedFilters()
 
             getMutualFundSearchResultUseCase(
-                search = search,
+                search = _searchText.value,
                 fundCategory = fundCategoryFilter ?: selectedFilter.value?.id,
                 risk = risk,
                 category = category,
@@ -207,6 +207,18 @@ class MutualFundSearchResultViewModel(
 
     fun onSearchTextChange(newText: String) {
         _searchText.value = newText
+    }
+
+    /**
+     * Triggered when the user presses search. Discards the currently loaded funds and
+     * reloads from page 1 using the current [searchText] and the active filters, keeping
+     * the search input and selected filter options intact.
+     */
+    fun onSearch() {
+        currentPage = 1
+        _hasNextPage.value = true
+        _mutualFunds.value = emptyList()
+        loadFunds()
     }
 
     private fun getSelectedFilters(): Triple<Int?, String?, String?> {

@@ -49,9 +49,7 @@ private fun Category.toDomain(): BundleCategoryDomain {
                 id = slot.id,
                 allocationPercentage = slot.allocation_percentage,
                 rank = slot.default_rank,
-                selectedFund = domainFunds.getOrElse(index) {
-                    domainFunds.first()
-                }
+                selectedFund = domainFunds.getOrNull(index)
             )
         }
     )
@@ -128,15 +126,19 @@ fun BundleDomain.deriveTransactionRules(): BundleTransactionRules {
 
     val slots = categories.flatMap { it.slots }
 
-    val dates = slots
-        .map { it.selectedFund.transactionRules.sipAllowedDates.toSet() }
-        .reduce(Set<Int>::intersect)
-        .sorted()
+    val selectedFunds = slots.mapNotNull { it.selectedFund }
 
-    val frequencies = slots
-        .map { it.selectedFund.transactionRules.sipFrequencies.toSet() }
-        .reduce(Set<String>::intersect)
-        .sorted()
+    val dates = selectedFunds
+        .map { it.transactionRules.sipAllowedDates.toSet() }
+        .reduceOrNull(Set<Int>::intersect)
+        ?.sorted()
+        ?: emptyList()
+
+    val frequencies = selectedFunds
+        .map { it.transactionRules.sipFrequencies.toSet() }
+        .reduceOrNull(Set<String>::intersect)
+        ?.sorted()
+        ?: emptyList()
 
     return BundleTransactionRules(
         minBundleSipAmount = calculateBundleMinimum(
@@ -194,21 +196,24 @@ private fun calculateBundleMinimum(
     selector: (TransactionRulesDomain) -> Int
 ): Int {
 
-    return slots.maxOfOrNull { slot ->
+    return slots
+        .mapNotNull { slot ->
+            val rules = slot.selectedFund?.transactionRules
+                ?: return@mapNotNull null
 
-        val min = selector(slot.selectedFund.transactionRules)
+            val min = selector(rules)
 
-        if (min == 0) {
-            0
-        } else {
-            val required = ceil(
-                min * 100.0 / slot.allocationPercentage
-            ).toInt()
+            if (min == 0) {
+                0
+            } else {
+                val required = ceil(
+                    min * 100.0 / slot.allocationPercentage
+                ).toInt()
 
-            roundUpToNext10(required)
+                roundUpToNext10(required)
+            }
         }
-
-    } ?: 0
+        .maxOrNull() ?: 0
 }
 
 private fun roundUpToNext10(value: Int): Int {
