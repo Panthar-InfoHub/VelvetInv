@@ -22,7 +22,7 @@ data class LumpSumAdd(
 )
 
 sealed interface ExistingFundsLumpSumSideEffect{
-    data class OpenBrowserLink(val link:String): ExistingFundsLumpSumSideEffect
+    data class OpenWebViewLink(val link:String): ExistingFundsLumpSumSideEffect
 }
 class ExistingFundsLumpSumViewModel(
     private val getPortfolioUseCase: GetPortfolioUseCase,
@@ -102,7 +102,7 @@ class ExistingFundsLumpSumViewModel(
                 .onSuccess {
                     _addedFundList.value = emptyList()
                     _buttonLoading.value=false
-                    _sideEffect.emit(ExistingFundsLumpSumSideEffect.OpenBrowserLink(it))
+                    _sideEffect.emit(ExistingFundsLumpSumSideEffect.OpenWebViewLink(it))
                 }
                 .onError { error ->
                     _buttonLoading.value=false

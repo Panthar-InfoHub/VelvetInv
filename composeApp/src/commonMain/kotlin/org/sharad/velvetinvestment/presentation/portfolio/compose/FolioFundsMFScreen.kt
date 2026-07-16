@@ -58,7 +58,7 @@ fun FolioFundMFScreen(
     folioId: String,
     onBack: () -> Unit,
     onFundClick: (FolioFundDomain) -> Unit,
-    onTopUp: (String) -> Unit,
+    onTopUp: (String, String) -> Unit,
 ) {
     val viewModel: FolioFundsMFViewModel = koinViewModel(parameters = { parametersOf(folioId) })
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -90,7 +90,7 @@ fun FolioFundMFScreen(
                     folioId = folioId,
                     funds = data,
                     onFundClick = onFundClick,
-                    onTopUpClick = { onTopUp(data[0].id) }
+                    onTopUpClick = { onTopUp(data[0].id, data[0].actualFolio) }
                 )
             }
         }
@@ -112,9 +112,9 @@ fun FolioFundsContent(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                FolioInfoSection(folioId = folioId)
-            }
+//            item {
+//                FolioInfoSection(folioId = folioId)
+//            }
 
             items(funds) { fund ->
                 val percentage = fund.returnPercentage.replace("%", "").toDoubleOrNull() ?: 0.0

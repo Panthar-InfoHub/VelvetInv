@@ -14,6 +14,7 @@ import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDo
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.InvestedAmountBreakdownDomain
+import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundSummaryDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PendingOrderDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioAllocationItemDomain
@@ -25,6 +26,30 @@ fun UserPortFolioDto.toDomain(): PortfolioDomain {
 
     val totalInvestments = data.total_investments
     val investedBreakdown = data.invested_amount_breakdown
+
+    val mutualFunds = data.mutual_funds.map {
+        it.toDomain()
+    }
+
+    val fixedDeposits = data.fixed_deposits.map {
+        it.toDomain()
+    }
+
+    val mutualFundInvestedAmount =
+        mutualFunds.sumOf { it.amount }
+
+    val mutualFundCurrentValue =
+        mutualFunds.sumOf { it.currentValue }
+
+    val mutualFundReturnsAmount =
+        mutualFundCurrentValue - mutualFundInvestedAmount
+
+    val mutualFundReturnsPercent =
+        if (mutualFundInvestedAmount == 0.0) {
+            0.0
+        } else {
+            (mutualFundReturnsAmount / mutualFundInvestedAmount) * 100
+        }
 
     return PortfolioDomain(
 
@@ -38,60 +63,41 @@ fun UserPortFolioDto.toDomain(): PortfolioDomain {
         totalInvestments = TotalInvestmentsDomain(
             currentValue = totalInvestments.current_value,
 
-            totalReturns = totalInvestments
-                .total_returns,
+            totalReturns = totalInvestments.total_returns,
 
             returnPercent = totalInvestments.return_percent,
 
             allocation = PortfolioAllocationDomain(
 
                 mutualFunds = PortfolioAllocationItemDomain(
-                    value = totalInvestments
-                        .allocation
-                        .mutual_funds
-                        .value,
-
-                    percent = totalInvestments
-                        .allocation
-                        .mutual_funds
-                        .percent
+                    value = totalInvestments.allocation.mutual_funds.value,
+                    percent = totalInvestments.allocation.mutual_funds.percent
                 ),
 
                 fixedDeposits = PortfolioAllocationItemDomain(
-                    value = totalInvestments
-                        .allocation
-                        .fixed_deposits
-                        .value,
-
-                    percent = totalInvestments
-                        .allocation
-                        .fixed_deposits
-                        .percent
+                    value = totalInvestments.allocation.fixed_deposits.value,
+                    percent = totalInvestments.allocation.fixed_deposits.percent
                 )
             )
         ),
 
         investedAmountBreakdown = InvestedAmountBreakdownDomain(
-            investedAmount = investedBreakdown
-                .invested_amount,
-
-            investedItemsCount = investedBreakdown
-                .invested_items_count,
-
-            returnsAmount = investedBreakdown
-                .returns_amount,
-
-            returnsPercent = investedBreakdown
-                .returns_percent
+            investedAmount = investedBreakdown.invested_amount,
+            investedItemsCount = investedBreakdown.invested_items_count,
+            returnsAmount = investedBreakdown.returns_amount,
+            returnsPercent = investedBreakdown.returns_percent
         ),
 
-        mutualFunds = data.mutual_funds.map {
-            it.toDomain()
-        },
+        mutualFunds = mutualFunds,
 
-        fixedDeposits = data.fixed_deposits.map {
-            it.toDomain()
-        }
+        fixedDeposits = fixedDeposits,
+
+        mutualFundSummary = MutualFundSummaryDomain(
+            investedAmount = mutualFundInvestedAmount,
+            currentValue = mutualFundCurrentValue,
+            returnsAmount = mutualFundReturnsAmount,
+            returnsPercent = mutualFundReturnsPercent
+        )
     )
 }
 
@@ -109,7 +115,8 @@ fun MutualFundDto.toDomain(): MutualFundPortfolioDomain {
         minSipAmount = transaction_rules.min_sip_amount.toLongOrNull() ?: 0L,
         minLumpSumAmount = transaction_rules.min_lump_sum_amount.toLongOrNull() ?: 0L,
         schemeId=scheme_id,
-        balanceUnits=bal_units
+        balanceUnits=bal_units,
+        actualFolio=actual_folio?:""
     )
 }
 

@@ -50,7 +50,7 @@ fun ExistingFundScreenRoot(
                 items(data.mutualFunds, key = {it.folio }) { fund ->
                     FolioFundCard(
                         fundItem = fund,
-                        onClick = { onFundClick(fund.id, fund.folio) }
+                        onClick = { onFundClick(fund.id, fund.actualFolio) }
                     )
                 }
             }

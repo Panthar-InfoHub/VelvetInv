@@ -61,7 +61,6 @@ import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
 import org.sharad.velvetinvestment.shared.compose.SidedBackHeader
-import org.sharad.velvetinvestment.shared.rememberBrowserReturnLauncher
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
@@ -89,6 +88,9 @@ import velvet.composeapp.generated.resources.rupeesign
 fun MFPortfolioDetailsScreen(
     onBackClick: () -> Unit,
     data: Route.SIPPortfolioDetails,
+    onLaunchWebView: (String) -> Unit = {},
+    webViewReturned: Boolean = false,
+    onWebViewConsumed: () -> Unit = {},
 ) {
 
     val viewModel: MFPortfolioDetailsViewModel = koinViewModel()
@@ -100,22 +102,24 @@ fun MFPortfolioDetailsScreen(
     val redemptionAmount by viewModel.redemptionAmount.collectAsStateWithLifecycle()
     val isSubmitting by viewModel.isSubmitting.collectAsStateWithLifecycle()
     val soaDownloading by viewModel.soaDownloading.collectAsStateWithLifecycle()
-    val browserLauncher = rememberBrowserReturnLauncher()
     var showCancelDialog by remember {
         mutableStateOf(false)
     }
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(webViewReturned) {
+        if (webViewReturned) {
+            onWebViewConsumed()
+            AppEventsController.sendPortfolioRefreshEvent()
+            onBackClick()
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.sideEffects.collect {
             when (it) {
                 is MFPortfolioSideEffects.openRedeemptionUrl -> {
-                    browserLauncher.launch(it.url) {
-                        scope.launch {
-                            AppEventsController.sendPortfolioRefreshEvent()
-                            onBackClick()
-                        }
-                    }
+                    onLaunchWebView(it.url)
                 }
 
                 MFPortfolioSideEffects.OrderCancelled -> {
@@ -267,7 +271,7 @@ fun SIPDetailsLoadedScreen(
             item {
                 ShadowCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        FundDetailItem(folioIcon, "Folio", data.folio)
+                        FundDetailItem(folioIcon, "Folio", data.actualFolio)
                         HorizontalDivider(color = Color.LightGray.copy(0.2f))
                         FundDetailItem(calendarIcon, "Start date", data.startDate)
                         HorizontalDivider(color = Color.LightGray.copy(0.2f))

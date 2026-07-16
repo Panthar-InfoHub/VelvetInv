@@ -1,13 +1,29 @@
 package org.sharad.velvetinvestment.presentation.webview
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
+import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.velvetinvestment.domain.webview.WebViewConfig
 import org.sharad.velvetinvestment.domain.webview.WebViewExitUrlMatcher
-import org.sharad.velvetinvestment.shared.compose.BackHeader
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.icon_cross
 
 @Composable
 fun WebViewScreen(
@@ -19,7 +35,7 @@ fun WebViewScreen(
     val state = rememberWebViewState(config.url)
 
     Column(modifier = modifier.fillMaxSize()) {
-        BackHeader(
+        WebViewHeader(
             heading = config.title.orEmpty(),
             showBack = true,
             onBackClick = onBackClick
@@ -35,6 +51,47 @@ fun WebViewScreen(
                     }
                 }
             )
+        }
+    }
+}
+
+
+@Composable
+private fun WebViewHeader(
+    heading: String,
+    showBack: Boolean = false,
+    modifier:Modifier=Modifier.fillMaxWidth(),
+    onBackClick: () -> Unit={},
+    rightContent: @Composable () -> Unit={}
+){
+    Box(
+        modifier=modifier
+            .background(Color.White)
+            .padding(bottom = 16.dp, start = 12.dp, end = 12.dp, top = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = heading,
+            style = MaterialTheme.typography.headlineLarge,
+            color = Primary
+        )
+
+        if (showBack){
+            Icon(
+                painter = painterResource(Res.drawable.icon_cross),
+                contentDescription = null,
+                modifier = Modifier.size(22.dp).clickable(
+                    onClick = onBackClick,
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ).align(Alignment.CenterStart)
+            )
+        }
+
+        Box(
+            modifier = Modifier.align(Alignment.CenterEnd)
+        ) {
+            rightContent()
         }
     }
 }

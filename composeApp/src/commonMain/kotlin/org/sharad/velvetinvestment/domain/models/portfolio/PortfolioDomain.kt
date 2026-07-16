@@ -9,6 +9,7 @@ data class MutualFundPortfolioDomain(
     val returnAmount: Double,
     val returnPercentage: String,
     val folio: String,
+    val actualFolio: String,
     val icon: String,
 
     val minSipAmount: Long,
@@ -69,5 +70,13 @@ data class PortfolioDomain(
     val totalInvestments: TotalInvestmentsDomain,
     val investedAmountBreakdown: InvestedAmountBreakdownDomain,
     val mutualFunds: List<MutualFundPortfolioDomain>,
-    val fixedDeposits: List<FixedDepositPortfolioDomain>
+    val fixedDeposits: List<FixedDepositPortfolioDomain>,
+    val mutualFundSummary: MutualFundSummaryDomain
+)
+
+data class MutualFundSummaryDomain(
+    val investedAmount: Double,
+    val currentValue: Double,
+    val returnsAmount: Double,
+    val returnsPercent: Double
 )

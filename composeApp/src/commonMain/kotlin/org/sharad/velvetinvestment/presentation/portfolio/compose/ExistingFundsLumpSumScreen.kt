@@ -53,7 +53,6 @@ import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.AppButton
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.genericDropShadow
-import org.sharad.velvetinvestment.shared.rememberBrowserReturnLauncher
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.subHeading
@@ -64,21 +63,27 @@ import org.sharad.velvetinvestment.utils.withInterRupee
 @Composable
 fun ExistingFundLumpSumScreen(
     onBack: () -> Unit,
+    onLaunchWebView: (String) -> Unit = {},
+    webViewReturned: Boolean = false,
+    onWebViewConsumed: () -> Unit = {},
 ) {
     val viewModel: ExistingFundsLumpSumViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedFunds by viewModel.addedFundList.collectAsStateWithLifecycle()
     val buttonLoading by viewModel.buttonLoading.collectAsStateWithLifecycle()
 
-    val browserLauncher = rememberBrowserReturnLauncher()
+    LaunchedEffect(webViewReturned) {
+        if (webViewReturned) {
+            onWebViewConsumed()
+            viewModel.loadPortfolio()
+        }
+    }
 
     LaunchedEffect(Unit){
         viewModel.sideEffect.collect{
             when(it){
-                is ExistingFundsLumpSumSideEffect.OpenBrowserLink -> {
-                    browserLauncher.launch(it.link){
-                        viewModel.loadPortfolio()
-                    }
+                is ExistingFundsLumpSumSideEffect.OpenWebViewLink -> {
+                    onLaunchWebView(it.link)
                 }
             }
         }
@@ -156,12 +161,12 @@ fun FolioFundsLumpSumContent(
                     onAddClick = { amount ->
                         onAddFund(
                             fund.schemeId.toString(),
-                            fund.folio,
+                            fund.actualFolio,
                             amount
                         )
                     },
                     onRemove = {
-                        onRemove(fund.folio)
+                        onRemove(fund.actualFolio)
                     }
                 )
             }
@@ -477,7 +482,8 @@ fun FolioFundsContentLSPreview() {
             minSipAmount = 500L,
             minLumpSumAmount = 5000L,
             schemeId = 1,
-            balanceUnits = 961.53
+            balanceUnits = 961.53,
+            actualFolio = "372929812"
         ),
         MutualFundPortfolioDomain(
             id = "2",
@@ -492,7 +498,8 @@ fun FolioFundsContentLSPreview() {
             minSipAmount = 100L,
             minLumpSumAmount = 1000L,
             schemeId = 2,
-            balanceUnits = 588.23
+            balanceUnits = 588.23,
+            actualFolio = "372929812"
         ),
         MutualFundPortfolioDomain(
             id = "3",
@@ -507,7 +514,9 @@ fun FolioFundsContentLSPreview() {
             minSipAmount = 100L,
             minLumpSumAmount = 5000L,
             schemeId = 3,
-            balanceUnits = 845.12
+            balanceUnits = 845.12,
+            actualFolio = "372929812"
+
         ),
         MutualFundPortfolioDomain(
             id = "4",
@@ -522,7 +531,8 @@ fun FolioFundsContentLSPreview() {
             minSipAmount = 1000L,
             minLumpSumAmount = 1000L,
             schemeId = 4,
-            balanceUnits = 421.76
+            balanceUnits = 421.76,
+            actualFolio = "372929812"
         )
     )
 

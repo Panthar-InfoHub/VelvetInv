@@ -111,7 +111,7 @@ fun FolioFundCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
                             style = tinyLabel
                         )
                         Text(
-                            text = fundItem.folio,
+                            text = fundItem.actualFolio,
                             color = Color(0xff919191),
                             style = tinyLabel
                         )
@@ -175,6 +175,7 @@ private fun FolioFundCardPreview() {
         minLumpSumAmount = 1000,
         schemeId = 1,
         balanceUnits = 33.44,
+        actualFolio = "478299290"
     )
     VelvetTheme {
         Box(modifier = Modifier.padding(16.dp)) {
