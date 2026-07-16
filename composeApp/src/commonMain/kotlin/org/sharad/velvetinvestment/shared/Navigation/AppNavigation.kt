@@ -775,7 +775,12 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 val id = it.toRoute<Route.BundleGraph>().bundleId
                 BundleNavGraph(
                     id = id,
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    navigateToCartScreen= {
+                        navController.navigate(Route.CartScreen){
+                            launchSingleTop=true
+                        }
+                    }
                 )
             }
 

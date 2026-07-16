@@ -15,8 +15,9 @@ import org.sharad.velvetinvestment.presentation.bundle.viewmodel.BundleDetailsVi
 
 @Composable
 fun BundleNavGraph(
-    id:String,
-    onBackClick:()->Unit,
+    id: String,
+    onBackClick: () -> Unit,
+    navigateToCartScreen: () -> Unit,
 ){
     val viewModel = koinViewModel<BundleDetailsViewModel> { parametersOf(id) }
     val navController = rememberNavController()
@@ -64,7 +65,9 @@ fun BundleNavGraph(
             BundleReviewScreenRoot(
                 viewModel = viewModel,
                 onBackClick = { navController.popBackStack() },
-                onProceedClick = { /* Handle post investment logic */ },
+                onProceedClick = {
+                    navigateToCartScreen()
+                },
                 onChangeFundClick = { category ->
                     navController.navigate(Route.SelectFundScreen(category.id))
                 }
