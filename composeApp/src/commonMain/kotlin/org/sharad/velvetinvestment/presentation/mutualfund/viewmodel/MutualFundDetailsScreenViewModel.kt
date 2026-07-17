@@ -2,9 +2,11 @@ package org.sharad.velvetinvestment.presentation.mutualfund.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -18,6 +20,7 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseC
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGraphUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetUserCartUseCase
+import org.sharad.velvetinvestment.domain.usecases.userfinance.InvestMoreLumpsumUseCase
 import org.sharad.velvetinvestment.presentation.mutualfund.CalculatorInputState
 import org.sharad.velvetinvestment.presentation.mutualfund.CartBottomSheetState
 import org.sharad.velvetinvestment.presentation.mutualfund.DetailsState
@@ -28,6 +31,7 @@ import org.sharad.velvetinvestment.presentation.mutualfund.MFPurchaseTypes
 import org.sharad.velvetinvestment.presentation.mutualfund.MutualFundScreenState
 import org.sharad.velvetinvestment.presentation.mutualfund.StableMetricUi
 import org.sharad.velvetinvestment.presentation.mutualfund.toSipRequest
+import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.LumpSumAdd
 import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.SnackBarController
@@ -44,10 +48,14 @@ class MutualFundDetailsScreenViewModel(
     private val loadCartUseCase: GetUserCartUseCase,
     private val addToCartLumpsumUseCase: AddToCartLumpsumUseCase,
     private val addToCartSIPUseCase: AddToCartSipUseCase,
+    private val investMoreLumpsumUseCase: InvestMoreLumpsumUseCase,
 ): ViewModel() {
 
     private val _detailsState=MutableStateFlow<DetailsState>(DetailsState.Loading)
     val detailsState = _detailsState.asStateFlow()
+
+    private val _sideEffect = MutableSharedFlow<MFDetailsSideEffect>()
+    val sideEffect = _sideEffect.asSharedFlow()
 
     private val _calculatorInput = MutableStateFlow(CalculatorInputState())
     val calculatorInput = _calculatorInput.asStateFlow()
@@ -247,6 +255,13 @@ class MutualFundDetailsScreenViewModel(
                 val amount= _cartSheetState.value.amount
                 if (amount== null || amount < _cartSheetState.value.minLumpSumAmount)
                     return
+
+                // An existing folio tops up the holding directly instead of going through the cart.
+                if (!folioId.isNullOrBlank()) {
+                    investMoreLumpsum(folioId = folioId, amount = amount)
+                    return
+                }
+
                 viewModelScope.launch {
                     startCartSheetLoading()
                     addToCartLumpsumUseCase(
@@ -303,6 +318,47 @@ class MutualFundDetailsScreenViewModel(
                         SnackBarController.showError(it.message)
                     }
                 }
+            }
+        }
+    }
+
+    private fun investMoreLumpsum(folioId: String, amount: Long) {
+        val schemeId = (_detailsState.value as? DetailsState.Success)?.data?.scheme_id
+        if (schemeId.isNullOrBlank()) {
+            viewModelScope.launch {
+                SnackBarController.showError("Unable to top up this fund right now")
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            startCartSheetLoading()
+            investMoreLumpsumUseCase(
+                listOf(
+                    LumpSumAdd(
+                        prod_Id = schemeId,
+                        folio = folioId,
+                        amount = amount
+                    )
+                )
+            ).onSuccess { link ->
+                stopCartSheetLoading()
+                hideBottomSheet()
+                resetCartSheet()
+                _sideEffect.emit(MFDetailsSideEffect.OpenWebViewLink(link))
+            }.onError {
+                stopCartSheetLoading()
+                if (it.type == ErrorType.MF_KYC_REQUIRED){
+                    showKYCBottomSheet()
+                    return@onError
+                }
+
+                if (it.type == ErrorType.MF_TRADING_ACCOUNT_REQUIRED){
+                    showTradingAccountBottomSheet()
+                    return@onError
+                }
+                hideBottomSheet()
+                SnackBarController.showError(it.message)
             }
         }
     }
@@ -387,4 +443,8 @@ fun Metrics.getPreferredReturn(): Float {
 
 enum class MFBottomSheetType{
     KYC,TRADING_ACCOUNT,CART
+}
+
+sealed interface MFDetailsSideEffect {
+    data class OpenWebViewLink(val link: String) : MFDetailsSideEffect
 }
