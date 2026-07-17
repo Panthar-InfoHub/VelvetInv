@@ -39,7 +39,9 @@ data class BundleDto(
     val hybridPercentage: Int,
 
     @SerialName("meta_data")
-    val metaData: BundleMetaDataDto
+    val metaData: BundleMetaDataDto,
+
+    val img_url: String? = null
 )
 
 @Serializable

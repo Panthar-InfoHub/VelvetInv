@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -77,6 +79,7 @@ import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.FundTypeSelector
 import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.formatWithCommas
+import org.sharad.velvetinvestment.utils.groupDigitsIndian
 import org.sharad.velvetinvestment.utils.trimTo
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
@@ -101,7 +104,8 @@ fun BundleReviewScreenRoot(
 
     UiStateContainer(
         uiState = uiState.toUiState(),
-        onRetry = { viewModel.loadBundleDetails() }
+        onRetry = { viewModel.loadBundleDetails() },
+        modifier = Modifier.imePadding()
     ) { bundle ->
         val rules = (uiState as? BundleDetailsState.Success)?.transactionRules
         if (rules != null) {
@@ -368,9 +372,12 @@ fun InvestmentSummaryCard(
             Spacer(Modifier.height(24.dp))
 
             // Local text mirror of the amount so the field can be edited freely.
-            var amountText by remember { mutableStateOf(investmentAmount.toString()) }
+            // An empty field reads as 0, so clearing it doesn't get overwritten with "0".
+            var amountText by remember {
+                mutableStateOf(if (investmentAmount == 0L) "" else investmentAmount.toString())
+            }
             LaunchedEffect(investmentAmount) {
-                if (amountText.toLongOrNull() != investmentAmount) {
+                if ((amountText.toLongOrNull() ?: 0L) != investmentAmount) {
                     amountText = investmentAmount.toString()
                 }
             }
@@ -413,16 +420,24 @@ fun InvestmentSummaryCard(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         cursorBrush = SolidColor(Color.Black),
-                        // Renders the ₹ prefix glued to the number without making it editable.
-                        visualTransformation = { text ->
-                            TransformedText(
-                                AnnotatedString("₹${text.text}"),
-                                object : OffsetMapping {
-                                    override fun originalToTransformed(offset: Int) = offset + 1
-                                    override fun transformedToOriginal(offset: Int) =
-                                        (offset - 1).coerceAtLeast(0)
+                        // The ₹ prefix is dropped while empty so it can't sit next to the placeholder.
+                        visualTransformation = if (amountText.isEmpty()) {
+                            VisualTransformation.None
+                        } else {
+                            RupeeGroupingTransformation
+                        },
+                        decorationBox = { innerTextField ->
+                            Box(contentAlignment = Alignment.Center) {
+                                if (amountText.isEmpty()) {
+                                    Text(
+                                        text = "Enter amount",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color(0xffC5C5C5),
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
-                            )
+                                innerTextField()
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -468,6 +483,40 @@ fun InvestmentSummaryCard(
             AssetAllocationMiniLegend(assetAllocation)
         }
     }
+}
+
+/**
+ * Displays a digits-only amount as "₹33,33,333". Display only — the field's value
+ * stays digits-only, so nothing downstream ever sees the ₹ or the commas.
+ */
+private val RupeeGroupingTransformation = VisualTransformation { text ->
+    val digits = text.text
+    val grouped = groupDigitsIndian(digits)
+
+    // Transformed index each original digit lands on, offset by 1 for the ₹ prefix.
+    val digitOffsets = IntArray(digits.length + 1)
+    var digitIndex = 0
+    grouped.forEachIndexed { index, char ->
+        if (char != ',') {
+            digitOffsets[digitIndex] = index + 1
+            digitIndex++
+        }
+    }
+    digitOffsets[digits.length] = grouped.length + 1
+
+    TransformedText(
+        AnnotatedString("₹$grouped"),
+        object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                digitOffsets[offset.coerceIn(0, digits.length)]
+
+            override fun transformedToOriginal(offset: Int): Int {
+                val clamped = offset.coerceIn(0, grouped.length + 1)
+                if (clamped <= 1) return 0
+                return grouped.take(clamped - 1).count { it != ',' }
+            }
+        }
+    )
 }
 
 @Composable

@@ -10,13 +10,14 @@ import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CuratedBundleDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.toBundledMutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundDomain
 import org.sharad.velvetinvestment.utils.toTitleCase
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 
 fun CombinedFundsDto.toDomain(): CombinedFundsDomain {
     return CombinedFundsDomain(
-        bundleFunds = data.bundle_funds.items.map { it.toDomain() },
+        bundleFunds = data.bundle_funds.items.map { it.toDomain().toBundledMutualFundDomain() },
         categoryMutualFundDomain = data.normal_funds.items.map { itemX ->
             CategoryMutualFundDomain(
                 categorySearchReference = itemX.key,
@@ -36,7 +37,8 @@ fun Item.toDomain(): CuratedBundleDomain {
         commodityPercentage = commodity_percentage,
         debtPercentage = debt_percentage,
         hybridPercentage = hybrid_percentage,
-        metaData = meta_data.toDomain()
+        metaData = meta_data.toDomain(),
+        imgUrl = img_url?:""
     )
 }
 

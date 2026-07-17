@@ -41,10 +41,13 @@ import org.sharad.emify.core.ui.theme.lightGray
 import org.sharad.emify.core.ui.theme.shadowColor
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundleMetaDataDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CuratedBundleDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
+import org.sharad.velvetinvestment.domain.models.mutualfunds.toBundledMutualFundDomain
+import org.sharad.velvetinvestment.presentation.bundle.compose.BundleCardExtended
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.CategoryMutualFundViewModel
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.SelectedReturnRatePeriod
@@ -135,8 +138,8 @@ fun CategoryMutualFundScreenRootContent(
 
                 LoadingState.Success -> {
                     CategoryMutualFundScreen(
-                        bundles=combinedState.bundleFunds,
-                        funds= combinedState.categoryMutualFundDomain,
+                        bundles =combinedState.bundleFunds,
+                        funds = combinedState.categoryMutualFundDomain,
                         onCategoryClick = onCategoryClick,
                         onFundClick = {onFundClick(it)},
                         searchText =searchText,
@@ -153,7 +156,7 @@ fun CategoryMutualFundScreenRootContent(
 
 @Composable
 fun CategoryMutualFundScreen(
-    bundles: List<CuratedBundleDomain>,
+    bundles: List<BundledMutualFundDomain>,
     onCategoryClick: (String) -> Unit,
     onFundClick: (String) -> Unit,
     searchText: String,
@@ -204,25 +207,17 @@ fun CategoryMutualFundScreen(
                 }
             }
 
-        }
-        else{
-            item{
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(
-                        items = bundles,
-                        key = { bundle -> bundle.id }
-                    ){bundle->
-                        CuratedBundleCard(
-                            type = bundle.name,
-                            title = bundle.description,
-                            onClick = {onBundledFundClick(bundle.id)}
-                        )
-                    }
-                }
+        } else {
+
+            items(
+                items = bundles,
+                key = { bundle -> bundle.id }
+            ) { bundle ->
+                BundleCardExtended(
+                    bundleData = bundle,
+                    onClick = { onBundledFundClick(bundle.id) },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
@@ -457,7 +452,7 @@ private fun CategoryMutualFundScreenRootPreview() {
     )
 
     val sampleCombinedState = CombinedFundsDomain(
-        bundleFunds = listOf(sampleBundle),
+        bundleFunds = listOf(sampleBundle).map { it.toBundledMutualFundDomain() },
         categoryMutualFundDomain = sampleCategories
     )
 

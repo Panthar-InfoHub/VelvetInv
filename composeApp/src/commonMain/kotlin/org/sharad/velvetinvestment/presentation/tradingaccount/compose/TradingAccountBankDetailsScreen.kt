@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -67,7 +68,7 @@ fun TradingAccountBankDetailsScreen(
     val buttonEnabled by viewModel.bankScreenButtonEnabled.collectAsStateWithLifecycle()
     val reEnteredAccountNumbers by viewModel.reEnteredAccountNumbers.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().imePadding()) {
 
         BackHeader(
             "Trading account",

@@ -28,7 +28,7 @@ fun ContinueBackButtonFooter(
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
-            .imePadding()
+//            .imePadding()
             .shadow(elevation = 28.dp)
             .background(Color.White),
         contentAlignment = Alignment.Center
