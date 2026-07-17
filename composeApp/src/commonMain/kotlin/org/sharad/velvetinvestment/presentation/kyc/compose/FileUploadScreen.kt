@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.presentation.kyc.compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.ismoy.imagepickerkmp.domain.extensions.loadPainter
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import io.github.ismoy.imagepickerkmp.domain.config.CameraCaptureConfig
+import io.github.ismoy.imagepickerkmp.domain.config.CropConfig
+import io.github.ismoy.imagepickerkmp.domain.config.GalleryConfig
 import io.github.ismoy.imagepickerkmp.domain.models.PhotoResult
+import io.github.ismoy.imagepickerkmp.features.imagepicker.config.ImagePickerKMPConfig
+import io.github.ismoy.imagepickerkmp.features.imagepicker.model.ImagePickerResult
+import io.github.ismoy.imagepickerkmp.features.imagepicker.ui.rememberImagePickerKMP
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -48,6 +62,7 @@ import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.SnackBarController
 import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.camera
 import velvet.composeapp.generated.resources.image_icon
 import velvet.composeapp.generated.resources.sign_icon
 
@@ -91,6 +106,10 @@ fun FileUploadScreen(
     )
 }
 
+enum class PickerTarget {
+    SIGNATURE, PHOTO
+}
+
 @Composable
 fun FileUploadScreenContent(
     onBack: () -> Unit,
@@ -111,38 +130,67 @@ fun FileUploadScreenContent(
     removeSignature: () -> Unit,
     removePhoto: () -> Unit
 ) {
-    if (showSignatureSelector) {
-        ImageUploader(
-            showGallery = showSignatureSelector,
-            onDismiss = onHideSignatureSelector,
-            onSelected = {
-                it.fileSize?.let { size ->
-                    if (size > 5_242_880L) {
-                        showError("File exceeds 5MB limit")
-                        onHideSignatureSelector()
-                        return@ImageUploader
-                    }
-                }
-                onSignatureSelected(it)
-            }
-        )
+    var currentTarget by remember {
+        mutableStateOf<PickerTarget?>(null)
     }
 
-    if (showPhotoSelector) {
-        ImageUploader(
-            showGallery = showPhotoSelector,
-            onDismiss = onHidePhotoSelector,
-            onSelected = {
-                it.fileSize?.let { size ->
-                    if (size > 5_242_880L) {
-                        showError("File exceeds 5MB limit")
-                        onHidePhotoSelector()
-                        return@ImageUploader
+    val picker = rememberImagePickerKMP(
+        config = ImagePickerKMPConfig(
+            galleryConfig = GalleryConfig(
+                allowMultiple = false
+            ),
+            cameraCaptureConfig = CameraCaptureConfig(
+                cropConfig = CropConfig(
+                    enabled = true,
+                    circularCrop = false,
+                    freeformCrop = true
+                )
+            )
+        ),
+    )
+    val result = picker.result
+
+    LaunchedEffect(result) {
+        when (val r = result) {
+            is ImagePickerResult.Success -> {
+                val photoResult = r.photos.firstOrNull()
+                photoResult?.let {
+                    it.fileSize?.let { size ->
+                        if (size > 5_242_880L) {
+                            showError("File exceeds 5MB limit")
+                        } else {
+                            when (currentTarget) {
+                                PickerTarget.PHOTO ->
+                                    onPhotoSelected(it)
+
+                                PickerTarget.SIGNATURE ->
+                                    onSignatureSelected(it)
+
+                                null -> {}
+                            }
+                        }
                     }
                 }
-                onPhotoSelected(it)
+                currentTarget = null
+                onHideSignatureSelector()
+                onHidePhotoSelector()
             }
-        )
+
+            is ImagePickerResult.Error -> {
+                showError(r.exception.message ?: "An Error Occurred")
+                currentTarget = null
+                onHideSignatureSelector()
+                onHidePhotoSelector()
+            }
+
+            is ImagePickerResult.Dismissed -> {
+                currentTarget = null
+                onHideSignatureSelector()
+                onHidePhotoSelector()
+            }
+
+            else -> Unit
+        }
     }
 
     Column(
@@ -161,7 +209,10 @@ fun FileUploadScreenContent(
             item { BarHeader(heading = "Upload Signature") }
             item {
                 ImageSelectorBox(
-                    onClick = onSignatureClick,
+                    onClick = {
+                        currentTarget = PickerTarget.SIGNATURE
+                        onSignatureClick()
+                    },
                     image = signature,
                     mainText = "Upload Signature",
                     subText = "JPEG, PNG up to 5 MB",
@@ -181,7 +232,10 @@ fun FileUploadScreenContent(
             item { BarHeader(heading = "Upload Photo") }
             item {
                 ImageSelectorBox(
-                    onClick = onPhotoClick,
+                    onClick = {
+                        currentTarget = PickerTarget.PHOTO
+                        onPhotoClick()
+                    },
                     image = photo,
                     mainText = "Upload Photo",
                     subText = "JPEG, PNG up to 5 MB",
@@ -207,6 +261,20 @@ fun FileUploadScreenContent(
             value = "Save and Continue",
             loading = loading,
             enabled = buttonEnabled
+        )
+        ImagePickerBottomSheet(
+            visible = showSignatureSelector || showPhotoSelector,
+            onDismiss = {
+                onHideSignatureSelector()
+                onHidePhotoSelector()
+                currentTarget = null
+            },
+            onCameraClick = {
+                picker.launchCamera()
+            },
+            onGalleryClick = {
+                picker.launchGallery()
+            }
         )
     }
 }
@@ -308,6 +376,82 @@ fun ImageSelectorBox(onClick: () -> Unit, image: PhotoResult?, mainText: String,
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ImagePickerBottomSheet(
+    visible: Boolean,
+    onDismiss: () -> Unit,
+    onCameraClick: () -> Unit,
+    onGalleryClick: () -> Unit
+) {
+    if (visible) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            containerColor = Color.White
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+            ) {
+                Text(
+                    "Select Image",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 12.dp, start = 12.dp)
+                )
+
+                BottomSheetItem(
+                    icon = Res.drawable.camera,
+                    text = "Camera",
+                    onClick = {
+                        onCameraClick()
+                    }
+                )
+
+                BottomSheetItem(
+                    icon = Res.drawable.image_icon,
+                    text = "Gallery",
+                    onClick = {
+                        onGalleryClick()
+                    },
+                )
+
+                Spacer(Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomSheetItem(
+    text: String,
+    onClick: () -> Unit,
+    icon: DrawableResource
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick,
+                indication = null,
+                interactionSource = remember{ MutableInteractionSource()})
+            .padding(vertical = 8.dp, horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = Primary,
+            modifier = Modifier.size(24.dp)
+        )
+        Text(
+            text,
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.Black
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun FileUploadScreenPreview() {
@@ -317,7 +461,7 @@ fun FileUploadScreenPreview() {
             onSuccessfulUpload = {},
             signature = null,
             photo = null,
-            showSignatureSelector = false,
+            showSignatureSelector = true,
             showPhotoSelector = false,
             loading = false,
             buttonEnabled = false,
