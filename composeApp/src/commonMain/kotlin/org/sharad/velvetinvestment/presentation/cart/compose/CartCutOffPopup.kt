@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,7 +69,9 @@ fun CartCutOffPopup(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ){
         Column(
-            modifier=Modifier.fillMaxWidth().padding(vertical = 16.dp)
+            modifier=Modifier.fillMaxWidth()
+                .imePadding()
+                .padding(vertical = 16.dp)
                 .clearFocusOnTap(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
