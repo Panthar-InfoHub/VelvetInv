@@ -69,10 +69,12 @@ import org.sharad.velvetinvestment.presentation.mutualfund.GraphDurationSelectio
 import org.sharad.velvetinvestment.presentation.mutualfund.GraphState
 import org.sharad.velvetinvestment.presentation.mutualfund.StableMetricUi
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MFBottomSheetType
+import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MFDetailsSideEffect
 import org.sharad.velvetinvestment.presentation.mutualfund.viewmodel.MutualFundDetailsScreenViewModel
 import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
 import org.sharad.velvetinvestment.shared.AppDialogList
 import org.sharad.velvetinvestment.shared.UiStateContainer
+import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.ListWheelPicker
 import org.sharad.velvetinvestment.shared.compose.NavLineChart
@@ -100,6 +102,9 @@ fun MutualFundDetailsScreenRoot(
     onKycClick: () -> Unit,
     onTradingAccountClick: () -> Unit,
     folioId: String?,
+    onLaunchWebView: (String) -> Unit = {},
+    webViewReturned: Boolean = false,
+    onWebViewConsumed: () -> Unit = {},
 ) {
 
     val viewModel = koinViewModel<MutualFundDetailsScreenViewModel> { parametersOf(id) }
@@ -115,6 +120,21 @@ fun MutualFundDetailsScreenRoot(
 
     val cartAmount by CartInfo.fundAmount.collectAsStateWithLifecycle()
     val navChangePercent by viewModel.navChangePercent.collectAsStateWithLifecycle()
+
+    LaunchedEffect(webViewReturned) {
+        if (webViewReturned) {
+            onWebViewConsumed()
+            viewModel.loadInitial()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect {
+            when (it) {
+                is MFDetailsSideEffect.OpenWebViewLink -> onLaunchWebView(it.link)
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize())
     {
@@ -150,12 +170,17 @@ fun MutualFundDetailsScreenRoot(
                     },
                     bottomBar = {
                         if (!folioId.isNullOrBlank()){
-                            NextButtonFooter(
-                                onClick = {
-                                    FundTypeSelector.updateFundTypeToSIP()
+                            ContinueBackButtonFooter(
+                                backText = "Lump Sum",
+                                onBack = {
+                                    FundTypeSelector.updateFundTypeToLumpSum()
                                     viewModel.showBottomSheet()
                                 },
-                                value = "Add to Cart"
+                                continueText = "SIP",
+                                onContinue = {
+                                    FundTypeSelector.updateFundTypeToSIP()
+                                    viewModel.showBottomSheet()
+                                }
                             )
                         }
                         else{
@@ -272,6 +297,7 @@ fun MutualFundDetailsScreenRoot(
                                     showFrequencyDropDown = viewModel::showCartFrequenciesDropDown,
                                     showDateDropDown = viewModel::showCartDateDropDown,
                                     showDurationDropDown = viewModel::showCartDurationDropDown,
+                                    isFolioPurchase = !folioId.isNullOrBlank(),
                                 )
                             }
                         }
