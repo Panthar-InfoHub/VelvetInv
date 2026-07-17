@@ -53,6 +53,7 @@ import org.koin.core.parameter.parametersOf
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.data.remote.mapper.PayoutType
 import org.sharad.velvetinvestment.domain.models.fd.FDDetailsDomain
@@ -75,6 +76,7 @@ import velvet.composeapp.generated.resources.back_arrow
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.subHeading
+import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 import org.sharad.velvetinvestment.utils.withInterRupee
 
@@ -140,7 +142,8 @@ fun FDDetailsScreenRoot(
                         FDModalType.INVEST -> {
                             InvestAmountBottomSheet(
                                 invest = data.invest,
-                                onConfirmClick = viewModel::updateInvest
+                                onConfirmClick = viewModel::updateInvest,
+                                minAmount = data.minDeposit
                             )
                         }
                         null -> {}
@@ -337,8 +340,9 @@ fun FDInfoCard(
     ShadowCard(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp)
-            .clickable(enabled = onClick != null) { onClick?.invoke() }
+            .height(80.dp),
+        onClick = { onClick?.invoke() },
+        clickable = onClick != null
     ) {
 
         Column(
@@ -562,8 +566,9 @@ fun <T> FDOptionsBottomSheet(
 
 @Composable
 fun InvestAmountBottomSheet(
-    invest:Long,
+    invest: Long,
     onConfirmClick: (Long) -> Unit,
+    minAmount: Long,
 ){
     var money by remember { mutableStateOf(invest.toString()) }
     Column(
@@ -578,19 +583,35 @@ fun InvestAmountBottomSheet(
         Spacer(Modifier.height(16.dp))
 
         IconMoneyTextField(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             value = money,
             onValueChange = {money=it},
             placeHolder = "",
+            height = 52.dp,
             icon = {}
         )
 
-        Spacer(Modifier.height(16.dp))
+        AnimatedVisibility(
+            money.toLongOrNull() == null ||
+            money.toLong() < minAmount
+        ){
+            Text(
+                text = "Minimum investment amount is ₹ $minAmount",
+                style = tinyLabel,
+                color = appRed,
+                modifier = Modifier
+                    .fillMaxWidth().padding(vertical = 8.dp, horizontal = 12.dp),
+                fontWeight = FontWeight.Normal
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
 
         AppButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = {onConfirmClick(money.toLong())},
-            text = "Confirm"
+            text = "Confirm",
+            enabled = (money.toLongOrNull() ?: 0) >= minAmount
         )
     }
 }

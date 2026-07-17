@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sharad.velvetinvestment.shared.theme.Inter
@@ -35,6 +36,7 @@ fun IconMoneyTextField(
     onValueChange:(String)->Unit,
     placeHolder:String,
     modifier: Modifier = Modifier,
+    height: Dp = 64.dp,
     icon: @Composable () -> Unit
 ){
 
@@ -54,7 +56,7 @@ fun IconMoneyTextField(
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
-                .height(64.dp)
+                .height(height)
                 .shadow(elevation = 8.dp,RoundedCornerShape(15.dp), spotColor = Color.Black.copy(alpha = 0.4f))
                 .clip(RoundedCornerShape(15.dp))
                 .background(Color.White, RoundedCornerShape(15.dp))
