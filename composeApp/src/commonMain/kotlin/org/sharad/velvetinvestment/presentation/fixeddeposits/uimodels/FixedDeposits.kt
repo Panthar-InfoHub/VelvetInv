@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.presentation.fixeddeposits.uimodels
 
+import org.sharad.velvetinvestment.data.remote.mapper.format2
 import org.sharad.velvetinvestment.domain.models.fd.FDTenureDomain
 import org.sharad.velvetinvestment.presentation.fixeddeposits.viewmodel.calculateMaturity
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
@@ -17,7 +18,7 @@ fun FDTenureDomain.toUIModel(invest: Long): FixedDepositTenureUIModel {
 
     return FixedDepositTenureUIModel(
         tenureText = tenureLabel,
-        interestText = "$formattedRate%",
+        interestText = "${formattedRate.format2()}%",
         returnText = formatMoneyAfterL(maturity.toLong())
     )
 }

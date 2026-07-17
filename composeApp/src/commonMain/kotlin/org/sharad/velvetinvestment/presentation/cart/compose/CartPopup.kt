@@ -79,10 +79,13 @@ fun CartPopup(
     showFrequencyDropDown: () -> Unit,
     showDateDropDown: () -> Unit,
     showDurationDropDown: () -> Unit,
+    // A lump sum against an existing folio is a direct purchase, not a cart add.
+    isFolioPurchase: Boolean = false,
 
     ) {
     val scrollState = rememberScrollState()
     val fundType by FundTypeSelector.fundType.collectAsStateWithLifecycle()
+    val isPurchase = isFolioPurchase && fundType == SelectedFundType.LUMSUM
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         modifier = Modifier.fillMaxWidth(),
@@ -108,7 +111,7 @@ fun CartPopup(
                     verticalAlignment = Alignment.CenterVertically
                 ){
                     Text(
-                        text = "Add to Cart",
+                        text = if (isPurchase) "Purchase" else "Add to Cart",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.Black,
@@ -141,8 +144,7 @@ fun CartPopup(
                     minAmount = cartState.minLumpSumAmount,
                     onAddClick=onAddClick,
                     loading = cartState.loading,
-
-
+                    isPurchase = isPurchase,
                 )
                 SelectedFundType.SIP -> SIPCart(
                     amount = cartState.amount,
@@ -265,7 +267,7 @@ fun LumpSumCart(
     minAmount: Long,
     onAddClick: () -> Unit,
     loading: Boolean,
-
+    isPurchase: Boolean = false,
 ) {
     val chips = generateInvestmentChips(
         minAmount = minAmount,
@@ -316,7 +318,10 @@ fun LumpSumCart(
 
         AppButton(
             modifier = Modifier.fillMaxWidth(),
-            text = "Add " + ((amount?.let {"of ₹" +formatMoneyAfterL(it) })?:"")+" to Cart" ,
+            text = if (isPurchase)
+                "Purchase " + ((amount?.let { "of ₹" + formatMoneyAfterL(it) }) ?: "")
+            else
+                "Add " + ((amount?.let {"of ₹" +formatMoneyAfterL(it) })?:"")+" to Cart" ,
             onClick = {
                 onAddClick()
             },
