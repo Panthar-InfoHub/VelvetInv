@@ -12,5 +12,6 @@ data class BundledMutualFundDomain(
 
     val riskLevel: String,
     val investmentTime: String,
-    val investmentGrowth: String
+    val investmentGrowth: String,
+    val imgUrl: String = ""
 )

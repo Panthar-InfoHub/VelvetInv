@@ -16,7 +16,8 @@ fun AllBundlesDto.toDomain(): PaginatedData<BundledMutualFundDomain> {
                 hybridPercentage = bundle.hybridPercentage,
                 riskLevel = bundle.metaData.riskLevel,
                 investmentTime = bundle.metaData.investmentTime,
-                investmentGrowth = bundle.metaData.investmentGrowth
+                investmentGrowth = bundle.metaData.investmentGrowth,
+                imgUrl = bundle.img_url ?: ""
             )
         },
         page = data.pagination.page,

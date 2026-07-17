@@ -11,5 +11,6 @@ data class Item(
     val commodity_percentage: Int,
     val debt_percentage: Int,
     val hybrid_percentage: Int,
-    val meta_data: BundleMetaData
+    val meta_data: BundleMetaData,
+    val img_url: String? = null
 )

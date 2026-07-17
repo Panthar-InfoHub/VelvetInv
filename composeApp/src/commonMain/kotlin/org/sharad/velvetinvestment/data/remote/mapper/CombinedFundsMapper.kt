@@ -37,7 +37,8 @@ fun Item.toDomain(): CuratedBundleDomain {
         commodityPercentage = commodity_percentage,
         debtPercentage = debt_percentage,
         hybridPercentage = hybrid_percentage,
-        metaData = meta_data.toDomain()
+        metaData = meta_data.toDomain(),
+        imgUrl = img_url?:""
     )
 }
 
