@@ -15,7 +15,8 @@ data class CuratedBundleDomain(
     val commodityPercentage: Int,
     val debtPercentage: Int,
     val hybridPercentage: Int,
-    val metaData: BundleMetaDataDomain
+    val metaData: BundleMetaDataDomain,
+    val imgUrl: String = ""
 )
 
 data class BundleMetaDataDomain(
@@ -37,6 +38,7 @@ fun CuratedBundleDomain.toBundledMutualFundDomain(): BundledMutualFundDomain {
 
         riskLevel = metaData.riskLevel,
         investmentTime = metaData.investmentTime,
-        investmentGrowth = metaData.investmentGrowth
+        investmentGrowth = metaData.investmentGrowth,
+        imgUrl = imgUrl
     )
 }

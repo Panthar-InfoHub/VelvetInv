@@ -14,20 +14,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
+import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
@@ -107,23 +116,51 @@ fun BundleCardExtended(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+
+                SubcomposeAsyncImage(
+                    modifier = Modifier.size(42.dp)
+                        .shadow(
+                            elevation = 4.dp, shape = shapes.roundedDp12
+                        ),
+                    model = bundleData.imgUrl,
+                    contentDescription = null,
+                    loading = {
+                        BundleFundIcon(
+                            schemeName = "V"+bundleData.bundleName.take(1),
+                            size = 38.dp
+                        )
+                    },
+                    error = {
+                        BundleFundIcon(
+                            schemeName = "V"+bundleData.bundleName.take(1),
+                            size = 38.dp
+                        )
+                    },
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    }
+                )
 
                 Column(
                     modifier = Modifier.weight(1f)
+                        .padding(start = 10.dp)
                 ) {
 
                     Text(
                         text = bundleData.bundleName,
                         style = MaterialTheme.typography.labelSmall,
-                        color = titleColor
+                        color = titleColor,
+                        maxLines = 1
                     )
 
                     Text(
                         text = bundleData.bundleDescription,
                         style = MaterialTheme.typography.displaySmall,
-                        color = titleColor
+                        color = titleColor,
+                        maxLines = 1
                     )
                 }
 
@@ -222,6 +259,31 @@ fun BundleCardExtended(
                 }
             }
         }
+    }
+}
+
+
+@Composable
+private fun BundleFundIcon(
+    schemeName: String,
+    modifier: Modifier = Modifier,
+    size: Dp = 48.dp,
+    cornerRadius: Dp = 12.dp,
+    backgroundColor: Color = Primary,
+    textColor: Color = Color.White
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(backgroundColor),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = schemeName,
+            style = MaterialTheme.typography.headlineSmall,
+            color = textColor
+        )
     }
 }
 
