@@ -47,7 +47,8 @@ fun KYCPopup(
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ){
         Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp, horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth()
+                .padding(vertical = 32.dp, horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

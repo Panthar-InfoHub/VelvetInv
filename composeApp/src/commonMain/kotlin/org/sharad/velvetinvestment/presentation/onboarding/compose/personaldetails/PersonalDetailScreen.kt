@@ -57,6 +57,7 @@ fun PersonalDetailScreen(
 
 
     Box(modifier = modifier.fillMaxSize()
+        .imePadding()
         .clearFocusOnTap(),
         contentAlignment = Alignment.BottomCenter){
 
@@ -182,7 +183,7 @@ fun NextButtonFooter(onClick: () -> Unit, pv: PaddingValues = PaddingValues(0.dp
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .imePadding()
+//            .imePadding()
             .shadow(elevation = 28.dp)
             .background(Color.White),
         contentAlignment = Alignment.Center

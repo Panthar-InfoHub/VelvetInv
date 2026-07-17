@@ -53,20 +53,25 @@ fun formatMoneyAfterL(amount: Long?): String {
 
 fun formatWithCommas(amount: Long): String {
     val isNegative = amount < 0
-    val number = abs(amount).toString()
+    val result = groupDigitsIndian(abs(amount).toString())
 
-    if (number.length <= 3) return amount.toString()
+    return if (isNegative) "-$result" else result
+}
 
-    val lastThree = number.takeLast(3)
-    val remaining = number.dropLast(3)
+/**
+ * Groups a digits-only string Indian-style (33,33,333). Every digit is preserved,
+ * so the result can be offset-mapped back onto the input character by character.
+ */
+fun groupDigitsIndian(digits: String): String {
+    if (digits.length <= 3) return digits
 
-    val formattedRemaining = remaining
+    val lastThree = digits.takeLast(3)
+    val formattedRemaining = digits
+        .dropLast(3)
         .reversed()
         .chunked(2)
         .joinToString(",")
         .reversed()
 
-    val result = "$formattedRemaining,$lastThree"
-
-    return if (isNegative) "-$result" else result
+    return "$formattedRemaining,$lastThree"
 }
