@@ -6,11 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +37,7 @@ import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.utils.withInterRupee
 import org.sharad.velvetinvestment.shared.theme.subHeadingMedium
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,57 +91,29 @@ fun RedemptionBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = Color.White,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        modifier = Modifier.clearFocusOnTap()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .imePadding()
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
 
-            Text(
-                text = "Redeem Mutual Fund",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
-
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
+            item {
                 Text(
-                    text = "Redemption Type",
-                    style = subHeadingMedium,
+                    text = "Redeem Mutual Fund",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.Black
                 )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    ToggleChip(
-                        text = "Full",
-                        selected = selectedRedemptionType == RedemptionType.FULL,
-                        onClick = { onRedemptionTypeChange(RedemptionType.FULL) },
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    ToggleChip(
-                        text = "Partial",
-                        selected = selectedRedemptionType == RedemptionType.PARTIAL,
-                        onClick = { onRedemptionTypeChange(RedemptionType.PARTIAL) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
             }
 
-            if (selectedRedemptionType == RedemptionType.PARTIAL) {
-
+            item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
                     Text(
-                        text = "Redeem By",
+                        text = "Redemption Type",
                         style = subHeadingMedium,
                         color = Color.Black
                     )
@@ -148,117 +123,155 @@ fun RedemptionBottomSheet(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         ToggleChip(
-                            text = "Units",
-                            selected = selectedInputType == RedemptionInputType.UNITS,
-                            onClick = { onInputTypeChange(RedemptionInputType.UNITS) },
+                            text = "Full",
+                            selected = selectedRedemptionType == RedemptionType.FULL,
+                            onClick = { onRedemptionTypeChange(RedemptionType.FULL) },
                             modifier = Modifier.weight(1f)
                         )
 
                         ToggleChip(
-                            text = "Amount",
-                            selected = selectedInputType == RedemptionInputType.AMOUNT,
-                            onClick = { onInputTypeChange(RedemptionInputType.AMOUNT) },
+                            text = "Partial",
+                            selected = selectedRedemptionType == RedemptionType.PARTIAL,
+                            onClick = { onRedemptionTypeChange(RedemptionType.PARTIAL) },
                             modifier = Modifier.weight(1f)
                         )
                     }
                 }
+            }
 
-                when (selectedInputType) {
+            if (selectedRedemptionType == RedemptionType.PARTIAL) {
 
-                    RedemptionInputType.UNITS -> {
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "Redeem By",
+                            style = subHeadingMedium,
+                            color = Color.Black
+                        )
 
-                            ShadowlessTextField(
-                                value = redemptionUnits,
-                                onValueChange = onUnitsChange,
-                                placeHolder = "Enter units",
-                                label = "Units"
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            ToggleChip(
+                                text = "Units",
+                                selected = selectedInputType == RedemptionInputType.UNITS,
+                                onClick = { onInputTypeChange(RedemptionInputType.UNITS) },
+                                modifier = Modifier.weight(1f)
                             )
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-
-                                if (unitsError) {
-                                    Text(
-                                        text = when {
-                                            unitsValue == null || unitsValue <= 0 ->
-                                                "Enter valid units"
-
-                                            unitsValue > maxUnits ->
-                                                "Units cannot exceed $maxUnits"
-
-                                            else -> ""
-                                        },
-                                        color = Color.Red,
-                                        style = titlesStyle
-                                    )
-                                }
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text(
-                                    text = "Max Units: $maxUnits",
-                                    style = titlesStyle,
-                                    color = titleColor,
-                                    modifier = Modifier
-                                )
-                            }
+                            ToggleChip(
+                                text = "Amount",
+                                selected = selectedInputType == RedemptionInputType.AMOUNT,
+                                onClick = { onInputTypeChange(RedemptionInputType.AMOUNT) },
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
+                }
 
-                    RedemptionInputType.AMOUNT -> {
+                item {
+                    when (selectedInputType) {
 
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        RedemptionInputType.UNITS -> {
 
-                            ShadowlessTextField(
-                                value = redemptionAmount,
-                                onValueChange = onAmountChange,
-                                placeHolder = "Enter amount",
-                                label = "Amount"
-                            )
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
+                                ShadowlessTextField(
+                                    value = redemptionUnits,
+                                    onValueChange = onUnitsChange,
+                                    placeHolder = "Enter units",
+                                    label = "Units"
+                                )
 
-                                if (amountError) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+
+                                    if (unitsError) {
+                                        Text(
+                                            text = when {
+                                                unitsValue == null || unitsValue <= 0 ->
+                                                    "Enter valid units"
+
+                                                unitsValue > maxUnits ->
+                                                    "Units cannot exceed $maxUnits"
+
+                                                else -> ""
+                                            },
+                                            color = Color.Red,
+                                            style = titlesStyle
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.weight(1f))
                                     Text(
-                                        text = when {
-                                            amountValue == null || amountValue <= 0 ->
-                                                "Enter valid amount"
-
-                                            amountValue > maxAmount ->
-                                                "Amount exceeds max limit"
-
-                                            else -> ""
-                                        },
-                                        color = Color.Red,
-                                        style = titlesStyle
+                                        text = "Max Units: $maxUnits",
+                                        style = titlesStyle,
+                                        color = titleColor,
+                                        modifier = Modifier
                                     )
                                 }
+                            }
+                        }
 
-                                Spacer(Modifier.weight(1f))
+                        RedemptionInputType.AMOUNT -> {
 
-                                Text(
-                                    text = "Max Amount: ₹${formatMoneyAfterL(maxAmount.toLong())}".withInterRupee(),
-                                    style = titlesStyle,
-                                    color = titleColor
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+
+                                ShadowlessTextField(
+                                    value = redemptionAmount,
+                                    onValueChange = onAmountChange,
+                                    placeHolder = "Enter amount",
+                                    label = "Amount"
                                 )
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+
+                                    if (amountError) {
+                                        Text(
+                                            text = when {
+                                                amountValue == null || amountValue <= 0 ->
+                                                    "Enter valid amount"
+
+                                                amountValue > maxAmount ->
+                                                    "Amount exceeds max limit"
+
+                                                else -> ""
+                                            },
+                                            color = Color.Red,
+                                            style = titlesStyle
+                                        )
+                                    }
+
+                                    Spacer(Modifier.weight(1f))
+
+                                    Text(
+                                        text = "Max Amount: ₹${formatMoneyAfterL(maxAmount.toLong())}".withInterRupee(),
+                                        style = titlesStyle,
+                                        color = titleColor
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            AppButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Continue",
-                onClick = onSubmit,
-                loading = loading,
-                enabled = isValid
-            )
+            item {
+                AppButton(
+                    modifier = Modifier.fillMaxWidth()
+                        .imePadding(),
+                    text = "Continue",
+                    onClick = onSubmit,
+                    loading = loading,
+                    enabled = isValid
+                )
+            }
         }
     }
 }
