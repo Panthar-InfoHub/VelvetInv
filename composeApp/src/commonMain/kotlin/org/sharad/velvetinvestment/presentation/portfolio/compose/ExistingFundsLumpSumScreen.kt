@@ -146,11 +146,11 @@ fun FolioFundsLumpSumContent(
                 val percentage = fund.returnPercentage.replace("%", "").toDoubleOrNull() ?: 0.0
                 val currentValue = (fund.currentValue).toLong()
 
-                val selectedFund = selectedFunds.firstOrNull { it.folio == fund.folio }
+                val selectedFund = selectedFunds.firstOrNull { it.folio == fund.actualFolio }
 
                 MutualFundsFolioCardLumpSum(
                     title = fund.title,
-                    folio = fund.folio,
+                    folio = fund.actualFolio,
                     iconUrl = fund.icon,
                     returnPercentage = percentage,
                     investedAmount = fund.amount.toLong(),

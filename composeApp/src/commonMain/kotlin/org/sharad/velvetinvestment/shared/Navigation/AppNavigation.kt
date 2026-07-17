@@ -70,6 +70,7 @@ private const val KYC_CONTRACT_WEBVIEW_RESULT = "kyc_contract_webview_completed"
 private const val CART_WEBVIEW_RESULT = "cart_webview_completed"
 private const val SIP_DETAILS_WEBVIEW_RESULT = "sip_details_webview_completed"
 private const val EXISTING_FUND_LUMPSUM_WEBVIEW_RESULT = "existing_fund_lumpsum_webview_completed"
+private const val MF_DETAILS_LUMPSUM_WEBVIEW_RESULT = "mf_details_lumpsum_webview_completed"
 
 @Composable
 fun AppNavigation(onSignOut: () -> Unit) {
@@ -380,6 +381,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
             composable<Route.MutualFundDetails> {
                 val id = it.toRoute<Route.MutualFundDetails>().id
                 val folioId = it.toRoute<Route.MutualFundDetails>().folioId
+                val lumpSumWebViewReturned by it.savedStateHandle
+                    .getStateFlow(MF_DETAILS_LUMPSUM_WEBVIEW_RESULT, false)
+                    .collectAsStateWithLifecycle()
                 MutualFundDetailsScreenRoot(
                     onBackClick = { navController.popBackStack() },
                     id = id,
@@ -396,6 +400,20 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         navController.navigate(Route.CheckKYC){
                             launchSingleTop=true
                         }
+                    },
+                    onLaunchWebView = { url ->
+                        navController.navigate(
+                            Route.WebViewScreen(
+                                url = url,
+                                exitUrlPatterns = emptyList(),
+                                title = "Complete Payment",
+                                completionRouteKey = "mf_details_lumpsum"
+                            )
+                        )
+                    },
+                    webViewReturned = lumpSumWebViewReturned,
+                    onWebViewConsumed = {
+                        it.savedStateHandle[MF_DETAILS_LUMPSUM_WEBVIEW_RESULT] = false
                     }
                 )
             }
@@ -857,6 +875,13 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
                                 ?.set(EXISTING_FUND_LUMPSUM_WEBVIEW_RESULT, true)
+                            navController.popBackStack()
+                        }
+                        "mf_details_lumpsum" -> {
+                            // Come back to the fund details so it can reload the fund and the cart.
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set(MF_DETAILS_LUMPSUM_WEBVIEW_RESULT, true)
                             navController.popBackStack()
                         }
                         else -> navController.popBackStack()

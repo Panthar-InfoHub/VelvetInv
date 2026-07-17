@@ -3,6 +3,8 @@ package org.sharad.velvetinvestment.presentation.bundle.compose
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import org.jetbrains.compose.resources.painterResource
+import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
@@ -237,6 +246,12 @@ fun BundleReviewScreen(
                 SuccessInfoBox("$selectedSlots of $totalSlots funds selected. Amounts auto-split by the locked allocation.")
             }
 
+            if (!allFundsSelected) {
+                item {
+                    InfoBox("Select a fund for every slot to proceed with this portfolio.")
+                }
+            }
+
             item {
                 InvestmentSummaryCard(
                     bundleName = bundle.name,
@@ -277,7 +292,7 @@ fun BundleReviewScreen(
             onClick = onProceedClick,
             value = "Proceed to Invest",
             loading = isAddingToCart,
-            enabled = allFundsSelected && when(fundType){
+            enabled = allFundsSelected && investmentAmount >= minAmount && when(fundType){
                 SelectedFundType.SIP -> selectedSipDay != null
                 SelectedFundType.LUMSUM -> true
             }
@@ -352,6 +367,14 @@ fun InvestmentSummaryCard(
 
             Spacer(Modifier.height(24.dp))
 
+            // Local text mirror of the amount so the field can be edited freely.
+            var amountText by remember { mutableStateOf(investmentAmount.toString()) }
+            LaunchedEffect(investmentAmount) {
+                if (amountText.toLongOrNull() != investmentAmount) {
+                    amountText = investmentAmount.toString()
+                }
+            }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -360,7 +383,7 @@ fun InvestmentSummaryCard(
                 Surface(
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable { if (investmentAmount > minAmount) onAmountChange(investmentAmount - 500) },
+                        .clickable { onAmountChange((investmentAmount - 500).coerceAtLeast(0)) },
                     shape = LocalVelvetShapes.current.roundedDp12,
                     color = Color(0xffF3F4F5)
                 ) {
@@ -369,11 +392,39 @@ fun InvestmentSummaryCard(
                     }
                 }
 
-                Column(horizontalAlignment = Alignment.CenterHorizontally,) {
-                    Text(
-                        text = "₹${formatWithCommas(investmentAmount)}".withInterRupee(),
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.Bold
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BasicTextField(
+                        value = amountText,
+                        onValueChange = { input ->
+                            val digits = input.filter { it.isDigit() }.take(9)
+                            amountText = digits
+                            onAmountChange(digits.toLongOrNull() ?: 0L)
+                        },
+                        textStyle = MaterialTheme.typography.displayMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        cursorBrush = SolidColor(Color.Black),
+                        // Renders the ₹ prefix glued to the number without making it editable.
+                        visualTransformation = { text ->
+                            TransformedText(
+                                AnnotatedString("₹${text.text}"),
+                                object : OffsetMapping {
+                                    override fun originalToTransformed(offset: Int) = offset + 1
+                                    override fun transformedToOriginal(offset: Int) =
+                                        (offset - 1).coerceAtLeast(0)
+                                }
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Text(
                         text = if (fundType == SelectedFundType.SIP) "MONTHLY" else "ONE-TIME",
@@ -395,6 +446,16 @@ fun InvestmentSummaryCard(
                         modifier = Modifier.padding(12.dp)
                     )
                 }
+            }
+
+            if (investmentAmount < minAmount) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Amount is less than the minimum of ₹${formatWithCommas(minAmount)}",
+                    style = titlesStyle.copy(fontSize = 12.sp),
+                    color = Color.Red,
+                    textAlign = TextAlign.Center
+                )
             }
 
             if (fundType == SelectedFundType.SIP) {
@@ -474,6 +535,7 @@ fun AssetAllocationMiniLegend(allocation: AssetAllocationDomain) {
         if (allocation.equity > 0) MiniLegendItem("Equity", allocation.equity, Color(0xFF1A237E))
         if (allocation.commodity > 0) MiniLegendItem("Commodities", allocation.commodity, Color(0xFFD4AF37))
         if (allocation.debt > 0) MiniLegendItem("Debt", allocation.debt, appGreen)
+        if (allocation.hybrid > 0) MiniLegendItem("Hybrid", allocation.hybrid, Primary)
     }
 }
 

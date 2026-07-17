@@ -115,9 +115,9 @@ fun FolioFundsContent(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-//            item {
-//                FolioInfoSection(folioId = folioId)
-//            }
+            item {
+                FolioInfoSection(folioId = actualFolio)
+            }
 
             items(funds) { fund ->
                 val percentage = fund.returnPercentage.replace("%", "").toDoubleOrNull() ?: 0.0

@@ -6,6 +6,7 @@ import org.sharad.velvetinvestment.domain.models.fd.FDFaqDomain
 import org.sharad.velvetinvestment.domain.models.fd.FDTenureDomain
 import org.sharad.velvetinvestment.domain.models.fixeddeposits.RiskLevel
 import org.sharad.velvetinvestment.utils.parseHtmlToReadableText
+import kotlin.math.round
 
 fun FDDetailsDto.toDomain(): FDDetailsDomain {
     val payouts = data.interest_rates
@@ -45,7 +46,7 @@ fun FDDetailsDto.toDomain(): FDDetailsDomain {
                 isDefault = it.is_default_selection,
                 payoutFrequency = PayoutType.fromId(it.payout_frequency)
             )
-        }.sortedBy { it.tenureDays }, // IMPORTANT → UI order
+        }.sortedBy { it.tenureDays },
 
         // Lock Section
         lockInDays = data.lock_in_period_days,
@@ -136,5 +137,16 @@ fun extractRiskLevel(ratingText: String): RiskLevel {
         "AAA" in ratingText || "A1+" in ratingText -> RiskLevel.LOW
         "AA" in ratingText || "A+" in ratingText -> RiskLevel.MODERATE
         else -> RiskLevel.HIGH
+    }
+}
+
+
+fun Double.format2(): String {
+    val rounded = round(this * 100) / 100
+    val parts = rounded.toString().split('.')
+    return if (parts.size == 1) {
+        "${parts[0]}.00"
+    } else {
+        "${parts[0]}.${parts[1].padEnd(2, '0').take(2)}"
     }
 }

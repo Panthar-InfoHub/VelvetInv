@@ -88,6 +88,7 @@ val viewModelModule= module {
             getGraphUseCase = get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
