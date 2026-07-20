@@ -17,7 +17,10 @@ fun FDTenureDomain.toUIModel(invest: Long): FixedDepositTenureUIModel {
     val formattedRate = (round(interestRate * 100) / 100)
 
     return FixedDepositTenureUIModel(
-        tenureText = tenureLabel,
+        tenureText = tenureLabel.replace(
+            Regex("\\bMonth\\b", RegexOption.IGNORE_CASE),
+            "Months"
+        ),
         interestText = "${formattedRate.format2()}%",
         returnText = formatMoneyAfterL(maturity.toLong())
     )

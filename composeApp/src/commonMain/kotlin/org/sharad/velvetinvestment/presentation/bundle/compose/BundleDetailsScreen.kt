@@ -289,7 +289,7 @@ fun AssetLegend(allocation: AssetAllocationDomain) {
         if (allocation.equity > 0) LegendItem("Equity", allocation.equity, Primary)
         if (allocation.commodity > 0) LegendItem("Commodities", allocation.commodity, Secondary)
         if (allocation.debt > 0) LegendItem("Debt", allocation.debt, Color(0xFF4CAF50))
-        if (allocation.hybrid > 0) LegendItem("Hybrid", allocation.hybrid, Color(0xFF2196F3))
+        if (allocation.hybrid > 0) LegendItem("Hybrid", allocation.hybrid, Color(0xFF4CAF50))
     }
 }
 

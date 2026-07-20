@@ -81,7 +81,6 @@ import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.utils.groupDigitsIndian
 import org.sharad.velvetinvestment.utils.trimTo
-import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 import velvet.composeapp.generated.resources.plus_icon
@@ -581,10 +580,10 @@ fun AssetAllocationMiniLegend(allocation: AssetAllocationDomain) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        if (allocation.equity > 0) MiniLegendItem("Equity", allocation.equity, Color(0xFF1A237E))
-        if (allocation.commodity > 0) MiniLegendItem("Commodities", allocation.commodity, Color(0xFFD4AF37))
-        if (allocation.debt > 0) MiniLegendItem("Debt", allocation.debt, appGreen)
-        if (allocation.hybrid > 0) MiniLegendItem("Hybrid", allocation.hybrid, Primary)
+        if (allocation.equity > 0) MiniLegendItem("Equity", allocation.equity, Primary)
+        if (allocation.commodity > 0) MiniLegendItem("Commodities", allocation.commodity, Secondary)
+        if (allocation.debt > 0) MiniLegendItem("Debt", allocation.debt, Color(0xFF4CAF50))
+        if (allocation.hybrid > 0) MiniLegendItem("Hybrid", allocation.hybrid, Color(0xFF4CAF50))
     }
 }
 

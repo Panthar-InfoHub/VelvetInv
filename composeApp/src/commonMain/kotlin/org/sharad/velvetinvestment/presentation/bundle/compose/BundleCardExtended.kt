@@ -25,8 +25,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,9 +32,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
@@ -48,10 +46,10 @@ import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 
 object BundlePalette {
 
-    val Equity = Color(0xFF1B2A5B)
-    val Hybrid = Color(0xFF2F7F83)
-    val Debt = Color(0xFFC89B3C)
-    val Commodity = Color(0xFFA8643A)
+    val Equity = Primary
+    val Hybrid = Color(0xFF2196F3)
+    val Debt = Color(0xFF4CAF50)
+    val Commodity = Secondary
 
     fun color(type: AssetType): Color = when (type) {
         AssetType.EQUITY -> Equity
