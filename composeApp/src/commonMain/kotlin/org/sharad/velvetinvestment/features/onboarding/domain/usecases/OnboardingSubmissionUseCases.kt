@@ -1,0 +1,60 @@
+package org.sharad.velvetinvestment.features.onboarding.domain.usecases
+
+import org.sharad.velvetinvestment.utils.networking.ErrorDomain
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.features.onboarding.domain.model.BankAccount
+import org.sharad.velvetinvestment.features.onboarding.domain.model.InvestorProfile
+import org.sharad.velvetinvestment.features.onboarding.domain.model.InvestorProfileSubmission
+import org.sharad.velvetinvestment.features.onboarding.domain.model.Nominee
+import org.sharad.velvetinvestment.features.onboarding.domain.model.PennyDropStatus
+import org.sharad.velvetinvestment.features.onboarding.domain.repository.OnboardingRepo
+
+class SubmitPennyDropUseCase(
+    private val onboardingRepo: OnboardingRepo
+) {
+    suspend operator fun invoke(bankAccount: BankAccount): NetworkResponse<Unit, ErrorDomain> {
+        return onboardingRepo.submitPennyDrop(bankAccount)
+    }
+}
+
+class GetPennyDropStatusUseCase(
+    private val onboardingRepo: OnboardingRepo
+) {
+    suspend operator fun invoke(
+        accountNumber: String
+    ): NetworkResponse<PennyDropStatus, ErrorDomain> {
+        return onboardingRepo.getPennyDropStatus(accountNumber)
+    }
+}
+
+class SubmitInvestorProfileUseCase(
+    private val onboardingRepo: OnboardingRepo
+) {
+    suspend operator fun invoke(
+        profile: InvestorProfile
+    ): NetworkResponse<InvestorProfileSubmission, ErrorDomain> {
+        return onboardingRepo.submitInvestorProfile(profile)
+    }
+}
+
+class GetCityByPincodeUseCase(
+    private val onboardingRepo: OnboardingRepo
+) {
+    suspend operator fun invoke(pincode: String): NetworkResponse<String, ErrorDomain> {
+        return onboardingRepo.getCityByPincode(pincode)
+    }
+}
+
+class SubmitNomineesUseCase(
+    private val onboardingRepo: OnboardingRepo
+) {
+    /** An empty [nominees] list is the "add them later" case and maps to `{ "skip": true }`. */
+    suspend operator fun invoke(nominees: List<Nominee>): NetworkResponse<Unit, ErrorDomain> {
+        return if (nominees.isEmpty()) {
+            onboardingRepo.skipNominees()
+        } else {
+            onboardingRepo.submitNominees(nominees)
+        }
+    }
+}
+

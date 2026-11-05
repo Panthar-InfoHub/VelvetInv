@@ -20,14 +20,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import org.sharad.velvetinvestment.domain.models.portfolio.MutualFundPortfolioDomain
-import org.sharad.velvetinvestment.presentation.explorefunds.compose.ExploreFundScreen
+import org.sharad.velvetinvestment.features.bundles.presentation.compose.AllBundlesScreen
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.AllBundlesEffect
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.AllBundlesViewModel
+import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
+import org.sharad.velvetinvestment.features.portfolio.domain.models.MutualFundPortfolioDomain
+import org.sharad.velvetinvestment.features.bottomNavigation.ui.compose.ExploreFundsScreen
+import org.sharad.velvetinvestment.features.bottomNavigation.ui.viewmodels.ExploreFundsEffect
+import org.sharad.velvetinvestment.features.bottomNavigation.ui.viewmodels.ExploreFundsViewModel
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundDomain
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
 import org.sharad.velvetinvestment.presentation.insurance.InsuranceNavigationScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.PortfolioScreenMain
-import org.sharad.velvetinvestment.presentation.portfolio.viewmodel.PortfolioScreenViewModel
+import org.sharad.velvetinvestment.features.portfolio.ui.screens.PortfolioScreenMain
+import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.ProfileScreen
 import org.sharad.velvetinvestment.shared.BottomNavBar
 import org.sharad.velvetinvestment.utils.AppEvent
@@ -39,12 +47,18 @@ fun BottomNavigation(
     navigateToFDDetailsScreen: (String) -> Unit,
     navigateToCategoryMutualFundScreen: () -> Unit,
     navigateToFireReportScreen: () -> Unit,
-    navigateToKYCScreen: () -> Unit,
+    /** Home's "Complete your FIRE journey" card. */
+    navigateToFireOnboarding: () -> Unit,
+    /** Home's KYC card: straight into the KYC onboarding graph (JN). */
+    navigateToOnboarding: () -> Unit,
     navigateToGoalScreen: () -> Unit,
     navigateToNotification: () -> Unit,
-    navigateToPersonalInfo: () -> Unit,
+    /** Profile → Security → Change PIN; AppNavigation decides whether the current PIN is asked first. */
+    navigateToChangePin: () -> Unit,
+    /** Profile → Security → Biometric Login. */
+    navigateToBiometricLogin: () -> Unit,
     navigateToCategoryFDScreen: () -> Unit,
-    navigateToMutualFundDetailScreen: (String) -> Unit,
+    navigateToMutualFundDetailScreen: (MutualFundDomain) -> Unit,
     navigateToHealthInsurance: () -> Unit,
     navigateToTermInsurance: () -> Unit,
     navigateToOtherInsurance: () -> Unit,
@@ -61,7 +75,10 @@ fun BottomNavigation(
     navigateToAboutFire: () -> Unit = {},
     navigateToKYC: () -> Unit,
     navigateToInvestmentRateScree: () -> Unit,
-    navigateToPortfolioFdDetailsScreen: (String)-> Unit
+    navigateToPortfolioFdDetailsScreen: (String)-> Unit,
+    navigateToMyOrders: () -> Unit,
+    navigateToBundleDetails: (bundleId: String, purchaseMode: PurchaseMode) -> Unit,
+    navigateToCart: () -> Unit
 ) {
 
     val navController = rememberNavController()
@@ -99,6 +116,10 @@ fun BottomNavigation(
 
                 AppEvent.NotificationMarkEvent->{
                     homeViewModel.addNotificationMark()
+                    AppEventsController.clear()
+                }
+                AppEvent.KycSilentRefresh -> {
+                    homeViewModel.silentRefresh()
                     AppEventsController.clear()
                 }
                 else -> {}
@@ -199,7 +220,8 @@ fun BottomNavigation(
                 HomeScreenMain(
                     viewModel = homeViewModel,
                     navigateToFireReportScreen=navigateToFireReportScreen,
-                    navigateToKYCScreen=navigateToKYCScreen,
+                    navigateToFireOnboarding=navigateToFireOnboarding,
+                    navigateToOnboarding=navigateToOnboarding,
                     navigateToGoalScreen=navigateToGoalScreen,
                     navigateToNotification=navigateToNotification,
                     navigateToAddGoal=navigateToAddGoal,
@@ -224,13 +246,51 @@ fun BottomNavigation(
                 )
             }
             composable<Route.FundScreener> {
-                ExploreFundScreen(
-                    onMFClick={navigateToCategoryMutualFundScreen()},
-                    onFDClick=navigateToCategoryFDScreen,
-                    navigateToSpecificMF = {mf->navigateToMutualFundDetailScreen(mf)},
-                    navigateToSpecificFD = {fd->
-                        navigateToFDDetailsScreen(fd)
+                val exploreViewModel: ExploreFundsViewModel = koinViewModel()
+                val exploreState by exploreViewModel.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(exploreViewModel) {
+                    exploreViewModel.effect.collect { effect ->
+                        when (effect) {
+                            ExploreFundsEffect.NavigateToMutualFunds -> navigateToCategoryMutualFundScreen()
+                            ExploreFundsEffect.NavigateToFixedDeposits -> navigateToCategoryFDScreen()
+                            is ExploreFundsEffect.NavigateToMutualFund -> navigateToMutualFundDetailScreen(effect.fund)
+                            is ExploreFundsEffect.NavigateToFixedDepositDetail -> navigateToFDDetailsScreen(effect.fdId)
+                        }
                     }
+                }
+
+                ExploreFundsScreen(
+                    uiState = exploreState,
+                    handleEvent = exploreViewModel::handleEvent
+                )
+            }
+            composable<Route.AllBundleScreen> {
+                val allBundlesViewModel: AllBundlesViewModel = koinViewModel()
+                val state by allBundlesViewModel.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(allBundlesViewModel.effect) {
+                    allBundlesViewModel.effect.collect { effect ->
+                        when (effect) {
+                            // A tab has nothing behind it, so back returns to Home.
+                            AllBundlesEffect.NavigateBack -> navController.navigate(Route.Home) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                            AllBundlesEffect.NavigateToCart -> navigateToCart()
+                            is AllBundlesEffect.NavigateToBundle ->
+                                navigateToBundleDetails(effect.bundleId, effect.purchaseMode)
+                        }
+                    }
+                }
+
+                AllBundlesScreen(
+                    state = state,
+                    onEvent = allBundlesViewModel::handleEvent,
+                    showBack = false
                 )
             }
             composable<Route.PortFolio> {
@@ -241,13 +301,15 @@ fun BottomNavigation(
                     },
                     onFDClick = navigateToPortfolioFdDetailsScreen,
                     navigateToCategoryMutualFundScreen=navigateToCategoryMutualFundScreen,
-                    navigateToCategoryFDScreen=navigateToCategoryFDScreen
+                    navigateToCategoryFDScreen=navigateToCategoryFDScreen,
+                    navigateToMyOrders = navigateToMyOrders
                 )
             }
             composable<Route.Profile> {
                 ProfileScreen(
                     navigateToNotification=navigateToNotification,
-                    navigateToPersonalInfo=navigateToPersonalInfo,
+                    navigateToChangePin = navigateToChangePin,
+                    navigateToBiometricLogin = navigateToBiometricLogin,
                     navigateToKYC = navigateToKYC,
                     navigateToPrivacyPolicy=navigateToPrivacyPolicy,
                     navigateToTermsAndConditions=navigateToTermsAndConditions,
@@ -276,8 +338,9 @@ private fun getRouteIndex(destination: NavDestination?): Int {
     return when {
         destination.hasRoute<Route.Home>() -> 0
         destination.hasRoute<Route.FundScreener>() -> 1
-        destination.hasRoute<Route.PortFolio>() -> 2
-        destination.hasRoute<Route.Insurance>() -> 3
+        destination.hasRoute<Route.AllBundleScreen>() -> 2
+        destination.hasRoute<Route.PortFolio>() -> 3
+//        destination.hasRoute<Route.Insurance>() -> 4
         destination.hasRoute<Route.Profile>() -> 4
         else -> -1
     }

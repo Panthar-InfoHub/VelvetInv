@@ -34,12 +34,12 @@ import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.app_logo_transparent
 
 @Composable
-fun LoaderScreen(){
+fun LoaderScreen(modifier: Modifier = Modifier){
 
     var quote by remember{mutableStateOf(loadingQuotes.random())}
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .clickable(
                 onClick = {
                     quote=loadingQuotes.random()

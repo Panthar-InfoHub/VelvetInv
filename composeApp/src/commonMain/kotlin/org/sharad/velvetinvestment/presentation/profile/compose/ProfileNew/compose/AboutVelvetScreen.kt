@@ -71,9 +71,9 @@ fun AboutVelvetScreen(
         containerColor = Color.White,
         topBar = {
             BackHeader(
-                heading = "About Velvet",
+                title = "About Velvet",
                 showBack = true,
-                onBackClick = onBack
+                onBack = onBack
             )
         }
     ) { paddingValues ->

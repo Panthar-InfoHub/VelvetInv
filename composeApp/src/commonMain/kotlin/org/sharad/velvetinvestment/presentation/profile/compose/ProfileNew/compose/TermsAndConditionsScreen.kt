@@ -75,9 +75,9 @@ fun TermsAndConditionsScreen(
             .background(Color.White),
         topBar = {
             BackHeader(
-                heading = "Terms & Conditions",
+                title = "Terms & Conditions",
                 showBack = true,
-                onBackClick = onBack
+                onBack = onBack
             )
         },
         containerColor = Color.White

@@ -53,8 +53,8 @@ import org.sharad.emify.core.ui.theme.goldenColor
 import org.sharad.emify.core.ui.theme.grayColor
 import org.sharad.emify.core.ui.theme.redColor
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
-import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.shared.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.shared.compose.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.DatePickerSelector
 import org.sharad.velvetinvestment.shared.DropDownSelector
@@ -92,7 +92,7 @@ fun TradingAccountFinancialDetailsScreen(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = { onBackClick() },
+            onBack = { onBackClick() },
             rightContent = {
                 Text(
                     text = "Step 3/5",

@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,16 +36,29 @@ fun OtpGrid(
     modifier: Modifier,
     otpLength: Int,
     otp: String,
-    onOtpChange: (String) -> Unit
+    onOtpChange: (String) -> Unit,
+    /**
+     * Focus the first box on entry and again whenever [otp] is cleared (JN `OtpInputField`'s
+     * focusRequester) — e.g. a PIN screen that empties the row after a wrong attempt.
+     */
+    autoFocus: Boolean = false,
+    /** Where the boxes sit in the full-width row; start-aligned by default (login OTP). */
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(12.dp)
 ) {
 
     val focusRequesters = remember {
         List(otpLength) { FocusRequester() }
     }
 
+    if (autoFocus) {
+        LaunchedEffect(otp.isEmpty()) {
+            if (otp.isEmpty()) focusRequesters.first().requestFocus()
+        }
+    }
+
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = horizontalArrangement
     ) {
 
         repeat(otpLength) { index ->

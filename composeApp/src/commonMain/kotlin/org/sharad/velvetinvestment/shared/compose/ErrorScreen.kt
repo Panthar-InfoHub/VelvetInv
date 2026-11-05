@@ -22,10 +22,11 @@ import velvet.composeapp.generated.resources.error_img
 @Composable
 fun ErrorScreen(
     errorMessage: String,
-    onRetryClick: () -> Unit
+    onRetryClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

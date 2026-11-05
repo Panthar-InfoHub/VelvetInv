@@ -1,0 +1,249 @@
+package org.sharad.velvetinvestment.features.fireonboarding.presentation.firereport.compose
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlin.math.max
+
+@Composable
+fun LineChart(
+    data: List<LineChartData>,
+    color: Color = Color(0xff10B981),
+    modifier: Modifier = Modifier.height(140.dp),
+    progress: () -> Float = { 1f }
+) {
+
+    val textMeasurer = rememberTextMeasurer()
+    val textStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp)
+    val pathMeasureLine = remember { PathMeasure() }
+
+    val linePath = remember { Path() }
+    val animatedPath = remember { Path() }
+    val areaAnimated = remember { Path() }
+
+
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+
+        val currentProgress = progress()
+
+        if (data.size < 2) return@Canvas
+
+        val width = size.width
+        val height = size.height
+
+        // Insets are sized from the real text and dot sizes (not fixed pixels), so the floating
+        // label over the highest point and the year labels under the axis stay inside the canvas
+        // at any screen density.
+        val labelGap = 4.dp.toPx()
+        val highlightRadius = 5.dp.toPx()
+        val dotRadius = 2.5.dp.toPx()
+        val textHeight = textMeasurer.measure(AnnotatedString("0"), style = textStyle).size.height
+
+        val leftAxisWidth = highlightRadius
+        val rightAxisWidth = highlightRadius
+        val bottomAxisHeight = textHeight + labelGap + highlightRadius
+        val topPadding = textHeight + labelGap + highlightRadius
+
+        val chartStartX = leftAxisWidth
+        val chartEndX = width - rightAxisWidth
+        val chartTop = topPadding
+        val chartBottom = height - bottomAxisHeight
+
+        val chartWidth = chartEndX - chartStartX
+        val chartHeight = chartBottom - chartTop
+
+        // Scale over the real min..max (zero kept as the floor for all-positive data), so
+        // negative values, all-zero data or a non-positive max can no longer push the line out
+        // of the chart or divide by zero.
+        val values = data.map { if (it.value.isFinite()) it.value else 0.0 }
+        val minValue = minOf(0.0, values.min())
+        val maxValue = maxOf(0.0, values.max())
+        val range = (maxValue - minValue).takeIf { it > 0.0 } ?: 1.0
+
+        val stepX = chartWidth / (data.size - 1)
+
+        val points = values.mapIndexed { index, value ->
+            val x = chartStartX + index * stepX
+            val y = chartBottom - ((value - minValue) / range).toFloat() * chartHeight
+            Offset(x, y.coerceIn(chartTop, chartBottom))
+        }
+
+
+
+        /* ---------- STRAIGHT LINE PATH ---------- */
+
+        linePath.reset()
+        linePath.moveTo(points.first().x, points.first().y)
+        for (i in 1 until points.size) {
+            linePath.lineTo(points[i].x, points[i].y)
+        }
+
+        pathMeasureLine.setPath(linePath, false)
+
+        animatedPath.reset()
+        pathMeasureLine.getSegment(
+            0f,
+            pathMeasureLine.length * currentProgress,
+            animatedPath,
+            true
+        )
+
+        /* ---------- AREA PATH  ---------- */
+
+//        val areaPath = Path().apply {
+//            moveTo(points.first().x, chartBottom)
+//
+//            points.forEachIndexed { index, point ->
+//                if (index == 0) lineTo(point.x, point.y)
+//                else lineTo(point.x, point.y)
+//            }
+//
+//            lineTo(points.last().x, chartBottom)
+//            close()
+//        }
+
+        areaAnimated.reset()
+
+        pathMeasureLine.getSegment(
+            0f,
+            pathMeasureLine.length * currentProgress,
+            areaAnimated,
+            true
+        )
+
+        /* ---------- GRADIENT FILL ---------- */
+
+        val visibleX = chartStartX + chartWidth * currentProgress
+
+        areaAnimated.lineTo(visibleX, chartBottom)
+        areaAnimated.lineTo(points.first().x, chartBottom)
+        areaAnimated.close()
+        drawPath(
+            path = areaAnimated,
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    color.copy(alpha = 0.35f),
+                    color.copy(alpha = 0.05f),
+                    Color.Transparent
+                ),
+                startY = chartTop,
+                endY = chartBottom
+            )
+        )
+
+        /* ---------- LINE ---------- */
+
+        drawPath(
+            animatedPath,
+            color,
+            style = Stroke(
+                width = 1.5.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+        )
+
+        /* ---------- DOTS ---------- */
+
+        val highlightStep = max(1, data.size / 5)
+
+
+        points.forEachIndexed { index, point ->
+
+            val isHighlight = index % highlightStep == 0
+            val radius = if (point.x <= visibleX) {
+                if (isHighlight) highlightRadius else dotRadius
+            } else 0f
+
+            if (point.x <= visibleX){
+                drawCircle(
+                    color = color,
+                    radius = radius,
+                    center = point
+                )
+
+                if (isHighlight) {
+
+                    val label = textMeasurer.measure(
+                        AnnotatedString(data[index].floatingLabel),
+                        style = textStyle
+                    )
+
+                    val labelX = (point.x - label.size.width / 2)
+                        .coerceIn(0f, size.width - label.size.width)
+
+                    // Above the dot, or below it when there is no room above.
+                    val above = point.y - highlightRadius - labelGap - label.size.height
+                    val labelY = if (above >= 0f) above
+                    else (point.y + highlightRadius + labelGap)
+                        .coerceAtMost(size.height - label.size.height)
+
+                    drawText(label, topLeft = Offset(labelX, labelY))
+                }
+            }
+        }
+
+        //BottomLine
+
+        drawLine(
+            color = Color.Black.copy(alpha = 0.2f),
+            strokeWidth = 1.dp.toPx(),
+            start = Offset(chartStartX, chartBottom),
+            end = Offset(chartEndX, chartBottom)
+        )
+
+        /* ---------- START + END Bottom LABEL ---------- */
+
+        val firstLabel = textMeasurer.measure(
+            AnnotatedString(data.first().axisLabel),
+            style = textStyle
+        )
+
+        drawText(
+            firstLabel,
+            topLeft = Offset(
+                chartStartX,
+                (chartBottom + labelGap).coerceAtMost(size.height - firstLabel.size.height)
+            )
+        )
+
+        val lastLabel = textMeasurer.measure(
+            AnnotatedString(data.last().axisLabel),
+            style = textStyle
+        )
+
+        drawText(
+            lastLabel,
+            topLeft = Offset(
+                chartEndX - lastLabel.size.width,
+                (chartBottom + labelGap).coerceAtMost(size.height - lastLabel.size.height)
+            )
+        )
+    }
+}
+
+data class LineChartData(
+    val floatingLabel: String = "",
+    val value: Double,
+    val axisLabel: String
+)

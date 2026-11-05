@@ -9,9 +9,6 @@ import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toInitiateBodyDto
 import org.sharad.velvetinvestment.data.remote.mapper.toPaginatedDomain
-import org.sharad.velvetinvestment.data.remote.model.allbundles.AllBundlesDto
-import org.sharad.velvetinvestment.data.remote.model.allbundles.toDomain
-import org.sharad.velvetinvestment.data.remote.model.bundledfundbyid.BundleByIdDto
 import org.sharad.velvetinvestment.data.remote.model.cancelorder.CancelOrderRequestDto
 import org.sharad.velvetinvestment.data.remote.model.cancelorder.CancelOrderResponseDto
 import org.sharad.velvetinvestment.data.remote.model.cancelorder.CancelXsipRequestDto
@@ -31,20 +28,15 @@ import org.sharad.velvetinvestment.data.remote.model.mfdetails.MutualFundsDetail
 import org.sharad.velvetinvestment.data.remote.model.mfgraph.MFGraphDto
 import org.sharad.velvetinvestment.data.remote.model.mfpurchasemandatestatus.CheckMFPurchaseMandateStatusDto
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.CombinedFundsDto
-import org.sharad.velvetinvestment.data.remote.model.usercart.UserCartDto
 import org.sharad.velvetinvestment.domain.SIPStatus
 import org.sharad.velvetinvestment.domain.models.PaginatedData
-import org.sharad.velvetinvestment.domain.models.bundle.BundleDomain
-import org.sharad.velvetinvestment.domain.models.mutualfunds.BundledMutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundPurchaseInitiateDomain
 import org.sharad.velvetinvestment.domain.models.usercart.SipItemDomain
-import org.sharad.velvetinvestment.domain.models.usercart.UserCartDomain
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
-import org.sharad.velvetinvestment.utils.CartInfo
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.ErrorType
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -121,24 +113,6 @@ class MutualFundRepo(
 
             is NetworkResponse.Error -> {
                 NetworkResponse.Error(response.error)
-            }
-        }
-    }
-
-    override suspend fun getMutualFundCart(): NetworkResponse<UserCartDomain, ErrorDomain> {
-        val response= safeRequest<UserCartDto> {
-            client.get(getUrl("/user/cart"))
-        }
-
-        return when(response){
-            is NetworkResponse.Error-> {
-                NetworkResponse.Error(response.error)
-            }
-
-            is NetworkResponse.Success -> {
-                val domain= response.data.toDomain()
-                CartInfo.updateFundAmount(domain.sipItems.size+ domain.lumpSumItems.size)
-                NetworkResponse.Success(domain)
             }
         }
     }
@@ -302,86 +276,6 @@ class MutualFundRepo(
 
             is NetworkResponse.Success -> {
                 NetworkResponse.Success(response.data.toDomain())
-            }
-        }
-    }
-
-    override suspend fun getBundleFunds(id: String): NetworkResponse<BundleDomain, ErrorDomain> {
-        val response = safeRequest<BundleByIdDto> {
-            client.get(getUrl("/bundles/$id"))
-        }
-
-        return when (response) {
-            is NetworkResponse.Error -> {
-                NetworkResponse.Error(response.error)
-            }
-
-            is NetworkResponse.Success -> {
-                NetworkResponse.Success(response.data.toDomain())
-            }
-        }
-    }
-
-    override suspend fun getAllBundledFunds(
-        page: Int?,
-        limit: Int?
-    ): NetworkResponse<PaginatedData<BundledMutualFundDomain>, ErrorDomain> {
-        val response = safeRequest<AllBundlesDto> {
-            client.get(getUrl("/bundles")){
-                parameter("page",page?:1)
-                parameter("limit", limit?:20)
-            }
-        }
-        return when (response) {
-            is NetworkResponse.Error -> {
-                NetworkResponse.Error(response.error)
-            }
-            is NetworkResponse.Success->{
-                NetworkResponse.Success(response.data.toDomain())
-            }
-        }
-    }
-
-    override suspend fun addBundleToCartLumpsum(
-        bundleId: String,
-        amount: Long,
-        selections: List<org.sharad.velvetinvestment.data.remote.model.bundlecart.BundleSelection>
-    ): NetworkResponse<Unit, ErrorDomain> {
-        val response = safeUnitRequest {
-            client.post(getUrl("/mf/bundle-cart")) {
-                setBody(
-                    org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleLumpsumRequest(
-                        bundle_id = bundleId,
-                        amount = amount,
-                        selections = selections
-                    )
-                )
-            }
-        }
-        return when (response) {
-            is NetworkResponse.Error -> {
-                NetworkResponse.Error(response.error)
-            }
-            is NetworkResponse.Success -> {
-                NetworkResponse.Success(Unit)
-            }
-        }
-    }
-
-    override suspend fun addBundleToCartSip(
-        request: org.sharad.velvetinvestment.data.remote.model.bundlecart.AddBundleSipRequest
-    ): NetworkResponse<Unit, ErrorDomain> {
-        val response = safeUnitRequest {
-            client.post(getUrl("/mf/bundle-cart")) {
-                setBody(request)
-            }
-        }
-        return when (response) {
-            is NetworkResponse.Error -> {
-                NetworkResponse.Error(response.error)
-            }
-            is NetworkResponse.Success -> {
-                NetworkResponse.Success(Unit)
             }
         }
     }

@@ -1,23 +1,17 @@
 package org.sharad.velvetinvestment.data.remote.mapper
 
-import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.BundleMetaData
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.CombinedFundsDto
-import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.Item
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.ItemXX
 import org.sharad.velvetinvestment.data.remote.model.mutualfundcombined.Metrics
-import org.sharad.velvetinvestment.domain.models.mutualfunds.BundleMetaDataDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.CombinedFundsDomain
-import org.sharad.velvetinvestment.domain.models.mutualfunds.CuratedBundleDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundDomain
 import org.sharad.velvetinvestment.domain.models.mutualfunds.ReturnYearsRateDomain
-import org.sharad.velvetinvestment.domain.models.mutualfunds.toBundledMutualFundDomain
 import org.sharad.velvetinvestment.presentation.mutualfund.CategoryMutualFundDomain
 import org.sharad.velvetinvestment.utils.toTitleCase
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 
 fun CombinedFundsDto.toDomain(): CombinedFundsDomain {
     return CombinedFundsDomain(
-        bundleFunds = data.bundle_funds.items.map { it.toDomain().toBundledMutualFundDomain() },
         categoryMutualFundDomain = data.normal_funds.items.map { itemX ->
             CategoryMutualFundDomain(
                 categorySearchReference = itemX.key,
@@ -27,30 +21,6 @@ fun CombinedFundsDto.toDomain(): CombinedFundsDomain {
         }
     )
 }
-
-fun Item.toDomain(): CuratedBundleDomain {
-    return CuratedBundleDomain(
-        id = id,
-        name = bundle_name,
-        description = bundle_description,
-        equityPercentage = equity_percentage,
-        commodityPercentage = commodity_percentage,
-        debtPercentage = debt_percentage,
-        hybridPercentage = hybrid_percentage,
-        metaData = meta_data.toDomain(),
-        imgUrl = img_url?:""
-    )
-}
-
-fun BundleMetaData.toDomain(): BundleMetaDataDomain {
-    return BundleMetaDataDomain(
-        riskLevel = risk_level,
-        investmentTime = investment_time,
-        investmentGrowth = investment_growth
-    )
-}
-
-
 
 fun ItemXX.toDomain(): MutualFundDomain {
     return MutualFundDomain(

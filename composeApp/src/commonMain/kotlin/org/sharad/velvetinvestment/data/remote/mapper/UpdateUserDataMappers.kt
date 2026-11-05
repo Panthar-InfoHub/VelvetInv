@@ -4,8 +4,7 @@ package org.sharad.velvetinvestment.data.remote.mapper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import org.sharad.velvetinvestment.data.remote.model.onboarding.*
-import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
-import org.sharad.velvetinvestment.presentation.onboarding.models.*
+import org.sharad.velvetinvestment.features.fireonboarding.presentation.onboarding.models.*
 import org.sharad.velvetinvestment.utils.DateTimeUtils.epochToYYYYMMdd
 
 
@@ -78,12 +77,4 @@ fun PersonalDetails.toProfileDto(): Profile {
     )
 }
 
-
-// -------------------------------
-// ✅ GOALS MAPPER
-// -------------------------------
-
-fun List<GoalRequest>.toGoalsDto(): List<JsonElement> {
-    return map { it.toDto() }.map { it.toJsonElement() }
-}
 

@@ -25,6 +25,8 @@ fun ContinueBackButtonFooter(
     onBack: () -> Unit,
     pv: PaddingValues = PaddingValues(0.dp),
     enabled: Boolean = true,
+    /** Spins the continue button (and ignores taps) while its action runs. */
+    loading: Boolean = false,
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -51,7 +53,8 @@ fun ContinueBackButtonFooter(
                 modifier = Modifier.weight(1f),
                 onClick = onContinue,
                 text = continueText,
-                enabled = enabled
+                enabled = enabled,
+                loading = loading
             )
         }
 

@@ -39,13 +39,14 @@ import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.domain.models.home.GoalsSummaryDomain
+import org.sharad.velvetinvestment.features.bottomNavigation.domain.models.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer
+import org.sharad.velvetinvestment.shared.domain.models.OnboardingPrompt
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.CircleButton
-import org.sharad.velvetinvestment.shared.compose.GoalEntryCard
+import org.sharad.velvetinvestment.features.goals.ui.compose.GoalCard
 import org.sharad.velvetinvestment.shared.compose.GradientBackground
 import org.sharad.velvetinvestment.shared.dottedBorder
 import org.sharad.velvetinvestment.shared.genericDropShadow
@@ -62,7 +63,10 @@ import velvet.composeapp.generated.resources.plus_icon
 fun HomeScreenMain(
     viewModel: HomeScreenViewModel,
     navigateToFireReportScreen: () -> Unit,
-    navigateToKYCScreen: () -> Unit,
+    /** "Complete your FIRE journey": the FIRE onboarding flow. */
+    navigateToFireOnboarding: () -> Unit,
+    /** The KYC card: straight into the KYC onboarding graph, which resumes where it was left (JN). */
+    navigateToOnboarding: () -> Unit,
     navigateToGoalScreen: () -> Unit,
     navigateToNotification: () -> Unit,
     navigateToAddGoal: () -> Unit,
@@ -88,8 +92,13 @@ fun HomeScreenMain(
             HomeScreen(
                 name = data.name,
                 netWorth = data.userWorth,
-                kyc = data.kycCompletion,
-                tradingKyc = data.tradingAccountCompletion,
+                onboardingPrompt = data.onboardingPrompt,
+                kycFailureReason = data.kycFailureReason,
+                isKycRefreshing = data.isKycRefreshing,
+                onKycRefresh = { viewModel.silentRefresh() },
+                isFireCompleted = data.isFireCompleted,
+                fireStepsDone = data.fireStepsDone,
+                fireStepsTotal = data.fireStepsTotal,
                 fireReport = data.fireReport,
                 goals = data.goals,
                 hidden = data.hidden,
@@ -98,14 +107,14 @@ fun HomeScreenMain(
                 onNotificationIconClick = { navigateToNotification() },
                 onSettingsIconClick = navigateToInsurance,
                 onFireReportClick = navigateToFireReportScreen,
-                navigateToKYCScreen = navigateToKYCScreen,
+                onCompleteFireJourneyClick = navigateToFireOnboarding,
+                navigateToOnboarding = navigateToOnboarding,
                 navigateToGoalScreen = navigateToGoalScreen,
                 navigateToAddGoal = navigateToAddGoal,
                 navigateToSpecificGoalProjection = navigateToSpecificGoalProjection,
                 navigateToMutualFund = navigateToMutualFund,
                 navigateToFd = navigateToFd,
                 navigateToInsurance = navigateToInsurance,
-                navigateToTradingAccountSetup = navigateToTradingAccountSetup,
                 navigateToInvestmentRateScree = navigateToInvestmentRateScreen
             )
         }
@@ -117,23 +126,28 @@ fun HomeScreenMain(
 fun HomeScreen(
     name: String,
     netWorth: UserWorthCardDomain?,
-    kyc: Boolean,
+    onboardingPrompt: OnboardingPrompt,
+    kycFailureReason: String,
+    isKycRefreshing: Boolean,
+    onKycRefresh: () -> Unit,
+    isFireCompleted: Boolean,
+    fireStepsDone: Int,
+    fireStepsTotal: Int,
     fireReport: Double,
     goals: List<GoalsSummaryDomain>,
     onNotificationIconClick: () -> Unit,
     onSettingsIconClick: () -> Unit,
     onFireReportClick: () -> Unit,
-    navigateToKYCScreen: () -> Unit,
+    onCompleteFireJourneyClick: () -> Unit,
+    navigateToOnboarding: () -> Unit,
     navigateToGoalScreen: () -> Unit,
     hidden: Boolean,
     onHiddenToggle: () -> Unit,
-    tradingKyc: Boolean,
     navigateToAddGoal: () -> Unit,
     navigateToSpecificGoalProjection: (String) -> Unit,
     navigateToFd: () -> Unit,
     navigateToMutualFund: () -> Unit,
     navigateToInsurance: () -> Unit,
-    navigateToTradingAccountSetup: () -> Unit,
     navigateToInvestmentRateScree: () -> Unit,
     hasUnreadNotifications: Boolean = false
 ) {
@@ -146,18 +160,32 @@ fun HomeScreen(
     ) {
         item{ UserSettingsHeader(name = name,onSettingsIconClick=onSettingsIconClick, onNotificationIconClick=onNotificationIconClick, hasUnreadNotifications = hasUnreadNotifications) }
         item{ UserWorthCard(netWorth=netWorth, onInvestingRateClick=navigateToInvestmentRateScree, hidden=hidden, onHiddenToggle=onHiddenToggle)}
-        if (!kyc || !tradingKyc){ item { BarHeader(heading = "Finish Setting Up Account") } }
-        if (!kyc){
-            item { KYCCard(onClick = { navigateToKYCScreen() }, text = "Complete the KYC Process") }
-        }
-        else{
-            if (!tradingKyc){
-                item { KYCCard(onClick = { navigateToTradingAccountSetup() }, text = "Setup Your Trading Account") }
+        // JN: one card per onboarding prompt; the trading-account card is gone with that flow.
+        if (onboardingPrompt != OnboardingPrompt.NONE) {
+            item { BarHeader(heading = "Finish Setting Up Account") }
+            item {
+                OnboardingPromptCard(
+                    prompt = onboardingPrompt,
+                    kycFailureReason = kycFailureReason,
+                    refreshing = isKycRefreshing,
+                    onContinueOnboarding = navigateToOnboarding,
+                    onRefresh = onKycRefresh
+                )
             }
         }
         if (goals.isEmpty()){ item { FirstGoalCard(onClick={navigateToAddGoal()}) } }
         item { FireReportHeader()}
-        item { FireReportCard(fireReport, onClick ={onFireReportClick()}) }
+        if (isFireCompleted) {
+            item { FireReportCard(fireReport, onClick ={onFireReportClick()}) }
+        } else {
+            item {
+                CompleteFireJourneyCard(
+                    stepsDone = fireStepsDone,
+                    totalSteps = fireStepsTotal,
+                    onClick = onCompleteFireJourneyClick
+                )
+            }
+        }
         item { BarHeader(heading = "Start Investing with Velvet") }
         item {
             FeatureNavigationCards(
@@ -241,7 +269,7 @@ fun AddCustomGoalCard(onClick: () -> Unit) {
 
 fun LazyListScope.homeGoalsInfo(goals: List<GoalsSummaryDomain>, onClick:(String)-> Unit) {
     items(goals){
-        GoalEntryCard(goal = it, onClick = {onClick(it.goalId)})
+        GoalCard(goal = it, onClick = {onClick(it.goalId)})
     }
 }
 
@@ -317,6 +345,64 @@ fun FireReportCard(summary: Double, onClick: () -> Unit) {
             modifier = Modifier.padding(end = 16.dp).height(24.dp)
         )
 
+    }
+}
+
+/**
+ * Shown in place of [FireReportCard] while `is_fire_completed` is false: opens the FIRE
+ * onboarding, which resumes at the first step still pending.
+ */
+@Composable
+fun CompleteFireJourneyCard(stepsDone: Int, totalSteps: Int, onClick: () -> Unit) {
+    Row(
+        modifier=Modifier.fillMaxWidth()
+            .height(76.dp)
+            .genericDropShadow()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White,RoundedCornerShape(12.dp))
+            .clickable(onClick=onClick),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Box(modifier=Modifier
+            .padding(start = 16.dp)
+            .size(40.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Secondary.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ){
+            Icon(
+                painter = painterResource(Res.drawable.fire_icon),
+                contentDescription = null,
+                tint = Secondary,
+                modifier = Modifier.width(20.dp)
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f)
+                .fillMaxWidth()
+        ){
+            Text(
+                text = "Complete your F.I.R.E. journey",
+                style = subHeading,
+                color = Primary,
+            )
+            Text(
+                text = if (stepsDone == 0) "Tell us about your finances to get your report"
+                else "$stepsDone of $totalSteps steps done",
+                style = titlesStyle,
+                color = titleColor,
+            )
+        }
+
+        Icon(
+            painter = painterResource(Res.drawable.arrow_right),
+            contentDescription = null,
+            tint = Primary,
+            modifier = Modifier.padding(end = 16.dp).height(24.dp)
+        )
     }
 }
 

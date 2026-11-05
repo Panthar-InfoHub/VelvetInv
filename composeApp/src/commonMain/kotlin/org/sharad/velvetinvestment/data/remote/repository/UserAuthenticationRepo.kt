@@ -1,6 +1,5 @@
 package org.sharad.velvetinvestment.data.remote.repository
 
-import com.mmk.kmpnotifier.notification.NotifierManager
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.authProviders
 import io.ktor.client.plugins.auth.clearAuthTokens
@@ -10,27 +9,20 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
-import org.sharad.velvetinvestment.data.remote.mapper.toLoginDto
 import org.sharad.velvetinvestment.data.remote.model.notifications.NotificationResponseDto
 import org.sharad.velvetinvestment.data.remote.model.notifications.UnreadStatusResponseDto
 import org.sharad.velvetinvestment.domain.models.notifications.NotificationDomain
 import org.sharad.velvetinvestment.data.remote.model.TradingAccountSubmissionDto.TradingAccountResultDto
-import org.sharad.velvetinvestment.data.remote.model.auth.sendotp.SendOtpDto
-import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenBody
-import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenDto
-import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpBodyDto
-import org.sharad.velvetinvestment.data.remote.model.auth.verifyotp.VerifyOtpDto
+import org.sharad.velvetinvestment.features.login.data.models.auth.tokens.RefreshTokenBody
+import org.sharad.velvetinvestment.features.login.data.models.auth.tokens.RefreshTokenDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
 import org.sharad.velvetinvestment.data.remote.model.panverification.PANVerifyDto
 import org.sharad.velvetinvestment.data.remote.model.tradingaccount.prefilled.TradingAccountPrefilledResponseDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
-import org.sharad.velvetinvestment.data.remote.model.updateuserdata.GoalsUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.InsuranceUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.LoanUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.ProfileUpdateDto
-import org.sharad.velvetinvestment.data.remote.model.useedata.UserDataDto
-import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
 import org.sharad.velvetinvestment.domain.models.tradingaccount.TradingAccountFormDomain
 import org.sharad.velvetinvestment.domain.models.user.PANVerifyDomain
 import org.sharad.velvetinvestment.domain.repository.UserAuth
@@ -42,87 +34,13 @@ import org.sharad.velvetinvestment.utils.networking.getUrl
 import org.sharad.velvetinvestment.utils.networking.safeRequest
 import org.sharad.velvetinvestment.utils.networking.safeUnitRequest
 import org.sharad.velvetinvestment.utils.storage.AuthPrefs
+import org.sharad.velvetinvestment.shared.data.remote.model.userdata.UserDataDto
 
 class UserAuthenticationRepo(
     private val client: HttpClient,
     private val authPrefs: AuthPrefs,
     private val deviceInfoRetriever: DeviceInfoRetriever
 ): UserAuth {
-    override suspend fun loginWithNumber(number: String): NetworkResponse<Unit, ErrorDomain> {
-        val deviceInfo= deviceInfoRetriever.getDeviceInfo()
-        val response= safeRequest<SendOtpDto> {
-            client.post(getUrl("/auth/req-otp")) {
-
-                parameter("dtyp", deviceInfo.deviceType)
-                parameter("dver", deviceInfo.deviceVersion)
-                parameter("dbn", deviceInfo.deviceBuildNumber.take(6))
-                parameter("did", deviceInfo.deviceId)
-                parameter("mob", number)
-            }
-        }
-        return when (response) {
-            is NetworkResponse.Success -> {
-                NetworkResponse.Success(
-                    Unit
-                )
-            }
-            is NetworkResponse.Error -> {
-                NetworkResponse.Error(response.error)
-            }
-        }
-    }
-
-    override suspend fun verifyOTP(
-        number: String,
-        otp: String
-    ): NetworkResponse<LoginDomain, ErrorDomain> {
-
-        val deviceInfo = deviceInfoRetriever.getDeviceInfo()
-
-        val response = safeRequest<VerifyOtpDto> {
-            client.post(getUrl("/auth/validate-otp")) {
-
-                parameter("dtyp", deviceInfo.deviceType)
-                parameter("dver", deviceInfo.deviceVersion)
-                parameter("dbn", deviceInfo.deviceBuildNumber)
-                parameter("did", deviceInfo.deviceId)
-
-                setBody(
-                    VerifyOtpBodyDto(
-                        mob = number,
-                        otp = otp,
-                        fcm_token = NotifierManager
-                            .getPushNotifier()
-                            .getToken() ?: ""
-                    )
-                )
-            }
-        }
-
-        return when (response) {
-
-            is NetworkResponse.Success -> {
-
-                val dto = response.data.data
-
-                authPrefs.setBearerToken(dto.token)
-                authPrefs.setRefreshToken(dto.refresh_token)
-                authPrefs.setUserId(dto.user.user_id)
-                authPrefs.setOnboardingCompleted(dto.user.metadata.is_onboarding_completed)
-                authPrefs.setOnboardingStep(dto.user.metadata.onboarding_stage)
-                authPrefs.setLoggedIn(true)
-                authPrefs.setPhoneNumber(dto.user.phone_no)
-
-                NetworkResponse.Success(
-                    response.data.toLoginDto()
-                )
-            }
-            is NetworkResponse.Error -> {
-                NetworkResponse.Error(response.error)
-            }
-        }
-    }
-
 //    override suspend fun loginWithPassword(
 //        userId: String,
 //        password: String,
@@ -293,12 +211,6 @@ class UserAuthenticationRepo(
 
     override suspend fun updateProfile(
         data: ProfileUpdateDto
-    ): NetworkResponse<Unit, ErrorDomain> {
-        return postPartial(data)
-    }
-
-    override suspend fun updateGoals(
-        data: GoalsUpdateDto
     ): NetworkResponse<Unit, ErrorDomain> {
         return postPartial(data)
     }

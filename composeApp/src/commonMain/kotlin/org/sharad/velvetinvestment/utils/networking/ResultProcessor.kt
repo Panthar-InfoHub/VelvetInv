@@ -4,6 +4,7 @@ import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.util.network.UnresolvedAddressException
 
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.serialization.SerializationException
 import org.sharad.velvetinvestment.data.remote.model.ServerError.ServerError
 import org.sharad.velvetinvestment.utils.Log
@@ -45,7 +46,12 @@ suspend inline fun <reified T> safeRequest(
 
         try {
             NetworkResponse.Success(response.body())
-        } catch (e: SerializationException) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Ktor wraps kotlinx MissingFieldException etc. in JsonConvertException (not a
+            // SerializationException), so catch broadly — a DTO mismatch must not crash the app.
+            Log("SerializationError", e.message.toString())
             NetworkResponse.Error(
                 ErrorDomain(
                     code = response.status.value,

@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FirePercentage(
-    val emi_exclude: Double,
-    val emi_include: Double
+    val emi_include: Double = 0.0,
+    val emi_exclude: Double = 0.0
 )

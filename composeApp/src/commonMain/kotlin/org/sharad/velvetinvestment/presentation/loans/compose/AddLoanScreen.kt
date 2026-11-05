@@ -18,10 +18,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sharad.velvetinvestment.presentation.loans.viewmodel.AddLoanViewModel
-import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
-import org.sharad.velvetinvestment.presentation.onboarding.compose.financialflow.MoneyTextField
-import org.sharad.velvetinvestment.presentation.onboarding.compose.loan.LoanSelectionDropDown
-import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.shared.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.shared.compose.MoneyTextField
+import org.sharad.velvetinvestment.features.fireonboarding.presentation.onboarding.compose.loan.LoanSelectionDropDown
+import org.sharad.velvetinvestment.shared.compose.NextButtonFooter
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.utils.clearFocusOnTap
 
@@ -50,9 +50,9 @@ fun AddLoanScreen(
             .clearFocusOnTap()
     ) {
         BackHeader(
-            heading = if (loanId == null) "Add Loan" else "Edit Loan",
+            title = if (loanId == null) "Add Loan" else "Edit Loan",
             showBack = true,
-            onBackClick = onBack
+            onBack = onBack
         )
 
         LazyColumn(

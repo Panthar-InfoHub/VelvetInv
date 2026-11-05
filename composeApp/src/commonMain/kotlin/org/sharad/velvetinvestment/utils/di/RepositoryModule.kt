@@ -17,6 +17,8 @@ import org.sharad.velvetinvestment.domain.repository.MFKYCRepository
 import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
 import org.sharad.velvetinvestment.domain.repository.UserAuth
 import org.sharad.velvetinvestment.domain.repository.UserFinance
+import org.sharad.velvetinvestment.shared.data.remote.repository.UserDataRepoImpl
+import org.sharad.velvetinvestment.shared.domain.repository.UserDataRepo
 import org.sharad.velvetinvestment.utils.networking.getHttpClient
 import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
@@ -38,5 +40,6 @@ val repositoryModule = module {
     single<FixedDepositRepository> { FixedDepositRepo(get()) }
 
     single<UserAuth> { UserAuthenticationRepo(get(), get(), get()) }
+    single<UserDataRepo> { UserDataRepoImpl(get()) }
     single<MFKYCRepository> { MFKYCRepo(get()) }
 }

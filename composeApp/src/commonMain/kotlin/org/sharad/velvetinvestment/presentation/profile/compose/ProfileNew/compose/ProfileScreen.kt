@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,29 +38,38 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+import org.sharad.emify.core.ui.theme.Orange
 import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.SignOutUseCase
 import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.UImodel.PersonalInfoUiData
+import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.PersonalInfoViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BarHeader
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
+import org.sharad.velvetinvestment.shared.domain.models.OnboardingPrompt
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_icon
+import velvet.composeapp.generated.resources.biometric
 import velvet.composeapp.generated.resources.clipboard
 import velvet.composeapp.generated.resources.fire_icon
 import velvet.composeapp.generated.resources.ic_delete
 import velvet.composeapp.generated.resources.info_icon
 import velvet.composeapp.generated.resources.kyc_icon
 import velvet.composeapp.generated.resources.kyc_person_icon
+import velvet.composeapp.generated.resources.lock_outlined_icon
 import velvet.composeapp.generated.resources.notification_icon
-import velvet.composeapp.generated.resources.profile_icon
 import velvet.composeapp.generated.resources.security
 import velvet.composeapp.generated.resources.signupelement
 import velvet.composeapp.generated.resources.termcondition
@@ -67,7 +77,9 @@ import velvet.composeapp.generated.resources.termcondition
 @Composable
 fun ProfileScreen(
     navigateToNotification: () -> Unit,
-    navigateToPersonalInfo: () -> Unit,
+    navigateToChangePin: () -> Unit = {},
+    navigateToBiometricLogin: () -> Unit = {},
+    /** Opens the KYC onboarding graph (JN `navigateToKYC`). */
     navigateToKYC: () -> Unit = {},
     navigateToPrivacyPolicy: () -> Unit = {},
     navigateToTermsAndConditions: () -> Unit = {},
@@ -75,10 +87,12 @@ fun ProfileScreen(
     navigateToAboutVelvet: () -> Unit = {},
     navigateToAboutFire: () -> Unit = {},
     onSignOut: () -> Unit,
-    viewModel: HomeScreenViewModel
+    viewModel: HomeScreenViewModel,
+    personalInfoViewModel: PersonalInfoViewModel = koinViewModel()
 ) {
 
     val state by viewModel.homeState.collectAsStateWithLifecycle()
+    val personalInfoState by personalInfoViewModel.personalInfoState.collectAsStateWithLifecycle()
     val signOutUseCase = koinInject<SignOutUseCase>()
     val scope = rememberCoroutineScope()
 
@@ -95,19 +109,10 @@ fun ProfileScreen(
                 ProfileTopBar()
             }
 
-            item {
-                BarHeader(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    "Account Setting"
-                )
-            }
-
-            item {
-                AccountSettingsCard(
-                    onPersonalInfoClick = navigateToPersonalInfo
-                )
+            (personalInfoState as? UiState.Success)?.data?.let { info ->
+                item {
+                    ProfileIntroCard(info = info)
+                }
             }
 
             item {
@@ -130,13 +135,29 @@ fun ProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
+                    "Security"
+                )
+            }
+
+            item {
+                SecurityCard(
+                    onChangePinClick = navigateToChangePin,
+                    onBiometricLoginClick = navigateToBiometricLogin
+                )
+            }
+
+            item {
+                BarHeader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     "KYC"
                 )
             }
 
             item {
                 KYCCard(
-                    status = if (data.kycCompletion && data.tradingAccountCompletion) "Verified" else "Pending verification",
+                    onboardingPrompt = data.onboardingPrompt,
                     onKYCClick = navigateToKYC
                 )
             }
@@ -212,34 +233,87 @@ fun ProfileTopBar() {
 //        }
     }
 }
+/** Brief personal-info summary shown at the top of Profile (replaces the Personal Information screen). */
 @Composable
-fun AccountSettingsCard(onPersonalInfoClick: () -> Unit) {
+fun ProfileIntroCard(info: PersonalInfoUiData) {
     ShadowCard(
         modifier = Modifier.padding(horizontal = 16.dp),
     ) {
-        Column(modifier = Modifier)
-        {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(Primary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = info.fullName.initials(),
+                        fontFamily = Poppins,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
+                        color = Color.White
+                    )
+                }
 
-            // Personal Information
-            RowItem(
-                icon = Res.drawable.profile_icon,
-                title = "Personal Information",
-                onCLick = onPersonalInfoClick
-            )
+                Spacer(modifier = Modifier.width(14.dp))
 
-            // Bank Account
-            /*
-            HorizontalDivider(color = Color.LightGray)
-
-            RowItem(
-                icon = Res.drawable.fd_icon,
-                title = "Bank Account",
-                subtitle = "Manage Linked funding sources"
-            )
-            */
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = info.fullName.ifBlank { "Not Provided" },
+                        fontFamily = Poppins,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 17.sp,
+                        color = Primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = info.email.ifBlank { "Not Provided" },
+                        fontFamily = Poppins,
+                        fontSize = 13.sp,
+                        color = titleColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
         }
     }
 }
+
+@Composable
+private fun ProfileIntroField(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        Text(
+            text = label,
+            fontFamily = Poppins,
+            fontSize = 12.sp,
+            color = Color.Gray
+        )
+        Text(
+            text = value.ifBlank { "—" },
+            fontFamily = Poppins,
+            fontWeight = FontWeight.Medium,
+            fontSize = 13.sp,
+            color = Color.Black,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+private fun String.initials(): String =
+    trim().split(Regex("\\s+"))
+        .filter { it.isNotEmpty() }
+        .take(2)
+        .joinToString("") { it.first().uppercase() }
+        .ifEmpty { "?" }
 
 @Composable
 fun PreferencesCard(onNotificationClick: () -> Unit) {
@@ -257,8 +331,36 @@ fun PreferencesCard(onNotificationClick: () -> Unit) {
     }
 }
 
+/** JN settings' "Security" group. */
 @Composable
-fun KYCCard(status: String, onKYCClick: () -> Unit) {
+fun SecurityCard(onChangePinClick: () -> Unit, onBiometricLoginClick: () -> Unit) {
+    ShadowCard(
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        Column(modifier = Modifier) {
+            RowItem(
+                icon = Res.drawable.lock_outlined_icon,
+                title = "Change PIN",
+                onCLick = onChangePinClick
+            )
+
+            HorizontalDivider(color = Color.LightGray)
+
+            RowItem(
+                icon = Res.drawable.biometric,
+                title = "Biometric Login",
+                onCLick = onBiometricLoginClick
+            )
+        }
+    }
+}
+
+/**
+ * JN profile's "KYC Status" row. Same rule as the home KYC card: a KYC under verification is
+ * shown but leads nowhere; a pending or failed status opens the KYC onboarding flow.
+ */
+@Composable
+fun KYCCard(onboardingPrompt: OnboardingPrompt, onKYCClick: () -> Unit) {
     ShadowCard(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
@@ -266,8 +368,23 @@ fun KYCCard(status: String, onKYCClick: () -> Unit) {
             RowItem(
                 icon = Res.drawable.kyc_icon,
                 title = "KYC Status",
-                subtitle = status,
-                onCLick = onKYCClick
+                subtitle = when (onboardingPrompt) {
+                    OnboardingPrompt.NONE -> "Complete"
+                    OnboardingPrompt.KYC_IN_PROGRESS -> "Under Review"
+                    OnboardingPrompt.KYC_FAILED -> "Failed"
+                    OnboardingPrompt.COMPLETE_KYC,
+                    OnboardingPrompt.COMPLETE_REMAINING -> "Pending"
+                },
+                subtitleColor = when (onboardingPrompt) {
+                    OnboardingPrompt.NONE -> appGreen
+                    OnboardingPrompt.KYC_IN_PROGRESS -> Orange
+                    OnboardingPrompt.KYC_FAILED,
+                    OnboardingPrompt.COMPLETE_KYC,
+                    OnboardingPrompt.COMPLETE_REMAINING -> appRed
+                },
+                onCLick = {
+                    if (onboardingPrompt.opensOnboarding) onKYCClick()
+                }
             )
         }
     }
@@ -356,6 +473,7 @@ fun RowItem(
     icon: DrawableResource,
     title: String,
     subtitle: String? = null,
+    subtitleColor: Color = titleColor,
     onCLick: () -> Unit = {}
 ) {
     Row(
@@ -405,7 +523,7 @@ fun RowItem(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         fontFamily = Poppins,
-                        color = titleColor
+                        color = subtitleColor
                     )
                 }
             }

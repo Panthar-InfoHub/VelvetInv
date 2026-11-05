@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
-import org.sharad.velvetinvestment.presentation.firereport.viewmodel.InsuranceFlowDetails
+import org.sharad.velvetinvestment.features.fireonboarding.presentation.firereport.viewmodel.InsuranceFlowDetails
+import org.sharad.velvetinvestment.shared.domain.usecase.GetUserDataUseCase
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.calculateRecommendedHealthInsurance
 import org.sharad.velvetinvestment.utils.calculateRecommendedTermLifeInsurance
@@ -40,30 +40,17 @@ class InsuranceScreenViewModel(
                 .onError { error ->
                     _insuranceInfo.value = UiState.Error(error.message)
                 }
-                .onSuccess { response ->
+                .onSuccess { user ->
 
-                    val data = response.data
-                    val insurance = data.user_insurance
-                    val finance = data.user_finance
-
-                    val annualIncome = finance.annual_income.toDoubleOrNull() ?: 0.0
-                    val monthlyIncome = annualIncome / 12
-
-                    val totalExpenses = listOf(
-                        finance.expense_food,
-                        finance.expense_others,
-                        finance.expense_house,
-                        finance.expense_transportation
-                    ).sumOf { it.toDoubleOrNull() ?: 0.0 }
-
-                    val totalLiabilities = data.user_loan.sumOf {
-                        it.outstanding_amount.toDoubleOrNull() ?: 0.0
-                    }
+                    val monthlyIncome = user.finance?.monthlyIncome ?: 0.0
+                    // Same sum of the four expense heads as before (it was never multiplied by 12).
+                    val totalExpenses = (user.finance?.monthlyExpenses ?: 0L).toDouble()
+                    val totalLiabilities = user.totalLoanOutstanding.toDouble()
 
                     _insuranceInfo.value = UiState.Success(
                         InsuranceFlowDetails(
-                            healthInsurance = insurance.health_insurance.toLong(),
-                            lifeInsurance = insurance.life_insurance.toLong()
+                            healthInsurance = user.insurance?.healthInsurance,
+                            lifeInsurance = user.insurance?.lifeInsurance
                         )
                     )
 

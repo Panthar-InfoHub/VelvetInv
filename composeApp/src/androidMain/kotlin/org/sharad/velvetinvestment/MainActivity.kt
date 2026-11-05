@@ -1,13 +1,14 @@
 package org.sharad.velvetinvestment
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.graphics.Color
 
-class MainActivity : ComponentActivity() {
+// FragmentActivity (a ComponentActivity) because BiometricPrompt needs one — see rememberBiometricAuthenticator.
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(

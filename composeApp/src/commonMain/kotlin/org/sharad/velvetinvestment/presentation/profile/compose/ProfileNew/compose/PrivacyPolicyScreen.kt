@@ -75,7 +75,6 @@ import velvet.composeapp.generated.resources.pp_use_item_8
 import velvet.composeapp.generated.resources.privacy_policy_consent
 import velvet.composeapp.generated.resources.privacy_policy_header
 import velvet.composeapp.generated.resources.privacy_policy_intro
-import velvet.composeapp.generated.resources.privacy_policy_last_updated
 import velvet.composeapp.generated.resources.privacy_policy_title
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -88,9 +87,9 @@ fun PrivacyPolicyScreen(
         modifier = modifier.fillMaxSize()
     ) {
         BackHeader(
-            heading = stringResource(Res.string.privacy_policy_title),
+            title = stringResource(Res.string.privacy_policy_title),
             showBack = true,
-            onBackClick = onBack
+            onBack = onBack
         )
 
         LazyColumn(

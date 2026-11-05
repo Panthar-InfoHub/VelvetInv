@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FireNumber(
-    val emi_exclude: Int,
-    val emi_include: Int
+    val emi_include: Double = 0.0,
+    val emi_exclude: Double = 0.0
 )

@@ -7,18 +7,11 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import org.sharad.velvetinvestment.data.mapper.toDomain
 import org.sharad.velvetinvestment.data.remote.mapper.toDomain
-import org.sharad.velvetinvestment.data.remote.model.addgoals.ChildGoalBodyDto
-import org.sharad.velvetinvestment.data.remote.model.addgoals.RetirementGoalBodyDto
-import org.sharad.velvetinvestment.data.remote.model.addgoals.WealthBuildingGoalBodyDto
 import org.sharad.velvetinvestment.data.remote.model.casreport.RedirectBody
 import org.sharad.velvetinvestment.data.remote.model.fdportfoliobyid.FDPortFolioById
 import org.sharad.velvetinvestment.data.remote.model.fdredirect.FDRedirectDto
 import org.sharad.velvetinvestment.data.remote.model.firereport.FireReportDto
-import org.sharad.velvetinvestment.data.remote.model.goalbyid.GoalByIdDto
-import org.sharad.velvetinvestment.data.remote.model.goalmapping.GoalMapBodyDto
-import org.sharad.velvetinvestment.data.remote.model.goalmapping.UnMapGoalRequestDto
 import org.sharad.velvetinvestment.data.remote.model.loan.SingleLoanDto
 import org.sharad.velvetinvestment.data.remote.model.loan.UpdateLoanRequest
 import org.sharad.velvetinvestment.data.remote.model.onboarding.Loan
@@ -27,8 +20,6 @@ import org.sharad.velvetinvestment.data.remote.model.pendingorders.PendingOrders
 import org.sharad.velvetinvestment.data.remote.model.portfolio.FolioFundsDto
 import org.sharad.velvetinvestment.data.remote.model.portfolio.UserPortFolioDto
 import org.sharad.velvetinvestment.domain.models.fire.FireReportDomain
-import org.sharad.velvetinvestment.domain.models.goals.GoalDomain
-import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
 import org.sharad.velvetinvestment.domain.models.portfolio.FolioFundDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositTransactionDomain
 import org.sharad.velvetinvestment.domain.models.portfolio.PortfolioDomain
@@ -75,86 +66,6 @@ class UserFinanceRepo(
         return safeRequest<ByteArray>{
             client.get(getUrl("/fire-report/pdf")) {
             }
-        }
-    }
-
-    override suspend fun addChildMarriageGoal(goal: GoalRequest.ChildMarriage): NetworkResponse<Unit, ErrorDomain> {
-        val body= ChildGoalBodyDto(
-            child_age = goal.childAge,
-            child_name = goal.childName,
-            current_goal_cost = goal.currentGoalCost,
-            current_saved_amount = goal.currentSavedAmount,
-            goal_type_id = goal.goalTypeId,
-            inflation_rate = goal.inflationRate,
-            return_rate = goal.returnRate,
-            years_left = goal.yearsToGoal
-        )
-        return safeRequest<Unit> {
-            client.post(getUrl("/user-goal")) {
-                setBody(body)
-            }
-        }
-    }
-
-    override suspend fun addChildEducationGoal(goal: GoalRequest.ChildEducation): NetworkResponse<Unit, ErrorDomain> {
-        val body= ChildGoalBodyDto(
-            child_age = goal.childAge,
-            child_name = goal.childName,
-            current_goal_cost = goal.currentGoalCost,
-            current_saved_amount = goal.currentSavedAmount,
-            goal_type_id = goal.goalTypeId,
-            inflation_rate = goal.inflationRate,
-            return_rate = goal.returnRate,
-            years_left = goal.yearsToGoal
-        )
-        return safeRequest<Unit> {
-            client.post(getUrl("/user-goal")) {
-                setBody(body)
-            }
-        }
-    }
-
-    override suspend fun addRetirementGoal(goal: GoalRequest.Retirement): NetworkResponse<Unit, ErrorDomain> {
-        val body= RetirementGoalBodyDto(
-            current_age = goal.currentAge,
-            current_monthly_expense = goal.currentMonthlyExpense,
-            current_saved_amount = goal.currentSavedAmount,
-            goal_type_id = goal.goalTypeId,
-            inflation_rate = goal.inflationRate,
-            life_expectancy = goal.lifeExpectancy,
-            post_retirement_return = goal.postRetirementReturn,
-            retirement_age = goal.retirementAge,
-            return_rate = goal.returnRate
-        )
-        return safeRequest<Unit> {
-            client.post(getUrl("/user-goal")) {
-                setBody(body)
-            }
-        }
-    }
-
-    override suspend fun addWealthBuildingGoal(goal: GoalRequest.WealthBuildingGoal): NetworkResponse<Unit, ErrorDomain> {
-        val body= WealthBuildingGoalBodyDto(
-            current_goal_cost = goal.currentGoalCost,
-            current_saved_amount = goal.currentSavedAmount,
-            goal_item_id = goal.goalItemId,
-            goal_item_name = goal.goalItemName,
-            goal_name = goal.goalName,
-            goal_type_id = goal.goalTypeId,
-            inflation_rate = goal.inflationRate,
-            return_rate = goal.returnRate,
-            years_left = goal.yearsToGoal
-        )
-        return safeRequest<Unit> {
-            client.post(getUrl("/user-goal")) {
-                setBody(body)
-            }
-        }
-    }
-
-    override suspend fun deleteGoal(goalId: String): NetworkResponse<Unit, ErrorDomain> {
-        return safeRequest<Unit> {
-            client.delete(getUrl("/user-goal/$goalId"))
         }
     }
 
@@ -235,37 +146,6 @@ class UserFinanceRepo(
             }
         }
 
-    }
-
-    override suspend fun getGoalById(id: String): NetworkResponse<GoalDomain, ErrorDomain> {
-        val response = safeRequest <GoalByIdDto>{ client.get(getUrl("/user-goal/$id")) }
-        return when(response) {
-            is NetworkResponse.Error -> {
-                NetworkResponse.Error(response.error)
-            }
-
-            is NetworkResponse.Success -> {
-                NetworkResponse.Success(
-                    response.data.data.toDomain()
-                )
-            }
-        }
-    }
-
-    override suspend fun mapGoal(body: GoalMapBodyDto): NetworkResponse<Unit, ErrorDomain> {
-        return safeRequest<Unit> {
-            client.post(getUrl("/user-goal/map")) {
-                setBody(body)
-            }
-        }
-    }
-
-    override suspend fun unMapGoal(goalId: Int): NetworkResponse<Unit, ErrorDomain> {
-        return safeRequest<Unit> {
-            client.delete(getUrl("/user-goal/map-remove")) {
-                setBody(UnMapGoalRequestDto(goalId))
-            }
-        }
     }
 
     override suspend fun deleteSingleLoan(id: String): NetworkResponse<Unit, ErrorDomain> {

@@ -51,6 +51,23 @@ fun formatMoneyAfterL(amount: Long?): String {
 }
 
 
+/**
+ * Rupees with paise ("1,234.50") until the amount reaches a crore, then the lakh/crore short form.
+ * From JN `core/utils/MoneyFuntions.kt`.
+ */
+fun formatMoneyAfterLWithPaise(amount: Double): String =
+    if (round(abs(amount) * 100) >= 10_000_000.0) formatMoneyAfterL(round(amount).toLong())
+    else amount.toTwoDecimals(withCommas = true)
+
+/** Always exactly two decimals ("12.50", "-0.40"), unlike [trimTo], which drops trailing zeros. */
+fun Double.toTwoDecimals(withCommas: Boolean = false): String {
+    val paise = round(abs(this) * 100).toLong()
+    // A value that rounds to zero is shown as "0.00", never "-0.00".
+    val sign = if (this < 0 && paise > 0) "-" else ""
+    val rupees = if (withCommas) formatWithCommas(paise / 100) else (paise / 100).toString()
+    return "$sign$rupees.${(paise % 100).toString().padStart(2, '0')}"
+}
+
 fun formatWithCommas(amount: Long): String {
     val isNegative = amount < 0
     val result = groupDigitsIndian(abs(amount).toString())

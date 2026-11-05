@@ -1,0 +1,436 @@
+package org.sharad.velvetinvestment.features.onboarding.ui.compose
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
+import androidx.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.sharad.emify.core.ui.theme.Black
+import org.sharad.emify.core.ui.theme.Gray444
+import org.sharad.emify.core.ui.theme.GreyBoxDivider
+import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.Secondary
+import org.sharad.emify.core.ui.theme.tagColor
+import org.sharad.velvetinvestment.features.onboarding.domain.model.AccountType
+import org.sharad.velvetinvestment.features.onboarding.ui.compose.ReversePennyDropIntroScreen
+import org.sharad.velvetinvestment.features.onboarding.ui.compose.SelectUpiAppScreen
+import org.sharad.velvetinvestment.features.onboarding.ui.compose.VerifyingPaymentContent
+import org.sharad.velvetinvestment.features.onboarding.ui.formField
+import org.sharad.velvetinvestment.features.onboarding.ui.rememberFormFocusController
+import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.BankAccountDetails
+import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.BankVerificationStep
+import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.VerifyBankAccountEvent
+import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.VerifyBankAccountUiState
+import org.sharad.velvetinvestment.shared.compose.AppBackButton
+import org.sharad.velvetinvestment.shared.compose.AppButton
+import org.sharad.velvetinvestment.shared.compose.AppButtonDefaults
+import org.sharad.velvetinvestment.shared.compose.DropDownSelector
+import org.sharad.velvetinvestment.shared.compose.ErrorScreen
+import org.sharad.velvetinvestment.shared.compose.InvertedAppButton
+import org.sharad.velvetinvestment.shared.compose.TitledAppTextField
+import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.Spacing
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.utils.AppBackHandler
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.check_circle_outline_icon
+import velvet.composeapp.generated.resources.icon_arrow_right
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun VerifyBankAccountScreen(
+    state: VerifyBankAccountUiState,
+    handleEvent: (VerifyBankAccountEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    if (state.showConfirmBankAccountSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                handleEvent(VerifyBankAccountEvent.OnDismissConfirmBankAccountSheet)
+            },
+            sheetState = sheetState,
+            containerColor = White,
+            shape = RoundedCornerShape(topStart = Spacing.dp24, topEnd = Spacing.dp24)
+        ) {
+            ConfirmBankAccountSheetContent(
+                details = state.bankAccountDetails,
+                onConfirm = { handleEvent(VerifyBankAccountEvent.OnConfirmBankAccountClick) },
+                onChange = { handleEvent(VerifyBankAccountEvent.OnChangeBankAccountClick) }
+            )
+        }
+    }
+
+    // Leaving mid-check would drop the confirmation of a payment the user may already have made;
+    // the poll is short, so back simply waits for it to settle.
+    AppBackHandler(enabled = state.step == BankVerificationStep.VERIFYING) {}
+
+    when (state.step) {
+        BankVerificationStep.LOADING -> Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Primary)
+        }
+
+        BankVerificationStep.LOAD_ERROR -> ErrorScreen(
+            errorMessage = state.loadError.orEmpty(),
+            onRetryClick = { handleEvent(VerifyBankAccountEvent.OnRetryLoadClick) },
+            modifier = modifier
+        )
+
+        BankVerificationStep.INTRO -> ReversePennyDropIntroScreen(
+            isInitiating = state.isInitiating,
+            notice = state.introNotice,
+            onVerifyClick = { handleEvent(VerifyBankAccountEvent.OnStartVerificationClick) },
+            onBackClick = { handleEvent(VerifyBankAccountEvent.OnIntroBackClick) },
+            modifier = modifier
+        )
+
+        BankVerificationStep.SELECT_APP -> SelectUpiAppScreen(
+            apps = state.availableApps,
+            canPayByQr = state.canPayByQr,
+            selectedOption = state.selectedPaymentOption,
+            notice = state.paymentNotice,
+            canCheckStatus = state.canCheckPaymentStatus,
+            onOptionSelected = { handleEvent(VerifyBankAccountEvent.OnPaymentOptionSelected(it)) },
+            onPayClick = { handleEvent(VerifyBankAccountEvent.OnPayClick) },
+            onCheckStatusClick = { handleEvent(VerifyBankAccountEvent.OnCheckPaymentStatusClick) },
+            onBackClick = { handleEvent(VerifyBankAccountEvent.OnSelectAppBackClick) },
+            appLinkToOpen = state.appLinkToOpen,
+            awaitingAppReturn = state.awaitingAppReturn,
+            onAppLinkOpening = { handleEvent(VerifyBankAccountEvent.OnAppLinkOpening) },
+            onAppLinkNotOpened = { handleEvent(VerifyBankAccountEvent.OnAppLinkNotOpened) },
+            onReturnedFromApp = { handleEvent(VerifyBankAccountEvent.OnReturnedFromUpiApp(it)) },
+            onFormSwitch = { handleEvent(VerifyBankAccountEvent.SwitchToForm) },
+            modifier = modifier
+        )
+
+        BankVerificationStep.VERIFYING -> VerifyingPaymentContent(modifier = modifier)
+
+        BankVerificationStep.FORM -> BankDetailsForm(
+            state = state,
+            handleEvent = handleEvent,
+            modifier = modifier
+        )
+    }
+}
+
+private const val ACCOUNT_TYPE_FIELD = "account_type"
+
+/**
+ * The bank details form, reached once the details are known. Back — the header's or the system's —
+ * returns to the intro rather than leaving the step, so the user can verify another account.
+ */
+@Composable
+private fun BankDetailsForm(
+    state: VerifyBankAccountUiState,
+    handleEvent: (VerifyBankAccountEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val onBackClick = { handleEvent(VerifyBankAccountEvent.OnFormBackClick) }
+    AppBackHandler(enabled = true, onBack = onBackClick)
+
+    val form = rememberFormFocusController()
+    val accountNumberFocus = remember { FocusRequester() }
+    val ifscCodeFocus = remember { FocusRequester() }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(White)
+            .clearFocusOnTap()
+            .imePadding()
+    ) {
+        AppBackButton(
+            onClick = onBackClick,
+            modifier = Modifier.padding(horizontal = Spacing.dp24),
+        )
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.dp24),
+            verticalArrangement = Arrangement.spacedBy(Spacing.dp18),
+            contentPadding = PaddingValues(top = Spacing.dp4)
+        ) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.dp12)) {
+                    Text(
+                        text = "Bank Details",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Black,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = "Enter your bank account details to securely receive payments and complete your financial information",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Gray444,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            item {
+                TitledAppTextField(
+                    title = "Bank Name",
+                    value = state.bankName,
+                    onValueChange = { handleEvent(VerifyBankAccountEvent.OnBankNameChange(it.toUpperCase(Locale.current))) },
+                    placeholder = "",
+                    mandatory = true,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    ),
+                    // Account type is a dropdown, so Next closes the keyboard and points at it.
+                    keyboardActions = KeyboardActions(onNext = { form.highlight(ACCOUNT_TYPE_FIELD) }),
+                    modifier = Modifier.formField(form)
+                )
+            }
+
+            item {
+                DropDownSelector(
+                    title = "Account Type",
+                    value = state.accountType?.id.orEmpty(),
+                    onValueChange = {
+                        handleEvent(VerifyBankAccountEvent.OnAccountTypeChange(it))
+                        form.clearHighlight()
+                    },
+                    placeholder = "Select Type",
+                    mandatory = true,
+                    list = AccountType.entries,
+                    textConvertor = { it.id.capitalize(Locale.current) },
+                    highlighted = form.isHighlighted(ACCOUNT_TYPE_FIELD)
+                )
+            }
+
+            item {
+                TitledAppTextField(
+                    title = "Account Holder",
+                    value = state.accountHolder,
+                    onValueChange = { handleEvent(VerifyBankAccountEvent.OnAccountHolderChange(it.toUpperCase(Locale.current))) },
+                    placeholder = "",
+                    mandatory = true,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(onNext = { form.focus(accountNumberFocus) }),
+                    modifier = Modifier.formField(form)
+                )
+            }
+
+            item {
+                TitledAppTextField(
+                    title = "Account Number",
+                    value = state.accountNumber,
+                    onValueChange = { handleEvent(VerifyBankAccountEvent.OnAccountNumberChange(it)) },
+                    placeholder = "",
+                    mandatory = true,
+                    keyboardType = KeyboardType.Number,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(onNext = { form.focus(ifscCodeFocus) }),
+                    modifier = Modifier.formField(form, accountNumberFocus)
+                )
+            }
+
+            item {
+                TitledAppTextField(
+                    title = "IFSC Code",
+                    value = state.ifscCode,
+                    onValueChange = { handleEvent(VerifyBankAccountEvent.OnIfscCodeChange(it)) },
+                    placeholder = "",
+                    mandatory = true,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Characters,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(onDone = {
+                        form.submit(state.canSubmit && !state.isLoading) {
+                            handleEvent(VerifyBankAccountEvent.OnProceedClick)
+                        }
+                    }),
+                    modifier = Modifier.formField(form, ifscCodeFocus)
+                )
+            }
+        }
+        AppButton(
+            text = "Confirm & Proceed",
+            onClick = { handleEvent(VerifyBankAccountEvent.OnProceedClick) },
+            loading = state.isLoading,
+            enabled = state.canSubmit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.dp24)
+                .padding(top = Spacing.dp24)
+                .genericDropShadow()
+        )
+    }
+}
+
+@Composable
+private fun ConfirmBankAccountSheetContent(
+    details: BankAccountDetails,
+    onConfirm: () -> Unit,
+    onChange: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                start = Spacing.dp24,
+                end = Spacing.dp24,
+                bottom = Spacing.dp32
+            ),
+        verticalArrangement = Arrangement.spacedBy(Spacing.dp24)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(Spacing.dp16),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(Spacing.dp48)
+                    .clip(CircleShape)
+                    .background(tagColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.check_circle_outline_icon),
+                    contentDescription = "Confirm Icon",
+                    tint = Primary,
+                    modifier = Modifier.size(Spacing.dp24)
+                )
+            }
+            Text(
+                text = "Confirm bank account",
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                color = Black
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(Spacing.dp16))
+                .border(
+                    width = Spacing.dp1,
+                    color = Secondary,
+                    shape = RoundedCornerShape(Spacing.dp16)
+                )
+                .padding(horizontal = Spacing.dp20)
+        ) {
+            BankDetailRow(label = "Bank Name", value = details.bankName)
+            HorizontalDivider(thickness = Spacing.dp1, color = GreyBoxDivider)
+            BankDetailRow(label = "Account Holder", value = details.accountHolder)
+            HorizontalDivider(thickness = Spacing.dp1, color = GreyBoxDivider)
+            BankDetailRow(label = "Account Number", value = details.maskedAccountNumber)
+            HorizontalDivider(thickness = Spacing.dp1, color = GreyBoxDivider)
+            BankDetailRow(label = "IFSC code", value = details.ifscCode)
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.dp16)) {
+            AppButton(
+                text = "Confirm",
+                onClick = onConfirm,
+                style = AppButtonDefaults.style(height = Spacing.dp58),
+                trailingIcon = Res.drawable.icon_arrow_right,
+                modifier = Modifier.fillMaxWidth()
+            )
+            InvertedAppButton(
+                text = "Change",
+                onClick = onChange,
+                style = AppButtonDefaults.style(
+                    containerColor = White,
+                    contentColor = Secondary,
+                    height = Spacing.dp58
+                ),
+                trailingIcon = Res.drawable.icon_arrow_right,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+private fun BankDetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = Spacing.dp16),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.dp16),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = Black
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            color = Secondary,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Preview(showBackground = true, locale = "hi")
+@Composable
+private fun VerifyBankAccountScreenPreview() {
+    VelvetTheme {
+        VerifyBankAccountScreen(
+            state = VerifyBankAccountUiState(step = BankVerificationStep.FORM),
+            handleEvent = {}
+        )
+    }
+}

@@ -5,10 +5,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,15 +24,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
-import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.shared.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.shared.compose.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.DropDownSelector
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.utils.tradingaccount.Country
-import org.sharad.velvetinvestment.utils.tradingaccount.InvestorOnboarding
 import org.sharad.velvetinvestment.utils.tradingaccount.KycType
 import org.sharad.velvetinvestment.utils.tradingaccount.StateCode
 import org.sharad.velvetinvestment.utils.tradingaccount.TaxStatus
@@ -56,7 +53,7 @@ fun TradingAccountAddressScreen(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = { onBackClick() },
+            onBack = { onBackClick() },
             rightContent = {
                 Text(
                     text = "Step 5/5",

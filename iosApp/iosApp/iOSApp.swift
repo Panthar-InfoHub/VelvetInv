@@ -1,206 +1,101 @@
 import SwiftUI
 import UIKit
 import FirebaseCore
+import FirebaseInstallations
 import FirebaseMessaging
 import UserNotifications
+import ComposeApp
 
-class AppDelegate: NSObject,
-                   UIApplicationDelegate,
-                   MessagingDelegate,
-                   UNUserNotificationCenterDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
 
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-
-        print("========================================")
-        print("🚀 APP LAUNCHED")
-        print("========================================")
-
-        print("Bundle Identifier:")
-        print(Bundle.main.bundleIdentifier ?? "nil")
-
-        print("Firebase plist exists:")
-        print(Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") ?? "NOT FOUND")
-
         FirebaseApp.configure()
-
-        print("Firebase configured:")
-        print(FirebaseApp.app() != nil)
-
-        if let options = FirebaseApp.app()?.options {
-            print("Google App ID:")
-            print(options.googleAppID)
-
-            print("Project ID:")
-            print(options.projectID)
-
-            print("GCM Sender ID:")
-            print(options.gcmSenderID)
-        }
 
         Messaging.messaging().delegate = self
         UNUserNotificationCenter.current().delegate = self
 
-        print("Current notification settings...")
-
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            print("-----------------------------")
-            print("Authorization Status:")
-            print(settings.authorizationStatus.rawValue)
-            print("Alert:")
-            print(settings.alertSetting.rawValue)
-            print("Badge:")
-            print(settings.badgeSetting.rawValue)
-            print("Sound:")
-            print(settings.soundSetting.rawValue)
-            print("-----------------------------")
-        }
-
-        print("Requesting notification permission...")
-
         UNUserNotificationCenter.current().requestAuthorization(
             options: [.alert, .badge, .sound]
-        ) { granted, error in
-
-            DispatchQueue.main.async {
-
-                print("Permission callback invoked")
-
-                if let error = error {
-                    print("Permission error:")
-                    print(error)
-                    return
-                }
-
-                print("Permission granted:")
-                print(granted)
-
-                if granted {
-                    print("Calling registerForRemoteNotifications()")
-                    application.registerForRemoteNotifications()
-                    print("registerForRemoteNotifications() returned")
-                } else {
-                    print("Permission denied")
-                }
+        ) { _, error in
+            if let error {
+                print("Notification permission request failed: \(error)")
             }
         }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-
-            print("----- Delayed FCM request -----")
-
-            Messaging.messaging().token { token, error in
-
-                if let error = error {
-                    print(error)
-                }
-
-                print("Delayed token:")
-                print(token ?? "nil")
-            }
-        }
+        application.registerForRemoteNotifications()
 
         return true
     }
 
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        print("applicationDidBecomeActive")
-    }
-
-    func applicationWillResignActive(_ application: UIApplication) {
-        print("applicationWillResignActive")
-    }
-
+    /**
+     * SwiftUI apps don't get Firebase's app delegate swizzling (FirebaseAppDelegateProxyEnabled is
+     * off), so the APNs token is handed to FCM here. Without it FCM never registers the
+     * installation ID, and sends fail with UNREGISTERED.
+     */
     func application(
         _ application: UIApplication,
-        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Foundation.Data
     ) {
-
-        print("===================================")
-        print("APNS REGISTRATION SUCCESS")
-        print("===================================")
-
-        let token = deviceToken.map {
-            String(format: "%02x", $0)
-        }.joined()
-
-        print("APNS TOKEN:")
-        print(token)
-
         Messaging.messaging().apnsToken = deviceToken
-
-        print("Assigned APNS token to Firebase")
-
-        Messaging.messaging().token { token, error in
-
-            print("FCM completion invoked")
-
-            if let error = error {
-                print("FCM ERROR:")
-                print(error)
-            }
-
-            print("FCM TOKEN:")
-            print(token ?? "nil")
-        }
     }
 
     func application(
         _ application: UIApplication,
-        didFailToRegisterForRemoteNotificationsWithError error: Error
+        didFailToRegisterForRemoteNotificationsWithError error: Swift.Error
     ) {
-
-        print("===================================")
-        print("APNS REGISTRATION FAILED")
-        print("===================================")
-        print(error)
+        print("APNs registration failed: \(error)")
     }
 
-    func messaging(
-        _ messaging: Messaging,
-        didReceiveRegistrationToken fcmToken: String?
-    ) {
-
-        print("===================================")
-        print("MESSAGING DELEGATE")
-        print("===================================")
-        print("Token:")
-        print(fcmToken ?? "nil")
+    /**
+     * FCM registers this app instance by its Firebase Installation ID (FirebaseMessagingInstallationIdEnabled
+     * in Info.plist). The backend receives the same ID at login, through FirebaseInstallationIdBridge.
+     */
+    func messaging(_ messaging: Messaging, didReceiveRegistration installationId: String?) {
+        print("FCM registered with installation ID: \(installationId ?? "nil")")
     }
 
+    /** Shows notifications that arrive while the app is open, instead of dropping them. */
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-
-        print("📩 Foreground notification received")
-        print(notification.request.content.userInfo)
-
+        PushNotificationHandler.shared.onPushReceived(
+            txn: notification.request.content.userInfo["txn"] as? String
+        )
         completionHandler([.banner, .sound, .badge])
     }
 
+    /** A tap on a notification that arrived while the app was in the background. */
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-
-        print("👆 Notification tapped")
-        print(response.notification.request.content.userInfo)
-
+        PushNotificationHandler.shared.onPushReceived(
+            txn: response.notification.request.content.userInfo["txn"] as? String
+        )
         completionHandler()
     }
+}
 
+/** Hands the Firebase Installation ID to the shared code, which sends it to the backend at login. */
+final class FirebaseInstallationIdBridge: NSObject, FirebaseInstallationIdProvider {
+    func fetchInstallationId(onResult: @escaping (String?) -> Void) {
+        Installations.installations().installationID { id, error in
+            if let error {
+                print("Firebase installation ID fetch failed: \(error)")
+            }
+            onResult(id)
+        }
+    }
 }
 
 @main
 struct iOSApp: App {
-
-    @UIApplicationDelegateAdaptor(AppDelegate.self)
-    var delegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     var body: some Scene {
         WindowGroup {

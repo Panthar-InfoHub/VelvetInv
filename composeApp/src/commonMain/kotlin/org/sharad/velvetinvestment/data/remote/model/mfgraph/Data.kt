@@ -2,14 +2,10 @@ package org.sharad.velvetinvestment.data.remote.model.mfgraph
 
 import kotlinx.serialization.Serializable
 
+/** One NAV point from `/mf/history/{id}`. */
 @Serializable
 data class Data(
-    val createdAt: String,
-    val daily_change: Double?,
-    val id: String,
-    val mf_product_id: String,
-    val nav: String,
-    val nav_date: String,
-    val scheme_id: String,
-    val updatedAt: String
+    val nav: String = "0",
+    val nav_date: String = "",
+    val daily_change: Double? = null
 )

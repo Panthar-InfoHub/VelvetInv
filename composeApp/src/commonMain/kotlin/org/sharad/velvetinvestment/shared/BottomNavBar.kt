@@ -32,6 +32,7 @@ import org.sharad.velvetinvestment.shared.theme.Poppins
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.nav_icon_full_screener
 import velvet.composeapp.generated.resources.nav_icon_home
+import velvet.composeapp.generated.resources.nav_ic_bundle
 import velvet.composeapp.generated.resources.nav_icon_incurance
 import velvet.composeapp.generated.resources.nav_icon_portfolio
 import velvet.composeapp.generated.resources.nav_icon_profile
@@ -42,10 +43,10 @@ fun BottomNavBar(
     currentDestination: NavDestination?,
     onNavigate: (Any) -> Unit
 ) {
-    val bottomBarItems = listOf(Route.Home, Route.FundScreener, Route.PortFolio, Route.Insurance, Route.Profile)
-    val itemsLabels= listOf("Home","Fund Screener","Portfolio", "Insurance","Profile")
+    val bottomBarItems = listOf(Route.Home, Route.FundScreener, Route.AllBundleScreen, Route.PortFolio, Route.Profile)
+    val itemsLabels= listOf("Home","Fund Screener","Bundles","Portfolio","Profile")
     val icons= listOf(Res.drawable.nav_icon_home,
-        Res.drawable.nav_icon_full_screener,Res.drawable.nav_icon_portfolio,Res.drawable.nav_icon_incurance,Res.drawable.nav_icon_profile)
+        Res.drawable.nav_icon_full_screener,Res.drawable.nav_ic_bundle,Res.drawable.nav_icon_portfolio,Res.drawable.nav_icon_profile)
 
     Box(modifier=Modifier.fillMaxWidth()
         .dropShadow(

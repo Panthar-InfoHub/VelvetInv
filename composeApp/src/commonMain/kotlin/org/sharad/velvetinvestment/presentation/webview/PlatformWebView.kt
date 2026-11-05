@@ -7,5 +7,6 @@ import androidx.compose.ui.Modifier
 expect fun PlatformWebView(
     state: WebViewState,
     modifier: Modifier,
-    onUrlChanged: (String) -> Unit
+    onUrlChanged: (String) -> Unit,
+    onExternalAppUrl: ((String) -> Unit)? = null
 )

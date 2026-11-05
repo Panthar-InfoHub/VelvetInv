@@ -83,9 +83,9 @@ fun InvestmentRateScreen(
         containerColor = Color(0xffF8F9FB),
         topBar = {
             BackHeader(
-                heading = "Saving pattern",
+                title = "Saving pattern",
                 showBack = true,
-                onBackClick = onBackClick,
+                onBack = onBackClick,
                 modifier = Modifier.fillMaxWidth().background(Color.White)
             )
         }

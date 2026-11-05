@@ -1,0 +1,81 @@
+package org.sharad.velvetinvestment.features.plans.domain.repository
+
+import org.sharad.velvetinvestment.features.plans.domain.model.MandateOption
+import org.sharad.velvetinvestment.features.plans.domain.model.MfPurchase
+import org.sharad.velvetinvestment.features.plans.domain.model.MfPurchaseConfirmation
+import org.sharad.velvetinvestment.features.plans.domain.model.PurchasePlan
+import org.sharad.velvetinvestment.features.plans.domain.model.SchemePlan
+import org.sharad.velvetinvestment.utils.networking.ErrorDomain
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+
+interface PlansRepo {
+
+    /**
+     * A single scheme by ISIN. This is what the purchase screen loads: its thresholds decide the
+     * minimum amount, the debit days and which of the three purchase modes are offered at all.
+     */
+    suspend fun getSchemePlan(isin: String): NetworkResponse<SchemePlan, ErrorDomain>
+
+    /**
+     * Registers the SIP against a product id rather than an ISIN. [installmentDay] is required
+     * for a monthly SIP and must be null for a daily one — the two send different bodies.
+     *
+     * [mandateId] is the autopay mandate the installments are debited against; every SIP is
+     * created against one, which is why it is not optional.
+     */
+    suspend fun createSipPlan(
+        mfProductId: String,
+        amount: Int,
+        frequency: String,
+        installmentDay: Int?,
+        mandateId: String,
+        folioNumber: String
+    ): NetworkResponse<PurchasePlan, ErrorDomain>
+
+    /** Every SIP registration the user has, newest state included. */
+    suspend fun getPurchasePlans(): NetworkResponse<List<PurchasePlan>, ErrorDomain>
+
+    /** Reads back a single plan by its gateway id, after creation and before confirming it. */
+    suspend fun getPurchasePlan(planId: String): NetworkResponse<PurchasePlan, ErrorDomain>
+
+    /**
+     * Stops a running SIP. The gateway requires one of its own cancellation codes rather than
+     * free text, so the caller picks from `SipCancellationReason`.
+     */
+    suspend fun cancelPurchasePlan(
+        planId: String,
+        cancellationCode: String
+    ): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun requestPurchasePlanOtp(planId: String): NetworkResponse<Unit, ErrorDomain>
+
+    suspend fun verifyPurchasePlanOtp(
+        planId: String,
+        otp: String
+    ): NetworkResponse<PurchasePlan, ErrorDomain>
+
+    // ── One-time (lumpsum) purchase ──────────────────────────────────────────────────────────
+    // Same create → read-back → OTP sequence as a SIP, on its own set of endpoints.
+
+    suspend fun createMfPurchase(
+        mfProductId: String,
+        amount: Int,
+        folioNumber: String
+    ): NetworkResponse<MfPurchase, ErrorDomain>
+
+    suspend fun getMfPurchase(purchaseId: String): NetworkResponse<MfPurchase, ErrorDomain>
+
+    suspend fun requestMfPurchaseOtp(purchaseId: String): NetworkResponse<Unit, ErrorDomain>
+
+    /**
+     * Authorises the purchase. The response carries the payment link the user still has to
+     * complete — confirming is not paying.
+     */
+    suspend fun verifyMfPurchaseOtp(
+        purchaseId: String,
+        otp: String
+    ): NetworkResponse<MfPurchaseConfirmation, ErrorDomain>
+
+    /** Autopay mandates the SIP can be debited against. */
+    suspend fun getMandates(): NetworkResponse<List<MandateOption>, ErrorDomain>
+}

@@ -1,24 +1,20 @@
 package org.sharad.velvetinvestment.domain.repository
 
-import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenDto
+import org.sharad.velvetinvestment.features.login.data.models.auth.tokens.RefreshTokenDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
 import org.sharad.velvetinvestment.domain.models.notifications.NotificationDomain
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
-import org.sharad.velvetinvestment.data.remote.model.updateuserdata.GoalsUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.InsuranceUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.LoanUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.ProfileUpdateDto
-import org.sharad.velvetinvestment.data.remote.model.useedata.UserDataDto
-import org.sharad.velvetinvestment.domain.models.auth.LoginDomain
 import org.sharad.velvetinvestment.domain.models.tradingaccount.TradingAccountFormDomain
 import org.sharad.velvetinvestment.domain.models.user.PANVerifyDomain
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.shared.data.remote.model.userdata.UserDataDto
 
 interface UserAuth {
-    suspend fun loginWithNumber(number: String): NetworkResponse<Unit, ErrorDomain>
-    suspend fun verifyOTP(number: String,otp:String): NetworkResponse<LoginDomain, ErrorDomain>
 //    suspend fun loginWithPassword(userId: String, password: String): NetworkResponse<Unit, ErrorDomain>
     suspend fun signOut(): NetworkResponse<Unit, ErrorDomain>
 
@@ -34,8 +30,6 @@ interface UserAuth {
     suspend fun updateLoans(data: LoanUpdateDto): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun updateProfile(data: ProfileUpdateDto): NetworkResponse<Unit, ErrorDomain>
-
-    suspend fun updateGoals(data: GoalsUpdateDto): NetworkResponse<Unit, ErrorDomain>
 
     suspend fun getNotifications(): NetworkResponse<List<NotificationDomain>, ErrorDomain>
 
