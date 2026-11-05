@@ -17,6 +17,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 
@@ -449,3 +450,37 @@ fun String.decrementSlashDateYearYear(): String = runCatching {
         .format(slashDateFormat)
 
 }.getOrDefault(this)
+
+@OptIn(ExperimentalTime::class)
+fun formatMillisToIsoDate(millis: Long?): String {
+    if (millis == null) return ""
+    val date = Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.UTC).date
+    return "${date.year.toString().padStart(4, '0')}-" +
+            "${date.month.number.toString().padStart(2, '0')}-" +
+            date.day.toString().padStart(2, '0')
+}
+
+@OptIn(ExperimentalTime::class)
+fun formatMillisToDisplayDate(millis: Long?): String {
+    if (millis == null) return ""
+
+    val date = Instant
+        .fromEpochMilliseconds(millis)
+        .toLocalDateTime(TimeZone.UTC)
+        .date
+
+    val month = date.month.name
+        .take(3)
+        .uppercase()
+
+    return "${date.day.toString().padStart(2, '0')}-$month-${date.year}"
+}
+
+fun String.isoUtcToIsoDate(): String = try {
+    val date = Instant.parse(this).toLocalDateTime(TimeZone.UTC).date
+    "${date.year.toString().padStart(4, '0')}-" +
+            "${date.month.number.toString().padStart(2, '0')}-" +
+            date.day.toString().padStart(2, '0')
+} catch (_: Exception) {
+    this
+}

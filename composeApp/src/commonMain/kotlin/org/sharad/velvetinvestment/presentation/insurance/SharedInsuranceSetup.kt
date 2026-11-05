@@ -63,7 +63,7 @@ fun SharedInsuranceScreen(
     Column(
         modifier=Modifier.fillMaxSize()
     ) {
-        BackHeader(heading=heading, showBack = true, onBackClick = onBack)
+        BackHeader(title=heading, showBack = true, onBack = onBack)
         LazyColumn(
             modifier=Modifier.weight(1f).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),

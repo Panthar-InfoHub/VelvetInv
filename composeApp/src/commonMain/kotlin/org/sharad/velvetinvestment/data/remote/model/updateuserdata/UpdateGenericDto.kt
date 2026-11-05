@@ -22,6 +22,3 @@ data class LoanUpdateDto(val loans: List<Loan>)
 
 @Serializable
 data class ProfileUpdateDto(val profile: Profile)
-
-@Serializable
-data class GoalsUpdateDto(val goals: List<JsonElement>)

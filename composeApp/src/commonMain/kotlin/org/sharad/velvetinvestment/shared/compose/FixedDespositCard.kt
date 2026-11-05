@@ -30,7 +30,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.appOrange
 import org.sharad.emify.core.ui.theme.darkBlue
 import org.sharad.velvetinvestment.domain.models.portfolio.FixedDepositPortfolioDomain
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundIcon
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins

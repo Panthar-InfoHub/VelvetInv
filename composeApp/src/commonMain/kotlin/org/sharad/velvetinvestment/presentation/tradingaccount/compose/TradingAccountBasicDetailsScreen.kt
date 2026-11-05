@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.sharad.emify.core.ui.theme.goldenColor
-import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
-import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.shared.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.shared.compose.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.DropDownSelector
 import org.sharad.velvetinvestment.shared.UiStateContainer
@@ -58,7 +58,7 @@ fun TradingAccountBasicDetailsScreen(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = { onBackClick() },
+            onBack = { onBackClick() },
             rightContent = {
                 Text(
                     text = "Step 1/5",

@@ -3,7 +3,7 @@ package org.sharad.velvetinvestment.data.remote.mapper
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.encodeToJsonElement
-import org.sharad.velvetinvestment.domain.models.goals.GoalRequest
+import org.sharad.velvetinvestment.features.fireonboarding.presentation.onboarding.models.GoalRequest
 import org.sharad.velvetinvestment.data.remote.model.onboarding.*
 
 fun GoalRequest.toDto(): GoalRequestDto {

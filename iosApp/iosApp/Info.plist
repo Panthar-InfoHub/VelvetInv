@@ -11,9 +11,17 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
     <key>FirebaseAppDelegateProxyEnabled</key>
+    <false/>
+    <key>FirebaseMessagingInstallationIdEnabled</key>
     <true/>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Your location is recorded once with your KYC profile, as required by SEBI onboarding regulations.</string>
 
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Allow access to photos so users can upload images inside the app.</string>
+
+    <key>NSFaceIDUsageDescription</key>
+    <string>Use Face ID to unlock Velvet instead of typing your PIN.</string>
 </dict>
 </plist>

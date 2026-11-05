@@ -75,9 +75,9 @@ fun AboutFireScreen(
         containerColor = Color.White,
         topBar = {
             BackHeader(
-                heading = "About F.I.R.E. Report",
+                title = "About F.I.R.E. Report",
                 showBack = true,
-                onBackClick = onBack
+                onBack = onBack
             )
         }
     ) { paddingValues ->

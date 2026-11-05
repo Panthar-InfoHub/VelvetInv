@@ -43,8 +43,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.velvetinvestment.domain.models.tradingaccount.Data
-import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
-import org.sharad.velvetinvestment.presentation.onboarding.compose.personaldetails.NextButtonFooter
+import org.sharad.velvetinvestment.shared.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.shared.compose.NextButtonFooter
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
 import org.sharad.velvetinvestment.shared.DropDownSelector
 import org.sharad.velvetinvestment.shared.UiStateContainer
@@ -73,7 +73,7 @@ fun TradingAccountBankDetailsScreen(
         BackHeader(
             "Trading account",
             showBack = true,
-            onBackClick = { onBackClick() },
+            onBack = { onBackClick() },
             rightContent = {
                 Text(
                     text = "Step 4/5",

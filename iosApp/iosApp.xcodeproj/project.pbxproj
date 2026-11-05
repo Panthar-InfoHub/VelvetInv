@@ -10,6 +10,7 @@
 		EE9EDFD92FFBD24C00B2CA5B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EE9EDFD82FFBD24C00B2CA5B /* GoogleService-Info.plist */; };
 		EE9EDFDE2FFBD75600B2CA5B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = EE9EDFDD2FFBD75600B2CA5B /* FirebaseCore */; };
 		EE9EDFE02FFBD76000B2CA5B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = EE9EDFDF2FFBD76000B2CA5B /* FirebaseMessaging */; };
+		EE9EDFE22FFBD77000B2CA5B /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = EE9EDFE12FFBD77000B2CA5B /* FirebaseInstallations */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE9EDFE02FFBD76000B2CA5B /* FirebaseMessaging in Frameworks */,
+				EE9EDFE22FFBD77000B2CA5B /* FirebaseInstallations in Frameworks */,
 				EE9EDFDE2FFBD75600B2CA5B /* FirebaseCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -106,6 +108,7 @@
 			packageProductDependencies = (
 				EE9EDFDD2FFBD75600B2CA5B /* FirebaseCore */,
 				EE9EDFDF2FFBD76000B2CA5B /* FirebaseMessaging */,
+				EE9EDFE12FFBD77000B2CA5B /* FirebaseInstallations */,
 			);
 			productName = iosApp;
 			productReference = 1D675E1209F79BB9AF36D1CE /* Velvet.app */;
@@ -459,6 +462,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EE9EDFDB2FFBD4A600B2CA5B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		EE9EDFE12FFBD77000B2CA5B /* FirebaseInstallations */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EE9EDFDB2FFBD4A600B2CA5B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseInstallations;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

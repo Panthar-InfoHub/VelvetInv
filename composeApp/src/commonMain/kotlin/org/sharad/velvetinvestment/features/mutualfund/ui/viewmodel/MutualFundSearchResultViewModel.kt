@@ -1,0 +1,389 @@
+package org.sharad.velvetinvestment.features.mutualfund.ui.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundDomain
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.SelectedReturnRatePeriod
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.forPeriod
+import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.InvestmentFilter
+import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.MfFilterIds
+import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.createInitialInvestmentFilter
+import org.sharad.velvetinvestment.utils.networking.onError
+import org.sharad.velvetinvestment.utils.networking.onSuccess
+import org.sharad.velvetinvestment.utils.LoadingState
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.features.core.utils.AmountTypeLabel
+import org.sharad.velvetinvestment.features.core.utils.LabelFilter
+import org.sharad.velvetinvestment.features.core.utils.MutualFundLabel
+import org.sharad.velvetinvestment.features.mutualfund.domain.usecases.GetMutualFundSearchResultUseCase
+import org.sharad.velvetinvestment.features.bundles.domain.models.BundleSummaryDomain
+import org.sharad.velvetinvestment.features.bundles.domain.usecases.GetAllBundlesUseCase
+
+/**
+ * Backs the fund list.
+ *
+ * The filter tray is the single source of truth for what is queried: the route's own [tag],
+ * [category] and [amountType] are folded into the initial tray state rather than kept beside it,
+ * so a screen opened pre-filtered — the daily/monthly SIP cards on home, a category tile — shows
+ * that filter as selected and clearing it behaves like clearing any other.
+ *
+ * [investmentMode] is the exception: it has no chip or tray group, so it is fixed for the screen's
+ * lifetime and survives clearing the tray. Only the bundle explore list sets it.
+ *
+ * The recommended bundles above the chips load on their own, beside the funds, and only when
+ * [investmentMode] is null — the bundle explore list is already inside a bundle.
+ */
+class MutualFundSearchResultViewModel(
+    private val search: String?,
+    tag: String?,
+    category: String?,
+    amountType: String?,
+    private val investmentMode: String?,
+    private val getMutualFundSearchResultUseCase: GetMutualFundSearchResultUseCase,
+    private val getAllBundlesUseCase: GetAllBundlesUseCase
+) : ViewModel() {
+
+    private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Loading)
+    val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
+
+    /**
+     * The results as blocks rather than one list, each block ranked within itself.
+     *
+     * A page that arrives from pagination is ranked on its own and parked after what is already
+     * on screen instead of being merged into it. Merging would scatter the new funds through a
+     * list the user has already scrolled, moving rows out from under them; kept as a block, the
+     * new arrivals read as exactly that. The blocks collapse into one on the next period change,
+     * which re-ranks everything together.
+     */
+    private val _fundPages = MutableStateFlow<List<List<MutualFundDomain>>>(emptyList())
+
+    private val _selectedYear =
+        MutableStateFlow<SelectedReturnRatePeriod>(SelectedReturnRatePeriod.ONE_YEAR)
+    val selectedYear = _selectedYear.asStateFlow()
+
+    /** Every block in arrival order, which is the order the list renders in. */
+    val sortedFunds: StateFlow<List<MutualFundDomain>> = _fundPages
+        .map { pages -> pages.flatten() }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
+
+    private val _filterState = MutableStateFlow(
+        createInitialInvestmentFilter().withSelections(
+            MfFilterIds.TAG to tag,
+            MfFilterIds.CATEGORY to category,
+            MfFilterIds.AMOUNT_TYPE to amountType
+        )
+    )
+    val filterState: StateFlow<InvestmentFilter> = _filterState
+
+    /**
+     * The chips that read as on. Tag and amount type are separate query parameters, so both can
+     * be lit at once — a single "selected filter" could not express that.
+     */
+    private val _selectedChipIds = MutableStateFlow(_filterState.value.toSelectedChipIds())
+    val selectedChipIds: StateFlow<Set<String>> = _selectedChipIds
+
+    /** Stands in for a tray selection no chip covers; null when the chips say it all. */
+    private val _customFilter = MutableStateFlow(_filterState.value.toCustomChipLabel())
+    val customFilter: StateFlow<LabelFilter?> = _customFilter
+
+    private val _showFilterScreen = MutableStateFlow(false)
+    val showFilterScreen: StateFlow<Boolean> = _showFilterScreen
+
+    /** Total the header reports, which is the server's count and not the page in hand. */
+    private val _totalFunds = MutableStateFlow(0)
+    val totalFunds = _totalFunds.asStateFlow()
+
+    private var currentPage = 1
+    private var _hasNextPage = MutableStateFlow(true)
+    val hasNextPage = _hasNextPage.asStateFlow()
+
+    private val _isLoadingNext = MutableStateFlow(false)
+    val isLoadingNext = _isLoadingNext.asStateFlow()
+
+    /** The recommended bundles shown above the chips; empty hides the section. */
+    private val _bundles = MutableStateFlow<List<BundleSummaryDomain>>(emptyList())
+    val bundles = _bundles.asStateFlow()
+
+    private val _isBundlesLoading = MutableStateFlow(investmentMode == null)
+    val isBundlesLoading = _isBundlesLoading.asStateFlow()
+
+    init {
+        loadFunds()
+        if (investmentMode == null) loadBundles()
+    }
+
+    /**
+     * Loaded once and on its own: the bundles do not depend on the filters, and failing to get
+     * them never blocks the funds — the section just stays hidden.
+     */
+    private fun loadBundles() {
+        viewModelScope.launch {
+            _isBundlesLoading.value = true
+            getAllBundlesUseCase()
+                .onSuccess { _bundles.value = it }
+            _isBundlesLoading.value = false
+        }
+    }
+
+    fun loadFunds() {
+        viewModelScope.launch {
+
+            _loadingState.value = LoadingState.Loading
+
+            val filters = _filterState.value.toQuery()
+
+            getMutualFundSearchResultUseCase(
+                search = search,
+                tag = filters.tag,
+                category = filters.category,
+                amountType = filters.amountType,
+                investmentMode = investmentMode,
+                page = 1,
+                limit = PAGE_SIZE
+            )
+                .onSuccess { data ->
+
+                    currentPage = data.page
+                    _hasNextPage.value = data.hasNextPage
+                    _totalFunds.value = data.items.size
+
+                    // The first page is the whole list so far, ranked by the period already
+                    // selected — the list opens sorted rather than sorting on the first tap.
+                    _fundPages.value = listOf(data.items.rankedBy(_selectedYear.value))
+
+                    _loadingState.value = LoadingState.Success
+                }
+                .onError { error ->
+                    SnackBarController.showError(error.message)
+                    _loadingState.value = LoadingState.Error(error.message)
+                }
+        }
+    }
+
+    fun loadNext() {
+
+        if (!_hasNextPage.value || _isLoadingNext.value) return
+
+        viewModelScope.launch {
+
+            _isLoadingNext.value = true
+
+            val nextPage = currentPage + 1
+
+            val filters = _filterState.value.toQuery()
+
+            getMutualFundSearchResultUseCase(
+                search = search,
+                tag = filters.tag,
+                category = filters.category,
+                amountType = filters.amountType,
+                investmentMode = investmentMode,
+                page = nextPage,
+                limit = PAGE_SIZE
+            )
+                .onSuccess { data ->
+
+                    currentPage = data.page
+                    _hasNextPage.value = data.hasNextPage
+                    _totalFunds.value = data.totalItems
+
+                    // Ranked among themselves and appended, so the page keeps its own run.
+                    _fundPages.value += listOf(data.items.rankedBy(_selectedYear.value))
+                }
+                .onError {
+                    SnackBarController.showError(it.message)
+                }
+
+            _isLoadingNext.value = false
+        }
+    }
+
+    /**
+     * A chip tap sets one group and leaves the rest of the tray alone — the chips are shortcuts
+     * into a single group each, not a replacement for the whole selection. Tapping a lit chip
+     * clears its group.
+     */
+    fun onFilterSelected(filter: LabelFilter) {
+        // Tapping the standing custom chip is how the tray selection is cleared.
+        if (filter is MutualFundLabel.CustomLabel) {
+            clearFilter()
+            return
+        }
+
+        val group = when (filter) {
+            is AmountTypeLabel -> MfFilterIds.AMOUNT_TYPE
+            is MutualFundLabel -> MfFilterIds.TAG
+            else -> return
+        }
+
+        val isAlreadySelected = _filterState.value.selectedId(group) == filter.id
+
+        _filterState.value = _filterState.value.withSelections(
+            group to filter.id.takeUnless { isAlreadySelected }
+        )
+        syncChips()
+
+        reload()
+    }
+
+    /**
+     * Steps the header's return period, which re-ranks the list against the new one.
+     *
+     * This is where any pages held back as their own blocks are folded in: the whole list is
+     * ranked as a single run again, so the split only ever lasts until the next period change.
+     */
+    fun cycleReturnRatePeriod() {
+
+        val nextPeriod = when (_selectedYear.value) {
+            SelectedReturnRatePeriod.THREE_MONTH -> SelectedReturnRatePeriod.SIX_MONTH
+            SelectedReturnRatePeriod.SIX_MONTH -> SelectedReturnRatePeriod.ONE_YEAR
+            SelectedReturnRatePeriod.ONE_YEAR -> SelectedReturnRatePeriod.THREE_YEAR
+            SelectedReturnRatePeriod.THREE_YEAR -> SelectedReturnRatePeriod.THREE_MONTH
+        }
+
+        _selectedYear.value = nextPeriod
+
+        val merged = _fundPages.value.flatten()
+        if (merged.isNotEmpty()) {
+            _fundPages.value = listOf(merged.rankedBy(nextPeriod))
+        }
+    }
+
+    fun applyFilter(newFilter: InvestmentFilter) {
+
+        _filterState.value = newFilter
+        syncChips()
+
+        reload()
+    }
+
+    fun clearFilter() {
+
+        _filterState.value = createInitialInvestmentFilter()
+        syncChips()
+
+        reload()
+    }
+
+    private fun syncChips() {
+        _selectedChipIds.value = _filterState.value.toSelectedChipIds()
+        _customFilter.value = _filterState.value.toCustomChipLabel()
+    }
+
+    fun toggleFilterScreen() {
+        _showFilterScreen.value = !_showFilterScreen.value
+    }
+
+    private fun reload() {
+        currentPage = 1
+        _hasNextPage.value = true
+        loadFunds()
+    }
+
+    /**
+     * Best return first for the given period.
+     *
+     * A fund the gateway reports no figure for over that period sorts to the bottom rather than
+     * being read as a zero return, and ties hold the order the server sent them in.
+     */
+    private fun List<MutualFundDomain>.rankedBy(
+        period: SelectedReturnRatePeriod
+    ): List<MutualFundDomain> = sortedByDescending {
+        it.returnYearsRate.forPeriod(period) ?: Double.NEGATIVE_INFINITY
+    }
+
+    private companion object {
+        /** The endpoint caps `limit` at 50. */
+        const val PAGE_SIZE = 20
+    }
+}
+
+/** The three query values `GET /mf/funds` filters on, null where nothing is selected. */
+data class FundQueryFilters(
+    val tag: String?,
+    val category: String?,
+    val amountType: String?
+)
+
+fun InvestmentFilter.selectedId(groupId: String): String? =
+    groups.find { it.id == groupId }
+        ?.options
+        ?.firstOrNull { it.isSelected }
+        ?.id
+
+fun InvestmentFilter.toQuery(): FundQueryFilters = FundQueryFilters(
+    tag = selectedId(MfFilterIds.TAG),
+    // "all" is the server's own default and means "no category filter", so it is not sent.
+    category = selectedId(MfFilterIds.CATEGORY)?.takeIf { it != MfFilterIds.CATEGORY_ALL },
+    amountType = selectedId(MfFilterIds.AMOUNT_TYPE)
+)
+
+/**
+ * Applies `groupId to optionId` selections, replacing whatever that group had. A null option id
+ * clears the group, and a group named here that the tray does not define is ignored.
+ */
+fun InvestmentFilter.withSelections(vararg selections: Pair<String, String?>): InvestmentFilter {
+    val bySelection = selections.toMap()
+
+    return copy(
+        groups = groups.map { group ->
+            if (!bySelection.containsKey(group.id)) return@map group
+
+            val selectedId = bySelection[group.id]
+            group.copy(
+                options = group.options.map { it.copy(isSelected = it.id == selectedId) }
+            )
+        }
+    )
+}
+
+/** Which chips are lit: the selected tag and the selected amount type, each if there is one. */
+fun InvestmentFilter.toSelectedChipIds(): Set<String> = setOfNotNull(
+    selectedId(MfFilterIds.TAG),
+    selectedId(MfFilterIds.AMOUNT_TYPE)
+)
+
+/**
+ * Category is the one tray group with no chip of its own, so a category selection is shown as a
+ * summary chip; tapping it clears the tray. Everything else the chips already say.
+ */
+fun InvestmentFilter.toCustomChipLabel(): LabelFilter? {
+    if (toQuery().category == null) return null
+
+    return MutualFundLabel.CustomLabel(getActiveFundFilterLabel(), "custom")
+}
+
+/**
+ * The chip row. JN leads with the ₹10/day and ₹100/month minimum-installment chips; Velvet
+ * doesn't offer those starter SIPs, so the row starts at the fund categories.
+ */
+val defaultFilters: List<LabelFilter> = listOf(
+    MutualFundLabel.Popular,
+    MutualFundLabel.LargeCap,
+    MutualFundLabel.MidCap,
+    MutualFundLabel.SmallCap,
+    MutualFundLabel.FlexiCap,
+    MutualFundLabel.MultiCap,
+    MutualFundLabel.Debt,
+    MutualFundLabel.Others
+)
+
+fun InvestmentFilter.getActiveFundFilterLabel(): String {
+
+    val parts = groups.mapNotNull { group ->
+        group.options.firstOrNull { it.isSelected }?.title
+    }
+
+    return if (parts.isEmpty()) "All Funds" else parts.joinToString(" • ")
+}

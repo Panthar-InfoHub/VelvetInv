@@ -73,9 +73,9 @@ fun AboutUsScreen(
         containerColor = Color.White,
         topBar = {
             BackHeader(
-                heading = "About Us",
+                title = "About Us",
                 showBack = true,
-                onBackClick = onBack
+                onBack = onBack
             )
         }
     ) { paddingValues ->

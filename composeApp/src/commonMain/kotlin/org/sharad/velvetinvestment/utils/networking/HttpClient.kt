@@ -18,8 +18,8 @@ import io.ktor.http.contentType
 import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenBody
-import org.sharad.velvetinvestment.data.remote.model.auth.tokens.RefreshTokenDto
+import org.sharad.velvetinvestment.features.login.data.models.auth.tokens.RefreshTokenBody
+import org.sharad.velvetinvestment.features.login.data.models.auth.tokens.RefreshTokenDto
 import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.Log
 import org.sharad.velvetinvestment.utils.storage.AuthPrefs
@@ -58,7 +58,7 @@ fun getHttpClient(
             bearer {
                 loadTokens {
                     val token = authPrefs.getBearerToken()
-//                    val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmOWMzOWRiLWIyNTAtNDViMy05NGFlLWU4YmM0NWM0NjMzNCIsInBob25lX25vIjoiODkzMDQ5MjA5NiIsInVzciI6Im5pdGluNDU1NiIsImludl9pZCI6ODksInB3ZCI6IjM1MDA0IiwiaWF0IjoxNzg0MTEzMTEwLCJleHAiOjE3ODQ3MTc5MTB9.2D1DNaLyrj4dEl2Mz2cNgOzG1ySv-ePw-mUkhzZvgm4"
+//                    val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY2YjZhMzMyLWEzYmUtNDBhZS04OGVlLTBkMzgxMGQ4N2M5YSIsInBob25lX25vIjoiODkzMDQ5MjA5NiIsImlhdCI6MTc5MzkwODc5OCwiZXhwIjoxNzk0NTEzNTk4fQ.QxTgYI1PCbiLr_OUH5bRMO3mby8gNoe55e0isk72UgE"
                     val refresh = authPrefs.getRefreshToken()
                     if (token.isNullOrEmpty()) return@loadTokens null
                     BearerTokens(token, refresh ?: "")

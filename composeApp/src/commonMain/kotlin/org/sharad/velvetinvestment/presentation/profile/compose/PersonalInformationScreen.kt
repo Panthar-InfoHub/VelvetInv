@@ -40,9 +40,9 @@ fun PersonalInformationScreen(
             .background(Color.White),
     ) {
         BackHeader(
-            heading = "Personal Information",
+            title = "Personal Information",
             showBack = true,
-            onBackClick = onBack
+            onBack = onBack
         )
 
         UiStateContainer(

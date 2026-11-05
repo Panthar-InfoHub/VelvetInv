@@ -14,42 +14,33 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import org.sharad.velvetinvestment.presentation.firereport.compose.CurrentAssetEditScreen
-import org.sharad.velvetinvestment.presentation.firereport.compose.FinancialFlowEditScreen
-import org.sharad.velvetinvestment.presentation.firereport.compose.FireReportScreen
-import org.sharad.velvetinvestment.presentation.firereport.compose.InsuranceCoverageEditScreen
-import org.sharad.velvetinvestment.presentation.firereport.compose.UpdateDetailsScreen
-import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDDetailsScreenRoot
-import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDPurchaseScreenRoot
-import org.sharad.velvetinvestment.presentation.fixeddeposits.compose.FDSearchScreenRoot
-import org.sharad.velvetinvestment.presentation.goals.compose.GoalProjectionNavigation
-import org.sharad.velvetinvestment.presentation.goals.compose.GoalScreen
-import org.sharad.velvetinvestment.presentation.goals.compose.SingleGoalScreen
 import org.sharad.velvetinvestment.presentation.insurance.HealthInsuranceScreen
 import org.sharad.velvetinvestment.presentation.insurance.OtherInsuranceScreen
 import org.sharad.velvetinvestment.presentation.insurance.TermInsuranceScreen
 import org.sharad.velvetinvestment.presentation.investmentrate.compose.InvestmentRateScreen
-import org.sharad.velvetinvestment.presentation.kyc.compose.FileUploadScreen
-import org.sharad.velvetinvestment.presentation.kyc.compose.KYCFormScreen
 import org.sharad.velvetinvestment.presentation.loans.compose.LoanFlowScreen
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.CategoryMutualFundScreenRoot
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundDetailsScreenRoot
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.MutualFundSearchScreenRoot
-import org.sharad.velvetinvestment.presentation.portfolio.compose.CancelSIPConfirmationScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.FDPortfolioDetailsScreen
+import org.sharad.velvetinvestment.features.portfolio.ui.screens.CancelSIPConfirmationScreen
 import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.MFPortfolioDetailsScreen
-import org.sharad.velvetinvestment.presentation.kyc.compose.KYCScreen
-import org.sharad.velvetinvestment.presentation.kyc.compose.KycContractScreen
-import org.sharad.velvetinvestment.presentation.bundle.compose.AllBundlesScreen
-import org.sharad.velvetinvestment.presentation.cart.compose.CartScreen
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentMethodScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.ExistingFundLumpSumScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.FolioFundMFScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.ExistingFundScreenRoot
+import androidx.compose.runtime.remember
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
+import org.sharad.velvetinvestment.features.bundles.presentation.compose.AllBundlesScreen
+import org.sharad.velvetinvestment.features.bundles.presentation.compose.BundleDetailsScreen
+import org.sharad.velvetinvestment.features.bundles.presentation.compose.ExploreCategoryFundScreenRoot
+import org.sharad.velvetinvestment.features.bundles.presentation.compose.SelectFundScreen
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.AllBundlesEffect
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.AllBundlesViewModel
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.BundleDetailsEffect
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.BundleDetailsEvent
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.BundleDetailsViewModel
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.ExploreFundsEffect
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.SelectFundEffect
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.exploreUnselectableFundIds
+import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.fundIdsInOtherSlots
+import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
+import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.CheckKYCScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCheckAnimationScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutUsScreen
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutVelvetScreen
@@ -60,30 +51,47 @@ import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compo
 import org.sharad.velvetinvestment.domain.webview.WebViewConfig
 import org.sharad.velvetinvestment.domain.webview.WebViewUrlMatchType
 import org.sharad.velvetinvestment.presentation.webview.WebViewScreen
-import org.sharad.velvetinvestment.utils.AppEvent
-import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.DateTimeUtils
-import org.sharad.velvetinvestment.utils.FundTypeSelector
-import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.features.fireonboarding.navigation.FireOnboardingRoute
+import org.sharad.velvetinvestment.features.fireonboarding.navigation.fireReportDestinations
+import org.sharad.velvetinvestment.features.fireonboarding.presentation.onboarding.compose.FireOnboardingScreenRoot
+import org.koin.compose.koinInject
+import org.sharad.velvetinvestment.features.auth.ui.compose.BiometricSettingsScreen
+import org.sharad.velvetinvestment.features.auth.ui.compose.ChangePinScreen
+import org.sharad.velvetinvestment.features.auth.ui.viewmodels.BiometricLoginEffect
+import org.sharad.velvetinvestment.features.auth.ui.viewmodels.BiometricSettingsViewModel
+import org.sharad.velvetinvestment.features.auth.ui.compose.EnterPinScreen
+import org.sharad.velvetinvestment.features.auth.ui.viewmodels.ChangePinEffect
+import org.sharad.velvetinvestment.features.auth.ui.viewmodels.ChangePinViewModel
+import org.sharad.velvetinvestment.features.auth.ui.viewmodels.EnterPinEffect
+import org.sharad.velvetinvestment.features.auth.ui.viewmodels.EnterPinPurpose
+import org.sharad.velvetinvestment.features.auth.ui.viewmodels.EnterPinViewModel
+import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
-private const val KYC_CONTRACT_WEBVIEW_RESULT = "kyc_contract_webview_completed"
-private const val CART_WEBVIEW_RESULT = "cart_webview_completed"
-private const val SIP_DETAILS_WEBVIEW_RESULT = "sip_details_webview_completed"
-private const val EXISTING_FUND_LUMPSUM_WEBVIEW_RESULT = "existing_fund_lumpsum_webview_completed"
-private const val MF_DETAILS_LUMPSUM_WEBVIEW_RESULT = "mf_details_lumpsum_webview_completed"
+// TODO(top-up): EXISTING_FUND_LUMPSUM_WEBVIEW_RESULT = "existing_fund_lumpsum_webview_completed"
+
+/**
+ * Whether the app lock has already been cleared since the process started. Deliberately not saved
+ * state: it dies with the process, so every cold start asks for the PIN once and every later entry
+ * into the main app — a rotation, a return from another graph — goes straight to the bottom nav.
+ * Reset on sign-out in [BaseNavigation], so the next user on this device is asked again.
+ */
+internal var pinVerifiedThisSession = false
 
 @Composable
-fun AppNavigation(onSignOut: () -> Unit) {
-    LaunchedEffect(Unit){
-        AppEventsController.appEvent.collect {
-            when(it){
-                AppEvent.LogOut -> {
-                    AppEventsController.clear()
-                    onSignOut()
-                    SnackBarController.showInfo("Token Expired. Login Again.")
-                }
-                else -> {}
-            }
+fun AppNavigation(
+    /** Opens the KYC onboarding graph on top of the main app (JN `navigateToKYC`). */
+    navigateToKYC: () -> Unit,
+    onSignOut: () -> Unit
+) {
+    // Token expiry (AppEvent.LogOut) is handled in BaseNavigation, above every graph.
+    val prefs: AuthPrefs = koinInject()
+
+    val startDestination: Any = remember {
+        if (!prefs.isMpinSetup() || !prefs.isMpinEnabled() || pinVerifiedThisSession) {
+            Route.BottomNav
+        } else {
+            Route.EnterPin(EnterPinPurpose.APP_LOCK)
         }
     }
 
@@ -93,7 +101,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
         val navController= rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = Route.BottomNav,
+            startDestination = startDestination,
             // Forward navigation animation
             enterTransition = {
                 slideInHorizontally(
@@ -137,10 +145,116 @@ fun AppNavigation(onSignOut: () -> Unit) {
             }
         ){
 
+            composable<Route.EnterPin> { entry ->
+                val purpose = entry.toRoute<Route.EnterPin>().purpose
+                val vm: EnterPinViewModel = koinViewModel(parameters = { parametersOf(purpose) })
+                val state by vm.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(vm.effect) {
+                    vm.effect.collect { effect ->
+                        when (effect) {
+                            EnterPinEffect.NavigateBack -> navController.popBackStack()
+
+                            EnterPinEffect.PinVerified -> when (purpose) {
+                                EnterPinPurpose.CHANGE_PIN -> {
+                                    navController.navigate(Route.ChangePin) {
+                                        launchSingleTop = true
+                                        // Re-authentication is spent; back from the change screen
+                                        // belongs to whatever asked for the change.
+                                        popUpTo<Route.EnterPin> { inclusive = true }
+                                    }
+                                }
+
+                                else -> {
+                                    pinVerifiedThisSession = true
+                                    navController.navigate(Route.BottomNav) {
+                                        launchSingleTop = true
+                                        // The lock is cleared for this run — going back to it would
+                                        // only strand the user on a screen they already passed.
+                                        popUpTo<Route.EnterPin> { inclusive = true }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                EnterPinScreen(
+                    state = state,
+                    onEvent = vm::handleEvent
+                )
+            }
+
+            composable<Route.ChangePin> {
+                val vm: ChangePinViewModel = koinViewModel()
+                val state by vm.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(vm.effect) {
+                    vm.effect.collect { effect ->
+                        when (effect) {
+                            ChangePinEffect.NavigateBack,
+                            ChangePinEffect.PinUpdated -> navController.popBackStack()
+                        }
+                    }
+                }
+
+                ChangePinScreen(
+                    state = state,
+                    onEvent = vm::handleEvent
+                )
+            }
+
+            composable<Route.BiometricLogin> {
+                val vm: BiometricSettingsViewModel = koinViewModel()
+                val state by vm.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(vm.effect) {
+                    vm.effect.collect { effect ->
+                        when (effect) {
+                            BiometricLoginEffect.NavigateBack -> navController.popBackStack()
+                        }
+                    }
+                }
+
+                BiometricSettingsScreen(
+                    state = state,
+                    onEvent = vm::handleEvent
+                )
+            }
+
             composable<Route.BottomNav> {
                 BottomNavigation(
-                    navigateToSIPDetailsScreen = {
-                        navController.navigate(Route.FolioFundScreen(it.folio, it.actualFolio)) {
+                    navigateToBiometricLogin = {
+                        navController.navigate(Route.BiometricLogin) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToChangePin = {
+                        // A PIN that exists has to be proven before it is replaced (JN).
+                        if (prefs.isMpinSetup()) {
+                            navController.navigate(Route.EnterPin(EnterPinPurpose.CHANGE_PIN)) {
+                                launchSingleTop = true
+                            }
+                        } else {
+                            navController.navigate(Route.ChangePin) {
+                                launchSingleTop = true
+                            }
+                        }
+                    },
+                    navigateToBundleDetails = { bundleId: String, purchaseMode: PurchaseMode ->
+                        navController.navigate(Route.BundleDetails(bundleId, purchaseMode.name)) {
+                            launchSingleTop = true
+                        }
+                    },
+                    navigateToCart = {
+                        navController.navigate(Route.CartScreen) {
+                            launchSingleTop = true
+                        }
+                    },
+                    // JN: straight to the order details — the portfolio already carries every
+                    // figure that screen shows, so the folio listing in between had nothing to add.
+                    navigateToSIPDetailsScreen = { holding ->
+                        navController.navigate(holding.toOrderDetailsRoute()) {
                             launchSingleTop = true
                         }
                     },
@@ -160,15 +274,16 @@ fun AppNavigation(onSignOut: () -> Unit) {
                         }
                     },
                     navigateToFireReportScreen = {
-                        navController.navigate(Route.FireReport) {
+                        navController.navigate(FireOnboardingRoute.FireReport) {
                             launchSingleTop = true
                         }
                     },
-                    navigateToKYCScreen = {
-                        navController.navigate(Route.CheckKYC) {
+                    navigateToFireOnboarding = {
+                        navController.navigate(FireOnboardingRoute.FireOnboardingFlow) {
                             launchSingleTop = true
                         }
                     },
+                    navigateToOnboarding = navigateToKYC,
                     navigateToGoalScreen = {
                         navController.navigate(Route.GoalsScreen) {
                             launchSingleTop = true
@@ -179,13 +294,8 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
-                    navigateToPersonalInfo = {
-                        navController.navigate(Route.PersonalInformation) {
-                            launchSingleTop = true
-                        }
-                    },
-                    navigateToMutualFundDetailScreen = {
-                        navController.navigate(Route.MutualFundDetails(it)) {
+                    navigateToMutualFundDetailScreen = { fund ->
+                        navController.navigate(Route.MutualFundDetails(id = fund.id, isin = fund.isin)) {
                             launchSingleTop = true
                         }
                     },
@@ -206,7 +316,7 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
                     },
                     navigateToAddGoal={
-                        navController.navigate(Route.SingleGoadAdd){
+                        navController.navigate(Route.SingleGoalAdd){
                             launchSingleTop=true
                         }
                     },
@@ -257,14 +367,16 @@ fun AppNavigation(onSignOut: () -> Unit) {
                             launchSingleTop = true
                         }
                     },
-                    navigateToKYC = {
-                        navController.navigate(Route.CheckKYC) {
-                            launchSingleTop = true
-                        }
-                    },
+                    // Profile's KYC Status row: straight into the KYC onboarding graph (JN).
+                    navigateToKYC = navigateToKYC,
                     navigateToInvestmentRateScree={
                         navController.navigate(Route.InvestmentRateScreen){
                             launchSingleTop=true
+                        }
+                    },
+                    navigateToMyOrders = {
+                        navController.navigate(Route.MyOrders) {
+                            launchSingleTop = true
                         }
                     },
                     navigateToPortfolioFdDetailsScreen={id->
@@ -276,35 +388,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
 
-            composable<Route.SIPPortfolioDetails> {
-                val data = it.toRoute<Route.SIPPortfolioDetails>()
-                val sipWebViewReturned by it.savedStateHandle
-                    .getStateFlow(SIP_DETAILS_WEBVIEW_RESULT, false)
-                    .collectAsStateWithLifecycle()
-                MFPortfolioDetailsScreen(
-                    onBackClick = { navController.popBackStack() },
-//                    onCancelClick = {
-//                        navController.navigate(Route.SIPCancellationScreen(it)) {
-//                            launchSingleTop = true
-//                        }
-//                    },
-                    data = data,
-                    onLaunchWebView = { url ->
-                        navController.navigate(
-                            Route.WebViewScreen(
-                                url = url,
-                                exitUrlPatterns = emptyList(),
-                                title = "Withdraw Fund",
-                                completionRouteKey = "sip_details"
-                            )
-                        )
-                    },
-                    webViewReturned = sipWebViewReturned,
-                    onWebViewConsumed = {
-                        it.savedStateHandle[SIP_DETAILS_WEBVIEW_RESULT] = false
-                    },
-                )
-            }
             composable<Route.SIPCancellationScreen> {
                 val id = it.toRoute<Route.SIPCancellationScreen>().id
                 CancelSIPConfirmationScreen(
@@ -326,255 +409,6 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
 
-            composable<Route.FDPortfolioDetailsScreen> {
-                val id = it.toRoute<Route.FDPortfolioDetailsScreen>().id
-                FDPortfolioDetailsScreen(
-                    id = id,
-                    onBackClick = { navController.popBackStack() },
-                )
-            }
-
-            composable<Route.CategoryMutualFund> {
-                CategoryMutualFundScreenRoot(
-                    onBackClick = { navController.popBackStack() },
-                    onIconClick = {
-                        navController.navigate(Route.CartScreen){
-                            launchSingleTop=true
-                        }
-                    },
-                    onFundClick = { id ->
-                        navController.navigate(Route.MutualFundDetails(id)) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onSearchClick = { search ->
-                        navController.navigate(Route.MutualFundSearchResult(search)) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onCategoryClick = { id ->
-                        navController.navigate(Route.MutualFundSearchResult(fundCategory = id)) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onBundledFundClick={
-                        navController.navigate(Route.BundleGraph(it))
-                    },
-                    onBundleClick = {
-                        navController.navigate(Route.AllBundleScreen)
-                    }
-                )
-            }
-            composable<Route.MutualFundSearchResult> {
-                MutualFundSearchScreenRoot(
-                    onBackClick = { navController.popBackStack() },
-                    heading = "Mutual Funds",
-                    onFundClick = {
-                        navController.navigate(Route.MutualFundDetails(it)) {
-                            launchSingleTop = true
-                        }
-                    },
-                    searchText= it.toRoute<Route.MutualFundSearchResult>().search,
-                    category = it.toRoute<Route.MutualFundSearchResult>().fundCategory,
-                )
-            }
-            composable<Route.MutualFundDetails> {
-                val id = it.toRoute<Route.MutualFundDetails>().id
-                val folioId = it.toRoute<Route.MutualFundDetails>().folioId
-                val lumpSumWebViewReturned by it.savedStateHandle
-                    .getStateFlow(MF_DETAILS_LUMPSUM_WEBVIEW_RESULT, false)
-                    .collectAsStateWithLifecycle()
-                MutualFundDetailsScreenRoot(
-                    onBackClick = { navController.popBackStack() },
-                    id = id,
-                    folioId=folioId,
-                    onCartClick = {
-                        navController.navigate(Route.CartScreen)
-                    },
-                    onKycClick={
-                        navController.navigate(Route.CheckKYC){
-                            launchSingleTop=true
-                        }
-                    },
-                    onTradingAccountClick={
-                        navController.navigate(Route.CheckKYC){
-                            launchSingleTop=true
-                        }
-                    },
-                    onLaunchWebView = { url ->
-                        navController.navigate(
-                            Route.WebViewScreen(
-                                url = url,
-                                exitUrlPatterns = emptyList(),
-                                title = "Complete Payment",
-                                completionRouteKey = "mf_details_lumpsum"
-                            )
-                        )
-                    },
-                    webViewReturned = lumpSumWebViewReturned,
-                    onWebViewConsumed = {
-                        it.savedStateHandle[MF_DETAILS_LUMPSUM_WEBVIEW_RESULT] = false
-                    }
-                )
-            }
-
-            composable<Route.FireReport> {
-                FireReportScreen(
-                    onBack = { navController.popBackStack() },
-                    onUpdateClick = {
-                        navController.navigate(Route.FireReportUpdateOptions) {
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            }
-
-            composable<Route.FireReportUpdateOptions> {
-                UpdateDetailsScreen(
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
-                    onFinancialFlowClick = {
-                        navController.navigate(Route.FinancialFlowEdit) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onLoanClick = {
-                        navController.navigate(Route.LoansFlowScreen) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onInsuranceClick = {
-                        navController.navigate(Route.InsuranceCoverageEdit) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onAssetClick={
-                        navController.navigate(Route.CurrentAssetEdit){
-                            launchSingleTop=true
-                        }
-                    },
-                    onGoalsClick = {
-                        navController.navigate(Route.GoalsScreen) {
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            }
-
-            composable<Route.FinancialFlowEdit> {
-                FinancialFlowEditScreen(
-                    onBackClick = { navController.popBackStack() },
-                )
-            }
-
-            composable<Route.InsuranceCoverageEdit> {
-                InsuranceCoverageEditScreen(
-                    onBackClick = { navController.popBackStack() },
-                )
-            }
-
-            composable<Route.CurrentAssetEdit> {
-                CurrentAssetEditScreen(
-                    onBackClick = { navController.popBackStack() },
-                )
-            }
-
-
-
-            composable<Route.CheckKYC> {
-                CheckKYCScreen(
-                    onBackClick = { navController.popBackStack() },
-                    navigateToMutualFundKYC = {
-                        navController.navigate(Route.KYCScreen) {
-                            launchSingleTop = true
-                        }
-                    },
-                    navigateToTradingAccountKYC = {
-                        navController.navigate(Route.TradingAccountNavigation) {
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            }
-
-            composable<Route.KYCScreen> {
-                KYCScreen(
-                    onBackClick = { navController.popBackStack() },
-                    onLaunchWebView = { url ->
-                        navController.navigate(
-                            Route.WebViewScreen(
-                                url = url,
-                                exitUrlPatterns = listOf("https://digilocker.signzy.tech/success","https://digilocker.signzy.tech/digilocker-auth-complete"),
-                                title = "DigiLocker Verification",
-                                completionRouteKey = "kyc_form"
-                            )
-                        )
-                    },
-                )
-            }
-            composable<Route.KYCFormScreen> {
-                KYCFormScreen(
-                    onBack = { navController.popBackStack() },
-                    onNext = {
-                        navController.navigate(Route.KYCImageUploadScreen(it)) {
-                            launchSingleTop = true
-
-                        }
-                    },
-                )
-            }
-            composable<Route.KYCImageUploadScreen> {
-                val name = it.toRoute<Route.KYCImageUploadScreen>().name
-                FileUploadScreen(
-                    onBack = { navController.popBackStack() },
-                    onSuccessfulUpload = {
-                        navController.navigate(Route.KYCContractScreen(name)) {
-                            launchSingleTop = true
-
-                        }
-                    },
-                )
-            }
-            composable<Route.KYCContractScreen> {
-                val name = it.toRoute<Route.KYCContractScreen>().name
-                val date = DateTimeUtils.epochMillisToSlashDate(DateTimeUtils.getCurrentEpochMillis())
-                val webViewCompleted by it.savedStateHandle
-                    .getStateFlow(KYC_CONTRACT_WEBVIEW_RESULT, false)
-                    .collectAsStateWithLifecycle()
-                KycContractScreen(
-                    onBack = { navController.popBackStack() },
-                    onSuccessfulUpload = {
-                        navController.navigate(
-                            Route.KYCCompleteScreen(
-                                name = name,
-                                verifiedDate = date
-                            )
-                        ) {
-                            popUpTo(Route.BottomNav) {
-                                inclusive = false
-                            }
-                            launchSingleTop = true
-                        }
-                    },
-                    onLaunchWebView = { url ->
-                        navController.navigate(
-                            Route.WebViewScreen(
-                                url = url,
-                                exitUrlPatterns = listOf("https://www.signzy.com/"),
-                                title = "DigiLocker Verification",
-                                completionRouteKey = "kyc_contract",
-                                matchType = WebViewUrlMatchType.EXACT.name
-                            )
-                        )
-                    },
-                    webViewCompleted = webViewCompleted,
-                    onWebViewConsumed = {
-                        it.savedStateHandle[KYC_CONTRACT_WEBVIEW_RESULT] = false
-                    },
-                )
-            }
-
             composable<Route.KYCCompleteScreen> {
                 val name = it.toRoute<Route.KYCCompleteScreen>().name
                 val date = it.toRoute<Route.KYCCompleteScreen>().verifiedDate
@@ -593,36 +427,27 @@ fun AppNavigation(onSignOut: () -> Unit) {
                     }
                 )
             }
-            composable<Route.GoalsScreen> {
-                GoalScreen(
-                    onBack = { navController.popBackStack() },
-                    onAddClick = {
-                        navController.navigate(Route.SingleGoadAdd) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onGoalClick = {id->
-                        navController.navigate(Route.GoalProjectionFlow(id))
+            goalsDestinations(navController = navController)
+
+            // FIRE onboarding: its own nested NavHost; it closes itself once every step in
+            // fire_stages is verified or skipped (refresh events already sent).
+            composable<FireOnboardingRoute.FireOnboardingFlow> {
+                FireOnboardingScreenRoot(
+                    onClose = {
+                        navController.popBackStack<FireOnboardingRoute.FireOnboardingFlow>(inclusive = true)
                     }
                 )
             }
 
-            composable<Route.GoalProjectionFlow> {
-                val id = it.toRoute<Route.GoalProjectionFlow>().id
-                GoalProjectionNavigation(
-                    goalId = id,
-                    onBack = { navController.popBackStack() },
-                    onInvestNow = {
-                        navController.navigate(Route.MutualFundSearchResult())
-                    },
-                    navigateToAllBundles = {
-                        navController.navigate(Route.AllBundleScreen)
-                    },
-                    navigateToSpecificBundle = {
-                        navController.navigate(Route.BundleGraph(it))
-                    }
-                )
-            }
+            fireReportDestinations(
+                navController = navController,
+                onLoansClick = {
+                    navController.navigate(Route.LoansFlowScreen) { launchSingleTop = true }
+                },
+                onGoalsClick = {
+                    navController.navigate(Route.GoalsScreen) { launchSingleTop = true }
+                }
+            )
 
             composable<Route.LoansFlowScreen> {
                 LoanFlowScreen(
@@ -693,68 +518,9 @@ fun AppNavigation(onSignOut: () -> Unit) {
 //                    }
 //                )
             }
-            composable<Route.FixedDepositSearchResult> {
-                val search= it.toRoute<Route.FixedDepositSearchResult>().search
-                FDSearchScreenRoot(
-                    search=search,
-                    onBackClick = { navController.popBackStack() },
-                    heading = "Fixed Deposit",
-                    onFDClick = {id->
-                        navController.navigate(Route.FixedDepositDetails(id))
-                    },
-                    onSearchClick = {text->
-                        navController.navigate(Route.FixedDepositSearchResult(search = text))
-                    }
-                )
-            }
-            composable<Route.FixedDepositDetails> {
-                val id = it.toRoute<Route.FixedDepositDetails>().id
-                FDDetailsScreenRoot(
-                    onBackClick = { navController.popBackStack() },
-                    id = id,
-                    onPurchaseClick = { navController.navigate(Route.PurchaseFixedDeposit(id)) }
-                )
-            }
-            composable<Route.PurchaseFixedDeposit> {
-                val id = it.toRoute<Route.PurchaseFixedDeposit>().id
-                FDPurchaseScreenRoot(
-                    onBackClick = { navController.popBackStack() },
-                    onLaunchWebView = { url ->
-                        navController.navigate(
-                            Route.WebViewScreen(
-                                url = url,
-                                exitUrlPatterns = emptyList(),
-                                title = "Complete Payment"
-                            )
-                        )
-                    },
-                    id = id
-                )
-            }
-            composable<Route.CartScreen> {
-                val cartWebViewReturned by it.savedStateHandle
-                    .getStateFlow(CART_WEBVIEW_RESULT, false)
-                    .collectAsStateWithLifecycle()
-                CartScreen(
-                    onBack = {
-                        navController.popBackStack()
-                    },
-                    onLaunchWebView = { url ->
-                        navController.navigate(
-                            Route.WebViewScreen(
-                                url = url,
-                                exitUrlPatterns = emptyList(),
-                                title = "Complete Payment",
-                                completionRouteKey = "cart"
-                            )
-                        )
-                    },
-                    webViewReturned = cartWebViewReturned,
-                    onWebViewConsumed = {
-                        it.savedStateHandle[CART_WEBVIEW_RESULT] = false
-                    }
-                )
-            }
+            // FD list, details, purchase (FdNavigation.kt)
+            fdDestinations(navController)
+
             composable<Route.HealthInsurance> {
                 HealthInsuranceScreen { navController.popBackStack() }
             }
@@ -777,59 +543,133 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
 
-            composable<Route.SingleGoadAdd> {
-                SingleGoalScreen(
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            
-            composable<Route.MutualFundTypeSelectionScreen> {
-                InvestmentMethodScreen(
-                    onStartSipClick = {
-                        FundTypeSelector.updateFundTypeToSIP()
-                        navController.navigate(Route.CategoryMutualFund) {
-                            launchSingleTop = true
-                        }},
-                    onLumpsumClick = {
-                        FundTypeSelector.updateFundTypeToLumpSum()
-                        navController.navigate(Route.CategoryMutualFund) {
-                            launchSingleTop = true
-                        }},
-                    onExistingSIPFundClick = {
-                        navController.navigate(Route.ExistingFundScreen)
-                    },
-                    onExistingLumpSumFundClick = {
-                        navController.navigate(Route.ExistingFundLumpSumScreen)
-                    },
-                    onBackClick = { navController.popBackStack() },
-                )
-            }
+            composable<Route.AllBundleScreen> {
+                val vm: AllBundlesViewModel = koinViewModel()
+                val state by vm.uiState.collectAsStateWithLifecycle()
 
-            composable<Route.BundleGraph> {
-                val id = it.toRoute<Route.BundleGraph>().bundleId
-                BundleNavGraph(
-                    id = id,
-                    onBackClick = { navController.popBackStack() },
-                    navigateToCartScreen= {
-                        navController.navigate(Route.CartScreen){
-                            launchSingleTop=true
+                LaunchedEffect(vm.effect) {
+                    vm.effect.collect { effect ->
+                        when (effect) {
+                            AllBundlesEffect.NavigateBack -> navController.popBackStack()
+                            AllBundlesEffect.NavigateToCart -> navController.navigate(Route.CartScreen) {
+                                launchSingleTop = true
+                            }
+                            is AllBundlesEffect.NavigateToBundle ->
+                                navController.navigate(
+                                    Route.BundleDetails(effect.bundleId, effect.purchaseMode.name)
+                                ) {
+                                    launchSingleTop = true
+                                }
                         }
                     }
+                }
+
+                AllBundlesScreen(
+                    state = state,
+                    onEvent = vm::handleEvent
                 )
             }
 
-            composable<Route.AllBundleScreen> {
-                AllBundlesScreen(
-                    onBackClick = { navController.popBackStack() },
-                    onBundleClick = { bundleKey ->
-                        navController.navigate(Route.BundleGraph(bundleKey)){
-                            launchSingleTop=true
-                        }
-                    },
-                    onCartClick = {
-                        navController.navigate(Route.CartScreen)
-                    },
+            composable<Route.BundleDetails> { entry ->
+                val route = entry.toRoute<Route.BundleDetails>()
+                val vm: BundleDetailsViewModel = koinViewModel(
+                    parameters = { parametersOf(route.bundleId, PurchaseMode.fromName(route.purchaseMode)) }
                 )
+                val state by vm.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(vm.effect) {
+                    vm.effect.collect { effect ->
+                        when (effect) {
+                            BundleDetailsEffect.NavigateBack -> navController.popBackStack()
+                            is BundleDetailsEffect.NavigateToSelectFund ->
+                                navController.navigate(Route.BundleSelectFund(effect.categoryId)) {
+                                    launchSingleTop = true
+                                }
+                            BundleDetailsEffect.NavigateToCart -> navController.navigate(Route.CartScreen) {
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+                }
+
+                BundleDetailsScreen(
+                    state = state,
+                    onEvent = vm::handleEvent
+                )
+            }
+
+            composable<Route.BundleSelectFund> { entry ->
+                val route = entry.toRoute<Route.BundleSelectFund>()
+                // The details entry's view model, so saved picks land in the bundle it shows.
+                val detailsEntry = remember(entry) { navController.getBackStackEntry<Route.BundleDetails>() }
+                val detailsRoute = detailsEntry.toRoute<Route.BundleDetails>()
+                val vm: BundleDetailsViewModel = koinViewModel(
+                    viewModelStoreOwner = detailsEntry,
+                    parameters = {
+                        parametersOf(detailsRoute.bundleId, PurchaseMode.fromName(detailsRoute.purchaseMode))
+                    }
+                )
+                val state by vm.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(route.categoryId) {
+                    vm.handleEvent(BundleDetailsEvent.OnFundSelectionOpened(route.categoryId))
+                }
+
+                LaunchedEffect(vm.selectFundEffect) {
+                    vm.selectFundEffect.collect { effect ->
+                        when (effect) {
+                            SelectFundEffect.Close -> navController.popBackStack()
+                            is SelectFundEffect.NavigateToExplore ->
+                                navController.navigate(Route.BundleExploreFunds(effect.categoryId)) {
+                                    launchSingleTop = true
+                                }
+                        }
+                    }
+                }
+
+                SelectFundScreen(
+                    state = state,
+                    onEvent = vm::handleEvent
+                )
+            }
+
+            composable<Route.BundleExploreFunds> { entry ->
+                val route = entry.toRoute<Route.BundleExploreFunds>()
+                val detailsEntry = remember(entry) { navController.getBackStackEntry<Route.BundleDetails>() }
+                val detailsRoute = detailsEntry.toRoute<Route.BundleDetails>()
+                val vm: BundleDetailsViewModel = koinViewModel(
+                    viewModelStoreOwner = detailsEntry,
+                    parameters = {
+                        parametersOf(detailsRoute.bundleId, PurchaseMode.fromName(detailsRoute.purchaseMode))
+                    }
+                )
+                val state by vm.uiState.collectAsStateWithLifecycle()
+                val category = state.bundle?.categories?.find { it.id == route.categoryId }
+
+                LaunchedEffect(vm.exploreFundsEffect) {
+                    vm.exploreFundsEffect.collect { effect ->
+                        when (effect) {
+                            ExploreFundsEffect.Close -> navController.popBackStack()
+                        }
+                    }
+                }
+
+                if (category != null) {
+                    ExploreCategoryFundScreenRoot(
+                        categoryName = category.categoryName,
+                        categoryTitle = category.displayName,
+                        purchaseMode = state.purchaseMode,
+                        unavailableFundIds = state.fundIdsInOtherSlots(),
+                        unselectableFundIds = state.exploreUnselectableFundIds(),
+                        selectedFundId = state.exploreSelectedFund?.id,
+                        isLoadingFund = state.isFetchingExploredFund,
+                        onBackClick = { vm.handleEvent(BundleDetailsEvent.OnExploreBackClicked) },
+                        onFundSelected = { vm.handleEvent(BundleDetailsEvent.OnExploredFundSelected(it)) },
+                        onSaveClick = { vm.handleEvent(BundleDetailsEvent.OnSaveExploredFundClicked) }
+                    )
+                } else {
+                    LoaderScreen()
+                }
             }
 
             composable<Route.InvestmentRateScreen> {
@@ -845,49 +685,17 @@ fun AppNavigation(onSignOut: () -> Unit) {
 
                 val onWebViewDone: () -> Unit = {
                     when (route.completionRouteKey) {
-                        "kyc_form" -> navController.navigate(Route.KYCFormScreen) {
-                            popUpTo<Route.WebViewScreen> { inclusive = true }
-                            launchSingleTop = true
-                        }
-                        "kyc_contract" -> {
-                            // Come back to the contract screen and let it finalize the KYC.
-                            navController.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set(KYC_CONTRACT_WEBVIEW_RESULT, true)
+                        // TODO(top-up): "existing_fund_lumpsum" handed EXISTING_FUND_LUMPSUM_WEBVIEW_RESULT back.
+                        else -> if (
+                            !navController.completeCartWebView(route.completionRouteKey) &&
+                            !navController.completePlansWebView(route.completionRouteKey) &&
+                            !navController.completePortfolioWebView(route.completionRouteKey) &&
+                            !navController.completeFdWebView(route.completionRouteKey)
+                        ) {
                             navController.popBackStack()
                         }
-                        "cart" -> {
-                            // Come back to the cart and run the queued payment follow-up.
-                            navController.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set(CART_WEBVIEW_RESULT, true)
-                            navController.popBackStack()
-                        }
-                        "sip_details" -> {
-                            // Come back to the details screen so it can refresh the portfolio and close itself.
-                            navController.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set(SIP_DETAILS_WEBVIEW_RESULT, true)
-                            navController.popBackStack()
-                        }
-                        "existing_fund_lumpsum" -> {
-                            // Come back to the fund list so it can reload the portfolio.
-                            navController.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set(EXISTING_FUND_LUMPSUM_WEBVIEW_RESULT, true)
-                            navController.popBackStack()
-                        }
-                        "mf_details_lumpsum" -> {
-                            // Come back to the fund details so it can reload the fund and the cart.
-                            navController.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set(MF_DETAILS_LUMPSUM_WEBVIEW_RESULT, true)
-                            navController.popBackStack()
-                        }
-                        else -> navController.popBackStack()
                     }
                 }
-
                 WebViewScreen(
                     config = WebViewConfig(
                         url = route.url,
@@ -901,78 +709,20 @@ fun AppNavigation(onSignOut: () -> Unit) {
                 )
             }
 
-            composable<Route.ExistingFundScreen> {
-                ExistingFundScreenRoot(
-                    onBack = { navController.popBackStack() },
-                    onFundClick = { id, folio ->
-                        navController.navigate(Route.MutualFundDetails(id, folio)) {
-                            launchSingleTop = true
-                        }
-                    },
-                )
-            }
+            // TODO(top-up): Route.ExistingFundScreen / Route.ExistingFundLumpSumScreen destinations were
+            // here; the screens are parked in composeApp/later/ until the top-up flow returns.
 
-            composable<Route.ExistingFundLumpSumScreen> {
-                val lumpSumWebViewReturned by it.savedStateHandle
-                    .getStateFlow(EXISTING_FUND_LUMPSUM_WEBVIEW_RESULT, false)
-                    .collectAsStateWithLifecycle()
-                ExistingFundLumpSumScreen(
-                    onBack = { navController.popBackStack() },
-                    onLaunchWebView = { url ->
-                        navController.navigate(
-                            Route.WebViewScreen(
-                                url = url,
-                                exitUrlPatterns = emptyList(),
-                                title = "Complete Payment",
-                                completionRouteKey = "existing_fund_lumpsum"
-                            )
-                        )
-                    },
-                    webViewReturned = lumpSumWebViewReturned,
-                    onWebViewConsumed = {
-                        it.savedStateHandle[EXISTING_FUND_LUMPSUM_WEBVIEW_RESULT] = false
-                    },
-                )
-            }
+            // MF buying flow + plans (MutualFundNavigation.kt)
+            mutualFundDestinations(navController = navController, navigateToKYC = navigateToKYC)
 
-            composable<Route.FolioFundScreen> {
-                val id = it.toRoute<Route.FolioFundScreen>().folioId
-                val actualFolio = it.toRoute<Route.FolioFundScreen>().actualFolio
-                FolioFundMFScreen(
-                    folioId = id,
-                    actualFolio=actualFolio,
-                    onBack = {
-                        navController.popBackStack()
-                    },
-                    onFundClick = {
-                        navController.navigate(Route.SIPPortfolioDetails(
-                            id = it.schemeId,
-                            title = it.title,
-                            category = it.category,
-                            amount = it.amount.toDouble(),
-                            isSip = it.isSip,
-                            startDate = it.startDate,
-                            returnPercentage = it.returnPercentage,
-                            returnAmount = it.`return`.toInt(),
-                            xirr = it.xirr,
-                            currentNav = it.currentNav,
-                            avgNav = it.avgNav,
-                            folio = it.folio,
-                            balanceUnits = it.balanceUnits,
-                            img_url = it.imgUrl,
-                            orderId = it.orderId,
-                            actualFolio = it.actualFolio
-                        )) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onTopUp = {prod_id, actualFolio->
-                        navController.navigate(Route.MutualFundDetails(id=prod_id, folioId = actualFolio)){
-                            launchSingleTop=true
-                        }
-                    },
-                )
-            }
+            // My Orders + order details (OrdersNavigation.kt)
+            ordersDestinations(navController = navController)
+
+            cartDestinations(navController = navController, navigateToKYC = navigateToKYC)
+
+            // Portfolio order details, redeem, FD details, folio funds (PortfolioNavigation.kt)
+            portfolioDestinations(navController = navController)
+
 
         }
     }

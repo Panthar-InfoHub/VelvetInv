@@ -1,0 +1,325 @@
+package org.sharad.velvetinvestment.features.portfolio.data.repository
+
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import org.sharad.velvetinvestment.utils.networking.ErrorDomain
+import org.sharad.velvetinvestment.utils.networking.ErrorType
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.networking.getUrl
+import org.sharad.velvetinvestment.utils.networking.safeRequest
+import org.sharad.velvetinvestment.utils.networking.safeUnitRequest
+import org.sharad.velvetinvestment.features.portfolio.data.mapper.toActiveSipDomain
+import org.sharad.velvetinvestment.features.portfolio.data.mapper.toDomain
+import org.sharad.velvetinvestment.features.portfolio.data.model.cancelorder.CancelOrderRequestDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.cancelorder.CancelOrderResponseDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.cancelorder.CancelXsipRequestDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.cancelorder.CancelXsipResponseDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.fdportfoliobyid.FDPortFolioById
+import org.sharad.velvetinvestment.features.portfolio.data.model.fdredirect.FDRedirectDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.fdredirect.RedirectBody
+import org.sharad.velvetinvestment.features.portfolio.data.model.investmore.InvestMoreLumpsumResponseDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.pendingorders.PendingOrdersDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.purchaseplan.MfPurchasePlansDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.portfolio.FolioFundsDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.redemption.CreateRedemptionByAmountBody
+import org.sharad.velvetinvestment.features.portfolio.data.model.redemption.CreateRedemptionByUnitsBody
+import org.sharad.velvetinvestment.features.portfolio.data.model.redemption.CreateRedemptionResponseDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.redemption.RedemptionStatusResponseDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.redemption.VerifyRedemptionOtpBody
+import org.sharad.velvetinvestment.features.portfolio.data.model.userportfolio.UserPortfolioResponseDto
+import org.sharad.velvetinvestment.features.portfolio.data.model.report.ReportExportDto
+import org.sharad.velvetinvestment.features.portfolio.domain.models.ActiveSipDomain
+import org.sharad.velvetinvestment.features.portfolio.domain.models.FixedDepositTransactionDomain
+import org.sharad.velvetinvestment.features.portfolio.domain.models.FolioFundDomain
+import org.sharad.velvetinvestment.features.portfolio.domain.models.MfRedemption
+import org.sharad.velvetinvestment.features.portfolio.domain.models.PendingOrderDomain
+import org.sharad.velvetinvestment.features.portfolio.domain.models.PortfolioDomain
+import org.sharad.velvetinvestment.features.portfolio.domain.repository.PortfolioRepo
+import org.sharad.velvetinvestment.features.portfolio.ui.models.InvestMoreDto
+
+class PortfolioRepoImpl(
+    private val client: HttpClient
+): PortfolioRepo {
+
+    override suspend fun getPortfolio(): NetworkResponse<PortfolioDomain, ErrorDomain> {
+        val response= safeRequest<UserPortfolioResponseDto> {
+            client.get(getUrl("/user/portfolio"))
+        }
+
+        return when(response){
+            is NetworkResponse.Error->{
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success ->{
+                NetworkResponse.Success(
+                    response.data.toDomain()
+                )
+            }
+        }
+    }
+
+    override suspend fun getFDPortfolioById(id: String): NetworkResponse<FixedDepositTransactionDomain, ErrorDomain> {
+        val response = safeRequest<FDPortFolioById> {
+            client.get(getUrl("/fd/transactions/$id"))
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(
+                    response.data.toDomain()
+                )
+            }
+        }
+    }
+
+    override suspend fun getFDRedirectUrl(
+        id: String,
+        event: String
+    ): NetworkResponse<String, ErrorDomain> {
+        val response = safeRequest<FDRedirectDto> {
+            client.post(
+                getUrl("/fd/redirect-url")
+            ) {
+                setBody(
+                    RedirectBody(
+                        fd_trans_id = id,
+                        event = event
+                    )
+                )
+            }
+        }
+        return when(response){
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(response.data.data.data.redirectionUrl)
+            }
+        }
+    }
+
+
+    override suspend fun exportReport(
+        type: String,
+        year: Int?,
+        folio: String?,
+        expand: Int?
+    ): NetworkResponse<String, ErrorDomain> {
+        val response = safeRequest<ReportExportDto> {
+            client.get(getUrl("/report")) {
+                parameter("type", type)
+                year?.let { parameter("year", it) }
+                folio?.let { parameter("folio", it) }
+                expand?.let { parameter("expand", it) }
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> {
+                val url = response.data.data.result
+                if (url==null){
+                     NetworkResponse.Error(ErrorDomain(
+                        code = -1,
+                        message = "No Data Found",
+                        type = ErrorType.UNKNOWN
+                    ))
+                }
+                else
+                NetworkResponse.Success(url)
+            }
+        }
+    }
+
+    override suspend fun getPendingOrders(): NetworkResponse<List<PendingOrderDomain>, ErrorDomain> {
+        val response = safeRequest<PendingOrdersDto> {
+            client.get(getUrl("/user/pending-orders"))
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(
+                    response.data.data?.pending_orders?.map { it.toDomain() } ?: emptyList()
+                )
+            }
+        }
+    }
+
+    override suspend fun getActiveSips(): NetworkResponse<ActiveSipDomain, ErrorDomain> {
+        val response = safeRequest<MfPurchasePlansDto> {
+            client.get(getUrl("/mf/purchase-plan")) {
+                // The server narrows to running plans; the mapper takes what it is given.
+                parameter("state", "ACTIVE")
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> NetworkResponse.Success(
+                response.data.toActiveSipDomain()
+            )
+        }
+    }
+
+    override suspend fun getFolioFunds(folioId: String): NetworkResponse<List<FolioFundDomain>, ErrorDomain> {
+        val response = safeRequest<FolioFundsDto> {
+            client.get(getUrl("/user/portfolio/$folioId"))
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(
+                    response.data.data.map { it.toDomain() }
+                )
+            }
+        }
+    }
+
+    override suspend fun investMoreLumpsum(body: InvestMoreDto): NetworkResponse<String, ErrorDomain> {
+        val response= safeRequest<InvestMoreLumpsumResponseDto> {
+            client.post(getUrl("/mf/invest-more")) {
+                setBody(body)
+            }
+        }
+        when(response){
+            is NetworkResponse.Error -> {
+                return NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                return NetworkResponse.Success(response.data.paymentUrl)
+            }
+        }
+    }
+
+    override suspend fun cancelLumpSumOrder(orderId: String): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeRequest<CancelOrderResponseDto> {
+            client.post(getUrl("/mf/cancel-order")) {
+                setBody(CancelOrderRequestDto(order_no = orderId))
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
+    override suspend fun cancelSipOrder(xsipRegNo: String): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeRequest<CancelXsipResponseDto> {
+            client.post(getUrl("/mf/cancel-xsip")) {
+                setBody(CancelXsipRequestDto(xsip_reg_no = xsipRegNo))
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> {
+                NetworkResponse.Error(response.error)
+            }
+            is NetworkResponse.Success -> {
+                NetworkResponse.Success(Unit)
+            }
+        }
+    }
+
+    // ── Redemption ───────────────────────────────────────────────────────────────────────────
+
+    override suspend fun createRedemptionByAmount(
+        holdingId: String,
+        amount: Double
+    ): NetworkResponse<MfRedemption, ErrorDomain> {
+        val response = safeRequest<CreateRedemptionResponseDto> {
+            client.post(getUrl("/mf/redemption/")) {
+                setBody(CreateRedemptionByAmountBody(mf_holding_id = holdingId, amount = amount))
+            }
+        }
+        return response.toCreatedRedemption()
+    }
+
+    override suspend fun createRedemptionByUnits(
+        holdingId: String,
+        units: Double
+    ): NetworkResponse<MfRedemption, ErrorDomain> {
+        val response = safeRequest<CreateRedemptionResponseDto> {
+            client.post(getUrl("/mf/redemption/")) {
+                setBody(CreateRedemptionByUnitsBody(mf_holding_id = holdingId, units = units))
+            }
+        }
+        return response.toCreatedRedemption()
+    }
+
+    override suspend fun getRedemption(
+        redemptionId: String
+    ): NetworkResponse<MfRedemption, ErrorDomain> {
+        val response = safeRequest<RedemptionStatusResponseDto> {
+            client.get(getUrl("/mf/redemption/$redemptionId"))
+        }
+
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+
+            is NetworkResponse.Success -> response.data.toDomain()
+                ?.let { NetworkResponse.Success(it) }
+                ?: NetworkResponse.Error(REDEMPTION_NOT_READABLE)
+        }
+    }
+
+    override suspend fun requestRedemptionOtp(
+        redemptionId: String
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return safeUnitRequest {
+            client.post(getUrl("/mf/redemption/$redemptionId/confirm/request-otp"))
+        }
+    }
+
+    override suspend fun verifyRedemptionOtp(
+        redemptionId: String,
+        otp: String
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return safeUnitRequest {
+            client.post(getUrl("/mf/redemption/$redemptionId/confirm/verify-otp")) {
+                setBody(VerifyRedemptionOtpBody(otp = otp))
+            }
+        }
+    }
+
+    override suspend fun getPortfolioReport(): NetworkResponse<ByteArray, ErrorDomain> {
+        return safeRequest<ByteArray>{
+            client.get(getUrl("/report/portfolio/pdf")) {
+            }
+        }
+    }
+
+    override suspend fun getFolioSpecificReport(folio: String): NetworkResponse<ByteArray, ErrorDomain> {
+        return safeRequest<ByteArray>{
+            client.get(getUrl("/report/fund-holding/pdf")) {
+                parameter("folio", folio)
+            }
+        }
+    }
+
+    /** A create with no `fp_id` cannot be polled or confirmed, so it is not a success. */
+    private fun NetworkResponse<CreateRedemptionResponseDto, ErrorDomain>.toCreatedRedemption():
+            NetworkResponse<MfRedemption, ErrorDomain> = when (this) {
+        is NetworkResponse.Error -> NetworkResponse.Error(error)
+
+        is NetworkResponse.Success -> data.toDomain()
+            ?.let { NetworkResponse.Success(it) }
+            ?: NetworkResponse.Error(REDEMPTION_NOT_READABLE)
+    }
+
+    private companion object {
+        val REDEMPTION_NOT_READABLE = ErrorDomain(
+            code = -1,
+            message = "Could not read the redemption. Please try again.",
+            type = ErrorType.UNKNOWN
+        )
+    }
+
+}

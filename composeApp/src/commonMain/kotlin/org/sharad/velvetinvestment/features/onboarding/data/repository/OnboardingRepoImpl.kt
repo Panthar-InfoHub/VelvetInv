@@ -1,0 +1,592 @@
+package org.sharad.velvetinvestment.features.onboarding.data.repository
+
+import org.sharad.velvetinvestment.features.onboarding.domain.model.InvestorProfileSubmission
+import org.sharad.velvetinvestment.features.onboarding.data.model.InvestorProfileResponseDto
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.util.network.UnresolvedAddressException
+import org.sharad.velvetinvestment.features.core.domain.models.OnboardingStage
+import org.sharad.velvetinvestment.utils.networking.ErrorDomain
+import org.sharad.velvetinvestment.utils.networking.ErrorType
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.data.remote.model.ServerError.ServerError
+import org.sharad.velvetinvestment.utils.networking.getUrl
+import org.sharad.velvetinvestment.utils.networking.safeRequest
+import org.sharad.velvetinvestment.utils.networking.safeUnitRequest
+import org.sharad.velvetinvestment.utils.storage.AuthPrefs
+import org.sharad.velvetinvestment.features.onboarding.data.model.EmailOtpRequestBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.EmailOtpVerifyBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.EmailVerificationResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.GeoLocationBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.InvestorProfileBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.KycFormInitiateResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.KycFormStatusResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.MandateRequestBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.MandateResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.MandateStatusResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.NomineeAddressBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.NomineeBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.NomineePhoneBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.NomineeRequestBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.BasicDetailsBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.CityLookupResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.OnboardingResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.PANVerificationBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.toDomain
+import org.sharad.velvetinvestment.features.onboarding.domain.model.OnboardingStatus
+import org.sharad.velvetinvestment.features.onboarding.data.model.PennyDropBody
+import org.sharad.velvetinvestment.features.onboarding.data.model.PennyDropStatusResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.ReversePennyInitiateResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.ReversePennyPrefillResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.ReversePennyStatusResponseDto
+import org.sharad.velvetinvestment.features.onboarding.data.model.SkipNomineeRequestBody
+import org.sharad.velvetinvestment.features.onboarding.domain.model.BankAccount
+import org.sharad.velvetinvestment.features.onboarding.domain.model.EmailVerification
+import org.sharad.velvetinvestment.features.onboarding.domain.model.InvestorProfile
+import org.sharad.velvetinvestment.features.onboarding.domain.model.KYCError
+import org.sharad.velvetinvestment.features.onboarding.domain.model.KycFormInitiation
+import org.sharad.velvetinvestment.features.onboarding.domain.model.KycFormStatus
+import org.sharad.velvetinvestment.features.onboarding.domain.model.Mandate
+import org.sharad.velvetinvestment.features.onboarding.domain.model.MandateStatus
+import org.sharad.velvetinvestment.features.onboarding.domain.model.Nominee
+import org.sharad.velvetinvestment.features.onboarding.domain.model.PANVerificationError
+import org.sharad.velvetinvestment.features.onboarding.domain.model.PennyDropStatus
+import org.sharad.velvetinvestment.features.onboarding.domain.model.PrefilledBankDetails
+import org.sharad.velvetinvestment.features.onboarding.domain.model.ReversePennyDropLinks
+import org.sharad.velvetinvestment.features.onboarding.domain.model.ReversePennyDropStatus
+import org.sharad.velvetinvestment.features.onboarding.domain.repository.OnboardingRepo
+
+class OnboardingRepoImpl(
+    private val client: HttpClient,
+    private val authPrefs: AuthPrefs
+) : OnboardingRepo {
+
+    override suspend fun submitBasicDetails(
+        fullName: String,
+        dob: String
+    ): NetworkResponse<OnboardingStatus, ErrorDomain> {
+        val response = safeRequest<OnboardingResponseDto> {
+            client.post(getUrl("/onboarding/basic-details/")) {
+                setBody(
+                    BasicDetailsBody(
+                        full_name = fullName,
+                        date_of_birth = dob
+                    )
+                )
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Success -> {
+                val status = response.data.toDomain()
+                persistStage(status.currentStage)
+                NetworkResponse.Success(status)
+            }
+
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun initiatePan(
+        pan: String
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return safeUnitRequest {
+            client.post(getUrl("/onboarding/pan-verification")) {
+                setBody(
+                    PANVerificationBody(
+                        skip = false,
+                        pan = pan
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun skipPan(): NetworkResponse<OnboardingStatus, ErrorDomain> {
+        val response = safeRequest<OnboardingResponseDto> {
+            client.post(getUrl("/onboarding/pan-verification")) {
+                setBody(
+                    PANVerificationBody(
+                        skip = true
+                    )
+                )
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Success -> {
+                val status = response.data.toDomain()
+                persistStage(status.currentStage)
+                NetworkResponse.Success(status)
+            }
+
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    /**
+     * Success carries no data, so it maps to [Unit] like any other unit request. The failure side
+     * is what matters here: the caller acts on the server's error `type`, which [ErrorDomain] would
+     * flatten into [org.sharad.velvetinvestment.utils.networking.ErrorType.SERVER], so the
+     * raw type is preserved in [PANVerificationError] instead.
+     */
+    override suspend fun getPANVerificationStatus(): NetworkResponse<Unit, PANVerificationError> {
+        val response = try {
+            client.get(getUrl("/onboarding/pan-verification/status"))
+        } catch (e: UnresolvedAddressException) {
+            return NetworkResponse.Error(
+                PANVerificationError(
+                    code = -1,
+                    message = "No internet connection",
+                    type = PANVerificationError.UNKNOWN
+                )
+            )
+        } catch (e: Exception) {
+            return NetworkResponse.Error(
+                PANVerificationError(
+                    code = -1,
+                    message = "Unknown network error",
+                    type = PANVerificationError.UNKNOWN
+                )
+            )
+        }
+
+        return if (response.status.value in 200..299) {
+            NetworkResponse.Success(Unit)
+        } else {
+            NetworkResponse.Error(response.toPANVerificationError())
+        }
+    }
+
+    override suspend fun initiateKycForm(): NetworkResponse<KycFormInitiation, ErrorDomain> {
+        val response = safeRequest<KycFormInitiateResponseDto> {
+            client.post(getUrl("/onboarding/kyc-form"))
+        }
+        return when (response) {
+            is NetworkResponse.Success -> {
+                val initiation = response.data.toDomain()
+                initiation.onboarding?.let { persistStage(it.currentStage) }
+                NetworkResponse.Success(initiation)
+            }
+
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun getKycFormStatus(): NetworkResponse<KycFormStatus, KYCError> {
+
+        val response = try {
+            client.get(
+                getUrl("/onboarding/kyc-form/status")
+            )
+        } catch (e: UnresolvedAddressException) {
+            return NetworkResponse.Error(
+                KYCError(
+                    code = -1,
+                    message = "No internet connection",
+                    type = KYCError.UNKNOWN
+                )
+            )
+        } catch (e: Exception) {
+            return NetworkResponse.Error(
+                KYCError(
+                    code = -1,
+                    message = "Unknown network error",
+                    type = KYCError.UNKNOWN
+                )
+            )
+        }
+
+        return if (response.status.value in 200..299) {
+            try {
+                val responseDto = response.body<KycFormStatusResponseDto>()
+
+                persistStage(responseDto.data?.onboarding?.current_stage)
+
+                NetworkResponse.Success(
+                    responseDto.toDomain()
+                )
+            } catch (e: Exception) {
+                NetworkResponse.Error(
+                    KYCError(
+                        code = -1,
+                        message = "Failed to parse KYC status",
+                        type = KYCError.UNKNOWN
+                    )
+                )
+            }
+        } else {
+            NetworkResponse.Error(
+                response.toKYCError()
+            )
+        }
+    }
+
+    override suspend fun uploadKycFormSignature(
+        imageBytes: ByteArray,
+        mimeType: String
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return safeUnitRequest {
+            client.post(
+                getUrl("/onboarding/kyc-form/signature")
+            ) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                key = "file",
+                                value = imageBytes,
+                                headers = Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "filename=\"signature.jpg\""
+                                    )
+                                    append(
+                                        HttpHeaders.ContentType,
+                                        mimeType
+                                    )
+                                }
+                            )
+                        }
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun submitPennyDrop(
+        bankAccount: BankAccount
+    ): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeUnitRequest {
+            client.post(getUrl("/onboarding/penny-drop")) {
+                setBody(
+                    PennyDropBody(
+                        account_number = bankAccount.accountNumber,
+                        ifsc_code = bankAccount.ifscCode,
+                        bank_name = bankAccount.bankName,
+                        account_holder_name = bankAccount.accountHolderName,
+                        account_type = bankAccount.accountType
+                    )
+                )
+            }
+        }
+        if (response is NetworkResponse.Success) {
+            persistStage(OnboardingStage.EmailVerification)
+        }
+        return response
+    }
+
+    override suspend fun getPennyDropStatus(
+        accountNumber: String
+    ): NetworkResponse<PennyDropStatus, ErrorDomain> {
+        val response = safeRequest<PennyDropStatusResponseDto> {
+            client.get(getUrl("/onboarding/pan-verification/status"))
+        }
+        return when (response) {
+            is NetworkResponse.Success ->
+                NetworkResponse.Success(response.data.toDomain(accountNumber))
+
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun getPrefilledBankDetails(): NetworkResponse<PrefilledBankDetails?, ErrorDomain> {
+        val response = safeRequest<ReversePennyPrefillResponseDto> {
+            client.get(getUrl("/onboarding/reverse-penny/prefill/"))
+        }
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun initiateReversePennyDrop(): NetworkResponse<ReversePennyDropLinks, ErrorDomain> {
+        val response = safeRequest<ReversePennyInitiateResponseDto> {
+            client.post(getUrl("/onboarding/reverse-penny/initiate"))
+        }
+        return when (response) {
+            is NetworkResponse.Success -> {
+                val body = response.data
+                val links = body.toDomain()?.takeIf { body.success }
+                if (links != null) {
+                    NetworkResponse.Success(links)
+                } else {
+                    // A 200 that failed in its body, or carried no link to pay through.
+                    NetworkResponse.Error(
+                        ErrorDomain(
+                            code = HTTP_OK,
+                            message = body.message?.takeIf { it.isNotBlank() }
+                                ?: "Could not start the bank verification. Please try again.",
+                            type = ErrorType.SERVER
+                        )
+                    )
+                }
+            }
+
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun getReversePennyDropStatus(): NetworkResponse<ReversePennyDropStatus, ErrorDomain> {
+        val response = safeRequest<ReversePennyStatusResponseDto> {
+            client.get(getUrl("/onboarding/reverse-penny/status/"))
+        }
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun requestEmailOtp(
+        email: String
+    ): NetworkResponse<OnboardingStatus, ErrorDomain> {
+        val response = safeRequest<OnboardingResponseDto> {
+            client.post(getUrl("/onboarding/email/request-otp")) {
+                setBody(EmailOtpRequestBody(email = email))
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Success -> {
+                val status = response.data.toDomain()
+                persistStage(status.currentStage)
+                NetworkResponse.Success(status)
+            }
+
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun verifyEmailOtp(
+        otp: String
+    ): NetworkResponse<EmailVerification, ErrorDomain> {
+        val response = safeRequest<EmailVerificationResponseDto> {
+            client.post(getUrl("/onboarding/email/verify-otp")) {
+                setBody(EmailOtpVerifyBody(otp = otp))
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Success -> {
+                val verification = response.data.toDomain()
+                persistStage(verification.onboarding?.currentStage)
+                NetworkResponse.Success(verification)
+            }
+
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun getCityByPincode(pincode: String): NetworkResponse<String, ErrorDomain> {
+        val response = safeRequest<CityLookupResponseDto> {
+            client.get(getUrl("/frontend/city")) {
+                parameter("pin", pincode)
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+            is NetworkResponse.Success -> {
+                // The city is echoed at the top level and under `data`; either will do.
+                val city = (response.data.data?.city ?: response.data.city)?.trim()
+                if (city.isNullOrBlank()) {
+                    NetworkResponse.Error(
+                        ErrorDomain(0, "Could not find a city for this pincode", ErrorType.UNKNOWN)
+                    )
+                } else {
+                    NetworkResponse.Success(city)
+                }
+            }
+        }
+    }
+
+    override suspend fun submitInvestorProfile(
+        profile: InvestorProfile
+    ): NetworkResponse<InvestorProfileSubmission, ErrorDomain> {
+        val response = safeRequest<InvestorProfileResponseDto> {
+            client.post(getUrl("/onboarding/investor-profile/")) {
+                setBody(
+                    InvestorProfileBody(
+                        email = profile.email,
+                        full_name = profile.fullName,
+                        dob = profile.dob,
+                        gender = profile.gender,
+                        address = profile.address,
+                        pincode = profile.pincode,
+                        city = profile.city,
+                        marital_status = profile.maritalStatus,
+                        father_name = profile.fatherName,
+                        spouse_name=profile.spouseName,
+                        place_of_birth = profile.placeOfBirth,
+                        occupation = profile.occupation,
+                        source_of_fund = profile.sourceOfFund,
+                        income_slab = profile.incomeSlab,
+                        pep_confirmed = profile.pepConfirmed,
+                        residency_confirmed = profile.residencyConfirmed,
+                        geolocation = GeoLocationBody(
+                            latitude = profile.geoLocation.latitude,
+                            longitude = profile.geoLocation.longitude
+                        )
+                    )
+                )
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun submitNominees(
+        nominees: List<Nominee>
+    ): NetworkResponse<Unit, ErrorDomain> {
+        return postNominees(
+            NomineeRequestBody(
+                skip = false,
+                nominees = nominees.map { it.toBody() }
+            )
+        )
+    }
+
+    override suspend fun skipNominees(): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeUnitRequest {
+            client.post(getUrl("/onboarding/nominee")) {
+                setBody(SkipNomineeRequestBody(skip = true))
+            }
+        }
+        if (response is NetworkResponse.Success) {
+            persistStage(OnboardingStage.Completed)
+        }
+        return response
+    }
+
+    /** The nominees are the last step of onboarding, so the flow is finished once they land. */
+    private suspend fun postNominees(body: NomineeRequestBody): NetworkResponse<Unit, ErrorDomain> {
+        val response = safeUnitRequest {
+            client.post(getUrl("/onboarding/nominee")) {
+                setBody(body)
+            }
+        }
+        if (response is NetworkResponse.Success) {
+            persistStage(OnboardingStage.Completed)
+        }
+        return response
+    }
+
+    override suspend fun createMandate(
+        mandateLimit: Long,
+        validFrom: String,
+        paymentPostbackUrl: String
+    ): NetworkResponse<Mandate, ErrorDomain> {
+        val response = safeRequest<MandateResponseDto> {
+            client.post(getUrl("/mandate/")) {
+                setBody(
+                    MandateRequestBody(
+                        mandate_limit = mandateLimit,
+                        valid_from = validFrom,
+                        payment_postback_url = paymentPostbackUrl
+                    )
+                )
+            }
+        }
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    override suspend fun confirmMandate(
+        mandateId: Int
+    ): NetworkResponse<MandateStatus, ErrorDomain> {
+        val response = safeRequest<MandateStatusResponseDto> {
+            client.get(getUrl("/mandate/$mandateId"))
+        }
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
+    }
+
+    /**
+     * Keeps the locally remembered stage in step with the server's, so a restart resumes on the
+     * screen the user actually reached. Always stored as a resume point, so `KYC_VERIFICATION`
+     * — which has no screen of its own — never reaches storage. A missing or unknown stage is
+     * ignored: resolving it would fall back to the first step and restart the flow.
+     */
+    private fun persistStage(currentStage: String?) {
+        if (currentStage.isNullOrBlank() || OnboardingStage.fromId(currentStage) == null) return
+        persistStage(OnboardingStage.resumePoint(currentStage))
+    }
+
+    /**
+     * For the endpoints that answer with no body: the flow is linear from here, so the next screen
+     * is known client-side and a relaunch should not replay the step that just succeeded.
+     */
+    private fun persistStage(stage: OnboardingStage) {
+        authPrefs.advanceOnboardingStage(stage)
+    }
+
+    private fun Nominee.toBody() = NomineeBody(
+        nominee_name = name,
+        relationship = relationship,
+        percentage_allocation = percentageAllocation,
+        dob = dob,
+        document_type = documentType,
+        document_number = documentNumber,
+        email_address = emailAddress,
+        phone_number = NomineePhoneBody(
+            isd = phoneIsd,
+            number = phoneNumber
+        ),
+        address = NomineeAddressBody(
+            line1 = address.line1,
+            city = address.city,
+            state = address.state,
+            postal_code = address.postalCode,
+            country = address.country
+        )
+    )
+
+    private suspend fun HttpResponse.toPANVerificationError(): PANVerificationError {
+        return try {
+            val serverError = body<ServerError>()
+            PANVerificationError(
+                code = status.value,
+                message = serverError.error.message,
+                type = serverError.error.type
+            )
+        } catch (e: Exception) {
+            PANVerificationError(
+                code = status.value,
+                message = "Unknown error",
+                type = PANVerificationError.UNKNOWN
+            )
+        }
+    }
+
+    private suspend fun HttpResponse.toKYCError(): KYCError {
+        return try {
+            val serverError = body<ServerError>()
+
+            KYCError(
+                code = status.value,
+                message = serverError.error.message,
+                type = serverError.error.type
+            )
+        } catch (e: Exception) {
+            KYCError(
+                code = status.value,
+                message = "Unknown error",
+                type = KYCError.UNKNOWN
+            )
+        }
+    }
+
+    private companion object {
+        const val HTTP_OK = 200
+    }
+}

@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import org.sharad.velvetinvestment.presentation.onboarding.compose.OnBoardingTextField
+import org.sharad.velvetinvestment.shared.compose.OnBoardingTextField
 import org.sharad.velvetinvestment.presentation.settingscreens.viewmodels.SettingViewModel
 import org.sharad.velvetinvestment.shared.compose.GenericDropDownField
 @Preview(showSystemUi = true)

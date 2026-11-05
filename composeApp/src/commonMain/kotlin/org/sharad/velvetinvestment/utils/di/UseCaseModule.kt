@@ -7,12 +7,10 @@ import org.sharad.velvetinvestment.domain.usecases.cancelorder.CancelLumpSumOrde
 import org.sharad.velvetinvestment.domain.usecases.cancelorder.CancelSipOrderUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDListUseCase
 import org.sharad.velvetinvestment.domain.usecases.fdportfoliousecases.GetFDPortFolioDetailsUseCase
-import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetBundleFundsUseCase
+import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFDDetailsUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFixedDepositsSearchResultUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetTopPickFDUseCase
 import org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.PurchaseFDUseCase
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddBundleToCartLumpsumUseCase
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddBundleToCartSipUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartLumpsumUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.AddToCartSipUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.CheckSipPurchaseStatusUseCase
@@ -23,14 +21,12 @@ import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundDet
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundGraphUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundSearchResultUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetMutualFundTopPicksUseCase
-import org.sharad.velvetinvestment.domain.usecases.fundusecases.GetUserCartUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.InitiateSipPurchaseUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseLumpsumFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.PurchaseSipFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.RedeemFullFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.fundusecases.RedeemPartialFundUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetFireReportSummaryUseCase
-import org.sharad.velvetinvestment.domain.usecases.home.GetGoalsSummaryUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetKycStatusUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.GetUserWorthCardUseCase
 import org.sharad.velvetinvestment.domain.usecases.home.HomeScreenUseCases
@@ -47,7 +43,6 @@ import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.SubmitKycFormUs
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageAndSignatureDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadImageUseCase
 import org.sharad.velvetinvestment.domain.usecases.mfkycusecases.UploadSignatureUseCase
-import org.sharad.velvetinvestment.domain.usecases.mutualfunds.GetAllBundledFundsUseCase
 import org.sharad.velvetinvestment.domain.usecases.portfolio.GetPendingOrdersUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.DownloadPdfByUrlUseCase
 import org.sharad.velvetinvestment.domain.usecases.report.ExportCapitalReportUseCase
@@ -57,9 +52,6 @@ import org.sharad.velvetinvestment.domain.usecases.report.ExportTaxReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetNotificationsUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetUnreadStatusUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.GetTradingAccountPrefilledDataUseCase
-import org.sharad.velvetinvestment.domain.usecases.user.GetUserDataUseCase
-import org.sharad.velvetinvestment.domain.usecases.user.GetUserPersonalInfo
-import org.sharad.velvetinvestment.domain.usecases.user.LoginWithNumberUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.LoginWithPasswordUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.MarkNotificationsAsReadUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.OnBoardUserUseCase
@@ -68,28 +60,24 @@ import org.sharad.velvetinvestment.domain.usecases.user.SubmitTradingAccountForm
 import org.sharad.velvetinvestment.domain.usecases.user.TradingAccountConfirmationUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.UpdateAssetsUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.UpdateFinanceUseCase
-import org.sharad.velvetinvestment.domain.usecases.user.UpdateGoalsUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.UpdateInsuranceUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.UpdateLoansUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.UpdateProfileUseCase
-import org.sharad.velvetinvestment.domain.usecases.user.VerifyOtpUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.VerifyPANUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.DownloadFirePdfUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDPortfolioByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFDRedirectUrlUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFireReportUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetFolioFundsUseCase
-import org.sharad.velvetinvestment.domain.usecases.userfinance.GetGoalByIdUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetInvestmentRateDataUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.GetPortfolioUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.InvestMoreLumpsumUseCase
-import org.sharad.velvetinvestment.domain.usecases.userfinance.MapGoalUseCase
 import org.sharad.velvetinvestment.domain.usecases.userfinance.RequestConnectionUseCase
-import org.sharad.velvetinvestment.domain.usecases.userfinance.UnMapGoalUseCase
+
+import org.sharad.velvetinvestment.shared.domain.usecase.GetUserDataUseCase
 
 val useCaseModule= module {
-    factory { LoginWithNumberUseCase(get()) }
-    factory { VerifyOtpUseCase(get()) }
+    factory { GetUserDataUseCase(get()) }
     factory { LoginWithPasswordUseCase(get()) }
     factory { SignOutUseCase(get()) }
     factory { OnBoardUserUseCase(get()) }
@@ -98,8 +86,6 @@ val useCaseModule= module {
     factory { UpdateInsuranceUseCase(get()) }
     factory { UpdateLoansUseCase(get()) }
     factory { UpdateProfileUseCase(get()) }
-    factory { UpdateGoalsUseCase(get()) }
-    factory { GetUserDataUseCase(get()) }
     factory { GetTradingAccountPrefilledDataUseCase(get()) }
     factory { GetNotificationsUseCase(get()) }
     factory { GetUnreadStatusUseCase(get()) }
@@ -112,15 +98,12 @@ val useCaseModule= module {
 
     factory { GetFireReportSummaryUseCase(get()) }
 
-    factory { GetGoalsSummaryUseCase(get()) }
-
     factory { GetKycStatusUseCase(get()) }
 
     factory {
         HomeScreenUseCases(
             getUserWorthCard = get(),
             getFireReport = get(),
-            getGoalsSummary = get(),
             getKycStatus = get()
         )
     }
@@ -175,11 +158,9 @@ val useCaseModule= module {
     // Browser
     factory { LaunchBrowserUseCase(get()) }
 
-    factory { GetUserPersonalInfo(get()) }
-    factory { org.sharad.velvetinvestment.domain.usecases.fixeddepositusecases.GetFDDetailsUseCase(get()) }
+    factory { GetFDDetailsUseCase(get()) }
     factory { PurchaseFDUseCase(get()) }
 
-    factory { GetUserCartUseCase(get()) }
     factory { DeleteCartItemUseCase(get()) }
     factory { ClearCartUseCase(get()) }
     factory { PurchaseLumpsumFundUseCase(get()) }
@@ -188,16 +169,9 @@ val useCaseModule= module {
     factory { CheckSipPurchaseStatusUseCase(get()) }
     factory { AddToCartSipUseCase(get()) }
     factory { AddToCartLumpsumUseCase(get()) }
-    factory { AddBundleToCartLumpsumUseCase(get()) }
-    factory { AddBundleToCartSipUseCase(get()) }
     factory { RedeemPartialFundUseCase(get()) }
     factory { RedeemFullFundUseCase(get()) }
-    factory { GetBundleFundsUseCase(get()) }
-    factory { GetAllBundledFundsUseCase(get()) }
     factory { GetInvestmentRateDataUseCase(get()) }
-    factory { GetGoalByIdUseCase(get()) }
-    factory { MapGoalUseCase(get()) }
-    factory { UnMapGoalUseCase(get()) }
     factory { GetContractPdfUseCase(get()) }
 
     factory { GetLoansUseCase(get()) }

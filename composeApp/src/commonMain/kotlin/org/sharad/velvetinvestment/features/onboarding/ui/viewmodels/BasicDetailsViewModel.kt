@@ -1,0 +1,106 @@
+package org.sharad.velvetinvestment.features.onboarding.ui.viewmodels
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.features.onboarding.domain.usecases.SubmitBasicDetailsUseCase
+import org.sharad.velvetinvestment.features.onboarding.ui.OnboardingInput
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.formatMillisToDisplayDate
+import org.sharad.velvetinvestment.utils.formatMillisToIsoDate
+import org.sharad.velvetinvestment.utils.networking.onError
+import org.sharad.velvetinvestment.utils.networking.onSuccess
+import org.sharad.velvetinvestment.utils.storage.AuthPrefs
+
+data class BasicDetailsUiState(
+    val name: String = "",
+    val dob: String = "",
+    val displayDob: String = "",
+    val isLoading: Boolean = false
+) {
+    val canSubmit: Boolean
+        get() = OnboardingInput.isFilled(name) &&
+                OnboardingInput.isValidIsoDate(dob)
+}
+
+sealed interface BasicDetailsEvent {
+    data class OnNameChange(val name: String) : BasicDetailsEvent
+    data class OnDobChange(val dob: Long?) : BasicDetailsEvent
+    data object OnProceedClick : BasicDetailsEvent
+}
+
+sealed interface BasicDetailsEffect {
+    data object NavigateToPanInitiate : BasicDetailsEffect
+}
+
+class BasicDetailsViewModel(
+    private val basicDetailsUseCase: SubmitBasicDetailsUseCase,
+    /** The confirmed name and date of birth are kept locally so later steps can prefill them. */
+    private val authPrefs: AuthPrefs
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(BasicDetailsUiState())
+    val uiState = _uiState.asStateFlow()
+
+    private val _effect = MutableSharedFlow<BasicDetailsEffect>()
+    val effect = _effect.asSharedFlow()
+
+    fun handleEvent(event: BasicDetailsEvent) {
+        when (event) {
+            is BasicDetailsEvent.OnNameChange -> onNameChange(event.name)
+            is BasicDetailsEvent.OnDobChange -> onDobChange(event.dob)
+            BasicDetailsEvent.OnProceedClick -> onProceedClick()
+        }
+    }
+
+
+    private fun onNameChange(name: String) {
+        _uiState.update { it.copy(name = OnboardingInput.sanitizeName(name)) }
+    }
+
+    /** Always arrives as `yyyy-MM-dd` from the date picker; the field itself is read-only. */
+    private fun onDobChange(dob: Long?) {
+        if (dob==null) return
+        _uiState.update { it.copy(dob = formatMillisToIsoDate(dob),
+            displayDob = formatMillisToDisplayDate(dob)) }
+    }
+
+
+    private fun onProceedClick() {
+        val state = _uiState.value
+        if (state.isLoading || !state.canSubmit) return
+
+        viewModelScope.launch {
+            setLoading(true)
+
+            basicDetailsUseCase(
+                fullName = _uiState.value.name,
+                dob = _uiState.value.dob
+            )
+                .onError {
+                setLoading(false)
+                SnackBarController.showError(it.message)
+            }
+                .onSuccess {
+                    setLoading(false)
+                    authPrefs.setFullName(state.name.trim())
+                    authPrefs.setDob(state.dob.trim())
+                    sendEffect(BasicDetailsEffect.NavigateToPanInitiate)
+                }
+
+        }
+    }
+
+
+    private fun setLoading(loading: Boolean) {
+        _uiState.update { it.copy(isLoading = loading) }
+    }
+
+    private fun sendEffect(effect: BasicDetailsEffect) {
+        viewModelScope.launch { _effect.emit(effect) }
+    }
+}

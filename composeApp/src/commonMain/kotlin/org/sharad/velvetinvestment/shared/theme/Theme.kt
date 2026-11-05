@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.shared.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
@@ -66,11 +67,16 @@ fun VelvetTheme(
     content: @Composable() () -> Unit
 ) {
 
-  val colorScheme = lightScheme
-  MaterialTheme(
-    colorScheme = colorScheme,
-    typography = Typography,
-    content = content
-  )
+    val colorScheme = lightScheme
+    CompositionLocalProvider(
+        LocalVelvetShapes provides VelvetShapes(),
+    ){
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
+
 }
 

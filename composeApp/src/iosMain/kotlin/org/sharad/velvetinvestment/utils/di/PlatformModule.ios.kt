@@ -1,8 +1,15 @@
 package org.sharad.velvetinvestment.utils.di
 
+import org.sharad.velvetinvestment.utils.location.IosLocationProvider
+import org.sharad.velvetinvestment.utils.location.LocationProvider
+
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sharad.velvetinvestment.shared.data.local.database.VelvetDatabase
+import org.sharad.velvetinvestment.shared.data.local.database.createIosDatabase
 import org.sharad.velvetinvestment.utils.BrowserLauncher
+import org.sharad.velvetinvestment.utils.deeplink.ExternalAppLauncher
+import org.sharad.velvetinvestment.utils.deeplink.IosExternalAppLauncher
 import org.sharad.velvetinvestment.utils.DeviceInfoRetrieverIos
 import org.sharad.velvetinvestment.utils.IOSBrowserLauncher
 import org.sharad.velvetinvestment.utils.IosSharedPreferences
@@ -18,7 +25,10 @@ actual val platformModule: Module
         single<DeviceInfoRetriever>{ DeviceInfoRetrieverIos() }
         single <SharedPreference>{ IosSharedPreferences() }
         single<BrowserLauncher> { IOSBrowserLauncher() }
+        single<ExternalAppLauncher> { IosExternalAppLauncher() }
         single<PdfDownloadManager> { PdfDownloaderIos(get()) }
         single<PdfViewer> { PdfViewerIos() }
+        single<VelvetDatabase> { createIosDatabase() }
+        single<LocationProvider> { IosLocationProvider() }
 
     }

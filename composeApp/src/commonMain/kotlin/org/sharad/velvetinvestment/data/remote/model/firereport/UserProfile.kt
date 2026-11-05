@@ -4,7 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserProfile(
-    val age: Int,
-    val city: String,
-    val name: String
+    val name: String = "",
+    val age: Int? = null,
+    /** Null until the user has a city on file. */
+    val city: String? = null
 )

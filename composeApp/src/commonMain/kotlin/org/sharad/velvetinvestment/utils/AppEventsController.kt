@@ -44,6 +44,12 @@ object AppEventsController {
 
     }
 
+    /** A push said KYC changed on the server: home reloads without its full-screen loader (JN). */
+    suspend fun sendKycSilentRefreshEvent(){
+        _appEvent.emit(AppEvent.KycSilentRefresh)
+        Log("Refresh Event", "KYC Silent Refresh Called")
+    }
+
     suspend fun sendFireRefreshEvent(){
         _appEvent.emit(AppEvent.FireRefreshEvent)
         Log("Refresh Event", "Fire Refresh Called")
@@ -72,5 +78,6 @@ sealed interface AppEvent{
     data object NotificationMarkEvent: AppEvent
 
     data object PortfolioRefreshEvent: AppEvent
+    data object KycSilentRefresh: AppEvent
     data object LogOut: AppEvent
 }

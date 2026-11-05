@@ -35,7 +35,7 @@ import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.sharad.emify.core.ui.theme.Secondary
-import org.sharad.velvetinvestment.domain.models.mutualfunds.MutualFundGraphPointsDomain
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundGraphPointsDomain
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
 

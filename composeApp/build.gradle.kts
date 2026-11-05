@@ -27,7 +27,6 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-            export("io.github.mirzemehdi:kmpnotifier:1.6.1")
         }
     }
 
@@ -44,6 +43,9 @@ kotlin {
             implementation(libs.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.messaging)
+            implementation(libs.play.services.location)
+            implementation(libs.androidx.biometric)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -76,7 +78,6 @@ kotlin {
             implementation(libs.adaptive)
             implementation("io.github.ismoy:imagepickerkmp:1.0.43")
 
-            api("io.github.mirzemehdi:kmpnotifier:1.6.1")
         }
 
         nativeMain.dependencies {

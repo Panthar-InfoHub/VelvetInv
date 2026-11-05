@@ -36,13 +36,6 @@ class HomeRepositoryMock : HomeRepository {
         )
     }
 
-    override suspend fun getGoalsSummary(): NetworkResponse<List<GoalsSummaryDomain>, NetworkError> {
-        simulateDelay()
-        return NetworkResponse.Success(
-            emptyList()
-        )
-    }
-
     override suspend fun getKycStatus(): NetworkResponse<KYCCompletion, NetworkError> {
         simulateDelay()
         return NetworkResponse.Success(

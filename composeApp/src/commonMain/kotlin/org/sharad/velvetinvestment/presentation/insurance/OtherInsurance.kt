@@ -45,7 +45,7 @@ fun OtherInsuranceScreen(
     Column(
         modifier=Modifier.fillMaxSize()
     ) {
-        BackHeader(heading = "Other Insurances", showBack = true, onBackClick = onBackClick)
+        BackHeader(title = "Other Insurances", showBack = true, onBack = onBackClick)
         LazyColumn(
             modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)

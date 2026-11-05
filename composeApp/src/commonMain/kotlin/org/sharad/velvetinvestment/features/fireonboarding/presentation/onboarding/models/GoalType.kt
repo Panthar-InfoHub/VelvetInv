@@ -1,0 +1,10 @@
+package org.sharad.velvetinvestment.features.fireonboarding.presentation.onboarding.models
+
+sealed interface GoalType {
+    val id: Int
+
+    data object ChildEducation : GoalType { override val id = 1 }
+    data object ChildMarriage : GoalType { override val id = 2 }
+    data object Retirement : GoalType { override val id = 3 }
+    data object WealthBuilding : GoalType { override val id = 4 }
+}

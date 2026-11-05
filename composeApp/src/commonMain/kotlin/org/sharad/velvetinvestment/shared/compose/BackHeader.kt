@@ -23,10 +23,10 @@ import velvet.composeapp.generated.resources.back_arrow
 
 @Composable
 fun BackHeader(
-    heading: String,
+    title: String,
     showBack: Boolean = false,
     modifier:Modifier=Modifier.fillMaxWidth(),
-    onBackClick: () -> Unit={},
+    onBack: () -> Unit={},
     rightContent: @Composable () -> Unit={}
 ){
     Box(
@@ -36,7 +36,7 @@ fun BackHeader(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = heading,
+            text = title,
             style = MaterialTheme.typography.headlineLarge,
             color = Primary
         )
@@ -46,7 +46,7 @@ fun BackHeader(
                 painter = painterResource(Res.drawable.back_arrow),
                 contentDescription = null,
                 modifier = Modifier.size(22.dp).clickable(
-                    onClick = onBackClick,
+                    onClick = onBack,
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ).align(Alignment.CenterStart)

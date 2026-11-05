@@ -4,14 +4,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Projection(
-    val fire_number: FireNumber,
-    val fire_percentage: FirePercentage,
-    val goal_commitment_annual: Double,
-    val goal_hits: List<GoalHit>,
-    val goals_payout: Double,
-    val income: Double,
-    val portfolio_value: PortfolioValue,
-    val savings: Savings,
-    val total_expenses: TotalExpenses,
-    val year: Int
+    val year: Int = 0,
+    val income: Double = 0.0,
+    val goal_commitment_annual: Double = 0.0,
+    val goals_payout: Double = 0.0,
+    val goal_hits: List<GoalHit> = emptyList(),
+    val total_expenses: TotalExpenses = TotalExpenses(),
+    val savings: Savings = Savings(),
+    val portfolio_value: PortfolioValue = PortfolioValue(),
+    val fire_number: FireNumber = FireNumber(),
+    val fire_percentage: FirePercentage = FirePercentage()
 )

@@ -8,20 +8,18 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import org.sharad.velvetinvestment.presentation.LoginScreen.LoginScreen
-import org.sharad.velvetinvestment.presentation.LoginScreen.OtpScreen
-import org.sharad.velvetinvestment.presentation.LoginScreen.viewmodel.LoginScreenViewModel
+import org.sharad.velvetinvestment.features.login.ui.screens.LoginScreen
+import org.sharad.velvetinvestment.features.login.ui.screens.OtpScreen
+import org.sharad.velvetinvestment.features.login.ui.viewmodels.LoginScreenViewModel
 import org.sharad.velvetinvestment.presentation.SplashScreen.SplashScreen
 import org.sharad.velvetinvestment.utils.WindowSize
-import org.sharad.velvetinvestment.utils.storage.AuthPrefs
 
 @Composable
 fun LoginNavigation(
-    onLoginSuccessNavigation: () -> Unit,
     windowSize: WindowSize,
-    navigateToOnboarding: (Int) -> Unit
+    navigateToOnboardingGraph: () -> Unit,
+    navigateToMainAppFlow: () -> Unit
 ){
 
     val navController= rememberNavController()
@@ -94,10 +92,8 @@ fun LoginNavigation(
         composable<Route.OtpScreen> {
             OtpScreen(
                 viewModel = loginViewModel,
-                navigateToMainApp= onLoginSuccessNavigation,
-                navigateToOnboarding={
-                    navigateToOnboarding(it)
-                }
+                navigateToMainApp = navigateToMainAppFlow,
+                navigateToOnboarding = navigateToOnboardingGraph
             )
         }
     }

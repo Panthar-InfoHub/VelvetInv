@@ -99,6 +99,7 @@ fun<T> DropDownSelector(
         ) {
             GenericDropDownHeader(
                 value = value,
+                isEmpty = list.isEmpty(),
                 placeHolder = placeHolder,
                 onClick = {extended=!extended},
                 extended =extended
@@ -147,31 +148,49 @@ private fun <T>GenericDropDownContent(
 }
 
 @Composable
-private fun GenericDropDownHeader(value:String, placeHolder: String, onClick: () -> Unit, extended: Boolean) {
+private fun GenericDropDownHeader(
+    value:String,
+    placeHolder: String,
+    isEmpty: Boolean,
+    onClick: () -> Unit,
+    extended: Boolean
+) {
     val animatedIcon by animateFloatAsState(
         targetValue = if (extended) 180f else 0f,
         label = "arrow")
     Row(
         modifier = Modifier.fillMaxWidth()
             .height(54.dp)
-            .clickable(
-                onClick={onClick()}
-            ),
+            .clickable{
+                if (!isEmpty){
+                    onClick()
+                }
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Text(
-            text= (value.ifEmpty { placeHolder }).capitalize(Locale.current),
-            style = subHeadingMedium.copy(fontSize = 14.sp),
-            color = if (value.isBlank()) titleColor.copy(alpha = 0.5f) else Primary,
-            modifier = Modifier.weight(1f).padding(start = 16.dp)
-        )
-        Icon(
-            painter = painterResource(Res.drawable.arrow_down),
-            contentDescription = null,
-            modifier = Modifier.padding(end = 24.dp).rotate(animatedIcon),
-            tint = Primary
-        )
+        if (isEmpty){
+            Text(
+                text= "No options available.",
+                style = subHeadingMedium.copy(fontSize = 12.sp),
+                color = if (value.isBlank()) titleColor else Primary,
+                modifier = Modifier.weight(1f).padding(start = 16.dp)
+            )
+        }
+        else{
+            Text(
+                text = (value.ifEmpty { placeHolder }).capitalize(Locale.current),
+                style = subHeadingMedium.copy(fontSize = 14.sp),
+                color = if (value.isBlank()) titleColor.copy(alpha = 0.5f) else Primary,
+                modifier = Modifier.weight(1f).padding(start = 16.dp)
+            )
+            Icon(
+                painter = painterResource(Res.drawable.arrow_down),
+                contentDescription = null,
+                modifier = Modifier.padding(end = 24.dp).rotate(animatedIcon),
+                tint = Primary
+            )
+        }
     }
 
 }

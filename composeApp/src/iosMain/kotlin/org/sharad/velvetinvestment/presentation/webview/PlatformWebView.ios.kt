@@ -1,14 +1,18 @@
 package org.sharad.velvetinvestment.presentation.webview
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlinx.cinterop.ObjCSignatureOverride
+import org.sharad.velvetinvestment.utils.deeplink.ExternalAppUrl
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLRequest
 import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationAction
+import platform.WebKit.WKNavigationActionPolicy
 import platform.WebKit.WKNavigationDelegateProtocol
 import platform.WebKit.WKUIDelegateProtocol
 import platform.WebKit.WKWebView
@@ -20,10 +24,20 @@ import platform.darwin.NSObject
 actual fun PlatformWebView(
     state: WebViewState,
     modifier: Modifier,
-    onUrlChanged: (String) -> Unit
+    onUrlChanged: (String) -> Unit,
+    onExternalAppUrl: ((String) -> Unit)?
 ) {
-    val delegate = remember(state, onUrlChanged) {
-        WebViewNavigationDelegate(state, onUrlChanged)
+    val currentOnUrlChanged by rememberUpdatedState(onUrlChanged)
+    val currentOnExternalAppUrl by rememberUpdatedState(onExternalAppUrl)
+
+    // WKWebView holds its delegates weakly, so this one must live as long as the web view: keyed
+    // on the state alone, with the callbacks read through, rather than rebuilt per new lambda.
+    val delegate = remember(state) {
+        WebViewNavigationDelegate(
+            state = state,
+            onUrlChanged = { currentOnUrlChanged(it) },
+            onExternalAppUrl = { url -> currentOnExternalAppUrl?.invoke(url) }
+        )
     }
 
     UIKitView(
@@ -42,8 +56,32 @@ actual fun PlatformWebView(
 
 private class WebViewNavigationDelegate(
     private val state: WebViewState,
-    private val onUrlChanged: (String) -> Unit
+    private val onUrlChanged: (String) -> Unit,
+    /** Gets each app link the web view refused to load, to open it in its app if it wants to. */
+    private val onExternalAppUrl: (String) -> Unit
 ) : NSObject(), WKNavigationDelegateProtocol, WKUIDelegateProtocol {
+
+    // The URL a flow ends on is often posted to a host the app owns but nothing serves, so the
+    // navigation never commits and no load callback ever carries it. The policy decision is the
+    // one point it is always seen, so the URL is reported from there and the load still allowed.
+    override fun webView(
+        webView: WKWebView,
+        decidePolicyForNavigationAction: WKNavigationAction,
+        decisionHandler: (WKNavigationActionPolicy) -> Unit
+    ) {
+        val url = decidePolicyForNavigationAction.request.URL?.absoluteString
+
+        // An app link (gpay://, phonepe:// …) is always cancelled here — tapped or redirected to
+        // by the page itself — before WebKit tries it and fails with an unsupported-URL error,
+        // and handed off to be opened in the app itself.
+        if (handOffExternalAppUrl(url)) {
+            decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyCancel)
+            return
+        }
+
+        url?.let(onUrlChanged)
+        decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyAllow)
+    }
 
     @ObjCSignatureOverride
     override fun webView(webView: WKWebView, didStartProvisionalNavigation: WKNavigation?) {
@@ -70,14 +108,24 @@ private class WebViewNavigationDelegate(
         forNavigationAction: WKNavigationAction,
         windowFeatures: WKWindowFeatures
     ): WKWebView? {
-        if (forNavigationAction.targetFrame == null) {
+        if (forNavigationAction.targetFrame == null &&
+            !handOffExternalAppUrl(forNavigationAction.request.URL?.absoluteString)
+        ) {
             webView.loadRequest(forNavigationAction.request)
         }
         return null
     }
 
+    /** True for any app link, which must not load; the listener, if any, gets to open it. */
+    private fun handOffExternalAppUrl(url: String?): Boolean {
+        if (url == null || !ExternalAppUrl.isExternalAppUrl(url)) return false
+        onExternalAppUrl(url)
+        return true
+    }
+
     private fun updateUrl(webView: WKWebView) {
         val url = webView.URL?.absoluteString ?: return
+        if (ExternalAppUrl.isExternalAppUrl(url)) return
         state.currentUrl = url
         onUrlChanged(url)
     }

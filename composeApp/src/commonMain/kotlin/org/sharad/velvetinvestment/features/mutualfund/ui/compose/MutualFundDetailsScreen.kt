@@ -1,0 +1,888 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
+package org.sharad.velvetinvestment.features.mutualfund.ui.compose
+
+import org.sharad.velvetinvestment.utils.CartInfo
+import org.sharad.velvetinvestment.shared.compose.ListWheelPicker
+import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
+import org.sharad.velvetinvestment.shared.AppDialogList
+import org.sharad.velvetinvestment.features.mutualfund.ui.viewmodel.MFBottomSheetType
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.Duration
+import org.sharad.velvetinvestment.features.cart.presentation.compose.CartPopup
+import org.sharad.velvetinvestment.features.cart.presentation.compose.CartFab
+import androidx.compose.material3.rememberModalBottomSheetState
+import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.Secondary
+import org.sharad.emify.core.ui.theme.bgColor3
+import org.sharad.velvetinvestment.shared.compose.VelvetLoader
+import org.sharad.emify.core.ui.theme.appGreen
+import org.sharad.emify.core.ui.theme.titleColor
+import org.sharad.velvetinvestment.shared.theme.Poppins
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.back_arrow
+import velvet.composeapp.generated.resources.icon_warning
+import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
+import org.sharad.velvetinvestment.utils.UiState
+import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
+import org.sharad.velvetinvestment.utils.trimDoubleTo
+import org.sharad.velvetinvestment.utils.trimTo
+import org.sharad.velvetinvestment.utils.withInterRupee
+import org.sharad.velvetinvestment.shared.compose.ErrorScreen
+import org.sharad.velvetinvestment.shared.compose.FundIcon
+import org.sharad.velvetinvestment.shared.compose.NavLineChart
+import org.sharad.velvetinvestment.shared.compose.NextButtonFooter
+import org.sharad.velvetinvestment.shared.compose.ShadowCard
+import org.sharad.velvetinvestment.shared.UiStateContainer
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.CalculatorInputState
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.DetailsState
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.GraphDurationSelection
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.GraphState
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.InvestmentFrequency
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.Metrics
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundDetailsDomain
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundGraphDomain
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundGraphPointsDomain
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.StableMetricUi
+import org.sharad.velvetinvestment.features.mutualfund.ui.viewmodel.MFDetailsSideEffect
+import org.sharad.velvetinvestment.features.mutualfund.ui.viewmodel.MutualFundDetailsScreenViewModel
+
+/**
+ * A fund's details, reached from the fund lists and the search overlay with the fund's [id] and
+ * [isin] (every purchase call is keyed on the ISIN; null when the caller didn't have it, and the
+ * one from `GET /mf/{id}` is used instead).
+ *
+ * The footer offers JN's "Add to Cart" (the cart sheet; KYC / trading-account errors open the KYC
+ * sheet → [onKycClick]) next to Velvet's "Purchase Fund", which opens plans' `FundPurchase` in the
+ * mode picked on the investment-method screen. The floating cart button opens the cart
+ * ([onCartClick]). JN's folio top-up footer is parked with the top-up flow.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MutualFundDetailsScreenRoot(
+    id: String,
+    isin: String?,
+    onBackClick: () -> Unit,
+    onPurchaseClick: (mfProductId: String, isin: String, fundName: String, fundSubtitle: String) -> Unit,
+    onCartClick: () -> Unit,
+    onKycClick: () -> Unit,
+) {
+
+    val viewModel = koinViewModel<MutualFundDetailsScreenViewModel> { parametersOf(id, isin) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val selectedYear by viewModel.selectedYear.collectAsStateWithLifecycle()
+    val displayPercent by viewModel.stableMetric.collectAsStateWithLifecycle()
+    val calculatorState by viewModel.calculatorInput.collectAsStateWithLifecycle()
+    val navChangePercent by viewModel.navChangePercent.collectAsStateWithLifecycle()
+    val bottomSheetVisibility by viewModel.bottomSheetVisibility.collectAsStateWithLifecycle()
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val cartState by viewModel.cartSheetState.collectAsStateWithLifecycle()
+    val cartAmount by CartInfo.fundAmount.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect {
+            when (it) {
+                is MFDetailsSideEffect.NavigateToPurchase ->
+                    onPurchaseClick(it.mfProductId, it.isin, it.fundName, it.fundSubtitle)
+            }
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().imePadding())
+    {
+
+        Box(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.back_arrow),
+                contentDescription = null,
+                tint = Color.Black,
+                modifier = Modifier.padding(top = 16.dp, bottom = 4.dp, start = 16.dp)
+                    .size(24.dp).clickable(
+                        onClick = onBackClick,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
+            )
+        }
+
+        Box(modifier = Modifier.weight(1f).fillMaxSize()) {
+            UiStateContainer(
+                uiState = uiState.detailsState.toUiState(),
+                onRetry = { viewModel.loadInitial() }
+            ) { data ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.White,
+                    floatingActionButton = {
+                        CartFab(
+                            onClick = onCartClick,
+                            cartAmount = cartAmount,
+                        )
+                    },
+                    bottomBar = {
+                        // folio, topping the holding up. Parked with the rest of the top-up flow.
+                        ContinueBackButtonFooter(
+                            backText = "Add to Cart",
+                            onBack = viewModel::showBottomSheet,
+                            continueText = "Purchase Fund",
+                            onContinue = viewModel::onPurchaseClick
+                        )
+                    }
+                ) { padding ->
+                    MutualFundDetailsScreen(
+                        modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
+                        detailsState = data,
+                        graphState = uiState.graphState,
+                        graphPoints = uiState.chartPoints,
+                        selectedYear = selectedYear,
+                        onSelectedYearChange = viewModel::onSelectedYearChange,
+                        displayPercent = displayPercent,
+                        navChange = navChangePercent,
+                        calculatorState = calculatorState,
+                        onCalcInvestmentChange = viewModel::onInvestmentChange,
+                        onCalcSipToggle = viewModel::onSipToggle,
+                        onCalcTimeChange = viewModel::onTimeChange,
+                        onGraphRetry = { viewModel.loadGraph() }
+                    )
+
+                    if (cartState.dayDropDownExpanded) {
+                        ListWheelPicker(
+                            title = "Select SIP Date",
+                            items = data.sipAllowedDated,
+                            selectedItem = cartState.selectedSIPDate?.toIntOrNull(),
+                            onItemSelected = {
+                                viewModel.onCartDateChange(it.toString())
+                            },
+                            onDismiss = {
+                                viewModel.onCartDropDownDismiss()
+                            }
+                        )
+                    }
+
+                    if (cartState.durationDropDownExpanded) {
+                        AppDialogList(
+                            items = Duration.entries,
+                            textFormatter = {
+                                it.label
+                            },
+                            onSelect = {
+                                viewModel.onCartDurationChange(it)
+                            },
+                            onDismiss = {
+                                viewModel.onCartDropDownDismiss()
+                            },
+                        )
+                    }
+
+                    // No frequency picker: a cart SIP is always monthly (no daily SIP in Velvet).
+
+                    bottomSheetVisibility?.let {
+                        when (it) {
+                            // JN leaves the trading-account action empty; Velvet sends both to KYC
+                            // onboarding, where the trading account is opened.
+                            MFBottomSheetType.KYC, MFBottomSheetType.TRADING_ACCOUNT -> {
+                                KYCPopup(
+                                    sheetState = sheetState,
+                                    onDismiss = {
+                                        viewModel.hideBottomSheet()
+                                    },
+                                    onClick = {
+                                        onKycClick()
+                                        viewModel.hideBottomSheet()
+                                    }
+                                )
+                            }
+
+                            MFBottomSheetType.CART -> {
+                                CartPopup(
+                                    detailState = data,
+                                    sheetState = sheetState,
+                                    cartState = cartState,
+                                    onDismiss = {
+                                        viewModel.hideBottomSheet()
+                                    },
+                                    onAmountChange = viewModel::onCartAmountChange,
+                                    onTypeChange = viewModel::onCartTypeChange,
+                                    onAddClick = viewModel::addToCart,
+                                    showFrequencyDropDown = viewModel::showCartFrequenciesDropDown,
+                                    showDateDropDown = viewModel::showCartDateDropDown,
+                                    showDurationDropDown = viewModel::showCartDurationDropDown,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun DetailsState.toUiState(): UiState<MutualFundDetailsDomain> {
+    return when (this) {
+        is DetailsState.Loading -> UiState.Loading
+        is DetailsState.Success -> UiState.Success(this.data)
+        is DetailsState.Error -> UiState.Error(this.error)
+    }
+}
+
+@Composable
+fun MutualFundDetailsScreen(
+    detailsState: MutualFundDetailsDomain,
+    graphState: GraphState,
+    selectedYear: GraphDurationSelection,
+    onSelectedYearChange: (GraphDurationSelection) -> Unit,
+    displayPercent: StableMetricUi?,
+    graphPoints: List<MutualFundGraphPointsDomain>,
+    calculatorState: CalculatorInputState,
+    onCalcInvestmentChange: (Long) -> Unit,
+    onCalcSipToggle: (Boolean) -> Unit,
+    onCalcTimeChange: (Int) -> Unit,
+    modifier: Modifier,
+    onGraphRetry: () -> Unit,
+    navChange: String
+) {
+
+    var calculatorExpanded by remember { mutableStateOf(false) }
+    var riskExpanded by remember { mutableStateOf(false) }
+    var returnsExpanded by remember { mutableStateOf(false) }
+    var isShortTerm by remember { mutableStateOf(true) }
+    var overviewsExpanded by remember { mutableStateOf(false) }
+
+    val progressAnim = remember { Animatable(0f) }
+
+    LaunchedEffect(selectedYear, graphState) {
+        progressAnim.snapTo(0f)
+        progressAnim.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 1400,
+                easing = FastOutSlowInEasing
+            )
+        )
+    }
+
+    Column(
+        modifier = modifier.fillMaxSize()
+    )
+    {
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxSize(),
+            contentPadding = PaddingValues(top = 8.dp)
+        ) {
+            item {
+                InfoCard(detailsState=detailsState, selectedYear=selectedYear)
+            }
+            item { Spacer(Modifier.height(20.dp)) }
+            item("graph") {
+
+
+                val progress = progressAnim.value
+                GraphCard(
+                    graphState = graphState,
+                    graphPoints = graphPoints,
+                    selectedYear = selectedYear,
+                    onSelectedYearChange = onSelectedYearChange,
+                    chartAnimationProgress=progress,
+                    onReload=onGraphRetry
+                )
+            }
+            item {
+                FundInfo(
+                    date = detailsState.latest_nav_date,
+                    nav = detailsState.latest_nav,
+                    assetType = detailsState.asset_type,
+                    riskLevel = detailsState.risk_level,
+                    metrics = detailsState.metrics,
+                    selectedYear =selectedYear
+                )
+            }
+
+            item { Spacer(Modifier.height(12.dp)) }
+
+            item {
+                WhatIfCalculator(
+                    modifier =Modifier.padding(horizontal = 16.dp),
+                    expanded =calculatorExpanded,
+                    onExpandToggle = {calculatorExpanded=!calculatorExpanded},
+                    input = calculatorState,
+                    metrics = detailsState.metrics,
+                    onModeChange = onCalcSipToggle,
+                    onInvestmentChange = onCalcInvestmentChange,
+                    onTimeChange = onCalcTimeChange
+                )
+            }
+
+            item {
+                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
+            }
+
+            item {
+                RiskSection(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    expanded = riskExpanded,
+                    onExpandToggle ={ riskExpanded=!riskExpanded},
+                    riskLevel = detailsState.risk_level,
+                    riskText = detailsState.risk_name
+                )
+            }
+
+            item {
+                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
+            }
+
+            item {
+                ReturnsSection(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    expanded = returnsExpanded,
+                    onExpandToggle = { returnsExpanded=!returnsExpanded},
+                    isShortTerm = isShortTerm,
+                    onShortTermClick = { isShortTerm=true },
+                    onLongTermClick = { isShortTerm=false },
+                    metrics = detailsState.metrics
+                )
+            }
+
+            item {
+                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
+            }
+
+            item {
+                OverviewSection(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    expanded =overviewsExpanded,
+                    onExpandToggle = { overviewsExpanded=!overviewsExpanded},
+                    data = detailsState
+                )
+            }
+
+            item {
+                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
+            }
+
+            item { Spacer(Modifier.height(20.dp)) }
+
+            item {
+                InvestmentRiskCard()
+            }
+
+            item {
+                Spacer(Modifier.height( 20.dp))
+            }
+        }
+
+    }
+}
+
+@Composable
+fun InvestmentRiskCard() {
+    ShadowCard(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        backgroundColor = bgColor3.copy(alpha = 0.1f)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.icon_warning),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint=Secondary
+            )
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                Text(
+                    text = "Investment Risk",
+                    style = titlesStyle.copy(fontWeight = FontWeight.SemiBold),
+                    color = Primary
+                )
+
+                Text(
+                    text = "Mutual fund investments are subject to market risks. Past performance is not indicative of future returns. Please read all scheme related documents carefully before investing.",
+                    style = titlesStyle.copy(fontSize = 12.sp),
+                    color = titleColor
+                )
+
+            }
+        }
+    }
+}
+//
+//@Composable
+//fun TopRatedFunds(topFunds: List<MutualFundDomain>, onFundClick: (String) -> Unit) {
+//    LazyVerticalGrid(
+//        columns = GridCells.Adaptive(minSize = 150.dp),
+//        modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp),
+//        verticalArrangement = Arrangement.spacedBy(20.dp),
+//        horizontalArrangement = Arrangement.spacedBy(16.dp),
+//        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp)
+//    ){
+//        items(
+//            items = topFunds,
+//            key = { it.id }
+//        ) { fund ->
+//            MutualFundGridCard(fund, onClick = { onFundClick(fund.id) })
+//        }
+//    }
+//}
+
+@Composable
+fun FundInfo(
+    date: String,
+    nav: String,
+    assetType: String,
+    riskLevel: Int,
+    metrics: Metrics,
+    selectedYear: GraphDurationSelection
+) {
+
+    val returnValue = when (selectedYear) {
+        GraphDurationSelection.OneMonth -> metrics.return_30d
+        GraphDurationSelection.SixMonths -> metrics.return_6m
+        GraphDurationSelection.OneYear -> metrics.return_1y
+        GraphDurationSelection.ThreeYears -> metrics.return_3y
+        GraphDurationSelection.FiveYears -> metrics.return_5y
+        GraphDurationSelection.All -> metrics.nav_change_pct
+    }
+
+    val returnText = returnValue?.let { "${it.trimTo(2)}%" + when(selectedYear){
+        GraphDurationSelection.ThreeYears ->  " p.a."
+        GraphDurationSelection.FiveYears -> " p.a."
+        else -> ""
+    } } ?: "n/a"
+
+    val returnLabel = when(selectedYear){
+        GraphDurationSelection.OneMonth -> "Return (1M)"
+        GraphDurationSelection.SixMonths -> "Return (6M)"
+        GraphDurationSelection.OneYear -> "Return (1Y)"
+        GraphDurationSelection.ThreeYears -> "Return (3Y)"
+        GraphDurationSelection.FiveYears -> "Return (5Y)"
+        GraphDurationSelection.All -> "Return (1D)"
+    }
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(160.dp),
+        modifier=Modifier.fillMaxWidth().heightIn(max=800.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical =20.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
+    ){
+
+        item{
+            FundInfoCard(
+                title = "NAV: ${date.isoUtcToDisplayDate()}",
+            ){
+                Text(
+                    text= "₹ ${nav.toDouble().trimDoubleTo(2)}".withInterRupee(),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.Black
+                )
+            }
+        }
+        item{
+            FundInfoCard(
+                title = "Asset Type",
+            ){
+                Text(
+                    text= assetType,
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.Black
+                )
+            }
+        }
+
+        item{
+            FundInfoCard(
+                title = "Risk Level",
+            ){
+                Text(
+                    text= riskLevel.toString(),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.Black
+                )
+            }
+        }
+        item{
+            FundInfoCard(
+                title = returnLabel,
+            ){
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ){
+                    Text(
+                        text = returnText,
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.Black
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FundInfoCard(title: String,content: @Composable () -> Unit) {
+
+    ShadowCard(
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Column(
+            modifier=Modifier.fillMaxWidth().height(82.dp).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ){
+            Text(
+                text=title,
+                style = titlesStyle.copy(fontSize = 12.sp),
+                color = titleColor
+            )
+            content()
+        }
+    }
+
+}
+
+@Composable
+fun GraphCard(
+    graphState: GraphState,
+    selectedYear: GraphDurationSelection,
+    onSelectedYearChange: (GraphDurationSelection) -> Unit,
+    chartAnimationProgress: Float,
+    graphPoints: List<MutualFundGraphPointsDomain>,
+    onReload: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ){
+        Box(
+            modifier = Modifier.fillMaxWidth()
+                .height(248.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            when (graphState) {
+                is GraphState.Error -> {
+                    ErrorScreen(graphState.error,onReload)
+                }
+
+                GraphState.Loading -> {
+                    VelvetLoader()
+                }
+
+                is GraphState.Success -> {
+                    NavLineChart(
+                        data = graphPoints,
+                        modifier = Modifier.fillMaxSize(),
+                        progress = chartAnimationProgress
+                    )
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            GraphDurationSelection.entries.forEach {item->
+                GraphDurationSelectionItemLabel(
+                    label = item.label,
+                    selected = item == selectedYear,
+                    onClick = {
+                        onSelectedYearChange(item)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GraphDurationSelectionItemLabel(
+    label:String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+
+    Text(
+        text = label,
+        style = titlesStyle.copy(fontWeight = FontWeight.Bold),
+        color = if (selected) Secondary else Primary,
+        modifier = Modifier.clickable(onClick = onClick, indication = null, interactionSource = remember{MutableInteractionSource()})
+    )
+
+}
+
+@Composable
+fun InfoCard(
+    detailsState: MutualFundDetailsDomain,
+    selectedYear: GraphDurationSelection
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+    ) {
+
+        Row(
+            modifier=Modifier.fillMaxWidth().padding(top=8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
+
+            FundIcon(
+                iconUrl = detailsState.icon,
+                name = detailsState.scheme_name,
+                size = 48.dp
+            )
+
+        }
+
+        Text(
+            text=detailsState.scheme_name,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black,
+            modifier = Modifier.padding(top=8.dp)
+        )
+
+        Text(
+            text= detailsState.scheme_type ,
+            style = titlesStyle,
+            color = Color.Black
+        )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val returnValue = when (selectedYear) {
+                    GraphDurationSelection.OneMonth -> detailsState.metrics.return_30d
+                    GraphDurationSelection.SixMonths -> detailsState.metrics.return_6m
+                    GraphDurationSelection.OneYear -> detailsState.metrics.return_1y
+                    GraphDurationSelection.ThreeYears -> detailsState.metrics.return_3y
+                    GraphDurationSelection.FiveYears -> detailsState.metrics.return_5y
+                    GraphDurationSelection.All -> detailsState.metrics.return_1y
+                }
+
+                val returnText = returnValue?.let { "${it.trimTo(2)}%" } ?: "n/a"
+
+                val returnColor = when {
+                    returnValue == null -> Color.Gray
+                    returnValue > 0 -> appGreen
+                    returnValue < 0 -> Color.Red
+                    else -> Color.Unspecified
+                }
+
+                Text(
+                    text = returnText,
+                    fontFamily = Poppins,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = returnColor
+                )
+
+                val returnLabel = when (selectedYear) {
+                    GraphDurationSelection.OneMonth -> "1M return"
+                    GraphDurationSelection.SixMonths -> "6M return"
+                    GraphDurationSelection.OneYear -> "1Y annualised"
+                    GraphDurationSelection.ThreeYears -> "3Y annualised"
+                    GraphDurationSelection.FiveYears -> "5Y annualised"
+                    GraphDurationSelection.All -> "1Y annualised"
+                }
+
+                if (returnValue != null) {
+                    Text(
+                        text = returnLabel,
+                        style = titlesStyle,
+                        color = titleColor
+                    )
+                }
+
+            }
+
+        Row(
+            modifier=Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val navChange = detailsState.metrics.nav_change_pct
+
+            Text(
+                text = navChange?.let {
+                    (if (it > 0) "+" else "") + it.toString() + "%"
+                } ?: "N/A",
+                style = titlesStyle,
+                color = when {
+                    navChange == null -> titleColor
+                    navChange > 0 -> appGreen
+                    else -> Color.Red
+                }
+            )
+            Text(
+                text= "1D",
+                style = titlesStyle,
+                color = titleColor
+            )
+        }
+
+    }
+}
+
+
+private val sampleMetrics = Metrics(
+    nav_change_pct = 1.2,
+    return_1y = 15.5,
+    return_30d = 2.1,
+    return_3y = 12.0,
+    return_6m = 5.0,
+    return_90d = 3.5,
+    return_5y = 10.5
+)
+
+private val sampleMutualFundDetails = MutualFundDetailsDomain(
+    amc_code = "AMC001",
+    amc_id = "1",
+    amc_name = "Sample AMC",
+    asset_type = "Equity",
+    createdAt = "2023-01-01T00:00:00Z",
+    id = "fund123",
+    isin = "INE123A01011",
+    latest_nav = "150.25",
+    latest_nav_date = "2023-10-27T00:00:00Z",
+    mapping_code = "M123",
+    maturity_date = null,
+    metrics = sampleMetrics,
+    nfo_end_date = null,
+    nse_scheme_code = "S123",
+    platform_code = "P123",
+    purchase_allowed = true,
+    redemption_allowed = true,
+    risk_level = 4,
+    risk_name = "Moderately High",
+    scheme_id = "SCH123",
+    scheme_name = "Sample Bluechip Fund",
+    scheme_type = "Open Ended",
+    sip_allowed = true,
+    structure = "Growth",
+    switch_allowed = true,
+    sipAllowedDated = listOf(1, 5, 10, 15, 20, 25),
+    investmentFrequency = listOf(InvestmentFrequency.MONTHLY, InvestmentFrequency.QUARTERLY),
+    updatedAt = "2023-10-27T00:00:00Z",
+    icon = "",
+    minAmount = 5000,
+    minSipAmount = 500,
+    minLumpSumAmount = 5000
+)
+
+private val sampleGraphPoints = listOf(
+    MutualFundGraphPointsDomain(140.0, "2023-01-01", "Jan"),
+    MutualFundGraphPointsDomain(142.0, "2023-02-01", "Feb"),
+    MutualFundGraphPointsDomain(145.0, "2023-03-01", "Mar"),
+    MutualFundGraphPointsDomain(143.0, "2023-04-01", "Apr"),
+    MutualFundGraphPointsDomain(148.0, "2023-05-01", "May"),
+    MutualFundGraphPointsDomain(150.25, "2023-06-01", "Jun")
+)
+
+@Preview
+@Composable
+fun MutualFundDetailsScreenRootPreview() {
+    VelvetTheme {
+        Scaffold(
+            containerColor = Color.White,
+            floatingActionButton = {
+                CartFab(
+                    onClick = {},
+                    cartAmount = 0,
+                )
+            },
+            bottomBar = {
+                ContinueBackButtonFooter(
+                    backText = "Add to Cart",
+                    onBack = {},
+                    continueText = "Purchase Fund",
+                    onContinue = {}
+                )
+            }
+        ) { padding ->
+            MutualFundDetailsScreen(
+                modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
+                detailsState = sampleMutualFundDetails,
+                graphState = GraphState.Success(MutualFundGraphDomain(sampleGraphPoints)),
+                graphPoints = sampleGraphPoints,
+                selectedYear = GraphDurationSelection.OneYear,
+                onSelectedYearChange = {},
+                displayPercent = null,
+                navChange = "1.2",
+                calculatorState = CalculatorInputState(
+                    isSip = true,
+                    monthlyInvestment = 5000,
+                    timeInYears = 5
+                ),
+                onCalcInvestmentChange = {},
+                onCalcSipToggle = {},
+                onCalcTimeChange = {},
+                onGraphRetry = {}
+            )
+        }
+    }
+}
+
+
+

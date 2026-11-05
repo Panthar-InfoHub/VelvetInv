@@ -62,9 +62,9 @@ fun NotificationScreen(
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         BackHeader(
-            heading = "Notification centre",
+            title = "Notification centre",
             showBack = true,
-            onBackClick = onBack
+            onBack = onBack
         )
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -231,9 +231,9 @@ fun NotificationScreenPreview() {
 
         Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
             BackHeader(
-                heading = "Notification centre",
+                title = "Notification centre",
                 showBack = true,
-                onBackClick = {}
+                onBack = {}
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -254,9 +254,9 @@ fun NotificationScreenEmptyPreview() {
     VelvetTheme {
         Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
             BackHeader(
-                heading = "Notification centre",
+                title = "Notification centre",
                 showBack = true,
-                onBackClick = {}
+                onBack = {}
             )
             Box(modifier = Modifier.fillMaxSize()) {
                 EmptyFundScreen(

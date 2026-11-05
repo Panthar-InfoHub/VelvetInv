@@ -53,8 +53,8 @@ fun KYCCheckAnimationScreen(
         contentAlignment = Alignment.Center
     ) {
         BackHeader(
-            onBackClick = onBack,
-            heading = "",
+            onBack = onBack,
+            title = "",
             showBack = true,
             modifier = Modifier.align(Alignment.TopStart)
         )

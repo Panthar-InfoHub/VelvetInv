@@ -1,0 +1,550 @@
+package org.sharad.velvetinvestment.features.onboarding.ui.compose
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.resources.painterResource
+import org.sharad.emify.core.ui.theme.Black
+import org.sharad.emify.core.ui.theme.GoalIconBg
+import org.sharad.emify.core.ui.theme.Gray444
+import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.velvetinvestment.features.onboarding.domain.model.NomineeDocumentType
+import org.sharad.velvetinvestment.features.onboarding.domain.model.NomineeRelation
+import org.sharad.velvetinvestment.features.onboarding.ui.formField
+import org.sharad.velvetinvestment.features.onboarding.ui.rememberFormFocusController
+import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.AddNomineeEvent
+import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.AddNomineeUiState
+import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.Max_Nominee_Count
+import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.NomineeDetails
+import org.sharad.velvetinvestment.shared.compose.AppButton
+import org.sharad.velvetinvestment.shared.compose.AppDatePicker
+import org.sharad.velvetinvestment.shared.compose.DropDownSelector
+import org.sharad.velvetinvestment.shared.compose.TitledAppTextField
+import org.sharad.velvetinvestment.shared.genericDropShadow
+import org.sharad.velvetinvestment.shared.theme.Spacing
+import org.sharad.velvetinvestment.shared.theme.VelvetTheme
+import org.sharad.velvetinvestment.utils.clearFocusOnTap
+import velvet.composeapp.generated.resources.Res
+import velvet.composeapp.generated.resources.delete_icon
+import velvet.composeapp.generated.resources.plus_inside_circle_icon
+
+/** Shared by every free-text name-like field on this screen. */
+private val wordsKeyboardOptions = KeyboardOptions(
+    capitalization = KeyboardCapitalization.Words,
+    imeAction = ImeAction.Next
+)
+
+/** Keys of the pickers the keyboard flow can point at, one set per nominee card. */
+private fun relationshipField(index: Int) = "relationship_$index"
+private fun dobField(index: Int) = "dob_$index"
+
+/**
+ * Localized name of an identity document. Used for both the dropdown entries and the title of
+ * the number field below them, so the two always read the same in every language.
+ */
+@Composable
+private fun nomineeDocumentLabel(type: NomineeDocumentType?): String {
+    return when (type) {
+        NomineeDocumentType.PAN -> "PAN"
+        NomineeDocumentType.AADHAAR -> "Aadhar (Last 4 digits)"
+        NomineeDocumentType.DRIVING_LICENCE ->"Driving Licence"
+        NomineeDocumentType.PASSPORT -> "OCI"
+        null -> "Document Number"
+    }
+}
+
+
+@Composable
+fun AddNomineeScreen(
+    state: AddNomineeUiState,
+    handleEvent: (AddNomineeEvent) -> Unit,
+    onOptOutTermsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Resolved up front because the dropdown's textConvertor is not a composable scope.
+    val documentLabels = NomineeDocumentType.entries.associateWith { nomineeDocumentLabel(it) }
+
+    // Which nominee's date of birth the picker is currently editing, if any.
+    var datePickerIndex by remember { mutableStateOf<Int?>(null) }
+    val form = rememberFormFocusController()
+
+    datePickerIndex?.let { index ->
+        AppDatePicker(
+            show = true,
+            selectedDate = null,
+            onDismiss = { datePickerIndex = null },
+            onDateSelected = { millis ->
+                handleEvent(
+                    AddNomineeEvent.OnDateOfBirthChanged(index, millis)
+                )
+                form.clearHighlight()
+            }
+        )
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = White)
+            .padding(horizontal=Spacing.dp20)
+            .clearFocusOnTap()
+            .imePadding()
+    ) {
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(Spacing.dp20),
+            contentPadding = PaddingValues(top = Spacing.dp24, bottom = Spacing.dp12)
+        ) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.dp12)) {
+                    Text(
+                        text = "Add your Nominee" ,
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    )
+                    Text(
+                        text = "Who should receive your money if something happens to you?",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Gray444
+                    )
+                }
+            }
+
+            item {
+                NomineeModeToggle(
+                    isOptedOut = state.addLater,
+                    onAddNomineeClick = {
+                        handleEvent(AddNomineeEvent.OnOptOutModeChanged(false))
+                    },
+                    onOptOutClick = {
+                        handleEvent(AddNomineeEvent.OnOptOutModeChanged(true))
+                    }
+                )
+            }
+
+            if (state.addLater) {
+                item {
+                    NomineeOptOutCard(
+                        isChecked = state.optOutConsent,
+                        onCheckedChange = {
+                            handleEvent(AddNomineeEvent.OnOptOutConsentChanged(it))
+                        },
+                        onTermsClick = onOptOutTermsClick
+                    )
+                }
+            }
+
+            // Nothing is collected once the user has opted out of nomination.
+            itemsIndexed(
+                if (state.addLater) emptyList() else state.nominees
+            ) { index, nominee ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(Spacing.dp24),
+                    modifier = Modifier
+                        .genericDropShadow()
+                        .clip(RoundedCornerShape(Spacing.dp24))
+                        .background(White)
+                        .padding(Spacing.dp24)
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(Spacing.dp16),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Nominee ${index + 1}",
+                                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                            if (state.nominees.size > 1) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.delete_icon),
+                                    contentDescription = "Discard Nominee",
+                                    tint = Black,
+                                    modifier = Modifier
+                                        .size(Spacing.dp18)
+                                        .clickable { handleEvent(AddNomineeEvent.OnDeleteNomineeClick(index)) }
+                                )
+                            }
+                        }
+                        HorizontalDivider(
+                            thickness = Spacing.dp1,
+                            color = Primary,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    TitledAppTextField(
+                        title = "Nominee Name",
+                        value = nominee.name,
+                        onValueChange = { handleEvent(AddNomineeEvent.OnNameChanged(index, it)) },
+                        placeholder = "",
+                        mandatory = true,
+                        keyboardType = KeyboardType.Text,
+                        keyboardOptions = wordsKeyboardOptions,
+                        // Relationship is a dropdown, so Next closes the keyboard and points at it.
+                        keyboardActions = KeyboardActions(onNext = { form.highlight(relationshipField(index)) }),
+                        modifier = Modifier
+                            .padding(top = Spacing.dp16)
+                            .formField(form)
+                    )
+                    DropDownSelector(
+                        title = "Relationship",
+                        value = nominee.relationship?.displayName ?: "",
+                        onValueChange = {
+                            handleEvent(AddNomineeEvent.OnRelationshipChanged(index, it))
+                            form.clearHighlight()
+                        },
+                        list = NomineeRelation.entries,
+                        placeholder = "Select relationship",
+                        mandatory = true,
+                        textConvertor = { it.displayName },
+                        highlighted = form.isHighlighted(relationshipField(index))
+                    )
+                    TitledAppTextField(
+                        title = "Percentage Allocation",
+                        value = nominee.percentageAllocation,
+                        onValueChange = { handleEvent(AddNomineeEvent.OnPercentageAllocationChanged(index, it)) },
+                        placeholder = "100",
+                        mandatory = true,
+                        keyboardType = KeyboardType.Number,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        // The date of birth is a picker, so Next closes the keyboard and points at it.
+                        keyboardActions = KeyboardActions(onNext = { form.highlight(dobField(index)) }),
+                        modifier = Modifier.formField(form),
+                        isError = state.allocationError != null,
+                        supportingText = state.allocationError?.takeIf {
+                            index == state.nominees.lastIndex
+                        }?.let { error ->
+                            { Text(error, style = MaterialTheme.typography.labelSmall) }
+                        },
+                        trailingIcon = {
+                            Text("%", style = MaterialTheme.typography.bodyLarge, color = Gray444)
+                        }
+                    )
+                    TitledDateField(
+                        title = "Date of Birth",
+                        value = nominee.displayDob,
+                        onClick = { datePickerIndex = index },
+                        highlighted = form.isHighlighted(dobField(index)),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+//                    DropDownSelector(
+//                        title = "Identity Type / " +stringResource(Res.string.identity_type),
+//                        value = nominee.identityType?.let { nomineeDocumentLabel(it) } ?: "",
+//                        onValueChange = {
+//                                handleEvent(AddNomineeEvent.OnIdentityTypeChanged(index, it))
+//                        },
+//                        list = NomineeDocumentType.entries,
+//                        placeholder = "Select identity type",
+//                        mandatory = true,
+//                        textConvertor = { documentLabels.getValue(it) }
+//                    )
+//                    TitledAppTextField(
+//                        title = nomineeDocumentLabel(nominee.identityType),
+//                        value = nominee.panCard,
+//                        onValueChange = { handleEvent(AddNomineeEvent.OnPanCardChanged(index, it)) },
+//                        // Format examples rather than prose, so they need no translation.
+//                        placeholder = when (nominee.identityType) {
+//                            NomineeDocumentType.PAN -> "ABCDE1234F"
+//                            NomineeDocumentType.AADHAAR -> "1234"
+//                            else -> ""
+//                        },
+//                        mandatory = true,
+//                        keyboardType = if (nominee.identityType == NomineeDocumentType.AADHAAR) {
+//                            KeyboardType.Number
+//                        } else {
+//                            KeyboardType.Text
+//                        },
+//                        keyboardOptions = KeyboardOptions(
+//                            capitalization = KeyboardCapitalization.Characters,
+//                            autoCorrectEnabled = false,
+//                            imeAction = ImeAction.Next
+//                        ),
+//                        isError = nominee.panCard.isNotEmpty() && !nominee.isDocumentNumberValid
+//                    )
+//                    TitledAppTextField(
+//                        title = "Email/ " + stringResource(Res.string.email),
+//                        value = nominee.email,
+//                        onValueChange = { handleEvent(AddNomineeEvent.OnEmailChanged(index, it)) },
+//                        keyboardType = KeyboardType.Email,
+//                        keyboardOptions = KeyboardOptions(
+//                            capitalization = KeyboardCapitalization.None,
+//                            autoCorrectEnabled = false,
+//                            imeAction = ImeAction.Next
+//                        ),
+//                        placeholder = "name@example.com",
+//                        mandatory = true,
+//                        isError = nominee.email.isNotEmpty() &&
+//                                !OnboardingInput.isValidEmail(nominee.email)
+//                    )
+//                    TitledAppTextField(
+//                        title = "Phone/ " + stringResource(Res.string.phone_label),
+//                        value = nominee.phone,
+//                        onValueChange = { handleEvent(AddNomineeEvent.OnPhoneChanged(index, it)) },
+//                        keyboardType = KeyboardType.Phone,
+//                        placeholder = "9876543210",
+//                        mandatory = true,
+//                        prefix = { Text("+91 ") },
+//                        isError = nominee.phone.isNotEmpty() &&
+//                                !OnboardingInput.isValidPhone(nominee.phone)
+//                    )
+//                    TitledAppTextField(
+//                        title = "Address Line 1/ " + stringResource(Res.string.address_line_1_nominee),
+//                        value = nominee.addressLine1,
+//                        onValueChange = { handleEvent(AddNomineeEvent.OnAddressLine1Changed(index, it)) },
+//                        placeholder = "\n\n\n",
+//                        mandatory = true,
+//                        keyboardOptions = wordsKeyboardOptions
+//                    )
+//                    TitledAppTextField(
+//                        title = "Address Line 2/ " + stringResource(Res.string.address_line_2_nominee),
+//                        value = nominee.addressLine2,
+//                        onValueChange = { handleEvent(AddNomineeEvent.OnAddressLine2Changed(index, it)) },
+//                        placeholder = "\n\n\n",
+//                        keyboardOptions = wordsKeyboardOptions
+//                    )
+//                    Row(
+//                        horizontalArrangement = Arrangement.spacedBy(Spacing.dp16),
+//                        modifier = Modifier.fillMaxWidth()
+//                    ) {
+//                        TitledAppTextField(
+//                            title = "City/ " + stringResource(Res.string.city),
+//                            value = nominee.city,
+//                            onValueChange = { handleEvent(AddNomineeEvent.OnCityChanged(index, it)) },
+//                            placeholder = "",
+//                            mandatory = true,
+//                            keyboardOptions = wordsKeyboardOptions,
+//                            modifier = Modifier.weight(1f)
+//                        )
+//                        TitledAppTextField(
+//                            title = "State/ " + stringResource(Res.string.state),
+//                            value = nominee.state,
+//                            onValueChange = { handleEvent(AddNomineeEvent.OnStateChanged(index, it)) },
+//                            placeholder = "",
+//                            mandatory = true,
+//                            keyboardOptions = wordsKeyboardOptions,
+//                            modifier = Modifier.weight(1f)
+//                        )
+//                    }
+//                    TitledAppTextField(
+//                        title = "Postal Code/ " + stringResource(Res.string.pincode),
+//                        value = nominee.postalCode,
+//                        onValueChange = {
+//                            handleEvent(AddNomineeEvent.OnPostalCodeChanged(index, it))
+//                        },
+//                        placeholder = "560001",
+//                        mandatory = true,
+//                        keyboardType = KeyboardType.Number,
+//                        isError = nominee.postalCode.isNotEmpty() &&
+//                                !OnboardingInput.isValidPincode(nominee.postalCode)
+//                    )
+
+                    if (index == state.nominees.lastIndex && index < Max_Nominee_Count-1) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.dp16),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { handleEvent(AddNomineeEvent.OnAddAnotherNomineeClick) }
+                                .padding(top = Spacing.dp24)
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.plus_inside_circle_icon),
+                                contentDescription = "Add another nominee",
+                                tint = Gray444,
+                                modifier = Modifier.size(Spacing.dp20)
+                            )
+                            Text(
+                                "Add another nominee",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Gray444
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        AppButton(
+            text = "Confirm & Proceed",
+            onClick = { handleEvent(AddNomineeEvent.OnConfirmAndProceedClick) },
+            loading = state.isLoading,
+            enabled = state.canSubmit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Spacing.dp24)
+                .genericDropShadow()
+        )
+    }
+}
+
+/**
+ * The two paths through this screen. Rendered as a pair of cards rather than a sliding switch so
+ * that "Opt Nominee Out" reads as a deliberate choice and not as an on/off toggle.
+ */
+@Composable
+private fun NomineeModeToggle(
+    isOptedOut: Boolean,
+    onAddNomineeClick: () -> Unit,
+    onOptOutClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.dp16)
+    ) {
+        NomineeModeTab(
+            text = "Add Nominee",
+            selected = !isOptedOut,
+            onClick = onAddNomineeClick,
+            modifier = Modifier.weight(1f)
+        )
+        NomineeModeTab(
+            text = "Opt Nominee Out",
+            selected = isOptedOut,
+            onClick = onOptOutClick,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun NomineeModeTab(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .genericDropShadow(RoundedCornerShape(Spacing.dp12))
+            .clip(RoundedCornerShape(Spacing.dp12))
+            .background(if (selected) Primary else White)
+            .clickable(
+                onClick = onClick,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            )
+            .padding(horizontal = Spacing.dp16, vertical = Spacing.dp20),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = if (selected) White else Primary,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+/**
+ * The opt-out declaration. The user has to tick it before the button unlocks — choosing the tab
+ * says what they want to do, this says they understand what it means.
+ */
+@Composable
+private fun NomineeOptOutCard(
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onTermsClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(Spacing.dp16))
+            .background(GoalIconBg)
+            .padding(Spacing.dp16),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.dp12),
+        verticalAlignment = Alignment.Top
+    ) {
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
+            colors = CheckboxDefaults.colors(checkedColor = Primary, checkmarkColor = White),
+            modifier = Modifier.size(Spacing.dp24)
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.dp12)) {
+            Text(
+                text = "Nominee Opt-Out",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = Primary
+            )
+            Text(
+                text = "I hereby confirm that I do not wish to appoint any nominee(s) to my " +
+                        "mutual fund folio at this point of time.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Gray444
+            )
+            Text(
+                text = "Nominee Opt-Out terms",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    textDecoration = TextDecoration.Underline
+                ),
+                color = Primary,
+                modifier = Modifier.clickable(
+                    onClick = onTermsClick,
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                )
+            )
+        }
+    }
+}
+
+@Preview(heightDp = 1000, showBackground = true)
+@Composable
+private fun AddNomineeScreenPreview() {
+    VelvetTheme {
+        AddNomineeScreen(
+            state = AddNomineeUiState(addLater = false,
+                nominees = listOf(
+                    NomineeDetails(
+                        name = "Sharad",
+                        relationship = NomineeRelation.FATHER,
+                        percentageAllocation = "100",
+                        dateOfBirth = "2003-07-29",
+                        displayDob = "29-JUL-2003"
+                    )
+                )),
+            handleEvent = {},
+            onOptOutTermsClick = {}
+        )
+    }
+}
