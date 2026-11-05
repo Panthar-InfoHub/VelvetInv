@@ -98,8 +98,8 @@ android {
         applicationId = "org.sharad.velvetinvestment"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 20
-        versionName = "1.3.0"
+        versionCode = 21
+        versionName = "2"
     }
     packaging {
         resources {
