@@ -431,6 +431,33 @@ proper feature, delete all old goal code and re-point its users.
   `homeViewModel.silentRefresh()`), plus Velvet's old behaviour: every push → `NotificationMarkEvent` (bell dot).
 - Not checked on a device: needs the backend sending to installation IDs.
 
+## Daily SIP (2026-11-07, rule 8 reversed by user)
+
+User request: add JN's daily SIP across the MF flow, cart and bundles; bundle DTOs untouched.
+- `PurchaseMode` = JN (DAILY/MONTHLY/ONE_TIME, `offered` removed). `FundTypeSelector` gained `DAILY_SIP`
+  (`updateFundTypeToDailySIP()`, `purchaseMode` getter); `SelectedFundType` carries its `PurchaseMode`.
+- Reverted to JN bodies (package/imports only differ): `LabelFilter` (DailyTen/MonthlyHundred),
+  `CreateFilterData` (Min Investment group), `InvestmentModeFilter`, bundles `BundleMapper`/`BundleDomain`/
+  `BundleTransactionRules`/`FundAvailability`/`BundleDetailsViewModel`, plans `SchemePlan`,
+  `MutualFundSearchResultViewModel` (chips lead with Daily ₹10 / Monthly ₹100).
+- `FundPurchaseViewModel` = JN + Velvet's `initialMode` (route `purchaseMode`, from `FundTypeSelector`;
+  an amount-type chip overrides it as in JN). `FundPurchaseScreen`/`PurchaseSuccessScreen`: daily labels.
+- InvestmentMethod: third card "Start a Daily SIP" (`ic_piggy_bank`) → `updateFundTypeToDailySIP()`.
+- SearchOverlay: JN's Daily Micro-SIP / Monthly SIP quick actions back (Velvet look) → category/search
+  `onFundsByAmountTypeClick` → `Route.MutualFundSearchResult(amountType)`.
+- MF details cart sheet (Velvet-only): `CartBottomSheetState.purchaseMode` + `availableModes` +
+  `minDailySipAmount` + `minAmount`; `MultiWaySwitch` (Monthly SIP / Daily SIP / Lump Sum) opens on
+  `FundTypeSelector`, user can switch; modes from the fund (`sip_allowed`, `dailySipAllowed`, `purchase_allowed`).
+  `addToCart` branches on the switch; SIP path → `toSipRequest` (now also daily when `purchaseMode == DAILY`)
+  → `AddToCartSipUseCase` → `CartRepo.addToCartSip`. Daily hides the SIP-day field. Monthly button now needs a day.
+  `MutualFundDetailsDomain.minDailySipAmount` (default 0) mapped from `sip_daily_amount_min` /
+  `sip_frequency_data.daily|calendar_day_daily` — domain only, no DTO change.
+- Cart opens on the SIP tab for daily too. Bundles: `PurchaseModeSwitch` = 3-way `MultiWaySwitch`
+  (JN order Monthly/Daily/One-time); MIN. DAILY SIP, "/day". Portfolio Active SIP sub-tabs always shown (JN).
+- New shared composable `shared/compose/MultiWaySwitch.kt`. check-port rule-8 check commented out.
+- Not done: amount-type from a fund list isn't carried through MF details to FundPurchase (JN goes list →
+  purchase directly); `FundTypeSelector` decides the mode there. Android + iOS compile; not run on device.
+
 ## Composable registry
 
 One row per composable touched. Kind: `merged` (same-name, JN function → Velvet composable) or
@@ -465,6 +492,7 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
 | `TitledDateField` (target year) | same role | Velvet `OnBoardingTextField(enabled = false)` + `YearPicker` | as Velvet's old Add Goal |
 | `KycCard` (+ `KycRefreshButton`) | merged | `presentation/homescreen/compose/KYCCard.kt` | JN subtitle / accent / refresh-spinner / non-clickable notice on Velvet's `KYCCard` look; `OnboardingPromptCard` = JN's per-prompt copy |
 | `OtpInputField` (focusRequester) | merged | `shared/compose/OtpGrid.kt` | `autoFocus` param (default false): focuses box 1 on entry and whenever the value is cleared |
+| JN 3-way purchase-mode selector | recreated | `shared/compose/MultiWaySwitch.kt` | generic N-option `TwoWaySwitch` look; bundles + MF cart sheet |
 | `clearFocusOnTap`, `genericDropShadow`, `dashedBorder` | mapped | `utils.clearFocusOnTap`, `shared.genericDropShadow`, `shared.dottedBorder` | |
 
 ## Utilities / infra merged
@@ -510,6 +538,8 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
 - MF flow, orders and portfolio not yet run on a device. Orders has no profile entry yet (JN profile → My Orders; profile not ported).
 
 ## Session log
+
+- 2026-11-07 — Daily SIP added across MF flow, cart sheet (3-way switch), plans, bundles, search chips/overlay; rule 8 retired. Android + iOS compile, check-port clean.
 
 - 2026-11-05 — FIRE onboarding wired as a standalone feature (nested NavHost driven by `fire_stages`, 5 step APIs with
   skip/data bodies, goals collected via goals-feature config/calculate and sent together); home shows JN onboarding-prompt

@@ -38,13 +38,12 @@ JN is **read-only** — never edit files in it.
 6. **JN-only composables:** create a new Velvet-styled version in `shared/compose/`.
 7. **Features with no Velvet counterpart:** there is nothing to copy styling from, so build them on
    Velvet theme tokens and add any new named tokens to Velvet's theme files instead of hardcoding.
-8. **No ₹10/day or ₹100/month options.** Velvet doesn't offer JN's daily SIP or micro-SIP
-   starters. Wherever JN offers them — purchase-mode selectors, "From ₹10/day" copy, amount-type
-   filter chips/tray ("Daily ₹10", "Monthly ₹100"), home micro-SIP cards, daily-SIP flows — offer
-   only a normal SIP and a one-time (lumpsum) purchase instead. Use `PurchaseMode.offered`
-   (`features/core/domain/models/PurchaseMode.kt`) as the single source of choosable modes and
-   Velvet's `TwoWaySwitch` for the picker. Keep `PurchaseMode.DAILY` and daily branches that
-   *read* server data (an existing daily SIP must still display), just never let a user pick it.
+8. **Daily SIP is ported as JN has it** (reversed 2026-11-07 — was "no ₹10/day / ₹100/month").
+   `PurchaseMode` = JN's (DAILY, MONTHLY, ONE_TIME); amount-type chips/tray ("Daily ₹10",
+   "Monthly ₹100"), search-overlay micro-SIP cards and daily branches all follow JN. Velvet's
+   picker for three modes is `shared/compose/MultiWaySwitch` (three-segment `TwoWaySwitch` look).
+   Bundles: never change bundle DTOs to match JN unless daily itself requires it (server runs
+   the current shape).
 9. **Velvet owns infrastructure.** HttpClient, AuthPrefs, session/logout (`AppEventsController`),
    `NetworkResponse`/`safeRequest`, `UiState`, `SnackBarController` stay Velvet's. Ported code is
    re-pointed at them — see [references/structure-and-infra.md](references/structure-and-infra.md).

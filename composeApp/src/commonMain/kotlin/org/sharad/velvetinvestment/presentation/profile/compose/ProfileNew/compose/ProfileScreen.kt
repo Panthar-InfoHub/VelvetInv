@@ -46,8 +46,8 @@ import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.domain.usecases.LaunchBrowserUseCase
 import org.sharad.velvetinvestment.domain.usecases.user.SignOutUseCase
-import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
-import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
+import org.sharad.velvetinvestment.features.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.features.homescreen.uimodels.HomeScreenUiData
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.UImodel.PersonalInfoUiData
 import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.viewModel.PersonalInfoViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer

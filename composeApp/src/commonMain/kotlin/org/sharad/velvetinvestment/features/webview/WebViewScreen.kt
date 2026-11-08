@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.webview
+package org.sharad.velvetinvestment.features.webview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,7 +34,6 @@ import org.sharad.velvetinvestment.utils.deeplink.ExternalAppUrl
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_cross
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.text.matches
 
 @Composable
 fun WebViewScreen(

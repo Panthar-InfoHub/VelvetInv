@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.homescreen.uimodels
+package org.sharad.velvetinvestment.features.homescreen.uimodels
 
 import org.sharad.velvetinvestment.features.bottomNavigation.domain.models.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain

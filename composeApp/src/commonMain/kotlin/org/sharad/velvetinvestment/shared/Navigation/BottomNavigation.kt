@@ -31,8 +31,8 @@ import org.sharad.velvetinvestment.features.bottomNavigation.ui.compose.ExploreF
 import org.sharad.velvetinvestment.features.bottomNavigation.ui.viewmodels.ExploreFundsEffect
 import org.sharad.velvetinvestment.features.bottomNavigation.ui.viewmodels.ExploreFundsViewModel
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundDomain
-import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
-import org.sharad.velvetinvestment.presentation.homescreen.compose.HomeScreenMain
+import org.sharad.velvetinvestment.features.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.features.homescreen.compose.HomeScreenMain
 import org.sharad.velvetinvestment.presentation.insurance.InsuranceNavigationScreen
 import org.sharad.velvetinvestment.features.portfolio.ui.screens.PortfolioScreenMain
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.PortfolioScreenViewModel

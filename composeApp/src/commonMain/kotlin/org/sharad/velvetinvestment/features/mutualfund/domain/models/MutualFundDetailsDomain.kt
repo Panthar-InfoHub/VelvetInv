@@ -34,8 +34,15 @@ data class MutualFundDetailsDomain(
     val icon: String,
     val minAmount: Long,
     val minSipAmount: Long,
-    val minLumpSumAmount: Long
-)
+    val minLumpSumAmount: Long,
+    /** Smallest daily-SIP instalment (`sip_daily_amount_min`); 0 when the fund has no daily SIP. */
+    val minDailySipAmount: Long = 0
+) {
+    /** Whether the fund can be bought as a daily SIP (plain daily or calendar-day daily). */
+    val dailySipAllowed: Boolean
+        get() = InvestmentFrequency.DAILY in investmentFrequency ||
+                InvestmentFrequency.DAILY_Z in investmentFrequency
+}
 
 enum class InvestmentFrequency(
     val code: String,

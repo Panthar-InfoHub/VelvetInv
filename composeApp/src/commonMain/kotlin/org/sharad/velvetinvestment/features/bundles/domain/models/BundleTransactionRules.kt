@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.features.bundles.domain.models
 import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
 import kotlin.math.ceil
 
+
 /**
  * What the bundle as a whole accepts, given the funds currently selected in its slots.
  *
@@ -102,6 +103,7 @@ private fun roundUpToNext10(value: Int): Int {
  * general SIP minimum can sit above its monthly one, so for a monthly SIP the higher wins.
  */
 fun BundleTransactionRules.minAmountFor(mode: PurchaseMode): Int? = when (mode) {
+    PurchaseMode.DAILY -> minDailySipAmount
     PurchaseMode.MONTHLY -> {
         val monthly = minMonthlySipAmount
         val sip = minBundleSipAmount

@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.homescreen.compose
+package org.sharad.velvetinvestment.features.homescreen.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

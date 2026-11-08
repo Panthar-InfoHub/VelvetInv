@@ -204,12 +204,16 @@ private fun SuccessRow(label: String, value: String) {
 
 private val PurchaseMode.successTitle: String
     get() = when (this) {
+        PurchaseMode.DAILY -> "Daily SIP Started!"
         PurchaseMode.MONTHLY -> "SIP Registered Successfully!"
         PurchaseMode.ONE_TIME -> "Investment Successful!"
     }
 
 private val PurchaseMode.successSubtitle: String
     get() = when (this) {
+        PurchaseMode.DAILY ->
+            "Your daily instalments will be debited automatically through UPI Autopay."
+
         PurchaseMode.MONTHLY ->
             "Your instalments will be debited automatically through UPI Autopay."
 
@@ -221,12 +225,14 @@ private val PurchaseMode.successSubtitle: String
 
 private val PurchaseMode.transactionLabel: String
     get() = when (this) {
+        PurchaseMode.DAILY -> "Daily SIP"
         PurchaseMode.MONTHLY -> "Monthly SIP"
         PurchaseMode.ONE_TIME -> "One-time purchase"
     }
 
 private val PurchaseMode.amountSuffix: String
     get() = when (this) {
+        PurchaseMode.DAILY -> " / day"
         PurchaseMode.MONTHLY -> " / month"
         PurchaseMode.ONE_TIME -> ""
     }

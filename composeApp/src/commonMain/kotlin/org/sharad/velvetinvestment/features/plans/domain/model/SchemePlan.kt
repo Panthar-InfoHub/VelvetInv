@@ -31,6 +31,7 @@ data class SchemePlan(
 
     /** The threshold backing [mode], or null when the scheme does not offer that mode. */
     fun thresholdFor(mode: PurchaseMode): SipThreshold? = when (mode) {
+        PurchaseMode.DAILY -> dailySip
         PurchaseMode.MONTHLY -> monthlySip
         PurchaseMode.ONE_TIME -> lumpsum
     }
@@ -50,7 +51,8 @@ data class SipThreshold(
     val additionalAmountMin: Int? = null
 ) {
     fun isAmountAllowed(amount: Int): Boolean =
-        amount in amountMin..amountMax &&
+        amount >= amountMin &&
+                amount <= amountMax &&
                 (amountMultiples <= 0 || amount % amountMultiples == 0)
 
     /**

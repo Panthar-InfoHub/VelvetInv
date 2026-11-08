@@ -86,6 +86,7 @@ import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.createIn
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.ReturnYearsRateDomain
 import org.sharad.velvetinvestment.features.mutualfund.utils.toTitleCase
 import org.sharad.velvetinvestment.features.search.ui.compose.SearchOverlay
+import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.MfFilterIds
 import org.sharad.velvetinvestment.features.search.ui.viewmodels.SearchOverlayEffect
 import org.sharad.velvetinvestment.features.search.ui.viewmodels.SearchOverlayViewModel
 import org.sharad.velvetinvestment.shared.compose.FundIcon
@@ -107,6 +108,8 @@ fun MutualFundSearchScreenRoot(
     category: String? = null,
     amountType: String? = null,
     onBookFdClick: () -> Unit,
+    /** The overlay's Daily Micro-SIP / Monthly SIP cards (JN): open the list filtered by amount type. */
+    onFundsByAmountTypeClick: (amountType: String) -> Unit,
     onCreateGoalClick: () -> Unit,
     /** "View all" on the recommended bundles header. */
     onBundleClick: () -> Unit,
@@ -191,10 +194,18 @@ fun MutualFundSearchScreenRoot(
                     searchViewModel.resetQuery()
                 },
                 // JN closes the overlay here (its FD list is this screen); Velvet's FDs have their
-                // own list, so Book FD navigates. No Daily ₹10 / Monthly ₹100 shortcuts in Velvet.
+                // own list, so Book FD navigates.
                 onBookFdClick = {
                     showSearchOverlay = false
                     onBookFdClick()
+                },
+                onDailySipClick = {
+                    showSearchOverlay = false
+                    onFundsByAmountTypeClick(MfFilterIds.AMOUNT_DAILY_10)
+                },
+                onMonthlySipClick = {
+                    showSearchOverlay = false
+                    onFundsByAmountTypeClick(MfFilterIds.AMOUNT_MONTHLY_100)
                 },
                 onCreateGoalClick = {
                     showSearchOverlay = false

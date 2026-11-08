@@ -46,7 +46,7 @@ import org.sharad.velvetinvestment.features.cart.presentation.compose.CartFab
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.shared.compose.TwoWaySwitch
+import org.sharad.velvetinvestment.shared.compose.MultiWaySwitch
 import org.sharad.velvetinvestment.shared.theme.LocalVelvetShapes
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
@@ -126,29 +126,31 @@ fun AllBundlesScreen(
     }
 }
 
-/** How each offered mode is named on Velvet's purchase-mode switch. */
+/** The selector's order: daily, then monthly, then one-time. */
+internal val purchaseModeSelectorOrder = listOf(PurchaseMode.DAILY, PurchaseMode.MONTHLY, PurchaseMode.ONE_TIME)
+
+/** How each mode is named on the purchase-mode switch. */
 internal fun PurchaseMode.switchLabel(): String = when (this) {
+    PurchaseMode.DAILY -> "Daily"
+    PurchaseMode.MONTHLY -> "Monthly"
     PurchaseMode.ONE_TIME -> "One-time"
-    // Velvet offers no daily SIP; a daily mode is never shown, but reads as a SIP if it were.
-    PurchaseMode.MONTHLY-> "SIP"
 }
 
 /**
- * Velvet's two-way switch over [PurchaseMode.offered]: a normal SIP or a one-time lumpsum. JN's
- * three-way control also offered a ₹10/day SIP, which Velvet doesn't.
+ * JN's three-way mode selector (daily / monthly / one-time) drawn as Velvet's segmented
+ * switch ([MultiWaySwitch], the three-option form of `TwoWaySwitch`).
  */
 @Composable
 internal fun PurchaseModeSwitch(
     selected: PurchaseMode,
-    onSelected: (PurchaseMode) -> Unit
+    onSelected: (PurchaseMode) -> Unit,
+    modes: List<PurchaseMode> = purchaseModeSelectorOrder
 ) {
-    val (first, second) = PurchaseMode.offered
-    TwoWaySwitch(
-        isFirstSelected = selected != second,
-        firstText = first.switchLabel(),
-        secondText = second.switchLabel(),
-        onFirstClick = { onSelected(first) },
-        onSecondClick = { onSelected(second) }
+    MultiWaySwitch(
+        options = modes,
+        selected = selected,
+        label = { it.switchLabel() },
+        onSelected = onSelected
     )
 }
 
@@ -255,12 +257,14 @@ private fun BundleCardAll(
 /** The card's minimum label for each mode. */
 private fun PurchaseMode.minAmountLabel(): String = when (this) {
     PurchaseMode.MONTHLY -> "MIN. MONTHLY SIP"
+    PurchaseMode.DAILY -> "MIN. DAILY SIP"
     PurchaseMode.ONE_TIME -> "MIN. ONE-TIME"
 }
 
 /** What follows the amount; a one-time amount has no period. */
 private fun PurchaseMode.amountSuffix(): String = when (this) {
     PurchaseMode.MONTHLY -> "/mo"
+    PurchaseMode.DAILY -> "/day"
     PurchaseMode.ONE_TIME -> ""
 }
 

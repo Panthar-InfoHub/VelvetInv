@@ -111,8 +111,8 @@ data class FundPurchaseUiState(
     /** Which modes the gateway actually offers for this scheme — a missing threshold hides a tab. */
     val availableModes: List<PurchaseMode>
         get() = scheme?.let { plan ->
-            PurchaseMode.offered.filter { plan.thresholdFor(it) != null }
-        }.orEmpty().ifEmpty { PurchaseMode.offered }
+            PurchaseMode.entries.filter { plan.thresholdFor(it) != null }
+        }.orEmpty().ifEmpty { PurchaseMode.entries }
 
     val threshold: SipThreshold?
         get() = scheme?.thresholdFor(mode)
@@ -201,6 +201,7 @@ data class FundPurchaseUiState(
     /** The primary button's label, which names the mode and the amount the user has typed. */
     val submitLabel: String
         get() = submissionStage?.message ?: when (mode) {
+            PurchaseMode.DAILY -> "Start Daily SIP · ₹$enteredAmount/day"
             PurchaseMode.MONTHLY -> "Start Monthly SIP · ₹$enteredAmount/month"
             PurchaseMode.ONE_TIME -> "Invest ₹$enteredAmount"
         }
@@ -337,8 +338,10 @@ class FundPurchaseViewModel(
     private val fundSubtitle: String,
     private val fundAmountType: String?,
     /**
-     * The mode picked on the investment-method screen (monthly SIP or one-time). The screen opens
-     * on it, and only moves off it when the scheme doesn't offer it.
+     * The mode picked on the investment-method screen (monthly SIP, daily SIP or one-time). The
+     * screen opens on it, and only moves off it when the scheme doesn't offer it. A fund list
+     * opened on a minimum-installment chip ([fundAmountType], JN) overrides it with that chip's
+     * mode and amount.
      */
     initialMode: PurchaseMode,
     private val getSchemePlan: GetSchemePlanUseCase,
@@ -357,7 +360,16 @@ class FundPurchaseViewModel(
         FundPurchaseUiState(
             fundName = fundName,
             fundSubtitle = fundSubtitle,
-            mode = initialMode.takeIf { it in PurchaseMode.offered } ?: PurchaseMode.MONTHLY,
+            mode = when (initialAmountType) {
+                AmountTypeLabel.DailyTen -> PurchaseMode.DAILY
+                AmountTypeLabel.MonthlyHundred -> PurchaseMode.MONTHLY
+                null -> initialMode
+            },
+            amount = when (initialAmountType) {
+                AmountTypeLabel.DailyTen -> "10"
+                AmountTypeLabel.MonthlyHundred -> "100"
+                null -> ""
+            }
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -467,6 +479,7 @@ class FundPurchaseViewModel(
 
                         else -> listOf(
                             PurchaseMode.MONTHLY,
+                            PurchaseMode.DAILY,
                             PurchaseMode.ONE_TIME
                         ).firstOrNull { scheme.thresholdFor(it) != null }
                             ?: state.mode

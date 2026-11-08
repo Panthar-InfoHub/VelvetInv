@@ -27,6 +27,7 @@ import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
 import kotlinx.serialization.json.contentOrNull
 import org.sharad.velvetinvestment.features.mutualfund.utils.toTitleCase
 
+
 fun AllBundlesDto.toDomain(): List<BundleSummaryDomain> = data.bundles.map { it.toDomain() }
 
 private fun BundleSummaryDto.toDomain(): BundleSummaryDomain {
@@ -56,7 +57,7 @@ private fun BundleInvestmentTypeDto.purchaseModeOrNull(): PurchaseMode? =
 /** The API's investment_type as a [PurchaseMode]; an unknown one is dropped. */
 private fun String.toPurchaseModeOrNull(): PurchaseMode? =
     when (trim().uppercase()) {
-        // Velvet doesn't offer a daily SIP, so a DAILY_SIP type is dropped like an unknown one.
+        "DAILY_SIP" -> PurchaseMode.DAILY
         "MONTHLY_SIP" -> PurchaseMode.MONTHLY
         "LUMPSUM" -> PurchaseMode.ONE_TIME
         else -> null

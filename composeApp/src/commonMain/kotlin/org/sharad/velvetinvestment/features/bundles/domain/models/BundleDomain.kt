@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.features.bundles.domain.models
 
 import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
 
+
 /** One row of `GET /bundles` — enough to draw a bundle card. */
 data class BundleSummaryDomain(
     val id: String,
@@ -120,6 +121,7 @@ data class BundleMetaDataDomain(
 ) {
     // NEW: the start amount for [mode], or null when the API didn't send that one.
     fun startAmountFor(mode: PurchaseMode): Long? = when (mode) {
+        PurchaseMode.DAILY -> dailyStartAmount
         PurchaseMode.MONTHLY -> monthlyStartAmount
         PurchaseMode.ONE_TIME -> startAmount
     }

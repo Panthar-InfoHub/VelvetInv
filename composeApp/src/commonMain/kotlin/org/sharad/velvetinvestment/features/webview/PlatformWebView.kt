@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.webview
+package org.sharad.velvetinvestment.features.webview
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

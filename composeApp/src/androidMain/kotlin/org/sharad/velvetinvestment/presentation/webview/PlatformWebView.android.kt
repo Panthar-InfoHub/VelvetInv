@@ -25,6 +25,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import org.sharad.velvetinvestment.features.webview.WebViewState
 import org.sharad.velvetinvestment.utils.deeplink.ExternalAppUrl
 
 @SuppressLint("SetJavaScriptEnabled")

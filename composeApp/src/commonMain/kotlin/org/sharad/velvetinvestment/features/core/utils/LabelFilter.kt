@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.features.core.utils
 
 import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.MfFilterIds
 
+
 sealed interface LabelFilter {
     val title: String
     val id: String
@@ -61,15 +62,30 @@ sealed interface MutualFundLabel : LabelFilter {
 }
 
 /**
- * The minimum-installment chips (`amount_type`, not `tag`). JN offers "Daily ₹10" and
- * "Monthly ₹100" here; Velvet offers neither, so there are no chips and [getType] resolves
- * nothing. Kept so the fund-list view model's chip routing stays as JN wrote it.
+ * The minimum-installment chips. A different `GET /mf/funds` parameter from [MutualFundLabel]
+ * (`amount_type`, not `tag`), so the two can be selected at the same time and the view model
+ * routes a chip tap by which of these it is.
  */
 sealed interface AmountTypeLabel : LabelFilter {
 
+    data object DailyTen : AmountTypeLabel {
+        override val title = "Daily \u20B910"
+        override val id = MfFilterIds.AMOUNT_DAILY_10
+    }
+
+    data object MonthlyHundred : AmountTypeLabel {
+        override val title = "Monthly \u20B9100"
+        override val id = MfFilterIds.AMOUNT_MONTHLY_100
+    }
+
     companion object {
-        @Suppress("UNUSED_PARAMETER")
-        fun getType(id: String?): AmountTypeLabel? = null
+        fun getType(id:String?) : AmountTypeLabel?{
+            return when(id){
+                MfFilterIds.AMOUNT_DAILY_10 -> DailyTen
+                MfFilterIds.AMOUNT_MONTHLY_100 -> MonthlyHundred
+                else -> null
+            }
+        }
     }
 }
 

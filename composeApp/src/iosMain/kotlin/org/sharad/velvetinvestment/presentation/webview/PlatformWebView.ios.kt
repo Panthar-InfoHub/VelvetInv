@@ -7,6 +7,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlinx.cinterop.ObjCSignatureOverride
+import org.sharad.velvetinvestment.features.webview.WebViewState
 import org.sharad.velvetinvestment.utils.deeplink.ExternalAppUrl
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLRequest

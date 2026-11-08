@@ -347,8 +347,7 @@ fun PortfolioScreen(
  * accumulated total, so the card says "SIP Amount" rather than "Invested" — the invested figure
  * for the same fund lives on the Mutual Funds tab, which is where tapping a row goes.
  *
- * Velvet offers no daily SIP (migration rule 8), so the Monthly / Daily switch only appears for a
- * user who already has daily SIPs on the server — those must still be visible.
+ * Monthly and daily SIPs are listed under their own sub-tabs (JN).
  */
 @Composable
 fun ActiveSipPortfolio(
@@ -360,7 +359,7 @@ fun ActiveSipPortfolio(
 ) {
     var selectedSubTab by remember { mutableStateOf(0) }
     val subTabs = listOf("Monthly SIP", "Daily SIP")
-    val showSubTabs = activeSip.dailySips.isNotEmpty()
+    val showSubTabs = true
 
     if (isLoading && activeSip.isEmpty) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

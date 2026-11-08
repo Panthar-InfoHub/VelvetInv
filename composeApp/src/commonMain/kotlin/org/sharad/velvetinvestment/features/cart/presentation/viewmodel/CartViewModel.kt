@@ -163,7 +163,8 @@ class CartViewModel(
     private val _uiState = MutableStateFlow(
         CartUiState(
             selectedCartType = when (FundTypeSelector.fundType.value) {
-                SelectedFundType.SIP -> CartType.SIP
+                // Monthly and daily SIPs share the cart's SIP tab.
+                SelectedFundType.SIP, SelectedFundType.DAILY_SIP -> CartType.SIP
                 SelectedFundType.LUMSUM -> CartType.LUMPSUM
             }
         )

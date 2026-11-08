@@ -39,7 +39,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,7 +51,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.arrow_down
 import org.jetbrains.compose.resources.painterResource
@@ -66,8 +64,8 @@ import org.sharad.velvetinvestment.features.mutualfund.domain.models.InvestmentF
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.MFPurchaseTypes
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.Metrics
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundDetailsDomain
-import org.sharad.velvetinvestment.utils.FundTypeSelector
-import org.sharad.velvetinvestment.utils.SelectedFundType
+import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
+import org.sharad.velvetinvestment.shared.compose.MultiWaySwitch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,6 +74,8 @@ fun CartPopup(
     onDismiss: () -> Unit,
     onAmountChange: (String) -> Unit,
     onTypeChange: (MFPurchaseTypes) -> Unit,
+    /** The sheet's three-way switch (daily / monthly / one-time). */
+    onPurchaseModeChange: (PurchaseMode) -> Unit,
     detailState: MutualFundDetailsDomain,
     cartState: CartBottomSheetState,
     onAddClick: () -> Unit,
@@ -84,8 +84,7 @@ fun CartPopup(
     showDurationDropDown: () -> Unit,
     isFolioPurchase: Boolean = false,
 ) {
-    val fundType by FundTypeSelector.fundType.collectAsStateWithLifecycle()
-    val isPurchase = isFolioPurchase && fundType == SelectedFundType.LUMSUM
+    val isPurchase = isFolioPurchase && cartState.purchaseMode == PurchaseMode.ONE_TIME
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         modifier = Modifier.fillMaxWidth(),
@@ -94,7 +93,7 @@ fun CartPopup(
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
         CartPopupContent(
-            fundType = fundType,
+            onPurchaseModeChange = onPurchaseModeChange,
             detailState = detailState,
             cartState = cartState,
             onAmountChange = onAmountChange,
@@ -109,7 +108,7 @@ fun CartPopup(
 
 @Composable
 fun CartPopupContent(
-    fundType: SelectedFundType,
+    onPurchaseModeChange: (PurchaseMode) -> Unit,
     detailState: MutualFundDetailsDomain,
     cartState: CartBottomSheetState,
     onAmountChange: (String) -> Unit,
@@ -147,12 +146,6 @@ fun CartPopupContent(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                FundBadge(
-                    text = when (fundType) {
-                        SelectedFundType.SIP -> "SIP"
-                        SelectedFundType.LUMSUM -> "Lump Sum"
-                    }
-                )
             }
 
             Text(
@@ -162,8 +155,18 @@ fun CartPopupContent(
             )
         }
 
-        when (fundType) {
-            SelectedFundType.LUMSUM -> LumpSumCart(
+        // Opens on the investment-method pick; the user can still switch it here.
+        if (cartState.availableModes.size > 1) {
+            MultiWaySwitch(
+                options = cartState.availableModes,
+                selected = cartState.purchaseMode,
+                label = { it.cartSwitchLabel() },
+                onSelected = onPurchaseModeChange
+            )
+        }
+
+        when (cartState.purchaseMode) {
+            PurchaseMode.ONE_TIME -> LumpSumCart(
                 amount = cartState.amount,
                 onAmountChange = onAmountChange,
                 onChipClick = { onAmountChange(it.toString()) },
@@ -173,11 +176,12 @@ fun CartPopupContent(
                 isPurchase = isPurchase,
             )
 
-            SelectedFundType.SIP -> SIPCart(
+            PurchaseMode.MONTHLY, PurchaseMode.DAILY -> SIPCart(
                 amount = cartState.amount,
                 onAmountChange = onAmountChange,
                 onChipClick = { onAmountChange(it.toString()) },
-                minAmount = cartState.minSipAmount,
+                minAmount = cartState.minAmount,
+                isDaily = cartState.purchaseMode == PurchaseMode.DAILY,
                 onAddClick = onAddClick,
                 loading = cartState.loading,
                 frequency = cartState.selectedFrequency?.label,
@@ -191,12 +195,21 @@ fun CartPopupContent(
     }
 }
 
+/** Names on the cart sheet's switch. */
+private fun PurchaseMode.cartSwitchLabel(): String = when (this) {
+    PurchaseMode.DAILY -> "Daily"
+    PurchaseMode.MONTHLY -> "Monthly"
+    PurchaseMode.ONE_TIME -> "Lump Sum"
+}
+
 @Composable
 fun SIPCart(
     onChipClick: (Long) -> Unit,
     onAmountChange: (String) -> Unit,
     amount: Long?,
     minAmount: Long,
+    /** A daily SIP has no debit day, so the SIP-day field is hidden. */
+    isDaily: Boolean = false,
     onAddClick: () -> Unit,
     loading: Boolean,
     frequency: String?,
@@ -254,7 +267,7 @@ fun SIPCart(
             currentAmount=amount
         )
 
-        Row(
+        if (!isDaily) Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -289,12 +302,12 @@ fun SIPCart(
 
         AppButton(
             modifier = Modifier.fillMaxWidth(),
-            text = "Start SIP" + ((amount?.let {" of ₹" +formatMoneyAfterL(it)+"/month" })?:""),
+            text = "Start SIP" + ((amount?.let {" of ₹" +formatMoneyAfterL(it)+ if (isDaily) "/day" else "/month" })?:""),
             onClick = {
                 onAddClick()
             },
             loading = loading,
-            enabled = amount != null && amount >= minAmount
+            enabled = amount != null && amount >= minAmount && (isDaily || date != null)
         )
     }
 }
@@ -665,7 +678,7 @@ private val sampleMutualFundDetails = MutualFundDetailsDomain(
 fun CartPopupSIPPreview() {
     VelvetTheme {
         CartPopupContent(
-            fundType = SelectedFundType.SIP,
+            onPurchaseModeChange = {},
             detailState = sampleMutualFundDetails,
             cartState = CartBottomSheetState(
                 amount = 1000,
@@ -686,9 +699,10 @@ fun CartPopupSIPPreview() {
 fun CartPopupLumpSumPreview() {
     VelvetTheme {
         CartPopupContent(
-            fundType = SelectedFundType.LUMSUM,
+            onPurchaseModeChange = {},
             detailState = sampleMutualFundDetails,
             cartState = CartBottomSheetState(
+                purchaseMode = PurchaseMode.ONE_TIME,
                 amount = 5000
             ),
             onAmountChange = {},

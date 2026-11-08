@@ -41,10 +41,11 @@ import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.ic_callended_filled
+import velvet.composeapp.generated.resources.ic_piggy_bank
 import velvet.composeapp.generated.resources.ic_ruppee_filled
 
 /**
- * Where the MF buying flow starts: the user picks a monthly SIP or a one-time lumpsum, and that
+ * Where the MF buying flow starts: the user picks a daily SIP, a monthly SIP or a one-time lumpsum, and that
  * choice ([org.sharad.velvetinvestment.utils.FundTypeSelector], set by the caller) is the default
  * mode for every screen after it, down to the purchase screen.
  *
@@ -55,6 +56,7 @@ import velvet.composeapp.generated.resources.ic_ruppee_filled
  */
 @Composable
 fun InvestmentMethodScreen(
+    onDailySipClick: () -> Unit = {},
     onStartSipClick: () -> Unit = {},
     onLumpsumClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -67,6 +69,7 @@ fun InvestmentMethodScreen(
     // val uiState by vm.uiState.collectAsStateWithLifecycle()
 
     InvestmentMethodContent(
+        onDailySipClick = onDailySipClick,
         onStartSipClick = onStartSipClick,
         onLumpsumClick = onLumpsumClick,
         onBackClick = onBackClick,
@@ -76,6 +79,7 @@ fun InvestmentMethodScreen(
 
 @Composable
 fun InvestmentMethodContent(
+    onDailySipClick: () -> Unit = {},
     onStartSipClick: () -> Unit = {},
     onLumpsumClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -147,9 +151,22 @@ fun InvestmentMethodContent(
 
             item {
                 InvestmentOptionCard(
-                    title = "Start a SIP",
+                    title = "Start a Daily SIP",
+                    description = "Invest a small amount every day, starting from as little as ₹10.",
+                    buttonText = "Start Daily SIP",
+                    icon = Res.drawable.ic_piggy_bank,
+                    onButtonClick = {
+                        // TODO(top-up): if (hasFunds) showDailySIPBottomSheet = true else
+                        onDailySipClick()
+                    }
+                )
+            }
+
+            item {
+                InvestmentOptionCard(
+                    title = "Start a Monthly SIP",
                     description = "Automated monthly investments to build wealth steadily over time.",
-                    buttonText = "Start SIP",
+                    buttonText = "Start Monthly SIP",
                     icon = Res.drawable.ic_callended_filled,
                     onButtonClick = {
                         // TODO(top-up): if (hasFunds) showSIPBottomSheet = true else

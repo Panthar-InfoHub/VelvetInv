@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.homescreen.compose
+package org.sharad.velvetinvestment.features.homescreen.compose
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -22,26 +22,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.emify.core.ui.theme.Primary
-import org.sharad.emify.core.ui.theme.Secondary
-import org.sharad.emify.core.ui.theme.bgColor1
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.shared.compose.MeshSquareBackground
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.formatMoneyWithUnits
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.utils.withInterRupee
-import org.sharad.velvetinvestment.shared.theme.Poppins
-import org.sharad.velvetinvestment.shared.theme.subHeading
-import org.sharad.velvetinvestment.shared.theme.tinyLabel
 import velvet.composeapp.generated.resources.Res
-import velvet.composeapp.generated.resources.arrow_right
-import velvet.composeapp.generated.resources.expenses_icon
 import velvet.composeapp.generated.resources.icon_eye_closed
 import velvet.composeapp.generated.resources.icone_eye_open
 import velvet.composeapp.generated.resources.worth_img

@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.homescreen.compose
+package org.sharad.velvetinvestment.features.homescreen.compose
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode

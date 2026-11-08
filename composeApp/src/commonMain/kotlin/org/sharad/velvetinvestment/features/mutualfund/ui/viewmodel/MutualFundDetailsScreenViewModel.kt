@@ -27,7 +27,8 @@ import org.sharad.velvetinvestment.features.mutualfund.domain.models.InvestmentF
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.MFPurchaseTypes
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.toSipRequest
 import org.sharad.velvetinvestment.utils.FundTypeSelector
-import org.sharad.velvetinvestment.utils.SelectedFundType
+import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
+import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.utils.networking.ErrorType
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.DetailsState
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.GraphDurationSelection
@@ -99,6 +100,13 @@ class MutualFundDetailsScreenViewModel(
         type: MFPurchaseTypes
     ){
         _cartSheetState.value = _cartSheetState.value.copy(selectedType = type)
+    }
+
+    /** The sheet's three-way switch; only modes the fund offers are taken. */
+    fun onCartPurchaseModeChange(mode: PurchaseMode) {
+        val state = _cartSheetState.value
+        if (mode == state.purchaseMode || mode !in state.availableModes) return
+        _cartSheetState.value = state.copy(purchaseMode = mode)
     }
 
     fun onCartFrequencyChange(
@@ -223,7 +231,12 @@ class MutualFundDetailsScreenViewModel(
             getDetailsUseCase(id)
                 .onSuccess {
                     _detailsState.value = DetailsState.Success(it)
-                    _cartSheetState.value = _cartSheetState.value.copy(minLumpSumAmount = it.minLumpSumAmount, minSipAmount = it.minSipAmount)
+                    _cartSheetState.value = _cartSheetState.value.copy(
+                        minLumpSumAmount = it.minLumpSumAmount,
+                        minSipAmount = it.minSipAmount,
+                        minDailySipAmount = it.minDailySipAmount.takeIf { min -> min > 0 } ?: DEFAULT_MIN_DAILY_SIP,
+                        availableModes = it.cartModes()
+                    )
                 }
                 .onError {
                     _detailsState.value = DetailsState.Error(it.message)
@@ -300,7 +313,18 @@ class MutualFundDetailsScreenViewModel(
     //     }
     // }
 
+    /**
+     * Opens the cart sheet on the mode picked on the investment-method screen ([FundTypeSelector]),
+     * or the first mode the fund offers when it doesn't offer that one.
+     */
     fun showBottomSheet(){
+        val state = _cartSheetState.value
+        val preferred = FundTypeSelector.purchaseMode
+        _cartSheetState.value = state.copy(
+            purchaseMode = preferred.takeIf { it in state.availableModes }
+                ?: state.availableModes.firstOrNull()
+                ?: preferred
+        )
         showCartBottomSheet()
     }
 
@@ -309,12 +333,13 @@ class MutualFundDetailsScreenViewModel(
     }
 
     /**
-     * JN's add-to-cart, in the mode held by [FundTypeSelector] (SIP or lumpsum).
+     * JN's add-to-cart, in the mode on the sheet's switch ([CartBottomSheetState.purchaseMode]):
+     * lumpsum → `addToCartLumpsum`; monthly / daily SIP → `addToCartSip` with [toSipRequest].
      * TODO(top-up): JN tops up an existing folio here instead (`folioId` → `investMoreLumpsum`).
      */
     fun addToCart() {
-        when(FundTypeSelector.fundType.value){
-            SelectedFundType.LUMSUM -> {
+        when(_cartSheetState.value.purchaseMode){
+            PurchaseMode.ONE_TIME -> {
                 val amount= _cartSheetState.value.amount
                 if (amount== null || amount < _cartSheetState.value.minLumpSumAmount)
                     return
@@ -346,8 +371,9 @@ class MutualFundDetailsScreenViewModel(
                     }
                 }
             }
-            SelectedFundType.SIP -> {
+            PurchaseMode.MONTHLY, PurchaseMode.DAILY -> {
                 val state = _cartSheetState.value
+                if ((state.amount ?: 0) < state.minAmount) return
                 val request = state.toSipRequest(id) ?: return
                 viewModelScope.launch {
                     startCartSheetLoading()
@@ -456,6 +482,15 @@ fun Metrics.getPreferredReturn(): Float {
         else -> 12f
     }
 }
+
+private const val DEFAULT_MIN_DAILY_SIP = 10L
+
+/** The cart sheet's modes for this fund, in switch order (daily, monthly, one-time). */
+private fun MutualFundDetailsDomain.cartModes(): List<PurchaseMode> = buildList {
+    if (dailySipAllowed) add(PurchaseMode.DAILY)
+    if (sip_allowed || InvestmentFrequency.MONTHLY in investmentFrequency) add(PurchaseMode.MONTHLY)
+    if (purchase_allowed) add(PurchaseMode.ONE_TIME)
+}.ifEmpty { listOf(PurchaseMode.DAILY, PurchaseMode.MONTHLY, PurchaseMode.ONE_TIME) }
 
 enum class MFBottomSheetType{
     KYC,TRADING_ACCOUNT,CART

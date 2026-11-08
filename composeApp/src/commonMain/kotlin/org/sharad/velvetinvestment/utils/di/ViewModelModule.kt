@@ -2,7 +2,7 @@ package org.sharad.velvetinvestment.utils.di
 
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
-import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.features.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.presentation.insurance.InsuranceScreenViewModel
 import org.sharad.velvetinvestment.presentation.insurance.viewmodel.InsuranceViewModel
 import org.sharad.velvetinvestment.presentation.investmentrate.viewmodel.InvestmentRateScreenViewModel

@@ -38,6 +38,8 @@ import velvet.composeapp.generated.resources.back_arrow
 import velvet.composeapp.generated.resources.ic_clock
 import velvet.composeapp.generated.resources.ic_create_goal
 import velvet.composeapp.generated.resources.profile_bank
+import velvet.composeapp.generated.resources.ic_piggy_bank
+import velvet.composeapp.generated.resources.icon_callender
 import velvet.composeapp.generated.resources.search_icon
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -78,6 +80,10 @@ fun SearchOverlay(
     handleEvent: (SearchOverlayEvent) -> Unit,
     onDismiss: () -> Unit,
     onBookFdClick: () -> Unit,
+    /** JN's "Daily Micro-SIP" card: the fund list filtered to ₹10/day starters. */
+    onDailySipClick: () -> Unit,
+    /** JN's "Monthly SIP" card: the fund list filtered to ₹100/month starters. */
+    onMonthlySipClick: () -> Unit,
     onCreateGoalClick: () -> Unit,
     /** A live result was tapped; the caller opens the fund's details screen. */
     onFundClick: (MutualFundDomain) -> Unit,
@@ -125,6 +131,8 @@ fun SearchOverlay(
 
             QuickActions(
                 onBookFdClick = onBookFdClick,
+                onDailySipClick = onDailySipClick,
+                onMonthlySipClick = onMonthlySipClick,
                 onCreateGoalClick = onCreateGoalClick
             )
         }
@@ -398,13 +406,12 @@ private fun RecentSearchRow(
     }
 }
 
-/**
- * Shortcuts for users who came to the search without a term in mind. JN's Daily ₹10 and
- * Monthly ₹100 cards are left out: Velvet doesn't offer those starters.
- */
+/** Shortcuts for users who came to the search without a term in mind (JN's four cards). */
 @Composable
 private fun QuickActions(
     onBookFdClick: () -> Unit,
+    onDailySipClick: () -> Unit,
+    onMonthlySipClick: () -> Unit,
     onCreateGoalClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -413,6 +420,28 @@ private fun QuickActions(
             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
             color = Primary
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            QuickActionCard(
+                icon = Res.drawable.ic_piggy_bank,
+                iconBackground = Primary.copy(alpha = 0.1f),
+                title = "Daily Micro-SIP",
+                subtitle = "Start with just ₹10/day",
+                onClick = onDailySipClick,
+                modifier = Modifier.weight(1f)
+            )
+            QuickActionCard(
+                icon = Res.drawable.icon_callender,
+                iconBackground = Primary.copy(alpha = 0.1f),
+                title = "Monthly SIP",
+                subtitle = "Invest ₹100/month",
+                onClick = onMonthlySipClick,
+                modifier = Modifier.weight(1f)
+            )
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -525,6 +554,8 @@ private fun SearchOverlayPreview() {
             handleEvent = {},
             onDismiss = {},
             onBookFdClick = {},
+            onDailySipClick = {},
+            onMonthlySipClick = {},
             onCreateGoalClick = {},
             onFundClick = {}
         )

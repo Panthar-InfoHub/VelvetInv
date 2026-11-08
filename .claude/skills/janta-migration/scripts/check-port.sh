@@ -27,7 +27,8 @@ check "JN Spacing object (use X.dp)"         '\bSpacing\.dp' "$@"
 check "Velvet-undefined typography slot"     'typography\.(titleLarge|titleMedium|bodyLarge|labelMedium)\b' "$@"
 check "JN cyan accent"                       '00AEEF|E5F7FD|00497E' "$@"
 check "JN branding"                          'PoweredByVelvet|JantaNiveshAndVelvetLogo' "$@"
-check "₹10/day or ₹100/month option (rule 8)" '10/day|₹10/day|u20B910|Daily ₹10|Monthly ₹100|u20B9100|AMOUNT_DAILY_10|AMOUNT_MONTHLY_100|DailyTen|MonthlyHundred|listOf\(PurchaseMode\.DAILY|PurchaseMode\.entries' "$@"
+# Rule 8 (no daily / micro SIP) was reversed on 2026-11-07 — daily SIP is ported as JN has it.
+# check "₹10/day or ₹100/month option (rule 8)" '10/day|₹10/day|u20B910|Daily ₹10|Monthly ₹100|u20B9100|AMOUNT_DAILY_10|AMOUNT_MONTHLY_100|DailyTen|MonthlyHundred|listOf\(PurchaseMode\.DAILY|PurchaseMode\.entries' "$@"
 check "Localization code"                    'LanguageRepository|AppLanguage|LocalAppLanguageLocale' "$@"
 
 if [ $found -eq 0 ]; then

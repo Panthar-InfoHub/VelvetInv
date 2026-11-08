@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.features.mutualfund.domain.models
 
 import org.sharad.velvetinvestment.features.cart.data.remote.model.cartaddsip.AddCartSipRequest
+import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
 
 data class CategoryMutualFundDomain(
     val categoryName: String,
@@ -40,6 +41,15 @@ data class CalculatorInputState(
 )
 
 data class CartBottomSheetState(
+    /**
+     * The sheet's three-way switch (daily / monthly / one-time). Opens on the mode picked
+     * on the investment-method screen; the user can change it here. Velvet-only — JN's sheet is
+     * stuck on that earlier pick.
+     */
+    val purchaseMode: PurchaseMode = PurchaseMode.MONTHLY,
+    /** Modes the fund can be bought in, in switch order. */
+    val availableModes: List<PurchaseMode> = listOf(PurchaseMode.DAILY, PurchaseMode.MONTHLY, PurchaseMode.ONE_TIME),
+    val minDailySipAmount: Long = 10,
     val selectedType: MFPurchaseTypes= MFPurchaseTypes.LUMP_SUM,
     val amount:Long?=null,
     val minLumpSumAmount:Long = 500,
@@ -51,7 +61,15 @@ data class CartBottomSheetState(
     val frequencyDropDownExpanded:Boolean=false,
     val dayDropDownExpanded:Boolean=false,
     val durationDropDownExpanded:Boolean=false
-)
+) {
+    /** The minimum for the selected mode. */
+    val minAmount: Long
+        get() = when (purchaseMode) {
+            PurchaseMode.DAILY -> minDailySipAmount
+            PurchaseMode.MONTHLY -> minSipAmount
+            PurchaseMode.ONE_TIME -> minLumpSumAmount
+        }
+}
 
 enum class MFPurchaseTypes{
     LUMP_SUM,SIP
@@ -75,10 +93,12 @@ enum class Duration(
 /**
  * The `POST /mf/cart` SIP body for the sheet's current input, or null while it is incomplete.
  * A daily SIP has no installment day; anything else is sent as a monthly SIP on the picked date.
+ * Daily is the sheet's [CartBottomSheetState.purchaseMode] (Velvet's switch) or JN's frequency pick.
  */
 fun CartBottomSheetState.toSipRequest(productId: String): AddCartSipRequest? {
     val amount = amount ?: return null
-    val isDaily = selectedFrequency == InvestmentFrequency.DAILY ||
+    val isDaily = purchaseMode == PurchaseMode.DAILY ||
+            selectedFrequency == InvestmentFrequency.DAILY ||
             selectedFrequency == InvestmentFrequency.DAILY_Z
 
     if (isDaily) {

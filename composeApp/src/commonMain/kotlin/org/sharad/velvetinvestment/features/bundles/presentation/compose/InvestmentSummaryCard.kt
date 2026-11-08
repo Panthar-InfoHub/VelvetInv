@@ -167,6 +167,7 @@ fun InvestmentSummaryCard(
                     )
                     Text(
                         text = when (purchaseMode) {
+                            PurchaseMode.DAILY -> "DAILY"
                             PurchaseMode.MONTHLY -> "MONTHLY"
                             PurchaseMode.ONE_TIME -> "ONE-TIME"
                         },

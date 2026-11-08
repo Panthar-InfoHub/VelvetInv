@@ -365,10 +365,12 @@ fun InvestmentFilter.toCustomChipLabel(): LabelFilter? {
 }
 
 /**
- * The chip row. JN leads with the ₹10/day and ₹100/month minimum-installment chips; Velvet
- * doesn't offer those starter SIPs, so the row starts at the fund categories.
+ * The chip row. The two minimum-installment chips lead — they are the cheapest way in for a new
+ * investor, and the search overlay's micro-SIP cards land on this list already filtered by one.
  */
 val defaultFilters: List<LabelFilter> = listOf(
+    AmountTypeLabel.DailyTen,
+    AmountTypeLabel.MonthlyHundred,
     MutualFundLabel.Popular,
     MutualFundLabel.LargeCap,
     MutualFundLabel.MidCap,

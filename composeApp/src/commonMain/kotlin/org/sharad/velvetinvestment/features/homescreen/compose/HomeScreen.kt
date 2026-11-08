@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.homescreen.compose
+package org.sharad.velvetinvestment.features.homescreen.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,7 +41,7 @@ import org.sharad.emify.core.ui.theme.bgColor4
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.features.bottomNavigation.domain.models.GoalsSummaryDomain
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
-import org.sharad.velvetinvestment.presentation.homescreen.HomeScreenViewModel
+import org.sharad.velvetinvestment.features.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.domain.models.OnboardingPrompt
 import org.sharad.velvetinvestment.shared.compose.BarHeader

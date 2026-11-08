@@ -1,5 +1,6 @@
 package org.sharad.velvetinvestment.features.core.utils.fundfiltersystem
 
+
 /**
  * The mutual-fund filter tray, mirroring the query parameters of `GET /mf/funds`.
  *
@@ -37,9 +38,17 @@ fun createInitialInvestmentFilter(): InvestmentFilter {
                     FilterOption(MfFilterIds.CATEGORY_DEBT, "Debt"),
                     FilterOption(MfFilterIds.CATEGORY_LIQUID, "Liquid")
                 )
+            ),
+            // amount_type — minimum SIP installment
+            FilterGroup(
+                id = MfFilterIds.AMOUNT_TYPE,
+                title = "Min Investment",
+                selectionType = SelectionType.SINGLE,
+                options = listOf(
+                    FilterOption(MfFilterIds.AMOUNT_DAILY_10, "Daily \u20B910"),
+                    FilterOption(MfFilterIds.AMOUNT_MONTHLY_100, "Monthly \u20B9100")
+                )
             )
-            // No amount_type (minimum-installment) group: Velvet doesn't offer the
-            // ₹10/day and ₹100/month starter SIPs.
         )
     )
 }
@@ -68,7 +77,9 @@ object MfFilterIds {
     const val CATEGORY_DEBT = "debt"
     const val CATEGORY_LIQUID = "liquid"
 
-    // amount_type: no values — Velvet doesn't offer the ₹10/day and ₹100/month starters.
+    // amount_type
+    const val AMOUNT_DAILY_10 = "daily_10"
+    const val AMOUNT_MONTHLY_100 = "monthly_100"
 }
 
 fun createInitialFDFilters(): InvestmentFilter {

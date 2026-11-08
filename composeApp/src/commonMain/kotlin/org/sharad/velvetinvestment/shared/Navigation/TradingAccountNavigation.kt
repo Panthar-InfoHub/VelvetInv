@@ -22,7 +22,7 @@ import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TradingAc
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TradingAccountFinancialDetailsScreen
 import org.sharad.velvetinvestment.presentation.tradingaccount.compose.TradingAccountPANDetailsScreen
 import org.sharad.velvetinvestment.presentation.tradingaccount.viewmodel.TradingAccountViewModel
-import org.sharad.velvetinvestment.presentation.webview.WebViewScreen
+import org.sharad.velvetinvestment.features.webview.WebViewScreen
 
 @Composable
 fun TradingAccountNavigation(onBackClick: () -> Unit, onCompletion: () -> Unit) {

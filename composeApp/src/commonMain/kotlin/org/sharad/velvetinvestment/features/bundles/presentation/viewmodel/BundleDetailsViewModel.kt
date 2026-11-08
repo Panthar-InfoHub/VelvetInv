@@ -35,6 +35,7 @@ import org.sharad.velvetinvestment.features.cart.domain.usecases.AddBundleToCart
 import org.sharad.velvetinvestment.features.cart.domain.usecases.GetUserCartUseCase
 import org.sharad.velvetinvestment.features.cart.domain.CartCountController
 
+
 /**
  * The fund picker for one category, held while the select-fund screen is open.
  *
@@ -505,7 +506,7 @@ class BundleDetailsViewModel(
                     )
                 )
 
-                PurchaseMode.MONTHLY -> addBundleToCartSipUseCase(
+                PurchaseMode.DAILY, PurchaseMode.MONTHLY -> addBundleToCartSipUseCase(
                     AddBundleSipRequest(
                         bundle_id = bundleId,
                         amount = state.investmentAmount,

@@ -31,20 +31,18 @@ import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipPurchaseOtpVi
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipSetupEffect
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipSetupViewModel
 import org.sharad.velvetinvestment.utils.FundTypeSelector
-import org.sharad.velvetinvestment.utils.SelectedFundType
 import org.sharad.velvetinvestment.utils.WebURLConstants
 
 /*
  * The MF buying flow, after JN's MainAppNavigation:
  *
- *   InvestmentMethod (monthly SIP / one-time → FundTypeSelector)
+ *   InvestmentMethod (monthly SIP / daily SIP / one-time → FundTypeSelector)
  *     → CategoryMutualFund (+ search overlay) → MutualFundSearchResult
  *     → MutualFundDetails(id, isin) → "Purchase Fund"
  *     → FundPurchase (opens on the picked mode) → SipSetup → SipPurchaseOtp → PurchaseSuccess
  *                                               ↘ lumpsum payment web view → PurchaseSuccess
  *
- * Velvet differences from JN: fund taps open the details screen rather than the buy screen, and
- * JN's Daily ₹10 / Monthly ₹100 shortcuts don't exist.
+ * Velvet differences from JN: fund taps open the details screen rather than the buy screen.
  */
 
 // Results handed back to a destination through its savedStateHandle (keys from JN).
@@ -57,11 +55,7 @@ private const val SIP_MANDATE_RESULT = "sip_mandate_returned"
 private const val WEBVIEW_COMPLETION_SIP_MANDATE = "sip_mandate"
 
 /** The mode picked on the investment-method screen, as the purchase route carries it. */
-private fun selectedPurchaseMode(): PurchaseMode =
-    when (FundTypeSelector.fundType.value) {
-        SelectedFundType.SIP -> PurchaseMode.MONTHLY
-        SelectedFundType.LUMSUM -> PurchaseMode.ONE_TIME
-    }
+private fun selectedPurchaseMode(): PurchaseMode = FundTypeSelector.purchaseMode
 
 /** Every fund tap in the flow opens its details, carrying the ISIN the purchase needs. */
 private fun NavHostController.openFundDetails(fund: MutualFundDomain) {
@@ -96,6 +90,12 @@ fun NavGraphBuilder.mutualFundDestinations(
         InvestmentMethodScreen(
             onStartSipClick = {
                 FundTypeSelector.updateFundTypeToSIP()
+                navController.navigate(Route.CategoryMutualFund) {
+                    launchSingleTop = true
+                }
+            },
+            onDailySipClick = {
+                FundTypeSelector.updateFundTypeToDailySIP()
                 navController.navigate(Route.CategoryMutualFund) {
                     launchSingleTop = true
                 }
@@ -144,6 +144,9 @@ fun NavGraphBuilder.mutualFundDestinations(
                     launchSingleTop = true
                 }
             },
+            onFundsByAmountTypeClick = { amountType ->
+                navController.navigate(Route.MutualFundSearchResult(amountType = amountType))
+            },
             onCreateGoalClick = {
                 navController.navigate(Route.SingleGoalAdd) {
                     launchSingleTop = true
@@ -177,6 +180,9 @@ fun NavGraphBuilder.mutualFundDestinations(
                 navController.navigate(Route.FixedDepositSearchResult()) {
                     launchSingleTop = true
                 }
+            },
+            onFundsByAmountTypeClick = { amountType ->
+                navController.navigate(Route.MutualFundSearchResult(amountType = amountType))
             },
             onCreateGoalClick = {
                 navController.navigate(Route.SingleGoalAdd) {
@@ -507,6 +513,7 @@ fun NavGraphBuilder.mutualFundDestinations(
 }
 
 private fun sipAmountLabel(mode: PurchaseMode, amount: Int): String = when (mode) {
+    PurchaseMode.DAILY -> "₹$amount/day"
     PurchaseMode.MONTHLY -> "₹$amount/month"
     PurchaseMode.ONE_TIME -> "₹$amount"
 }

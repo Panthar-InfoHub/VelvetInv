@@ -17,6 +17,9 @@ fun MutualFundsDetailDto.toDomain(): MutualFundDetailsDomain {
     val minLumpSum = plan?.lumpsum_amount_min.toAmount()
     val minSip = plan?.sip_monthly_amount_min.toAmount()
         ?: plan?.sip_frequency_data?.get("monthly")?.min_installment_amount?.toLong()
+    val minDailySip = plan?.sip_daily_amount_min.toAmount()
+        ?: (plan?.sip_frequency_data?.get("daily") ?: plan?.sip_frequency_data?.get("calendar_day_daily"))
+            ?.min_installment_amount?.toLong()
 
     return MutualFundDetailsDomain(
         amc_code = "",
@@ -62,6 +65,7 @@ fun MutualFundsDetailDto.toDomain(): MutualFundDetailsDomain {
         minAmount = minLumpSum ?: minSip ?: 0,
         minSipAmount = minSip ?: 0,
         minLumpSumAmount = minLumpSum ?: 0,
+        minDailySipAmount = minDailySip ?: 0,
     )
 }
 

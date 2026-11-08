@@ -79,8 +79,8 @@ import velvet.composeapp.generated.resources.wallet_icon
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * One screen for all three ways of buying a fund. The mode tabs change what the middle of the
- * screen asks for — a monthly SIP needs a debit day, the other two do not — while the amount
+ * One screen for all three ways of buying a fund (daily SIP, monthly SIP, one-time). The mode tabs
+ * change what the middle of the screen asks for — a monthly SIP needs a debit day, the other two do not — while the amount
  * keypad and the confirm button stay put at the bottom, so the primary action never moves.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -219,6 +219,7 @@ private fun PurchaseForm(
 
         AppButton(
             text = state.submissionStage?.message ?: when (state.mode) {
+                PurchaseMode.DAILY -> "Start Daily SIP" + " · ₹${state.enteredAmount}/day"
                 PurchaseMode.MONTHLY -> "Start Monthly SIP" + " · ₹${state.enteredAmount}/month"
                 PurchaseMode.ONE_TIME -> "Invest Now " + " · ₹${state.enteredAmount}"
             },

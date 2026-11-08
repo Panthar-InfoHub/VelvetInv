@@ -50,8 +50,8 @@ import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.UploadSigna
 import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.VerifyBankAccountEffect
 import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.VerifyBankAccountEvent
 import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.VerifyBankAccountViewModel
-import org.sharad.velvetinvestment.presentation.webview.UpiPaymentWebViewScreen
-import org.sharad.velvetinvestment.presentation.webview.WebViewScreen
+import org.sharad.velvetinvestment.features.webview.UpiPaymentWebViewScreen
+import org.sharad.velvetinvestment.features.webview.WebViewScreen
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.features.onboarding.ui.compose.VerifyBankAccountScreen
 import org.sharad.velvetinvestment.features.onboarding.ui.viewmodels.VerifyWithDigilockerEffect

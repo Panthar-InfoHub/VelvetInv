@@ -1,4 +1,4 @@
-package org.sharad.velvetinvestment.presentation.homescreen
+package org.sharad.velvetinvestment.features.homescreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +12,7 @@ import org.sharad.velvetinvestment.domain.usecases.user.GetUnreadStatusUseCase
 import org.sharad.velvetinvestment.features.fireonboarding.domain.models.FireStage
 import org.sharad.velvetinvestment.features.fireonboarding.domain.models.isPending
 import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.presentation.homescreen.uimodels.HomeScreenUiData
+import org.sharad.velvetinvestment.features.homescreen.uimodels.HomeScreenUiData
 import org.sharad.velvetinvestment.shared.domain.models.UserDataDomain
 import org.sharad.velvetinvestment.shared.domain.usecase.GetUserDataUseCase
 import org.sharad.velvetinvestment.utils.storage.AuthPrefs

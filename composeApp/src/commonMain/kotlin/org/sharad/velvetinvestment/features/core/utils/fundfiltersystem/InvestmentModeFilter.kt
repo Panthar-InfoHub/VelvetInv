@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.features.core.utils.fundfiltersystem
 
 import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
 
+
 /**
  * The `investment_mode` filter of `GET /mf/funds`: only funds that can be bought as a SIP of that
  * frequency. Unlike the `amount_type` chips it sets no minimum installment, which is what a bundle
@@ -16,6 +17,7 @@ enum class InvestmentModeFilter(val id: String?) {
 
     companion object {
         fun from(mode: PurchaseMode): InvestmentModeFilter = when (mode) {
+            PurchaseMode.DAILY -> DAILY_SIP
             PurchaseMode.MONTHLY -> MONTHLY_SIP
             PurchaseMode.ONE_TIME -> LUMPSUM
         }

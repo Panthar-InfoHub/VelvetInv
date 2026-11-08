@@ -75,6 +75,7 @@ import org.sharad.velvetinvestment.utils.isoUtcToDisplayDate
 import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.utils.trimTo
 import org.sharad.velvetinvestment.utils.withInterRupee
+import org.sharad.velvetinvestment.utils.formatMoneyAfterL
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.FundIcon
 import org.sharad.velvetinvestment.shared.compose.NavLineChart
@@ -225,7 +226,7 @@ fun MutualFundDetailsScreenRoot(
                         )
                     }
 
-                    // No frequency picker: a cart SIP is always monthly (no daily SIP in Velvet).
+                    // No frequency picker: the sheet's mode switch picks monthly vs daily.
 
                     bottomSheetVisibility?.let {
                         when (it) {
@@ -254,6 +255,7 @@ fun MutualFundDetailsScreenRoot(
                                     },
                                     onAmountChange = viewModel::onCartAmountChange,
                                     onTypeChange = viewModel::onCartTypeChange,
+                                    onPurchaseModeChange = viewModel::onCartPurchaseModeChange,
                                     onAddClick = viewModel::addToCart,
                                     showFrequencyDropDown = viewModel::showCartFrequenciesDropDown,
                                     showDateDropDown = viewModel::showCartDateDropDown,
@@ -266,6 +268,16 @@ fun MutualFundDetailsScreenRoot(
             }
         }
     }
+}
+
+/**
+ * The Fund Info card that took the risk level's place: the smallest monthly SIP from the fund's
+ * `scheme_plan`, else the smallest lumpsum, else whether the scheme is open or close ended.
+ */
+private fun MutualFundDetailsDomain.minInvestmentInfo(): Pair<String, String> = when {
+    minSipAmount > 0 -> "Min. SIP" to "₹ ${formatMoneyAfterL(minSipAmount)}"
+    minLumpSumAmount > 0 -> "Min. Lumpsum" to "₹ ${formatMoneyAfterL(minLumpSumAmount)}"
+    else -> "Structure" to structure
 }
 
 fun DetailsState.toUiState(): UiState<MutualFundDetailsDomain> {
@@ -294,7 +306,6 @@ fun MutualFundDetailsScreen(
 ) {
 
     var calculatorExpanded by remember { mutableStateOf(false) }
-    var riskExpanded by remember { mutableStateOf(false) }
     var returnsExpanded by remember { mutableStateOf(false) }
     var isShortTerm by remember { mutableStateOf(true) }
     var overviewsExpanded by remember { mutableStateOf(false) }
@@ -342,7 +353,7 @@ fun MutualFundDetailsScreen(
                     date = detailsState.latest_nav_date,
                     nav = detailsState.latest_nav,
                     assetType = detailsState.asset_type,
-                    riskLevel = detailsState.risk_level,
+                    minInvestment = detailsState.minInvestmentInfo(),
                     metrics = detailsState.metrics,
                     selectedYear =selectedYear
                 )
@@ -367,19 +378,7 @@ fun MutualFundDetailsScreen(
                 HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
             }
 
-            item {
-                RiskSection(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    expanded = riskExpanded,
-                    onExpandToggle ={ riskExpanded=!riskExpanded},
-                    riskLevel = detailsState.risk_level,
-                    riskText = detailsState.risk_name
-                )
-            }
-
-            item {
-                HorizontalDivider(color = titleColor.copy(0.6f), modifier = Modifier.padding(horizontal = 16.dp))
-            }
+            // No risk section: `GET /mf/{id}` no longer sends a risk level (the mapper fills -1 / "n/a").
 
             item {
                 ReturnsSection(
@@ -486,7 +485,8 @@ fun FundInfo(
     date: String,
     nav: String,
     assetType: String,
-    riskLevel: Int,
+    /** Replaces the risk-level card, which the API no longer feeds. */
+    minInvestment: Pair<String, String>,
     metrics: Metrics,
     selectedYear: GraphDurationSelection
 ) {
@@ -548,10 +548,10 @@ fun FundInfo(
 
         item{
             FundInfoCard(
-                title = "Risk Level",
+                title = minInvestment.first,
             ){
                 Text(
-                    text= riskLevel.toString(),
+                    text= minInvestment.second.withInterRupee(),
                     style = MaterialTheme.typography.headlineLarge,
                     color = Color.Black
                 )
