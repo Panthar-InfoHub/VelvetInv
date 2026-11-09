@@ -5,16 +5,12 @@ import org.koin.dsl.module
 import org.sharad.velvetinvestment.data.remote.repository.CASRepo
 import org.sharad.velvetinvestment.data.remote.repository.FixedDepositRepo
 import org.sharad.velvetinvestment.data.remote.repository.MFKYCRepo
-import org.sharad.velvetinvestment.data.remote.repository.MutualFundRepo
 import org.sharad.velvetinvestment.data.remote.repository.UserAuthenticationRepo
 import org.sharad.velvetinvestment.data.remote.repository.UserFinanceRepo
-import org.sharad.velvetinvestment.data.remote.repository.dummy.DummyFDRepositoryPortFolio
 import org.sharad.velvetinvestment.data.remote.repository.dummy.HomeRepositoryMock
-import org.sharad.velvetinvestment.domain.repository.FDRepositoryPortFolio
 import org.sharad.velvetinvestment.domain.repository.FixedDepositRepository
 import org.sharad.velvetinvestment.domain.repository.HomeRepository
 import org.sharad.velvetinvestment.domain.repository.MFKYCRepository
-import org.sharad.velvetinvestment.domain.repository.MutualFundRepository
 import org.sharad.velvetinvestment.domain.repository.UserAuth
 import org.sharad.velvetinvestment.domain.repository.UserFinance
 import org.sharad.velvetinvestment.shared.data.remote.repository.UserDataRepoImpl
@@ -27,14 +23,8 @@ val repositoryModule = module {
     single { AuthPrefs(get()) }
     single<HttpClient> { getHttpClient(get()) }
     single<HomeRepository> { HomeRepositoryMock() }
-    single<MutualFundRepository> {
-        MutualFundRepo(get())
-    }
     single { CASRepo(get()) }
 
-    single<FDRepositoryPortFolio> {
-        DummyFDRepositoryPortFolio()
-    }
 
     single<UserFinance> { UserFinanceRepo(get()) }
     single<FixedDepositRepository> { FixedDepositRepo(get()) }

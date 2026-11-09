@@ -14,13 +14,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import org.sharad.velvetinvestment.presentation.insurance.HealthInsuranceScreen
-import org.sharad.velvetinvestment.presentation.insurance.OtherInsuranceScreen
-import org.sharad.velvetinvestment.presentation.insurance.TermInsuranceScreen
-import org.sharad.velvetinvestment.presentation.investmentrate.compose.InvestmentRateScreen
-import org.sharad.velvetinvestment.presentation.loans.compose.LoanFlowScreen
-import org.sharad.velvetinvestment.features.portfolio.ui.screens.CancelSIPConfirmationScreen
-import org.sharad.velvetinvestment.presentation.portfolio.compose.SIPCancellationReasonScreen
+import org.sharad.velvetinvestment.features.insurance.ui.compose.HealthInsuranceScreen
+import org.sharad.velvetinvestment.features.insurance.ui.compose.OtherInsuranceScreen
+import org.sharad.velvetinvestment.features.insurance.ui.compose.TermInsuranceScreen
+import org.sharad.velvetinvestment.features.investmentrate.ui.compose.InvestmentRateScreen
+import org.sharad.velvetinvestment.features.loans.ui.compose.LoanFlowScreen
 import androidx.compose.runtime.remember
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -39,15 +37,13 @@ import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.explo
 import org.sharad.velvetinvestment.features.bundles.presentation.viewmodel.fundIdsInOtherSlots
 import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.NotificationScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.PersonalInformationScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCheckAnimationScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutUsScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutVelvetScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.AboutFireScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.PrivacyPolicyScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.TermsAndConditionsScreen
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.KYCCompletedScreen
+import org.sharad.velvetinvestment.features.notifications.ui.compose.NotificationScreen
+import org.sharad.velvetinvestment.features.profile.ui.compose.PersonalInformationScreen
+import org.sharad.velvetinvestment.features.profile.ui.compose.AboutUsScreen
+import org.sharad.velvetinvestment.features.profile.ui.compose.AboutVelvetScreen
+import org.sharad.velvetinvestment.features.profile.ui.compose.AboutFireScreen
+import org.sharad.velvetinvestment.features.profile.ui.compose.PrivacyPolicyScreen
+import org.sharad.velvetinvestment.features.profile.ui.compose.TermsAndConditionsScreen
 import org.sharad.velvetinvestment.domain.webview.WebViewConfig
 import org.sharad.velvetinvestment.domain.webview.WebViewUrlMatchType
 import org.sharad.velvetinvestment.features.webview.WebViewScreen
@@ -329,11 +325,6 @@ fun AppNavigation(
                             launchSingleTop=true
                         }
                     },
-                    navigateToTradingAccountSetup={
-                      navController.navigate(
-                          Route.TradingAccountNavigation
-                      )
-                    },
                     navigateToFD={
                         navController.navigate(
                             Route.FixedDepositSearchResult()
@@ -387,45 +378,7 @@ fun AppNavigation(
                 )
             }
 
-            composable<Route.SIPCancellationScreen> {
-                val id = it.toRoute<Route.SIPCancellationScreen>().id
-                CancelSIPConfirmationScreen(
-                    id = id,
-                    onConfirmClick = { id ->
-                        navController.navigate(Route.CancelSIPReason(id)) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onCancelClick = { navController.popBackStack() },
-                )
-            }
-            composable<Route.CancelSIPReason> {
-                val id = it.toRoute<Route.CancelSIPReason>().id
-                SIPCancellationReasonScreen(
-                    id = id,
-                    onConfirmClick = {},
-                    onBackClick = { navController.popBackStack() },
-                )
-            }
 
-            composable<Route.KYCCompleteScreen> {
-                val name = it.toRoute<Route.KYCCompleteScreen>().name
-                val date = it.toRoute<Route.KYCCompleteScreen>().verifiedDate
-                KYCCompletedScreen(
-                    name = name, verifiedDate = date,
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
-                    buttonClick = {
-                        navController.navigate(Route.TradingAccountNavigation) {
-                            popUpTo<Route.KYCCompleteScreen> {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            }
             goalsDestinations(navController = navController)
 
             // FIRE onboarding: its own nested NavHost; it closes itself once every step in
@@ -490,17 +443,6 @@ fun AppNavigation(
                 )
             }
 
-            composable<Route.CheckKYCAnimation> {
-                KYCCheckAnimationScreen(
-                    onButtonClick = {
-                        navController.navigate(Route.MutualFundTypeSelectionScreen){
-                            launchSingleTop= true
-                        }
-                    },
-                    onBack= {navController.popBackStack()},
-                    buttonText = "Start Investing"
-                )
-            }
 
 
             composable<Route.FixedDepositCategory> {
@@ -530,17 +472,6 @@ fun AppNavigation(
                 OtherInsuranceScreen { navController.popBackStack() }
             }
 
-            composable<Route.TradingAccountNavigation> {
-                TradingAccountNavigation(
-                    onBackClick = { navController.popBackStack() },
-                    onCompletion = { navController.navigate(Route.CheckKYCAnimation){
-                        popUpTo(Route.BottomNav) {
-                            inclusive = false
-                        }
-                        launchSingleTop = true
-                    } }
-                )
-            }
 
             composable<Route.AllBundleScreen> {
                 val vm: AllBundlesViewModel = koinViewModel()

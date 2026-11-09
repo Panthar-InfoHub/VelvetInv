@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.features.cart.domain.usecases.GetUserCartUseCase
-import org.sharad.velvetinvestment.domain.usecases.user.GetUnreadStatusUseCase
+import org.sharad.velvetinvestment.features.notifications.domain.usecase.GetUnreadStatusUseCase
 import org.sharad.velvetinvestment.features.fireonboarding.domain.models.FireStage
 import org.sharad.velvetinvestment.features.fireonboarding.domain.models.isPending
 import org.sharad.velvetinvestment.utils.SnackBarController
@@ -158,9 +158,6 @@ private fun UserDataDomain.toHomeScreenUiData(): HomeScreenUiData = HomeScreenUi
     fireReport = homeData.firePercentage.includeEmi.trimDoubleTo(2),
     goals = goals.take(5),
     kycCompletion = kycVerified,
-    // `GET /user/` no longer reports a trading account (dropped from onboarding), so its
-    // "finish setting up" card is hidden rather than shown forever.
-    tradingAccountCompletion = true,
     onboardingPrompt = onboardingPrompt,
     kycFailureReason = onboarding.kycFailureReason,
     fireStepsDone = fireStepsDone,

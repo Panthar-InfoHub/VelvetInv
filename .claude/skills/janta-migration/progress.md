@@ -409,8 +409,8 @@ proper feature, delete all old goal code and re-point its users.
 - Profile KYC row = JN `ProfileIntroScreen`: status from `onboardingPrompt` (Complete green / Under Review orange /
   Failed, Pending red); taps open the KYC onboarding graph only when `opensOnboarding`. `RowItem` got `subtitleColor`.
   Deleted (user-requested, trading account no longer used): `CheckKYCScreen.kt`, `CheckKYCViewModel.kt` (+ DI),
-  `Route.CheckKYC`, unused `BottomNavigation.navigateToKYCScreen`. Trading-account graph (`TradingAccountNavigation`,
-  `KYCCompleteScreen`, `CheckKYCAnimation`) is still declared but now unreachable from the profile.
+  `Route.CheckKYC`, unused `BottomNavigation.navigateToKYCScreen`. Trading-account graph + everything exclusive to it
+  deleted 2026-11-08 (see session log).
 - Deleted (user-approved): unwired mockups `presentation/settingscreens/compose/{CreateyourNewVelvetPINScreen,VerifyYourVelvetPINScreen}.kt`.
   `SettingViewModel.verifyOtpModel` may now be unused.
 
@@ -509,7 +509,7 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
 |---|---|---|
 | — (old bundle code deleted 2026-10-08, see session log) | | |
 | old MF screens/VMs, old ExploreFund, ExistingFund top-up — **moved to `composeApp/later/`** 2026-11-05 | `features/mutualfund`, `features/bottomNavigation` | yes |
-| old MF data/domain (`MutualFundRepo`, `fundusecases`, `domain/models/mutualfunds`), `presentation/mutualfund/compose/FundInvestementFilterScreen.kt` (FD uses it), `explorefunds/uimodel` (goals uses it) | feature copies | still used elsewhere — keep |
+| old MF data/domain (`MutualFundRepo`, `fundusecases`, `cancelorder`, `domain/models/mutualfunds`, their DTOs), `presentation/mutualfund/**`, `utils/fundfiltersystem` | feature copies | **deleted 2026-11-08** — FD filter now uses `features/mutualfund` `InvestmentFilterScreen` + `features/core/utils/fundfiltersystem` |
 | old Velvet FD data/domain: `data/remote/repository/FixedDepositRepo`, `domain/repository/FixedDepositRepository`, `domain/usecases/fixeddepositusecases/*`, `domain/models/{fd,fixeddeposits}/*`, `data/remote/model/{getfds,fddetails,purchasefd}/*`, `data/remote/mapper/{FDDetailsMapper,FdListMapper}` + their `RepositoryModule`/`UseCaseModule` entries | `features/fd/{data,domain}` | yes — nothing outside these files uses them now; delete on approval (FD portfolio code is separate and still used) |
 | old FIRE questionnaire: `features/fireonboarding/presentation/onboarding/{viewmodel/{PersonalDetailsScreen,GoalScreenOnboarding,OnBoardingConfirmation}ViewModel, compose/{personaldetails/**, ConfirmationScreen, goals/{AddGoalOnboardingScreen,GoalEntry(cards),GoalDropDown}}, models/{GoalRequest,GoalType,GoalOption,PersonalDetails}}`, `features/fireonboarding/utils/*`; use cases `OnBoardUserUseCase`, `UpdateFinance/Assets/InsuranceUseCase` (+ `UserAuth` methods, `/onboarding/complete-onboarding`) | FIRE step endpoints + `FireGoalsViewModel` | yes — unreferenced except DI; `GoalEntry.kt` `EntryPair`/`ClickableIcon` still used (made internal). Delete on approval |
 | old Velvet KYC flow `presentation/kyc/**` — deleted by user 2026-11 | JN onboarding | destinations + VMs removed from `AppNavigation`/`ViewModelModule`; `Route.KYCScreen/KYCFormScreen/KYCImageUploadScreen/KYCContractScreen` still declared in `Route.kt`, unused. Check-KYC "Mutual Fund KYC" row is a no-op `TODO(jn-onboarding)` |
@@ -538,6 +538,33 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
 - MF flow, orders and portfolio not yet run on a device. Orders has no profile entry yet (JN profile → My Orders; profile not ported).
 
 ## Session log
+
+- 2026-11-08 — `presentation/` package removed. Live code moved: `features/profile` (ProfileScreen, PersonalInformation, About Velvet/Us/FIRE,
+  Privacy, Terms, `DevSignaturePasswordDialog` (was `Test.kt`), `PersonalInfoViewModel`), `features/notifications` (screen + VM + own
+  `NotificationRepository` for `/user/notifications`, `/unread-status`, `/read`, split out of `UserAuth`; home's `GetUnreadStatusUseCase`
+  lives here), `features/splash` (SplashScreen); `ExpandingDots` + `LightGradient` → `shared/compose`. Deleted as unreachable:
+  `settingscreens/**` (+ `SettingViewModel`), old `presentation/portfolio/**`, `Route.SIPCancellationScreen`/`CancelSIPReason` + destinations +
+  `features/portfolio/.../CancelSIPScreen.kt` (nothing navigated there), profile `AnnualIncome`, `BankDetails`, `KYCNotCompleted`,
+  `NotificationAlertScreen`, `CheckKYCModel`, `NotificationModel`, `shared/compose/{AddMoreNominee,GenericDropDown}`, old FD-portfolio dummy
+  chain (`FDRepositoryPortFolio`, `fdportfoliousecases`, `FixedDepositTopPicksDomain`), old invest-more chain (`UserFinance.investMoreLumpsum`,
+  `data/remote/model/investmore`, `InvestMoreMapper`), 10 unused drawables. Kept unused-but-JN-mirrored files (portfolio
+  `StopSipReasonSelection`/`StopSipReason`/`FDCardPortfolioData`, cart `PurchaseBodyDto`, core `ClearFilter`). Notifications empty state =
+  private image-only composable (same look as old `EmptyFundScreen`). Android + iOS compile.
+
+- 2026-11-08 — `presentation/{insurance,investmentrate,loans}` → `features/{insurance,investmentrate,loans}` (`ui/{compose,viewmodel}`,
+  `domain/{repository,usecase,model}`, `data/{repository,remote/model,remote/mapper}`, `di/` registered in `PlatformModule`). Each has its own
+  repository split out of `UserFinance` (`/frontend/request-connection`, `/user/investment-rate`, `PATCH|DELETE /user-loan/{id}`); those
+  methods + the dead `/user-loan` list/get/add chain (`GetLoans/GetLoanById/AddSingleLoan`, `UserLoanDto`, `SingleLoanDto`, `LoanDomain`)
+  removed. `domain/LoanTypes` stays shared (FIRE onboarding uses it). `presentation/mutualfund` was all duplicates of `features/mutualfund` →
+  deleted with the old MF data/domain stack (only DI referenced it). Android + iOS compile.
+
+- 2026-11-08 — Trading account removed (user-requested): `presentation/tradingaccount/**`, `TradingAccountNavigation.kt`,
+  `Route.TradingAccount*` / `KYCCompleteScreen` / `CheckKYCAnimation` + destinations, `KYCCompletedScreen`, `KYCCheckAnimationScreen`,
+  `utils/tradingaccount/**`, trading-account + `/kyc/pan-verify` DTOs/mappers/domain/use cases/`UserAuth` methods, `TradingAccountViewModel` DI,
+  home `navigateToTradingAccountSetup` / `tradingAccountCompletion`, `CheckKYCModel.tradingAccountKYC`, `gurdian_icon`. Kept + moved:
+  `YearPicker`/`WheelPicker` → `shared/compose/YearSelector.kt`, `AddMoreNominiee` → `shared/compose/AddMoreNominee.kt`,
+  `NotificationModel` → `presentation/profile/.../UImodel/`. MF details `MFBottomSheetType.TRADING_ACCOUNT` kept (JN error → KYC popup).
+  Also fixed `PlatformWebView` actuals' package (`presentation.webview` → `features.webview`, matching the expect). Android + iOS compile.
 
 - 2026-11-07 — Daily SIP added across MF flow, cart sheet (3-way switch), plans, bundles, search chips/overlay; rule 8 retired. Android + iOS compile, check-port clean.
 

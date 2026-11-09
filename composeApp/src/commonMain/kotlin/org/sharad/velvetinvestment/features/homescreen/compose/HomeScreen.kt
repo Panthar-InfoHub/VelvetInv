@@ -74,7 +74,6 @@ fun HomeScreenMain(
     navigateToInsurance: () -> Unit,
     navigateToFd: () -> Unit,
     navigateToMutualFund: () -> Unit,
-    navigateToTradingAccountSetup: () -> Unit,
     navigateToInvestmentRateScreen: () -> Unit
 ){
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()

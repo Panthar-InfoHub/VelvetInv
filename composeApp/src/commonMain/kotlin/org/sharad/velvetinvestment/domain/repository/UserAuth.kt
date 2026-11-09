@@ -2,14 +2,11 @@ package org.sharad.velvetinvestment.domain.repository
 
 import org.sharad.velvetinvestment.features.login.data.models.auth.tokens.RefreshTokenDto
 import org.sharad.velvetinvestment.data.remote.model.onboarding.OnBoardingBodyDto
-import org.sharad.velvetinvestment.domain.models.notifications.NotificationDomain
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.AssetUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.FinanceUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.InsuranceUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.LoanUpdateDto
 import org.sharad.velvetinvestment.data.remote.model.updateuserdata.ProfileUpdateDto
-import org.sharad.velvetinvestment.domain.models.tradingaccount.TradingAccountFormDomain
-import org.sharad.velvetinvestment.domain.models.user.PANVerifyDomain
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
 import org.sharad.velvetinvestment.shared.data.remote.model.userdata.UserDataDto
@@ -31,25 +28,5 @@ interface UserAuth {
 
     suspend fun updateProfile(data: ProfileUpdateDto): NetworkResponse<Unit, ErrorDomain>
 
-    suspend fun getNotifications(): NetworkResponse<List<NotificationDomain>, ErrorDomain>
-
-    suspend fun getUnreadStatus(): NetworkResponse<Boolean, ErrorDomain>
-
-    suspend fun markNotificationsAsRead(): NetworkResponse<Unit, ErrorDomain>
-
     suspend fun getUserData(): NetworkResponse<UserDataDto, ErrorDomain>
-
-    suspend fun getTradingAccountPrefilledData(): NetworkResponse<org.sharad.velvetinvestment.domain.models.tradingaccount.prefilled.TradingAccountPrefilledDomain, ErrorDomain>
-
-    suspend fun  verifyPAN(pan: String): NetworkResponse<PANVerifyDomain, ErrorDomain>
-
-    suspend fun submitTradingAccountForm(data: TradingAccountFormDomain) : NetworkResponse<String, ErrorDomain>
-    suspend fun tradingAccountConfirmation(
-        taxStatus: String,
-        holdingNature: String,
-        jointHolderName1: String,
-        jointHolderName2: String,
-        guardianName: String,
-        isMinor: Boolean
-    ): NetworkResponse<Unit, ErrorDomain>
 }

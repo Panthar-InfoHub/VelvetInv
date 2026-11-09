@@ -33,7 +33,7 @@ import org.sharad.velvetinvestment.features.goals.domain.models.GoalOption
 import org.sharad.velvetinvestment.features.goals.ui.viewmodels.AddGoalEvent
 import org.sharad.velvetinvestment.features.goals.ui.viewmodels.AddGoalUiState
 import org.sharad.velvetinvestment.features.goals.ui.viewmodels.GoalFormState
-import org.sharad.velvetinvestment.presentation.tradingaccount.compose.YearPicker
+import org.sharad.velvetinvestment.shared.compose.YearPicker
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.BackHeader
 import org.sharad.velvetinvestment.shared.compose.MoneyTextField

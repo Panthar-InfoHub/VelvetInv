@@ -33,10 +33,10 @@ import org.sharad.velvetinvestment.features.bottomNavigation.ui.viewmodels.Explo
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundDomain
 import org.sharad.velvetinvestment.features.homescreen.HomeScreenViewModel
 import org.sharad.velvetinvestment.features.homescreen.compose.HomeScreenMain
-import org.sharad.velvetinvestment.presentation.insurance.InsuranceNavigationScreen
+import org.sharad.velvetinvestment.features.insurance.ui.compose.InsuranceNavigationScreen
 import org.sharad.velvetinvestment.features.portfolio.ui.screens.PortfolioScreenMain
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.PortfolioScreenViewModel
-import org.sharad.velvetinvestment.presentation.profile.compose.ProfileNew.compose.ProfileScreen
+import org.sharad.velvetinvestment.features.profile.ui.compose.ProfileScreen
 import org.sharad.velvetinvestment.shared.BottomNavBar
 import org.sharad.velvetinvestment.utils.AppEvent
 import org.sharad.velvetinvestment.utils.AppEventsController
@@ -67,7 +67,6 @@ fun BottomNavigation(
     navigateToSpecificGoalProjection: (String) -> Unit,
     navigateToMutualFundList: () -> Unit,
     navigateToFD: () -> Unit,
-    navigateToTradingAccountSetup: () -> Unit,
     navigateToPrivacyPolicy: () -> Unit,
     navigateToTermsAndConditions: () -> Unit,
     navigateToAboutUs: () -> Unit,
@@ -241,7 +240,6 @@ fun BottomNavigation(
                                 restoreState = true
                             }
                     },
-                    navigateToTradingAccountSetup=navigateToTradingAccountSetup,
                     navigateToInvestmentRateScreen=navigateToInvestmentRateScree
                 )
             }

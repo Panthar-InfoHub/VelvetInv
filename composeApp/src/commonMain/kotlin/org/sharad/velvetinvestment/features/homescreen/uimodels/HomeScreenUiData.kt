@@ -10,7 +10,6 @@ data class HomeScreenUiData(
     val fireReport: Double,
     val goals: List<GoalsSummaryDomain>,
     val kycCompletion: Boolean,
-    val tradingAccountCompletion: Boolean,
     val hidden: Boolean=true,
     val hasUnreadNotifications: Boolean = false,
     /** Which KYC/onboarding card to show, if any (JN home). */

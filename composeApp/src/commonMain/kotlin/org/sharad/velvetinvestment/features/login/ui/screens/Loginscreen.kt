@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
 import org.sharad.velvetinvestment.features.login.ui.viewmodels.LoginScreenViewModel
-import org.sharad.velvetinvestment.presentation.SplashScreen.LightGradient
+import org.sharad.velvetinvestment.shared.compose.LightGradient
 import org.sharad.velvetinvestment.utils.AuthMode
 import org.sharad.velvetinvestment.utils.WindowSize
 import org.sharad.velvetinvestment.shared.theme.Poppins

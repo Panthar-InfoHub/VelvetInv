@@ -47,7 +47,6 @@ object Route {
     @Serializable
     data object OtherInsurance
 
-
     /**
      * The order-details screen, for a SIP holding and a lumpsum one alike. Everything it renders
      * rides on the route: it is opened from the portfolio, which already has the numbers.
@@ -105,10 +104,6 @@ object Route {
     @Serializable
     data class RedeemOtp(val redemptionId: String)
     @Serializable
-    data class SIPCancellationScreen(val id:String)
-    @Serializable
-    data class CancelSIPReason(val id:String)
-    @Serializable
     data class FDPortfolioDetailsScreen(val id:String)
 
     @Serializable
@@ -134,7 +129,6 @@ object Route {
     @Serializable
     data class MutualFundDetails(val id: String, val isin: String? = null, val folioId: String? = null)
 
-
     @Serializable
     data object KYCScreen
     @Serializable
@@ -143,11 +137,6 @@ object Route {
     data class KYCImageUploadScreen(val name:String)
     @Serializable
     data class KYCContractScreen(val name:String)
-    @Serializable
-    data class KYCCompleteScreen(val name:String,val verifiedDate:String)
-
-    @Serializable
-    data object CheckKYCAnimation
 
     @Serializable
     data object GoalsScreen
@@ -221,26 +210,6 @@ object Route {
     // data object ExistingFundLumpSumScreen
 
     @Serializable
-    data object TradingAccountNavigation
-
-    @Serializable
-    data object TradingAccountBasicDetails
-    @Serializable
-    data object TradingAccountPANDetails
-    @Serializable
-    data object TradingAccountFinancialDetails
-    @Serializable
-    data object TradingAccountClientInfo
-    @Serializable
-    data object TradingAccountBankDetails
-    @Serializable
-    data object TradingAccountAddressDetails
-    @Serializable
-    data object TradingAccountGuardianDetails
-    @Serializable
-    data object TradingAccountGuardiansPANDetails
-
-    @Serializable
     data object SingleGoalAdd
 
     @Serializable
@@ -264,7 +233,6 @@ object Route {
         val completionRouteKey: String? = null,
         val interceptExternalAppUrls: Boolean = true
     )
-
 
     // Orders (ported from Janta Nivesh)
     @Serializable

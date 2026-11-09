@@ -42,7 +42,7 @@ import org.sharad.velvetinvestment.features.fd.domain.model.LabelFilter
 import org.sharad.velvetinvestment.features.fd.domain.model.SelectionType
 import org.sharad.velvetinvestment.features.fd.ui.viewmodels.ExploreFdEvent
 import org.sharad.velvetinvestment.features.fd.ui.viewmodels.ExploreFdUiState
-import org.sharad.velvetinvestment.presentation.mutualfund.compose.InvestmentFilterScreen
+import org.sharad.velvetinvestment.features.mutualfund.ui.compose.InvestmentFilterScreen
 import org.sharad.velvetinvestment.shared.UiStateContainer
 import org.sharad.velvetinvestment.shared.compose.AppSearchBar
 import org.sharad.velvetinvestment.shared.compose.BackHeader
@@ -50,10 +50,10 @@ import org.sharad.velvetinvestment.shared.compose.FilterChip
 import org.sharad.velvetinvestment.shared.compose.PaginationEffect
 import org.sharad.velvetinvestment.shared.compose.PaginationFooter
 import org.sharad.velvetinvestment.utils.UiState
-import org.sharad.velvetinvestment.utils.fundfiltersystem.FilterGroup as ScreenFilterGroup
-import org.sharad.velvetinvestment.utils.fundfiltersystem.FilterOption as ScreenFilterOption
-import org.sharad.velvetinvestment.utils.fundfiltersystem.InvestmentFilter as ScreenFilter
-import org.sharad.velvetinvestment.utils.fundfiltersystem.SelectionType as ScreenSelectionType
+import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.FilterGroup as ScreenFilterGroup
+import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.FilterOption as ScreenFilterOption
+import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.InvestmentFilter as ScreenFilter
+import org.sharad.velvetinvestment.features.core.utils.fundfiltersystem.SelectionType as ScreenSelectionType
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_filter
 

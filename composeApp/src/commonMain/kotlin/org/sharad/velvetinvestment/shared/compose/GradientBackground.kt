@@ -3,6 +3,8 @@ package org.sharad.velvetinvestment.shared.compose
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -43,4 +45,17 @@ fun GradientBackground() {
 
         )
     }
+}
+
+/** Soft blue wash over the top half of the screen (splash, login). */
+@Composable
+fun LightGradient() {
+    Box(
+        modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFF91B6FF).copy(alpha = 0.4f), Color.Transparent)
+                )
+            ),
+    )
 }

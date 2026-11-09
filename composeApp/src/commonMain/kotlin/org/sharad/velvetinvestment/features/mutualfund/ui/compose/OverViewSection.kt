@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sharad.emify.core.ui.theme.titleColor
-import org.sharad.velvetinvestment.data.remote.mapper.toReadableDate
+import org.sharad.velvetinvestment.features.mutualfund.data.remote.mapper.toReadableDate
 import org.sharad.velvetinvestment.features.mutualfund.domain.models.MutualFundDetailsDomain
 import org.sharad.velvetinvestment.shared.theme.Poppins
 import org.sharad.velvetinvestment.shared.theme.titlesStyle

@@ -5,6 +5,11 @@ import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.sharad.velvetinvestment.features.bottomNavigation.di.bottomNavigationFeatureModule
 import org.sharad.velvetinvestment.features.orders.di.ordersFeatureModule
+import org.sharad.velvetinvestment.features.insurance.di.insuranceFeatureModule
+import org.sharad.velvetinvestment.features.investmentrate.di.investmentRateFeatureModule
+import org.sharad.velvetinvestment.features.loans.di.loansFeatureModule
+import org.sharad.velvetinvestment.features.notifications.di.notificationsFeatureModule
+import org.sharad.velvetinvestment.features.profile.di.profileFeatureModule
 import org.sharad.velvetinvestment.features.portfolio.di.portfolioFeatureModule
 import org.sharad.velvetinvestment.features.bundles.di.bundlesModule
 import org.sharad.velvetinvestment.features.cart.di.cartFeatureModule
@@ -40,6 +45,11 @@ fun initializeKoin(
                 searchFeatureModule,
                 bottomNavigationFeatureModule,
                 ordersFeatureModule,
+                insuranceFeatureModule,
+                investmentRateFeatureModule,
+                loansFeatureModule,
+                notificationsFeatureModule,
+                profileFeatureModule,
                 portfolioFeatureModule,
                 plansFeatureModule,
                 fireOnboardingModule,
