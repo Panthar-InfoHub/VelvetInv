@@ -11,6 +11,7 @@ import org.sharad.velvetinvestment.features.goals.domain.models.GoalCalculationD
 import org.sharad.velvetinvestment.features.goals.domain.models.GoalConfigDomain
 import org.sharad.velvetinvestment.features.goals.domain.models.GoalDomain
 import org.sharad.velvetinvestment.features.goals.domain.models.goalOptionFor
+import org.sharad.velvetinvestment.features.goals.domain.models.toProgressPercent
 
 /**
  * The money and rate fields arrive as JSON strings; a value that will not parse is treated as
@@ -44,7 +45,7 @@ fun UserGoal.toDomain(): GoalDomain = GoalDomain(
     calculationVersion = calculation_version,
     createdAt = createdAt,
     updatedAt = updatedAt,
-    progressPercent = progress_percent?.toInt() ?: 0,
+    progressPercent = (progress_percent ?: 0.0).toProgressPercent(),
     holdings = holdings.map { it.toDomain() },
     totalHoldingsValue = total_holdings_value
         ?: holdings.sumOf { it.current_value.toAmount() ?: 0.0 }

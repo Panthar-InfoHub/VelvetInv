@@ -293,6 +293,11 @@ Tax, Portfolio), everything else JN incl. flows; top-up parts commented out for 
   `ActiveSipCard`, `resolveHolding` (tap → SIP details of the matching holding) ported into Velvet `PortfolioScreen.kt`
   (Velvet shapes/`FundIcon`). Rule 8: Monthly/Daily sub-tabs only shown when the user already has daily SIPs. "See all"
   page jumps now use `tabs.indexOf(...)` instead of hardcoded 1/2.
+- 2026-11-14: `SIPDetailsScreen` bottom footer (Withdraw/Cancel, Proceed to withdraw) removed; JN's header
+  overflow `OrderActionsMenu` (⋮ beside SOA, shown on Success; SIP → Redeem / Cancel (red), lumpsum →
+  Proceed to Withdraw) ported, English-only labels, Velvet `titlesStyle` + white menu like `ProjectedImpactScreen`.
+  `SIPDetailsLoadedScreen` lost `onWithdrawClick`/`onCancelClick`. Rest of the screen (header "Withdraw Fund",
+  Velvet body) left as-is — JN's `FundHeaderCard` body not ported.
 
 ## Cart (2026-11-05)
 

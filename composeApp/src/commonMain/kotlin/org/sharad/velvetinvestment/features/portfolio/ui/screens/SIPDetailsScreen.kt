@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -53,11 +55,9 @@ import org.sharad.emify.core.ui.theme.TextGray
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.velvetinvestment.shared.compose.MutualFundIcon
-import org.sharad.velvetinvestment.shared.compose.NextButtonFooter
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.MFPortfolioDetailsViewModel
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.MFPortfolioSideEffects
 import org.sharad.velvetinvestment.shared.Navigation.Route
-import org.sharad.velvetinvestment.shared.compose.ContinueBackButtonFooter
 import org.sharad.velvetinvestment.shared.compose.ErrorScreen
 import org.sharad.velvetinvestment.shared.compose.LoaderScreen
 import org.sharad.velvetinvestment.shared.compose.ShadowCard
@@ -78,6 +78,7 @@ import velvet.composeapp.generated.resources.download_ic
 import velvet.composeapp.generated.resources.ic_graph
 import velvet.composeapp.generated.resources.ic_jagged_arrow
 import velvet.composeapp.generated.resources.ic_menu
+import velvet.composeapp.generated.resources.ic_more_vert
 import velvet.composeapp.generated.resources.ic_percent
 import velvet.composeapp.generated.resources.icon_callender
 import velvet.composeapp.generated.resources.icon_clock
@@ -126,30 +127,45 @@ fun MFPortfolioDetailsScreen(
             onBackClick = onBackClick,
             trailingContent = {
                 Row(
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp))
-                    .background(Secondary.copy(alpha = 0.1f))
-                    .clickable { viewModel.downloadSOA(data.folio) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = "SOA", style = TextStyle(
-                            fontFamily = Poppins,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 12.sp,
-                            color = Secondary
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                        .background(Secondary.copy(alpha = 0.1f))
+                        .clickable { viewModel.downloadSOA(data.folio) }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = "SOA", style = TextStyle(
+                                fontFamily = Poppins,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 12.sp,
+                                color = Secondary
+                            )
                         )
-                    )
-                    if (soaDownloading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(12.dp), strokeWidth = 1.dp, color = Secondary
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(Res.drawable.download_ic),
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = Secondary
+                        if (soaDownloading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(12.dp), strokeWidth = 1.dp, color = Secondary
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(Res.drawable.download_ic),
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = Secondary
+                            )
+                        }
+                    }
+
+                    // JN: the order's actions live behind the header's overflow menu, shown once
+                    // the screen has loaded.
+                    if (screenState == LoadingState.Success) {
+                        OrderActionsMenu(
+                            isSip = data.isSip,
+                            onRedeem = onRedeemClick,
+                            onCancelClick = viewModel::onShowCancelSheet
                         )
                     }
                 }
@@ -166,11 +182,7 @@ fun MFPortfolioDetailsScreen(
                 }
 
                 LoadingState.Success -> {
-                    SIPDetailsLoadedScreen(
-                        data = data,
-                        onWithdrawClick = onRedeemClick,
-                        onCancelClick = viewModel::onShowCancelSheet
-                    )
+                    SIPDetailsLoadedScreen(data = data)
                 }
             }
         }
@@ -189,10 +201,86 @@ fun MFPortfolioDetailsScreen(
     }
 }
 
+/** JN's overflow menu: Redeem / Cancel for a SIP, Proceed to Withdraw for a lumpsum. */
+@Composable
+private fun OrderActionsMenu(
+    isSip: Boolean,
+    onRedeem: () -> Unit,
+    onCancelClick: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { expanded = true }
+                .padding(6.dp)
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_more_vert),
+                contentDescription = "More options",
+                modifier = Modifier.size(20.dp),
+                tint = Secondary
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(Color.White)
+        ) {
+            if (isSip) {
+                OrderActionItem(
+                    text = "Redeem",
+                    onClick = {
+                        expanded = false
+                        onRedeem()
+                    }
+                )
+                OrderActionItem(
+                    text = "Cancel",
+                    color = appRed,
+                    onClick = {
+                        expanded = false
+                        onCancelClick()
+                    }
+                )
+            } else {
+                OrderActionItem(
+                    text = "Proceed to Withdraw",
+                    onClick = {
+                        expanded = false
+                        onRedeem()
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun OrderActionItem(
+    text: String,
+    color: Color = Color.Black,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        text = {
+            Text(
+                text = text,
+                style = titlesStyle,
+                fontWeight = FontWeight.Medium,
+                color = color
+            )
+        },
+        onClick = onClick
+    )
+}
+
 @Composable
 fun SIPDetailsLoadedScreen(
     data: Route.SIPPortfolioDetails,
-    onWithdrawClick: () -> Unit,
     folioIcon: DrawableResource = Res.drawable.document_kyc_icon,
     calendarIcon: DrawableResource = Res.drawable.icon_callender,
     returnPercentIcon: DrawableResource = Res.drawable.icon_mf,
@@ -203,7 +291,6 @@ fun SIPDetailsLoadedScreen(
     balanceUnitsIcon: DrawableResource = Res.drawable.icon_clock,
     investmentTypeIcon: DrawableResource = Res.drawable.ic_menu,
     infoIcon: DrawableResource = Res.drawable.info_icon,
-    onCancelClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -268,20 +355,6 @@ fun SIPDetailsLoadedScreen(
             }
 
             item { Spacer(Modifier.height(16.dp)) }
-        }
-
-        if (data.isSip) {
-            ContinueBackButtonFooter(
-                continueText = "Withdraw",
-                backText = "Cancel",
-                onContinue = onWithdrawClick,
-                onBack = onCancelClick
-            )
-        } else {
-            NextButtonFooter(
-                value = "Proceed to withdraw",
-                onClick = onWithdrawClick,
-            )
         }
     }
 }
@@ -462,6 +535,7 @@ fun SIPDetailsLoadedScreenPreview() {
                 balanceUnits = 13125.567,
                 orderId = "",
                 actualFolio = ""
-            ), {}) {}
+            )
+        )
     }
 }

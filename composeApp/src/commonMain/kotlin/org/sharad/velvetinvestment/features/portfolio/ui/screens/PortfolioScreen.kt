@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -430,7 +431,7 @@ fun ActiveSipPortfolio(
                     }
                 }
             } else {
-                items(currentSips, key = { it.id }) { item ->
+                itemsIndexed(currentSips, key = { index, item -> "sip_${selectedSubTab}_${item.id}_$index" }) { _, item ->
                     ActiveSipCard(item = item, onClick = { onSipClick(item) })
                 }
             }
@@ -644,7 +645,7 @@ fun DashboardPortfolio(
                         onArrowClick = onSeeAllMF
                     )
                 }
-                items(mutualFunds.take(2), key = { "mf_${it.folio}_${it}" }) { item ->
+                itemsIndexed(mutualFunds.take(2), key = { index, item -> "mf_${item.folio}_${item.id}_$index" }) { _, item ->
                     FolioFundCard(fundItem = item, onClick = { onSIPClick(item) })
                 }
             }
@@ -657,7 +658,7 @@ fun DashboardPortfolio(
                         onArrowClick = onSeeAllFD
                     )
                 }
-                items(fixedDeposits.take(2), key = { "fd_${it.id}" }) { fd ->
+                itemsIndexed(fixedDeposits.take(2), key = { index, fd -> "fd_${fd.id}_$index" }) { _, fd ->
                     FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
                 }
             }
@@ -719,7 +720,7 @@ fun MutualFundPortfolio(
 
                 if(mutualFund.isNotEmpty()){
                     item { BarHeader(heading = "Mutual Funds") }
-                    items(mutualFund, key = { it.folio }) { item ->
+                    itemsIndexed(mutualFund, key = { index, item -> "mf_${item.folio}_${item.id}_$index" }) { _, item ->
                         FolioFundCard(fundItem = item, onClick = {
                             onFundClick(item)
                         })
@@ -727,7 +728,7 @@ fun MutualFundPortfolio(
                 }
                 if (pendingOrders.isNotEmpty()) {
                     item { BarHeader(heading = "Pending Payments") }
-                    items(pendingOrders, key = { it.id+ it.startDate }) { item ->
+                    itemsIndexed(pendingOrders, key = { index, item -> "pending_${item.id}_${item.startDate}_$index" }) { _, item ->
                         PendingPaymentsCard(item, onCancel = {
                             onCancelPendingOrder(item)
                         }
@@ -884,7 +885,7 @@ fun FixedDepositPortfolio(
             ) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
                 item { BarHeader(heading = "Fixed Deposits") }
-                items(fixedDeposits, key = { it.id }) { fd ->
+                itemsIndexed(fixedDeposits, key = { index, fd -> "fd_${fd.id}_$index" }) { _, fd ->
                     FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
                 }
                 item {

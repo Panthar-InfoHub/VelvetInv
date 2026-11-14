@@ -36,7 +36,8 @@ import velvet.composeapp.generated.resources.arrow_right
 
 /**
  * A goal as the home and goals lists show it. Velvet's card; the icon follows the v2 goal type
- * ([goalIconFor]) and the progress is the server's own `progress_percent`, as in JN's `GoalCard`.
+ * ([goalIconFor]) and the progress is the server's `progress_percent`, truncated by
+ * `toProgressPercent` exactly as the Goal Projection screen does.
  */
 @Composable
 fun GoalCard(goal: GoalsSummaryDomain, onClick: () -> Unit) {

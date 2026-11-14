@@ -15,6 +15,7 @@ import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.features.bottomNavigation.domain.models.GoalsSummaryDomain
 import org.sharad.velvetinvestment.features.goals.data.mapper.toSummary
+import org.sharad.velvetinvestment.features.goals.domain.models.goalProgressPercent
 import org.sharad.velvetinvestment.features.goals.domain.repository.GoalsRepository
 
 data class YourGoalsUiData(
@@ -67,12 +68,10 @@ class YourGoalsViewModel(
                     val summaries = goals.map { it.toSummary() }
                     val totalProgress = summaries.sumOf { it.amount }
                     val totalTarget = summaries.sumOf { it.targetAmount }
-                    val percentage =
-                        if (totalTarget > 0) {
-                            ((totalProgress.toDouble() / totalTarget) * 100).toInt()
-                        } else {
-                            0
-                        }
+                    val percentage = goalProgressPercent(
+                        saved = totalProgress.toDouble(),
+                        target = totalTarget.toDouble()
+                    )
 
                     _uiState.value = UiState.Success(
                         YourGoalsUiData(

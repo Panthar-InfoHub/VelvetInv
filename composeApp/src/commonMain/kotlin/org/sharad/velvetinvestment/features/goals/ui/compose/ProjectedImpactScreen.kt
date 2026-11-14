@@ -292,7 +292,10 @@ private fun ProjectedImpactCard(
     }
 }
 
-/** Saved so far against the projected target; the bar is the server's `progress_percent`. */
+/**
+ * Saved so far against the projected target; label and bar are the server's `progress_percent`,
+ * truncated by `toProgressPercent` exactly as home and the goals list do.
+ */
 @Composable
 private fun GoalProgress(saved: Double, target: Double, progressPercent: Int) {
     val progress = (progressPercent / 100f).coerceIn(0f, 1f)
