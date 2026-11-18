@@ -90,6 +90,8 @@ data class FundPurchaseUiState(
     val showKycPopup: Boolean = false,
     /** The popup only says the KYC is still being verified; it leads nowhere. */
     val isKycInProgress: Boolean = false,
+    /** The popup only says the bank account is still being verified, with no button. */
+    val isBankVerificationInProgress: Boolean = false,
 
     /** Gateway id of the plan or purchase awaiting confirmation; both OTP calls key on it. */
     val pendingPurchaseId: String? = null,
@@ -925,7 +927,9 @@ class FundPurchaseViewModel(
                             submissionStage = null,
                             showKycPopup = true,
                             isKycInProgress =
-                                user.onboardingPrompt == OnboardingPrompt.KYC_IN_PROGRESS
+                                user.onboardingPrompt == OnboardingPrompt.KYC_IN_PROGRESS,
+                            isBankVerificationInProgress =
+                                user.onboardingPrompt == OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS
                         )
                     }
                 }

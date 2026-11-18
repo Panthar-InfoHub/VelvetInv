@@ -382,7 +382,8 @@ fun OnboardingNavigation(
             // ── 6. Bank verification (verified PAN only) → 7. Nominee ────────────────────────────
             // The whole bank stage — prefill check, ₹1 reverse penny drop, payment page and the
             // bank form — lives under this one destination and its view model. Every way in
-            // starts the flow from the top; the only way out is the form's PennyDropCompleted.
+            // starts the flow from the top; the ways out are the form's PennyDropCompleted (on to the
+            // nominee) and BankVerificationPending (the account is under review, so back to home).
             // Only the verified-PAN branch comes through here, after the investor profile.
             composable<Route.OnboardingBankVerification> { entry ->
                 val vm: VerifyBankAccountViewModel = koinViewModel()
@@ -419,6 +420,9 @@ fun OnboardingNavigation(
                                     launchSingleTop = true
                                 }
                             }
+
+                            // Under review: home shows the bank card until it clears.
+                            VerifyBankAccountEffect.BankVerificationPending -> onCompleted()
 
                             VerifyBankAccountEffect.NavigateToChangeBankAccount -> {}
 

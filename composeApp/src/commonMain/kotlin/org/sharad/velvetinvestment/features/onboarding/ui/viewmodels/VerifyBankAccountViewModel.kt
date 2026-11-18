@@ -9,19 +9,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.SnackBarController
+import org.sharad.velvetinvestment.utils.toCapital
 import org.sharad.velvetinvestment.features.onboarding.domain.model.AccountType
 import org.sharad.velvetinvestment.features.onboarding.domain.model.BankAccount
+import org.sharad.velvetinvestment.features.onboarding.domain.model.PennyDropStatus
 import org.sharad.velvetinvestment.features.onboarding.domain.model.PrefilledBankDetails
 import org.sharad.velvetinvestment.features.onboarding.domain.model.ReversePennyDropLinks
 import org.sharad.velvetinvestment.features.onboarding.domain.model.UpiApp
-import org.sharad.velvetinvestment.features.onboarding.domain.usecases.GetPennyDropStatusUseCase
 import org.sharad.velvetinvestment.features.onboarding.domain.usecases.GetPrefilledBankDetailsUseCase
 import org.sharad.velvetinvestment.features.onboarding.domain.usecases.GetReversePennyDropStatusUseCase
 import org.sharad.velvetinvestment.features.onboarding.domain.usecases.InitiateReversePennyDropUseCase
 import org.sharad.velvetinvestment.features.onboarding.domain.usecases.SubmitPennyDropUseCase
-import org.sharad.velvetinvestment.utils.SnackBarController
-import org.sharad.velvetinvestment.utils.networking.NetworkResponse
-import org.sharad.velvetinvestment.utils.toCapital
 import kotlin.time.Duration.Companion.milliseconds
 
 data class BankAccountDetails(
@@ -164,6 +164,12 @@ sealed interface VerifyBankAccountEvent {
 
 sealed interface VerifyBankAccountEffect {
     data object PennyDropCompleted : VerifyBankAccountEffect
+
+    /**
+     * The bank details are under review (`IN_PROGRESS`): onboarding is left for home, where the
+     * bank-verification card lets the user check the status again.
+     */
+    data object BankVerificationPending : VerifyBankAccountEffect
     data object NavigateToChangeBankAccount : VerifyBankAccountEffect
 
     /** Opens the ₹1 payment page in the web view; its return is reported as a page return. */
@@ -175,7 +181,6 @@ sealed interface VerifyBankAccountEffect {
 
 class VerifyBankAccountViewModel(
     private val submitPennyDrop: SubmitPennyDropUseCase,
-    private val getPennyDropStatus: GetPennyDropStatusUseCase,
     private val getPrefilledBankDetails: GetPrefilledBankDetailsUseCase,
     private val initiateReversePennyDrop: InitiateReversePennyDropUseCase,
     private val getReversePennyDropStatus: GetReversePennyDropStatusUseCase
@@ -543,7 +548,7 @@ class VerifyBankAccountViewModel(
             try {
                 when (val result = submitPennyDrop(bankAccount)) {
                     is NetworkResponse.Error -> SnackBarController.showError(result.error.message)
-                    is NetworkResponse.Success -> awaitPennyDropVerification(state.accountNumber)
+                    is NetworkResponse.Success -> onPennyDropSubmitted(result.data)
                 }
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
@@ -552,41 +557,20 @@ class VerifyBankAccountViewModel(
     }
 
     /**
-     * The bank verifies the deposit out of band, so the submission succeeding only means the
-     * request was accepted. This reads the status back until the account turns verified, and only
-     * then lets the user move on — the screen stays in its loading state throughout.
+     * The submission answers with the verdict itself: verified moves on to the next step, in
+     * review sends the user home with the turnaround time, and anything else is a rejection.
      */
-    private suspend fun awaitPennyDropVerification(accountNumber: String) {
-        repeat(STATUS_POLL_ATTEMPTS) { attempt ->
-            // The first read happens immediately; the bank has often answered by then.
-            if (attempt > 0) delay(STATUS_POLL_INTERVAL_MS)
+    private suspend fun onPennyDropSubmitted(status: PennyDropStatus) {
+        when {
+            status.isVerified -> sendEffect(VerifyBankAccountEffect.PennyDropCompleted)
 
-            when (val result = getPennyDropStatus(accountNumber)) {
-                is NetworkResponse.Error -> {
-                    SnackBarController.showError(result.error.message)
-                    return
-                }
-
-                is NetworkResponse.Success -> {
-                    val status = result.data
-                    when {
-                        status.isVerified -> {
-                            sendEffect(VerifyBankAccountEffect.PennyDropCompleted)
-                            return
-                        }
-
-                        status.isFailed -> {
-                            SnackBarController.showError(
-                                status.reason ?: VERIFICATION_FAILED_MESSAGE
-                            )
-                            return
-                        }
-                    }
-                }
+            status.isInProgress -> {
+                SnackBarController.showInfo(status.pendingMessage)
+                sendEffect(VerifyBankAccountEffect.BankVerificationPending)
             }
-        }
 
-        SnackBarController.showError(VERIFICATION_PENDING_MESSAGE)
+            else -> SnackBarController.showError(status.failureMessage)
+        }
     }
 
     private fun onChangeBankAccountClick() {
@@ -626,15 +610,5 @@ class VerifyBankAccountViewModel(
 
         const val ENTER_MANUALLY_MESSAGE =
             "We could not fetch your bank details. Please enter them below."
-
-        /** Five reads with 5-second gaps — about 20 seconds for the bank to answer. */
-        const val STATUS_POLL_ATTEMPTS = 5
-        const val STATUS_POLL_INTERVAL_MS = 5_000L
-
-        const val VERIFICATION_FAILED_MESSAGE =
-            "We could not verify this bank account. Please check the details and try again."
-
-        const val VERIFICATION_PENDING_MESSAGE =
-            "Your bank account is still being verified. Please try again in a moment."
     }
 }

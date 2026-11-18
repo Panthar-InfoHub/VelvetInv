@@ -54,13 +54,15 @@ data class UserDataDomain(
     /**
      * What stands between the user and investing. The home card, the profile KYC row and the KYC
      * popup all use this. Checked in order: onboarding finished → KYC form not filled → KYC under
-     * review → KYC verified (finalization left) / rejected / not yet picked up for verification.
+     * review → KYC verified with bank under review / KYC verified (finalization left) / rejected / not yet picked up for verification.
      */
     val onboardingPrompt: OnboardingPrompt
         get() = when {
             onboarding.isCompleted -> OnboardingPrompt.NONE
             !isKycCompleted -> OnboardingPrompt.COMPLETE_KYC
             isKycUnderReview -> OnboardingPrompt.KYC_IN_PROGRESS
+            onboarding.isKycVerified && onboarding.isBankVerificationInProgress ->
+                OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS
             onboarding.isKycVerified -> OnboardingPrompt.COMPLETE_REMAINING
             onboarding.isKycFailed -> OnboardingPrompt.KYC_FAILED
             // Filled in, not under review and not yet verified: waiting on the server.
@@ -125,6 +127,10 @@ data class OnboardingStatusDomain(
 
     val isBankVerified: Boolean
         get() = pennyDropStatus.isVerified
+
+    /** The submitted bank details are being reviewed; see [OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS]. */
+    val isBankVerificationInProgress: Boolean
+        get() = pennyDropStatus.equals(IN_PROGRESS, ignoreCase = true)
 
     val isEmailVerified: Boolean
         get() = emailStatus.isVerified

@@ -544,6 +544,21 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
 
 ## Session log
 
+- 2026-11-18 — JN `VELVET_MIGRATION_BANK_VERIFICATION.md` §1–4 ported:
+  1. Server error envelope: `ServerError` = `{success, message, data, errorCode}` (old `Error.kt` deleted, unused);
+     `readServerError` = JN's (envelope first, `errorCode` → type); `parseServerError` no code → UNKNOWN;
+     new `failedEnvelopeOrNull()` makes a 2xx `"success": false` an error in `safeRequest`/`safeUnitRequest`.
+     `initiateReversePennyDrop`'s own `takeIf { body.success }` left in place (still works, now redundant).
+  2. Bank submit returns the verdict: `PennyDropStatusDto`/`PennyDropStatus` copied from JN; repo submit →
+     `safeRequest<PennyDropStatusResponseDto>`, status → `GET /onboarding/penny-drop/status` (no arg);
+     Velvet's `persistStage(EmailVerification)` on submit success kept (also fires for IN_PROGRESS).
+     `VerifyBankAccountViewModel` = JN's (no polling; `BankVerificationPending` → `onCompleted()` → home).
+  3. `OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS` (+ `isBankVerificationInProgress`); home card (appYellow,
+     refresh → `HomeScreenViewModel.checkBankStatus()`, `isBankStatusChecking`); profile row "Under Review"/Orange.
+  4. `KYCPopup(isBankVerificationInProgress)`: Orange, "Bank Verification In Progress", no button; set in cart +
+     fund purchase VMs. Android + iOS compile, check-port clean. Not run on device — JN doc's "After porting,
+     check" list still to do. Local onboarding-stage leftovers (`persistStage`, AuthPrefs stage) still undecided.
+
 - 2026-11-14 — Goal progress amount (JN `VELVET_GOAL_PROGRESS_MIGRATION.md`): `GoalDomain.totalCurrentValue` (from the
   existing `UserGoal.total_current_value`) + `progressTargetAmount`; `toSummary()` amount = `totalCurrentValue` (no
   `current_savings` fallback), so Home, Your Goals cards and header follow. Projected Impact: `ProjectedImpactUiData.currentValue`/

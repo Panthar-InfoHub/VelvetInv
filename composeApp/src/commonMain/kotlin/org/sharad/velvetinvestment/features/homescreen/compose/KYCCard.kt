@@ -151,7 +151,8 @@ fun OnboardingPromptCard(
     kycFailureReason: String,
     refreshing: Boolean,
     onContinueOnboarding: () -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onBankRefresh: () -> Unit
 ) {
     when (prompt) {
         // KYC form not filled in yet: onboarding resumes at the server's current stage.
@@ -180,6 +181,15 @@ fun OnboardingPromptCard(
             text = "Complete your KYC finalization to start investing",
             onClick = onContinueOnboarding,
             accentColor = Secondary
+        )
+        // Bank details under review: nothing to open, but the status can be re-checked in place.
+        OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS -> KYCCard(
+            text = "Bank account verification in progress",
+            subtitle = "Your bank account is being verified. Tap refresh to check the status.",
+            onClick = null,
+            accentColor = appYellow,
+            onRefreshClick = onBankRefresh,
+            refreshing = refreshing
         )
         OnboardingPrompt.NONE -> Unit
     }
@@ -240,7 +250,8 @@ private fun OnboardingPromptCardPreview() {
                     kycFailureReason = "PAN name does not match the bank account",
                     refreshing = false,
                     onContinueOnboarding = {},
-                    onRefresh = {}
+                    onRefresh = {},
+                    onBankRefresh = {}
                 )
             }
         }

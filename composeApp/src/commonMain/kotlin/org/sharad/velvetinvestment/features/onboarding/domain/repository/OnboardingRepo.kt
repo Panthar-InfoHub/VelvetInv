@@ -43,15 +43,11 @@ interface OnboardingRepo  {
         mimeType: String
     ) : NetworkResponse<Unit, ErrorDomain>
 
-    suspend fun submitPennyDrop(bankAccount: BankAccount) : NetworkResponse<Unit, ErrorDomain>
+    /** Submits the bank details; the answer already says whether the account is verified. */
+    suspend fun submitPennyDrop(bankAccount: BankAccount): NetworkResponse<PennyDropStatus, ErrorDomain>
 
-    /**
-     * The bank's verdict on the account [accountNumber] was submitted for. Verification is
-     * asynchronous, so this is polled after [submitPennyDrop] until the status settles.
-     */
-    suspend fun getPennyDropStatus(
-        accountNumber: String
-    ) : NetworkResponse<PennyDropStatus, ErrorDomain>
+    /** Reads the verification back, for an account [submitPennyDrop] left in review. */
+    suspend fun getPennyDropStatus(): NetworkResponse<PennyDropStatus, ErrorDomain>
 
     /**
      * Bank details a reverse penny drop has already read, or null when there are none yet — in

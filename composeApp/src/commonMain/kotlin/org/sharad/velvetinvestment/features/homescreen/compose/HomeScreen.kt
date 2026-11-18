@@ -93,8 +93,9 @@ fun HomeScreenMain(
                 netWorth = data.userWorth,
                 onboardingPrompt = data.onboardingPrompt,
                 kycFailureReason = data.kycFailureReason,
-                isKycRefreshing = data.isKycRefreshing,
+                isKycRefreshing = data.isKycRefreshing || data.isBankStatusChecking,
                 onKycRefresh = { viewModel.silentRefresh() },
+                onBankRefresh = { viewModel.checkBankStatus() },
                 isFireCompleted = data.isFireCompleted,
                 fireStepsDone = data.fireStepsDone,
                 fireStepsTotal = data.fireStepsTotal,
@@ -129,6 +130,7 @@ fun HomeScreen(
     kycFailureReason: String,
     isKycRefreshing: Boolean,
     onKycRefresh: () -> Unit,
+    onBankRefresh: () -> Unit,
     isFireCompleted: Boolean,
     fireStepsDone: Int,
     fireStepsTotal: Int,
@@ -168,7 +170,8 @@ fun HomeScreen(
                     kycFailureReason = kycFailureReason,
                     refreshing = isKycRefreshing,
                     onContinueOnboarding = navigateToOnboarding,
-                    onRefresh = onKycRefresh
+                    onRefresh = onKycRefresh,
+                    onBankRefresh = onBankRefresh
                 )
             }
         }

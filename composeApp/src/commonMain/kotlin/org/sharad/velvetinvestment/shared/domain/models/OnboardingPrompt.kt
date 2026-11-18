@@ -23,6 +23,12 @@ enum class OnboardingPrompt {
     /** KYC verified (`onboarding.kyc_status` VERIFIED); the finalization steps are left. */
     COMPLETE_REMAINING,
 
+    /**
+     * KYC verified, and the bank details are under review (`onboarding.penny_drop_status`
+     * IN_PROGRESS). Nothing to open; the home card re-reads the penny drop status instead.
+     */
+    BANK_VERIFICATION_IN_PROGRESS,
+
     /** Onboarding finished (`onboarding.is_completed`); nothing to show. */
     NONE;
 

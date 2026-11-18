@@ -33,6 +33,12 @@ import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.kyc_icon
 import kotlin.collections.copy
 
+/**
+ * The sheet shown when a user who is not cleared to invest tries to buy. By default it sends them
+ * on to finish onboarding; with [isKycInProgress] it only says the KYC is being verified.
+ * With [isBankVerificationInProgress] the sheet only says the bank account is being verified and
+ * has no button; it is closed by swiping or tapping outside it.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KYCPopup(
@@ -40,8 +46,9 @@ fun KYCPopup(
     onDismiss: () -> Unit,
     onClick: () -> Unit,
     isKycInProgress: Boolean = false,
+    isBankVerificationInProgress: Boolean = false,
 ){
-    val accent = if (isKycInProgress) Orange else appRed
+    val accent = if (isKycInProgress || isBankVerificationInProgress) Orange else appRed
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -72,7 +79,9 @@ fun KYCPopup(
             }
 
             Text(
-                text = if (isKycInProgress) {
+                text = if (isBankVerificationInProgress) {
+                    "Bank Verification\nIn Progress"
+                } else if (isKycInProgress) {
                     "KYC Verification\nIn Progress"
                 } else {
                     "Verify Identity (KYC)\n" +
@@ -84,7 +93,10 @@ fun KYCPopup(
             )
 
             Text(
-                text = if (isKycInProgress) {
+                text = if (isBankVerificationInProgress) {
+                    "Your bank account is being verified. We’ll notify you once it’s verified so " +
+                            "you can complete the remaining steps and start investing."
+                } else if (isKycInProgress) {
                     "Your submitted KYC is being verified. We’ll notify you once it’s verified so " +
                             "you can complete the remaining steps and start investing."
                 } else {
@@ -94,6 +106,9 @@ fun KYCPopup(
                 textAlign = TextAlign.Center,
                 color= titleColor
             )
+
+            // Nothing to do while the bank is reviewed; the sheet closes by swipe or tap outside.
+            if (isBankVerificationInProgress) return@Column
 
             AppButton(
                 modifier=Modifier.fillMaxWidth(),

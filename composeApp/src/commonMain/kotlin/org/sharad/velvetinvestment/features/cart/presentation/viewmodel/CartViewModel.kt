@@ -49,6 +49,8 @@ data class CartUiState(
     val showKycPopup: Boolean = false,
     /** The popup only says the KYC is still being verified; it leads nowhere. */
     val isKycInProgress: Boolean = false,
+    /** The popup only says the bank account is still being verified, with no button. */
+    val isBankVerificationInProgress: Boolean = false,
     /** The SIP or lumpsum checkout whose OTP the confirm screen is waiting on. */
     val checkout: CartCheckoutDomain? = null
 ) {
@@ -351,7 +353,9 @@ class CartViewModel(
                             isProcessing = false,
                             showKycPopup = true,
                             isKycInProgress =
-                                user.onboardingPrompt == OnboardingPrompt.KYC_IN_PROGRESS
+                                user.onboardingPrompt == OnboardingPrompt.KYC_IN_PROGRESS,
+                            isBankVerificationInProgress =
+                                user.onboardingPrompt == OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS
                         )
                     }
                     return@launch

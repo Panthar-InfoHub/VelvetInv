@@ -6,14 +6,18 @@ import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 
 import kotlinx.serialization.SerializationException
+import org.sharad.velvetinvestment.data.remote.model.ServerError.ServerError
 import org.sharad.velvetinvestment.utils.Log
 
 suspend inline fun <reified T> safeRequest(
@@ -27,6 +31,8 @@ suspend inline fun <reified T> safeRequest(
     }
 
     return if (response.status.value in 200..299) {
+        // A 2xx can still be a failure envelope; surface it before trying to read it as [T].
+        response.failedEnvelopeOrNull()?.let { return it }
 
         try {
             NetworkResponse.Success(response.body())
@@ -36,10 +42,11 @@ suspend inline fun <reified T> safeRequest(
             // SerializationException), so catch broadly — a DTO mismatch must not crash the app.
             Log("SerializationError", e.message.toString())
             // A 2xx whose body is not the expected shape may still carry the server's reason.
+            val serverError = response.readServerError()
             NetworkResponse.Error(
                 ErrorDomain(
                     code = response.status.value,
-                    message = response.readServerError().message ?: SERIALIZATION_ERROR_MESSAGE,
+                    message = serverError.message ?: SERIALIZATION_ERROR_MESSAGE,
                     type = ErrorType.SERIALIZATION
                 )
             )
@@ -61,7 +68,7 @@ suspend inline fun safeUnitRequest(
     }
 
     return if (response.status.value in 200..299) {
-        NetworkResponse.Success(Unit)
+        response.failedEnvelopeOrNull() ?: NetworkResponse.Success(Unit)
     } else {
         parseServerError(response)
     }
@@ -109,47 +116,79 @@ suspend fun parseServerError(
     return NetworkResponse.Error(
         ErrorDomain(
             code = response.status.value,
+            // The server's message is shown whatever the code; no code at all reads as UNKNOWN.
             message = serverError.message ?: UNKNOWN_ERROR_MESSAGE,
-            type = if (serverError.message == null && serverError.type == null) {
-                ErrorType.UNKNOWN
-            } else {
-                serverError.type.toErrorType()
-            }
+            type = serverError.type?.toErrorType() ?: ErrorType.UNKNOWN
         )
     )
+}
+
+/**
+ * Returns the server's error when a 2xx JSON body is a [ServerError] envelope with
+ * `"success": false`, so its `message` and `errorCode` reach the caller instead of being lost to a
+ * DTO that happens to deserialize anyway. `null` for anything else, including non-JSON bodies.
+ */
+suspend fun HttpResponse.failedEnvelopeOrNull(): NetworkResponse.Error<ErrorDomain>? {
+    if (contentType()?.match(ContentType.Application.Json) != true) return null
+    val root = try {
+        Json.parseToJsonElement(bodyAsText()) as? JsonObject
+    } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        null
+    } ?: return null
+    if ((root["success"] as? JsonPrimitive)?.booleanOrNull != false) return null
+    return parseServerError(this)
 }
 
 /** Shown only when an error response carries no readable message at all. */
 const val UNKNOWN_ERROR_MESSAGE = "Unknown error"
 
-/** What could be read from an error response; either field is `null` when it was not there. */
+/**
+ * What could be read from an error response; either field is `null` when it was not there.
+ * [type] is the server's `errorCode` (or a legacy `error.type` / `type`).
+ */
 data class ParsedServerError(
     val message: String?,
     val type: String?
 )
 
+/** Tolerant decoder for [ServerError]: extra keys or missing optional fields never fail the read. */
+private val serverErrorJson = Json {
+    ignoreUnknownKeys = true
+    explicitNulls = false
+}
+
 /**
- * Reads an error body without requiring it to match [org.sharad.velvetinvestment.data.remote.model.ServerError.ServerError] exactly, so a server message is
- * never swapped for [UNKNOWN_ERROR_MESSAGE] just because `success` was missing, `type` was null, or
- * the response was not served as JSON. Looks in `error.message`, a string `error`, then a
- * top-level `message` or `detail`; `type` comes from `error.type` or a top-level `type`.
+ * Reads an error body, the [ServerError] envelope (`message`, `errorCode`) first, without requiring
+ * it to match exactly, so a server message is never swapped for [UNKNOWN_ERROR_MESSAGE] just
+ * because a field was missing or the response was not served as JSON. Falls back to
+ * `error.message`, a string `error`, then a top-level `detail`; the type falls back to
+ * `error.type` or a top-level `type`.
  */
 suspend fun HttpResponse.readServerError(): ParsedServerError {
     val root = try {
         Json.parseToJsonElement(bodyAsText()) as? JsonObject
     } catch (e: Exception) {
+        if (e is CancellationException) throw e
         null
     } ?: return ParsedServerError(message = null, type = null)
+
+    val envelope = try {
+        serverErrorJson.decodeFromJsonElement(ServerError.serializer(), root)
+    } catch (e: Exception) {
+        null
+    }
 
     val error = root["error"]
     val errorObject = error as? JsonObject
 
     return ParsedServerError(
-        message = errorObject?.nonBlankString("message")
+        message = envelope?.message?.takeIf { it.isNotBlank() }
+            ?: errorObject?.nonBlankString("message")
             ?: (error as? JsonPrimitive)?.nonBlankString()
-            ?: root.nonBlankString("message")
             ?: root.nonBlankString("detail"),
-        type = errorObject?.nonBlankString("type")
+        type = envelope?.errorCode?.takeIf { it.isNotBlank() }
+            ?: errorObject?.nonBlankString("type")
             ?: root.nonBlankString("type")
     )
 }

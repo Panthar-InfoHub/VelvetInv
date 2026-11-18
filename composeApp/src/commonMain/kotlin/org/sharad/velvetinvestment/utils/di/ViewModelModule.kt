@@ -7,7 +7,7 @@ import org.sharad.velvetinvestment.features.homescreen.HomeScreenViewModel
 val viewModelModule= module {
 
 
-    viewModel { HomeScreenViewModel(get(),get(),get(),get()) }
+    viewModel { HomeScreenViewModel(get(),get(),get(),get(),get()) }
 
     // Portfolio view models now live in features/portfolio (portfolioFeatureModule); the old
     // ones are parked in composeApp/later/.

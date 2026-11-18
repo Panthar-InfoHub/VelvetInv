@@ -254,8 +254,8 @@ class OnboardingRepoImpl(
 
     override suspend fun submitPennyDrop(
         bankAccount: BankAccount
-    ): NetworkResponse<Unit, ErrorDomain> {
-        val response = safeUnitRequest {
+    ): NetworkResponse<PennyDropStatus, ErrorDomain> {
+        val response = safeRequest<PennyDropStatusResponseDto> {
             client.post(getUrl("/onboarding/penny-drop")) {
                 setBody(
                     PennyDropBody(
@@ -271,18 +271,18 @@ class OnboardingRepoImpl(
         if (response is NetworkResponse.Success) {
             persistStage(OnboardingStage.EmailVerification)
         }
-        return response
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
     }
 
-    override suspend fun getPennyDropStatus(
-        accountNumber: String
-    ): NetworkResponse<PennyDropStatus, ErrorDomain> {
+    override suspend fun getPennyDropStatus(): NetworkResponse<PennyDropStatus, ErrorDomain> {
         val response = safeRequest<PennyDropStatusResponseDto> {
-            client.get(getUrl("/onboarding/pan-verification/status"))
+            client.get(getUrl("/onboarding/penny-drop/status"))
         }
         return when (response) {
-            is NetworkResponse.Success ->
-                NetworkResponse.Success(response.data.toDomain(accountNumber))
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
 
             is NetworkResponse.Error -> NetworkResponse.Error(response.error)
         }

@@ -370,14 +370,16 @@ fun KYCCard(onboardingPrompt: OnboardingPrompt, onKYCClick: () -> Unit) {
                 title = "KYC Status",
                 subtitle = when (onboardingPrompt) {
                     OnboardingPrompt.NONE -> "Complete"
-                    OnboardingPrompt.KYC_IN_PROGRESS -> "Under Review"
+                    OnboardingPrompt.KYC_IN_PROGRESS,
+                    OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS -> "Under Review"
                     OnboardingPrompt.KYC_FAILED -> "Failed"
                     OnboardingPrompt.COMPLETE_KYC,
                     OnboardingPrompt.COMPLETE_REMAINING -> "Pending"
                 },
                 subtitleColor = when (onboardingPrompt) {
                     OnboardingPrompt.NONE -> appGreen
-                    OnboardingPrompt.KYC_IN_PROGRESS -> Orange
+                    OnboardingPrompt.KYC_IN_PROGRESS,
+                    OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS -> Orange
                     OnboardingPrompt.KYC_FAILED,
                     OnboardingPrompt.COMPLETE_KYC,
                     OnboardingPrompt.COMPLETE_REMAINING -> appRed
