@@ -29,7 +29,6 @@ import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.shared.compose.MeshSquareBackground
 import org.sharad.velvetinvestment.shared.genericDropShadow
 import org.sharad.velvetinvestment.utils.formatMoneyAfterL
-import org.sharad.velvetinvestment.utils.formatWithCommas
 import org.sharad.velvetinvestment.utils.withInterRupee
 import velvet.composeapp.generated.resources.Res
 import velvet.composeapp.generated.resources.icon_eye_closed
@@ -44,8 +43,8 @@ fun UserWorthCard(
     onHiddenToggle: () -> Unit
 ) {
 
-    val totalNetWorthFormatted =
-        "₹ " + formatWithCommas(netWorth?.totalNetWorth ?: 0)
+    val portfolioValueFormatted =
+        "₹" + formatMoneyAfterL(netWorth?.portfolioValue ?: 0)
 
     // TODO: growth and investing rate are not sent by the server yet; see the commented-out row below.
 //    val growthFormatted =
@@ -58,7 +57,7 @@ fun UserWorthCard(
     val fixedDepositsFormatted = "₹" + formatMoneyAfterL(netWorth?.fixedDeposits ?: 0)
     val mutualFundsFormatted = "₹" + formatMoneyAfterL(netWorth?.mutualFunds ?: 0)
 
-    val totalNetWorthMasked = "₹ XX,XXX"
+    val portfolioValueMasked = "₹ XX,XXX"
     val amountMasked = "₹ XX,XXX"
 //    val growthMasked = "Hidden"
 //    val investingRateMasked = "Hidden"
@@ -92,13 +91,13 @@ fun UserWorthCard(
         ) {
 
             Text(
-                text = "Total Net Worth",
+                text = "Portfolio Value",
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White
             )
 
             Text(
-                text = (if (hidden) totalNetWorthMasked else totalNetWorthFormatted).withInterRupee(),
+                text = (if (hidden) portfolioValueMasked else portfolioValueFormatted).withInterRupee(),
                 style = MaterialTheme.typography.displayMedium,
                 color = Color.White
             )
@@ -214,7 +213,7 @@ fun UserWorthCard(
 }
 
 
-/** One holding on the net-worth card (JN `AmountCard`), on the card's navy background. */
+/** One holding on the portfolio card (JN `AmountCard`), on the card's navy background. */
 @Composable
 private fun PortfolioAmountCard(title: String, amount: String, modifier: Modifier = Modifier) {
     Column(

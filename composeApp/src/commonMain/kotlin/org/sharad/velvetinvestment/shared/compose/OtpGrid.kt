@@ -16,6 +16,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -43,7 +46,12 @@ fun OtpGrid(
      */
     autoFocus: Boolean = false,
     /** Where the boxes sit in the full-width row; start-aligned by default (login OTP). */
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(12.dp)
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(12.dp),
+    /**
+     * Marks the first box as an SMS one-time code, so the iOS keyboard (`.oneTimeCode`) offers the
+     * code; it lands in the first, empty box and fills the row. Off for PINs.
+     */
+    isOneTimeCode: Boolean = false
 ) {
 
     val focusRequesters = remember {
@@ -79,6 +87,11 @@ fun OtpGrid(
 
                 BasicTextField(
                     modifier = Modifier
+                        .then(
+                            if (isOneTimeCode && index == 0)
+                                Modifier.semantics { contentType = ContentType.SmsOtpCode }
+                            else Modifier
+                        )
                         .focusRequester(focusRequesters[index])
                         .onKeyEvent {
                             if (it.key == Key.Backspace) {

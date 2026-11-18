@@ -22,6 +22,7 @@ import org.sharad.velvetinvestment.features.auth.di.authModule
 import org.sharad.velvetinvestment.features.mutualfund.di.mutualFundFeatureModule
 import org.sharad.velvetinvestment.features.plans.di.plansFeatureModule
 import org.sharad.velvetinvestment.features.search.di.searchFeatureModule
+import org.sharad.velvetinvestment.utils.otpautofill.smsModule
 
 expect val platformModule: Module
 
@@ -36,6 +37,7 @@ fun initializeKoin(
                 viewModelModule,
                 repositoryModule,
                 useCaseModule,
+                smsModule,
                 // Ported from Janta Nivesh
                 bundlesModule,
                 cartFeatureModule,

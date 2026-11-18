@@ -3,10 +3,13 @@ package org.sharad.velvetinvestment.features.login.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -18,11 +21,22 @@ import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.isValidEmail
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
+import org.sharad.velvetinvestment.utils.otpautofill.OtpAutofill
 
 class LoginScreenViewModel(
     private val loginWithNumberUseCase: LoginWithNumberUseCase,
-    private val verifyOtpUseCase: VerifyOTPUseCase
+    private val verifyOtpUseCase: VerifyOTPUseCase,
+    private val otpAutofill: OtpAutofill
 ): ViewModel() {
+
+    private var otpAutofillJob: Job? = null
+
+    /**
+     * Fires once an OTP has been filled in from the SMS. The OTP screen answers it with the same
+     * verify call as its button, since it owns where a successful login navigates to.
+     */
+    private val _otpAutofilled = Channel<Unit>(Channel.CONFLATED)
+    val otpAutofilled = _otpAutofilled.receiveAsFlow()
 
     private val _authState= MutableStateFlow<AuthMode>(AuthMode.Login.OTP)
     val authState= _authState.asStateFlow()
@@ -102,7 +116,7 @@ class LoginScreenViewModel(
     }
 
     fun onOtpChange(newOtp: String) {
-        if (newOtp.length <= 4 && newOtp.all { it.isDigit() }) {
+        if (newOtp.length <= OTP_LENGTH && newOtp.all { it.isDigit() }) {
             _otp.value = newOtp
         }
     }
@@ -111,6 +125,8 @@ class LoginScreenViewModel(
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ){
+        // Listening is one-shot, so (re-)arm it before the SMS is sent — first send and resend alike.
+        startOtpAutofill()
         viewModelScope.launch {
             _loadingLogin.value=true
             var currentRetry = 0
@@ -129,6 +145,7 @@ class LoginScreenViewModel(
                     }
                     .onError {
                         if (currentRetry == maxRetries) {
+                            otpAutofillJob?.cancel()
                             _loadingLogin.value=false
                             onFailure(it.message)
                             SnackBarController.showError(it.message)
@@ -150,7 +167,7 @@ class LoginScreenViewModel(
         onSuccess: (LoginDomain) -> Unit,
     ){
         // One attempt, as in JN: a retry would re-submit a wrong or spent OTP.
-        if (_loadingOtp.value) return
+        if (_otp.value.length != OTP_LENGTH || _loadingOtp.value) return
         viewModelScope.launch {
             _loadingOtp.value=true
             verifyOtpUseCase(_phoneNumber.value, _otp.value)
@@ -168,6 +185,22 @@ class LoginScreenViewModel(
 
 
 
+    /**
+     * Best effort: if the API is unavailable (iOS), the user denies it or it times out, nothing
+     * happens and the code is typed by hand as before.
+     */
+    private fun startOtpAutofill() {
+        otpAutofillJob?.cancel()
+        otpAutofillJob = viewModelScope.launch {
+            otpAutofill.observeOtp()
+                .catch { /* best effort; manual entry still works */ }
+                .collect { otp ->
+                    onOtpChange(otp)
+                    _otpAutofilled.send(Unit)
+                }
+        }
+    }
+
     fun startOtpTimer() {
         timerJob?.cancel()
 
@@ -181,4 +214,7 @@ class LoginScreenViewModel(
         }
     }
 
+    private companion object {
+        const val OTP_LENGTH = 4
+    }
 }

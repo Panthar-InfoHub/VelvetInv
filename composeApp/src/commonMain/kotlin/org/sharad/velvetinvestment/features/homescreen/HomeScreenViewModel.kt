@@ -151,6 +151,7 @@ private fun UserDataDomain.toHomeScreenUiData(): HomeScreenUiData = HomeScreenUi
         absGrowth = 0L,
         CARGGrowth = 0.0,
         investingRate = 0.0,
+        portfolioValue = dashboard.portfolioValue.toLong(),
         mutualFunds = dashboard.mutualFunds.toLong(),
         fixedDeposits = dashboard.fixedDeposits.toLong()
     ),

@@ -19,6 +19,8 @@ import org.sharad.velvetinvestment.utils.deviceinfoprovider.DeviceInfoRetriever
 import org.sharad.velvetinvestment.utils.pdfutils.PdfViewer
 import org.sharad.velvetinvestment.utils.pdfutils.PdfViewerIos
 import org.sharad.velvetinvestment.utils.storage.SharedPreference
+import org.sharad.velvetinvestment.utils.otpautofill.userconsent.IosSmsUserConsent
+import org.sharad.velvetinvestment.utils.otpautofill.userconsent.SmsUserConsent
 
 actual val platformModule: Module
     get() = module {
@@ -30,5 +32,6 @@ actual val platformModule: Module
         single<PdfViewer> { PdfViewerIos() }
         single<VelvetDatabase> { createIosDatabase() }
         single<LocationProvider> { IosLocationProvider() }
+        single<SmsUserConsent> { IosSmsUserConsent() }
 
     }

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.titlesStyle
+import kotlin.math.roundToInt
 
 /**
  * [TwoWaySwitch]'s look for any number of options: a grey track with a white thumb that slides to
@@ -50,14 +52,62 @@ fun <T> MultiWaySwitch(
     if (options.isEmpty()) return
 
     val selectedIndex = options.indexOf(selected).coerceAtLeast(0)
-    var parentWidth by remember { mutableStateOf(0) }
-    val segmentFraction = 1f / options.size
-
-    val offsetPx by animateFloatAsState(
-        targetValue = parentWidth * segmentFraction * selectedIndex,
+    val position by animateFloatAsState(
+        targetValue = selectedIndex.toFloat(),
         animationSpec = tween(250),
         label = "multiWaySwitchThumb"
     )
+
+    MultiWaySwitchTrack(
+        count = options.size,
+        position = { position },
+        selectedIndex = selectedIndex,
+        label = { label(options[it]) },
+        onSelected = { onSelected(options[it]) },
+        modifier = modifier
+    )
+}
+
+/**
+ * The same switch driven by a pager: the thumb sits at [position], a fractional segment index
+ * (`currentPage + currentPageOffsetFraction`), so it slides with the finger mid-swipe, and the
+ * label of the segment under it is highlighted. Taps report the segment index.
+ */
+@Composable
+fun MultiWaySwitch(
+    count: Int,
+    position: () -> Float,
+    label: (Int) -> String,
+    onSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (count <= 0) return
+
+    val selectedIndex by remember(count, position) {
+        derivedStateOf { position().coerceIn(0f, (count - 1).toFloat()).roundToInt() }
+    }
+
+    MultiWaySwitchTrack(
+        count = count,
+        position = { position().coerceIn(0f, (count - 1).toFloat()) },
+        selectedIndex = selectedIndex,
+        label = label,
+        onSelected = onSelected,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun MultiWaySwitchTrack(
+    count: Int,
+    position: () -> Float,
+    selectedIndex: Int,
+    label: (Int) -> String,
+    onSelected: (Int) -> Unit,
+    modifier: Modifier
+) {
+    var parentWidth by remember { mutableStateOf(0) }
+    val segmentFraction = 1f / count
 
     Box(
         modifier = modifier
@@ -71,7 +121,7 @@ fun <T> MultiWaySwitch(
             modifier = Modifier
                 .fillMaxHeight()
                 .fillMaxWidth(segmentFraction)
-                .graphicsLayer { translationX = offsetPx }
+                .graphicsLayer { translationX = parentWidth * segmentFraction * position() }
                 .padding(4.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White)
@@ -81,7 +131,7 @@ fun <T> MultiWaySwitch(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            options.forEachIndexed { index, option ->
+            repeat(count) { index ->
                 val color by animateColorAsState(
                     targetValue = if (index == selectedIndex) Primary else Primary.copy(alpha = 0.5f),
                     animationSpec = tween(250),
@@ -94,11 +144,11 @@ fun <T> MultiWaySwitch(
                         .clickable(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
-                        ) { onSelected(option) },
+                        ) { onSelected(index) },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = label(option),
+                        text = label(index),
                         style = titlesStyle,
                         color = color,
                         maxLines = 1,

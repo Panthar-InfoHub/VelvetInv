@@ -55,20 +55,43 @@ class VerifyWithDigilockerViewModel(
         }
     }
 
+    /**
+     * Status first: a form that already exists is routed as-is. Only a server error on the status
+     * (e.g. no form yet) starts a new form; a request that never reached the server (timeout, no
+     * internet) just shows its message, so the user retries instead of creating a form blind.
+     */
     private fun onProceedClick() {
         if (_uiState.value.isLoading) return
 
         viewModelScope.launch {
             setLoading(true)
 
-            when (val initiateResult = initiateKycForm()) {
-                is NetworkResponse.Error -> {
+            when (val statusResult = getKycFormStatus()) {
+                is NetworkResponse.Success -> {
                     setLoading(false)
-                    SnackBarController.showError(initiateResult.error.message)
+                    routeTo(statusResult.data)
                 }
 
-                is NetworkResponse.Success -> refreshStatus()
+                is NetworkResponse.Error -> {
+                    if (statusResult.error.isServerError) {
+                        initiateAndRefresh()
+                    } else {
+                        setLoading(false)
+                        SnackBarController.showError(statusResult.error.message)
+                    }
+                }
             }
+        }
+    }
+
+    private suspend fun initiateAndRefresh() {
+        when (val initiateResult = initiateKycForm()) {
+            is NetworkResponse.Error -> {
+                setLoading(false)
+                SnackBarController.showError(initiateResult.error.message)
+            }
+
+            is NetworkResponse.Success -> refreshStatus()
         }
     }
 
@@ -81,6 +104,10 @@ class VerifyWithDigilockerViewModel(
         }
     }
 
+    /**
+     * Reads the status and routes on it. An error here is only shown: it never starts a new form,
+     * so a failing status cannot loop back into initiate. Only a fresh Proceed tap does that.
+     */
     private suspend fun refreshStatus() {
         when (val statusResult = getKycFormStatus()) {
             is NetworkResponse.Error -> {

@@ -544,6 +544,31 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
 
 ## Session log
 
+- 2026-11-14 — Goal progress amount (JN `VELVET_GOAL_PROGRESS_MIGRATION.md`): `GoalDomain.totalCurrentValue` (from the
+  existing `UserGoal.total_current_value`) + `progressTargetAmount`; `toSummary()` amount = `totalCurrentValue` (no
+  `current_savings` fallback), so Home, Your Goals cards and header follow. Projected Impact: `ProjectedImpactUiData.currentValue`/
+  `progressTargetAmount`; Velvet's existing "saved / target" line in `GoalProgress` now shows them (was `currentSavings` /
+  `futureValue`) — JN's extra row under the bar not added (Velvet already has the line). Velvet's `toProgressPercent` kept.
+  JN `GoalMapperTest` + `GoalCurrentValueResponsesTest` ported to commonTest (8 pass). Android + iOS compile. Not checked on device.
+
+- 2026-11-14 — JN `sms_autofill` branch ported per JN `VELVET_MIGRATION.md` (no language/translation work):
+  1. Networking: `ErrorType.TIMEOUT`; `utils/networking/ResultProcessor.kt` = JN's (`toRequestFailure`, `readServerError`,
+     message constants) minus its `ServerError`/`Error` classes (Velvet keeps them in `data.remote.model.ServerError`);
+     Velvet's `Log` on 2xx parse failure kept. No exhaustive `when(ErrorType)` existed.
+  2. Onboarding: `PANVerificationError.isKycInitiateRequired` (+ `KYC_MODIFY_REQUIRED`), `KYCError.isServerError`;
+     repo PAN/KYC status use `toRequestFailure`/`readServerError` (Velvet's `persistStage` calls kept);
+     DigiLocker Proceed checks status before initiating (`initiateAndRefresh`).
+  3. OTP autofill (consent API only): JN `core.otpautofill` → `utils/otpautofill` (+ `userconsent/`), trimmed
+     `OtpAutofill`/`smsModule`; Android `AndroidSmsUserConsent` + iOS stub under `{android,ios}Main/.../utils/otpautofill/userconsent/`,
+     bound in each `PlatformModule`; `MainActivity.attach`; dep `play-services-auth-api-phone:18.3.1` (catalog).
+     Velvet has no `EnterOtpViewModel`: `LoginScreenViewModel` arms autofill at the start of `onSendOtpClick` (send + resend),
+     fills `_otp` and emits `otpAutofilled`; `OtpScreen` answers it with the same verify call as its button. Verify now also
+     guards on OTP length. `OtpGrid(isOneTimeCode = true)` marks box 0 `ContentType.SmsOtpCode` for iOS (login only, not PIN).
+     iOS Swift `Foundation.Data`/`Swift.Error` were already qualified.
+  4. All Bundles: `HorizontalPager` per mode (JN behaviour); selector = new pager-driven `MultiWaySwitch(count, position, …)`
+     overload (Velvet look, thumb follows the finger). Velvet card heading kept. 4d: details header skips blank description.
+  Android + iOS compile, check-port clean. Not run on device — JN doc's "After porting, check" list still to do.
+
 - 2026-11-08 — `presentation/` package removed. Live code moved: `features/profile` (ProfileScreen, PersonalInformation, About Velvet/Us/FIRE,
   Privacy, Terms, `DevSignaturePasswordDialog` (was `Test.kt`), `PersonalInfoViewModel`), `features/notifications` (screen + VM + own
   `NotificationRepository` for `/user/notifications`, `/unread-status`, `/read`, split out of `UserAuth`; home's `GetUnreadStatusUseCase`
@@ -624,3 +649,7 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
   (no local assets−loans calc, no FIRE-report call). Growth/CAGR chip + Investing Rate link in
   `WorthCard.kt` commented out (TODO: not sent by server); replaced by JN `PortfolioCard`'s FD / MF
   amount boxes (`PortfolioAmountCard`, Velvet styling) fed from `dashboard`.
+- 2026-11-18: Home card headline now shows `dashboard.portfolio_value` (JN `PortfolioCard`) instead
+  of `user_home_data.net_worth`; new `UserWorthCardDomain.portfolioValue` (default 0). `totalNetWorth`
+  is still filled but no longer shown. Formatted with `formatMoneyAfterL` ("₹12.5L") as JN does.
+  JN's P&L trend chip (`returnPercent`) not ported.

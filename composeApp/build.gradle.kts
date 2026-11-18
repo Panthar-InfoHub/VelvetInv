@@ -45,6 +45,8 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.messaging)
             implementation(libs.play.services.location)
+            // SMS User Consent API (login OTP autofill)
+            implementation(libs.play.services.auth.api.phone)
             implementation(libs.androidx.biometric)
         }
         commonMain.dependencies {

@@ -39,6 +39,9 @@ data class ProjectedImpactUiData(
     val yearsRemaining: Int,
     val targetYear: Int?,
     val progressPercent: Int,
+    /** The "current / target" line by the progress bar, same figures as the goal cards. */
+    val currentValue: Double,
+    val progressTargetAmount: Double,
     val feasibilityScore: Float,
     /** How much inflation adds between today's figure and the target. */
     val increasedBy: Double,
@@ -145,6 +148,8 @@ fun GoalDomain.toUiData(): ProjectedImpactUiData = ProjectedImpactUiData(
     yearsRemaining = yearsRemaining,
     targetYear = targetYear,
     progressPercent = progressPercent,
+    currentValue = totalCurrentValue,
+    progressTargetAmount = progressTargetAmount,
     feasibilityScore = feasibilityScore(),
     increasedBy = (futureTargetAmount - baseAmount).coerceAtLeast(0.0),
     isFixedCorpus = goalType?.usesTargetAmount == true,

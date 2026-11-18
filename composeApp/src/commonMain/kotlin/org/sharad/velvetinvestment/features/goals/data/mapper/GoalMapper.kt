@@ -48,7 +48,8 @@ fun UserGoal.toDomain(): GoalDomain = GoalDomain(
     progressPercent = (progress_percent ?: 0.0).toProgressPercent(),
     holdings = holdings.map { it.toDomain() },
     totalHoldingsValue = total_holdings_value
-        ?: holdings.sumOf { it.current_value.toAmount() ?: 0.0 }
+        ?: holdings.sumOf { it.current_value.toAmount() ?: 0.0 },
+    totalCurrentValue = total_current_value ?: 0.0
 )
 
 /**
@@ -66,15 +67,15 @@ fun UserGoalHoldingDto.toDomain(): GoalHoldingDomain = GoalHoldingDomain(
 )
 
 /**
- * A goal as a list card. The target is the projected [GoalDomain.futureTargetAmount], falling
- * back to the present-day amount for a goal the server has not sized yet.
+ * A goal as a list card: "current / target", where current is the goal's
+ * [GoalDomain.totalCurrentValue] and target is [GoalDomain.progressTargetAmount].
  */
 fun GoalDomain.toSummary(): GoalsSummaryDomain = GoalsSummaryDomain(
     goalId = id,
     goalTypes = goalOptionFor(goalTypeId, displayName),
     title = displayName,
-    amount = currentSavings.toLong(),
-    targetAmount = futureTargetAmount.takeIf { it > 0.0 }?.toLong() ?: baseAmount.toLong(),
+    amount = totalCurrentValue.toLong(),
+    targetAmount = progressTargetAmount.toLong(),
     progressPercent = progressPercent,
     requiredMonthlySip = requiredMonthlySip,
     yearsRemaining = yearsRemaining

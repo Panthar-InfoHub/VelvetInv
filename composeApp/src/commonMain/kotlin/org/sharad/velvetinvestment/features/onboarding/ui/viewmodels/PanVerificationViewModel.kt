@@ -114,7 +114,7 @@ class PanVerificationViewModel(
 
             is NetworkResponse.Error -> {
                 setLoading(false)
-                if (statusResult.error.isNewKycRequired) {
+                if (statusResult.error.isKycInitiateRequired) {
                     sendEffect(PanVerificationEffect.NavigateToKycInitiate)
                 } else {
                     SnackBarController.showError(statusResult.error.message)

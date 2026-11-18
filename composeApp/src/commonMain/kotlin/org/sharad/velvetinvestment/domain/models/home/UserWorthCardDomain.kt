@@ -5,6 +5,8 @@ data class UserWorthCardDomain(
     val absGrowth:Long,
     val CARGGrowth:Double,
     val investingRate:Double,
+    /** Current value of all the user's Velvet holdings (`dashboard.portfolio_value`), shown on the home card. */
+    val portfolioValue: Long = 0L,
     /** Current value of the user's Velvet mutual-fund holdings (`dashboard.mutual_funds`). */
     val mutualFunds: Long = 0L,
     /** Current value of the user's Velvet fixed deposits (`dashboard.fixed_deposits`). */

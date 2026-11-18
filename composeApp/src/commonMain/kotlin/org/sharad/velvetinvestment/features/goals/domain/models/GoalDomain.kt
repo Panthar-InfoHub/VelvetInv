@@ -46,8 +46,20 @@ data class GoalDomain(
     /** The holdings mapped to this goal; carried by `GET /user-goal/{id}` only. */
     val holdings: List<GoalHoldingDomain> = emptyList(),
     /** What those mapped holdings are worth today, as the server totals them. */
-    val totalHoldingsValue: Double = 0.0
+    val totalHoldingsValue: Double = 0.0,
+    /**
+     * What the goal is worth today (`total_current_value`): the first figure of a goal's
+     * "current / target" line. 0 when the server sends none.
+     */
+    val totalCurrentValue: Double = 0.0
 ) {
+    /**
+     * The second figure of a goal's "current / target" line: the projected
+     * [futureTargetAmount], falling back to [baseAmount] for a goal the server has not sized yet.
+     */
+    val progressTargetAmount: Double
+        get() = futureTargetAmount.takeIf { it > 0.0 } ?: baseAmount
+
     /** The present-day amount the goal was sized from, whichever field carries it. */
     val baseAmount: Double
         get() = currentCost ?: targetAmount ?: 0.0
