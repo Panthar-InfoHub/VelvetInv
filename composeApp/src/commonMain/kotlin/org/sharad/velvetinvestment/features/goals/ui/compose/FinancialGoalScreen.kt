@@ -167,6 +167,11 @@ fun GoalFormSection(
     // The form holds a tenure; the field shows the year it lands on.
     val targetYearText = form.years.toIntOrNull()?.let { (currentYear + it).toString() }.orEmpty()
 
+    if (type.isRetirement) {
+        RetirementFormSection(form = form, handleEvent = handleEvent, modifier = modifier)
+        return
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier
@@ -254,6 +259,73 @@ fun GoalFormSection(
     }
 }
 
+/**
+ * Retirement's fields: what the create body takes for type 7 — a name, the age to retire at, the
+ * age the plan has to last until, and today's monthly lifestyle cost. No target year or inflation:
+ * the server sizes the corpus from the ages.
+ */
+@Composable
+private fun RetirementFormSection(
+    form: GoalFormState,
+    handleEvent: (AddGoalEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val retireAt = form.retirementAge.toIntOrNull()
+    val until = form.lifeExpectancy.toIntOrNull()
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
+    ) {
+        OnBoardingTextField(
+            value = form.goalName,
+            onValueChange = { handleEvent(AddGoalEvent.UpdateForm { copy(goalName = it) }) },
+            placeHolder = goalNamePlaceholder(GoalType.Retirement),
+            label = "Goal Name",
+            mandatory = true
+        )
+        OnBoardingTextField(
+            value = form.retirementAge,
+            onValueChange = { input ->
+                val digits = input.filter { it.isDigit() }.take(3)
+                handleEvent(AddGoalEvent.UpdateForm { copy(retirementAge = digits) })
+            },
+            placeHolder = "60",
+            label = "Retirement Age",
+            keyboardType = KeyboardType.Number,
+            mandatory = true
+        )
+        OnBoardingTextField(
+            value = form.lifeExpectancy,
+            onValueChange = { input ->
+                val digits = input.filter { it.isDigit() }.take(3)
+                handleEvent(AddGoalEvent.UpdateForm { copy(lifeExpectancy = digits) })
+            },
+            placeHolder = "90",
+            label = "Life Expectancy",
+            keyboardType = KeyboardType.Number,
+            mandatory = true
+        )
+        if (retireAt != null && until != null && until <= retireAt) {
+            Text(
+                text = "Life expectancy must be greater than retirement age.",
+                style = titlesStyle.copy(fontSize = 12.sp),
+                color = Color.Red
+            )
+        }
+        MoneyTextField(
+            value = form.monthlyLifestyleCost,
+            onValueChange = { input ->
+                val digits = input.filter { it.isDigit() }
+                handleEvent(AddGoalEvent.UpdateForm { copy(monthlyLifestyleCost = digits) })
+            },
+            placeHolder = "Enter Monthly Expense",
+            label = "Monthly Lifestyle Cost",
+            mandatory = true
+        )
+    }
+}
+
 /** The server's projection for what has been typed so far. */
 @Composable
 private fun ProjectedImpactSection(
@@ -305,6 +377,7 @@ private fun goalNamePlaceholder(type: GoalType): String = when (type) {
     GoalType.BuyHome -> "My Dream Home"
     GoalType.BuyVehicle -> "My New Car"
     GoalType.BuildSavings -> "Emergency Cushion"
+    GoalType.Retirement -> "My Retirement"
     else -> "Goal Name"
 }
 

@@ -21,6 +21,9 @@ import org.sharad.velvetinvestment.features.goals.domain.models.GoalCalculationR
 private fun JsonObjectBuilder.putIfPresent(key: String, value: Double?) {
     if (value != null) put(key, value)
 }
+private fun JsonObjectBuilder.putIfPresent(key: String, value: Long?) {
+    if (value != null) put(key, value)
+}
 
 private fun JsonObjectBuilder.putIfPresent(key: String, value: Int?) {
     if (value != null) put(key, value)
@@ -33,6 +36,15 @@ private fun JsonObjectBuilder.putIfNotBlank(key: String, value: String?) {
 /** `POST /user-goal/` */
 fun CreateGoalRequest.toCreateBody(): JsonObject = buildJsonObject {
     put("goal_type_id", goalType.id)
+
+    // Retirement has its own body: ages and a monthly cost, no tenure, cost or rates.
+    if (goalType.isRetirement) {
+        putIfNotBlank("goal_name", goalName)
+        putIfPresent("retirement_age", retirementAge)
+        putIfPresent("plan_until_age", planUntilAge)
+        putIfPresent("monthly_lifestyle_cost", monthlyLifestyleCost)
+        return@buildJsonObject
+    }
 
     if (goalType.needsChildDetails) {
         putIfNotBlank("child_name", childName)

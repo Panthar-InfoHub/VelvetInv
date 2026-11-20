@@ -3,6 +3,7 @@ package org.sharad.velvetinvestment.features.goals.data.repository
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
@@ -36,7 +37,9 @@ class GoalsRepositoryImpl(
 
     override suspend fun getGoalConfig(): NetworkResponse<List<GoalConfigDomain>, ErrorDomain> {
         val response = safeRequest<GoalConfigResponseDto> {
-            client.get(getUrl("/user-goal/config"))
+            client.get(getUrl("/user-goal/config")){
+                parameter("is_velvet", true)
+            }
         }
         return when (response) {
             is NetworkResponse.Error -> NetworkResponse.Error(response.error)

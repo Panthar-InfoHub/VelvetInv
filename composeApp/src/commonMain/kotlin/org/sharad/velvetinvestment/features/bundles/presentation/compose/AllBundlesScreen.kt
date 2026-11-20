@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
@@ -153,6 +154,12 @@ fun AllBundlesScreen(
                                         onEvent(AllBundlesEvent.OnBundleClicked(bundle.id))
                                     },
                                     modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
+                            item {
+                                InfoBox(
+                                    "Returns shown are based on the past three years."
                                 )
                             }
                             item {

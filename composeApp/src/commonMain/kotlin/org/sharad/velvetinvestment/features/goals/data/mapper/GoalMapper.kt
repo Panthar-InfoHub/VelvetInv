@@ -94,7 +94,8 @@ fun GoalConfigDto.toDomain(): GoalConfigDomain = GoalConfigDomain(
     tenureSuggestions = tenure_suggestions,
     costChips = cost_chips,
     assetSubtypes = asset_subtypes.orEmpty(),
-    configVersion = config_version
+    configVersion = config_version,
+    isVelvet = is_velvet
 )
 
 fun GoalCalculationDto.toDomain(): GoalCalculationDomain = GoalCalculationDomain(

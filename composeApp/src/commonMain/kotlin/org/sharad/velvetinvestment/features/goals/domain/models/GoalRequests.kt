@@ -13,6 +13,7 @@ data class CreateGoalRequest(
     val childName: String? = null,
     val childAge: Int? = null,
     val assetSubtype: String? = null,
+    /** Not sent for retirement, which is sized from [retirementAge] and [planUntilAge] instead. */
     val yearsRemaining: Int,
     /** Present-day cost, for types 1, 2, 3, 4 and 6. */
     val currentCost: Double? = null,
@@ -21,7 +22,13 @@ data class CreateGoalRequest(
     val currentSavings: Double = 0.0,
     /** Fractions (0.06 == 6%). Null leaves the type's configured default in place. */
     val inflationRate: Double? = null,
-    val expectedReturnRate: Double? = null
+    val expectedReturnRate: Double? = null,
+    /** Retirement (type 7) only. */
+    val retirementAge: Int? = null,
+    /** Retirement only: the life expectancy the plan has to last until. */
+    val planUntilAge: Int? = null,
+    /** Retirement only: today's monthly cost of the lifestyle to retire into. */
+    val monthlyLifestyleCost: Long? = null
 )
 
 /**
@@ -38,7 +45,12 @@ data class GoalCalculationRequest(
     val expectedReturnRate: Double? = null
 )
 
-fun CreateGoalRequest.toCalculationRequest(): GoalCalculationRequest = GoalCalculationRequest(
+/**
+ * Null for retirement: `/user-goal/calculate` has no retirement inputs yet, so there is nothing
+ * to preview until that calculation is specified.
+ */
+fun CreateGoalRequest.toCalculationRequest(): GoalCalculationRequest? =
+    if (goalType.isRetirement) null else GoalCalculationRequest(
     goalTypeId = goalType.id,
     yearsRemaining = yearsRemaining,
     currentCost = currentCost,

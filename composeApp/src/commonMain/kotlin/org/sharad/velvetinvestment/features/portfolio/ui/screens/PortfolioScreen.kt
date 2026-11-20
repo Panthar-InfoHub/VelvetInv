@@ -132,6 +132,7 @@ fun PortfolioScreenMain(
     val pendingOrders by viewModel.pendingOrders.collectAsStateWithLifecycle()
     val activeSips by viewModel.activeSips.collectAsStateWithLifecycle()
     val isLoadingActiveSips by viewModel.isLoadingActiveSips.collectAsStateWithLifecycle()
+    val selectedSipSubTab by viewModel.selectedSipSubTab.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState(pageCount = { SelectedPortfolio.tabs.size })
 
     Box(
@@ -171,6 +172,8 @@ fun PortfolioScreenMain(
                         pendingOrders = pendingOrders,
                         activeSips = activeSips,
                         isLoadingActiveSips = isLoadingActiveSips,
+                        selectedSipSubTab = selectedSipSubTab,
+                        onSipSubTabSelected = viewModel::onSipSubTabSelected,
                         onActiveSipClick = { sip ->
                             onFolioItemClick(sip.resolveHolding(data.mutualFunds))
                         },
@@ -232,7 +235,9 @@ fun PortfolioScreen(
     isLoadingActiveSips: Boolean,
     onActiveSipClick: (ActiveSipItemDomain) -> Unit,
     pagerState: PagerState,
-    onCancelPendingOrder: (PendingOrderDomain) -> Unit
+    onCancelPendingOrder: (PendingOrderDomain) -> Unit,
+    selectedSipSubTab: Int = 0,
+    onSipSubTabSelected: (Int) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
 
@@ -321,6 +326,8 @@ fun PortfolioScreen(
                     ActiveSipPortfolio(
                         activeSip = activeSips,
                         isLoading = isLoadingActiveSips,
+                        selectedSubTab = selectedSipSubTab,
+                        onSubTabSelected = onSipSubTabSelected,
                         reload = reload,
                         onSipClick = onActiveSipClick,
                         onBrowseClick = navigateToCategoryMutualFundScreen
@@ -356,9 +363,10 @@ fun ActiveSipPortfolio(
     isLoading: Boolean,
     reload: () -> Unit,
     onSipClick: (ActiveSipItemDomain) -> Unit,
-    onBrowseClick: () -> Unit
+    onBrowseClick: () -> Unit,
+    selectedSubTab: Int = 0,
+    onSubTabSelected: (Int) -> Unit = {}
 ) {
-    var selectedSubTab by remember { mutableStateOf(0) }
     val subTabs = listOf("Monthly SIP", "Daily SIP")
     val showSubTabs = true
 
@@ -400,7 +408,7 @@ fun ActiveSipPortfolio(
                     GenericTabSwitcher(
                         tabs = subTabs,
                         selectedTab = subTabs[selectedSubTab],
-                        onTabSelected = { selectedSubTab = subTabs.indexOf(it) },
+                        onTabSelected = { onSubTabSelected(subTabs.indexOf(it)) },
                         modifier = Modifier.padding(vertical = 4.dp)
                     ) { tab, selected ->
                         Text(
