@@ -1,5 +1,9 @@
 package org.sharad.velvetinvestment.utils
 
+import org.sharad.velvetinvestment.GlobalConstants
+
 actual fun Log(tag: String, log: String) {
-    println("$tag: $log")
+    if (GlobalConstants.LOGGING) {
+        println("$tag: $log")
+    }
 }
