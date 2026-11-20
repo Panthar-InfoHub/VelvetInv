@@ -706,18 +706,20 @@ fun DashboardPortfolio(
                 }
             }
 
-            if (fixedDeposits.isNotEmpty()) {
-                item {
-                    BarHeader(
-                        heading = "Fixed Deposits",
-                        showArrow = true,
-                        onArrowClick = onSeeAllFD
-                    )
-                }
-                itemsIndexed(fixedDeposits.take(2), key = { index, fd -> "fd_${fd.id}_$index" }) { _, fd ->
-                    FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
-                }
-            }
+            // FD-HIDDEN: Dashboard FD listing hidden while FD is "coming soon" (the FD tab its
+            // arrow opens is also off). See docs/FD_HIDE_RESTORE.md.
+//            if (fixedDeposits.isNotEmpty()) {
+//                item {
+//                    BarHeader(
+//                        heading = "Fixed Deposits",
+//                        showArrow = true,
+//                        onArrowClick = onSeeAllFD
+//                    )
+//                }
+//                itemsIndexed(fixedDeposits.take(2), key = { index, fd -> "fd_${fd.id}_$index" }) { _, fd ->
+//                    FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
+//                }
+//            }
             item { Spacer(modifier = Modifier.height(20.dp)) }
         }
     }

@@ -131,25 +131,26 @@ fun ExploreFundsContent(
             }
         }
 
-        if (uiState.fixedDepositList.isNotEmpty()) {
-            item {
-                Spacer(Modifier.height(20.dp))
-                BarHeader(
-                    heading = "Top Picks Fixed Deposit",
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
-
-            itemsIndexed(uiState.fixedDepositList, key = { _, fd -> "fd-" + fd.id }) { index, fd ->
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    TopPickFixedDepositRow(
-                        fd = fd,
-                        onClick = { handleEvent(ExploreFundsEvent.OnFixedDepositClick(fd.id)) }
-                    )
-                    if (index != uiState.fixedDepositList.lastIndex) RowDivider()
-                }
-            }
-        }
+        // FD-HIDDEN: FD top picks hidden while FD is "coming soon". See docs/FD_HIDE_RESTORE.md.
+//        if (uiState.fixedDepositList.isNotEmpty()) {
+//            item {
+//                Spacer(Modifier.height(20.dp))
+//                BarHeader(
+//                    heading = "Top Picks Fixed Deposit",
+//                    modifier = Modifier.padding(horizontal = 16.dp)
+//                )
+//            }
+//
+//            itemsIndexed(uiState.fixedDepositList, key = { _, fd -> "fd-" + fd.id }) { index, fd ->
+//                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+//                    TopPickFixedDepositRow(
+//                        fd = fd,
+//                        onClick = { handleEvent(ExploreFundsEvent.OnFixedDepositClick(fd.id)) }
+//                    )
+//                    if (index != uiState.fixedDepositList.lastIndex) RowDivider()
+//                }
+//            }
+//        }
     }
 }
 
@@ -223,57 +224,58 @@ private fun TopPickMutualFundRow(fund: MutualFundTopPicksUiModel, onClick: () ->
     }
 }
 
-/** Velvet's `FDListCard` look for a top pick's UI model. */
-@Composable
-private fun TopPickFixedDepositRow(fd: FixedTopPicksUiModel, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-                onClick = onClick
-            ),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AsyncImage(
-            model = fd.icon,
-            contentDescription = null,
-            modifier = Modifier.size(40.dp),
-            fallback = painterResource(Res.drawable.fd_placeholder),
-            error = painterResource(Res.drawable.fd_placeholder),
-            placeholder = painterResource(Res.drawable.fd_placeholder)
-        )
-        Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = fd.name,
-                    style = subHeading,
-                    color = Color.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "${fd.percentage.trimTo(2)} %",
-                    style = subHeading,
-                    color = appGreen
-                )
-            }
-            Spacer(Modifier.height(2.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = fd.metadata,
-                    style = titlesStyle,
-                    color = titleColor,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(text = "Max Returns", style = titlesStyle, color = titleColor)
-            }
-        }
-    }
-}
+// FD-HIDDEN: FD top-pick row, commented out while FD is "coming soon". See docs/FD_HIDE_RESTORE.md.
+///** Velvet's `FDListCard` look for a top pick's UI model. */
+//@Composable
+//private fun TopPickFixedDepositRow(fd: FixedTopPicksUiModel, onClick: () -> Unit) {
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable(
+//                indication = null,
+//                interactionSource = remember { MutableInteractionSource() },
+//                onClick = onClick
+//            ),
+//        horizontalArrangement = Arrangement.spacedBy(12.dp),
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        AsyncImage(
+//            model = fd.icon,
+//            contentDescription = null,
+//            modifier = Modifier.size(40.dp),
+//            fallback = painterResource(Res.drawable.fd_placeholder),
+//            error = painterResource(Res.drawable.fd_placeholder),
+//            placeholder = painterResource(Res.drawable.fd_placeholder)
+//        )
+//        Column(modifier = Modifier.weight(1f)) {
+//            Row(verticalAlignment = Alignment.CenterVertically) {
+//                Text(
+//                    text = fd.name,
+//                    style = subHeading,
+//                    color = Color.Black,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis,
+//                    modifier = Modifier.weight(1f)
+//                )
+//                Text(
+//                    text = "${fd.percentage.trimTo(2)} %",
+//                    style = subHeading,
+//                    color = appGreen
+//                )
+//            }
+//            Spacer(Modifier.height(2.dp))
+//            Row(verticalAlignment = Alignment.CenterVertically) {
+//                Text(
+//                    text = fd.metadata,
+//                    style = titlesStyle,
+//                    color = titleColor,
+//                    modifier = Modifier.weight(1f)
+//                )
+//                Text(text = "Max Returns", style = titlesStyle, color = titleColor)
+//            }
+//        }
+//    }
+//}
 
 @Composable
 private fun InvestmentOptions(onMFClick: () -> Unit, onFDClick: () -> Unit) {

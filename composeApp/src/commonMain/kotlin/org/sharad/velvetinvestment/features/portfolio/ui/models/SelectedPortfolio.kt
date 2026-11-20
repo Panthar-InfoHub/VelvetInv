@@ -8,7 +8,10 @@ sealed interface SelectedPortfolio {
 
     companion object {
         /** The pager reads its page count from this list, so order here is page order there. */
-        val tabs = listOf(Dashboard, MutualFunds, ActiveSIP, FixedDeposits)
+        // FD-HIDDEN: FixedDeposits tab dropped while FD is "coming soon". To restore, swap back to
+        // the commented line. See docs/FD_HIDE_RESTORE.md.
+        // val tabs = listOf(Dashboard, MutualFunds, ActiveSIP, FixedDeposits)
+        val tabs = listOf(Dashboard, MutualFunds, ActiveSIP)
     }
 }
 
