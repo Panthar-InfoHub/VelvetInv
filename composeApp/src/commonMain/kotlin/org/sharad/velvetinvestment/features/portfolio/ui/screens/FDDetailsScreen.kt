@@ -80,7 +80,7 @@ fun FDPortfolioDetailsScreen(
     LaunchedEffect(webViewReturned) {
         if (webViewReturned) {
             onWebViewConsumed()
-            viewModel.loadFDDetails()
+            viewModel.onWebViewReturned()
         }
     }
 

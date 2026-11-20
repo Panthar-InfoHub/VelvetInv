@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.UiState
 import org.sharad.velvetinvestment.features.portfolio.domain.models.FixedDepositTransactionDomain
@@ -45,6 +46,15 @@ class FDPortFolioDetailsViewModel(
                     _loadingState.value = UiState.Error(error.message)
                 }
         }
+    }
+
+    /**
+     * The deposit's web view (KYC, payment or withdrawal) has closed. Its status may have moved,
+     * so the deposit is read again and the portfolio behind it is told to reload as well.
+     */
+    fun onWebViewReturned() {
+        loadFDDetails()
+        viewModelScope.launch { AppEventsController.sendPortfolioRefreshEvent() }
     }
 
     fun onClick(){

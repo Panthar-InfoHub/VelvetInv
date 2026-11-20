@@ -381,12 +381,14 @@ fun ActiveSipPortfolio(
     }
 
     if (activeSip.isEmpty) {
-        EmptyFundScreen(
-            title = "Start your first SIP",
-            subtitle = "You have no running SIPs. Start one to invest a fixed amount automatically, every month.",
-            buttonText = "Explore SIP Funds",
-            onActionClick = onBrowseClick
-        )
+        RefreshableEmptyState(reload = reload) {
+            EmptyFundScreen(
+                title = "Start your first SIP",
+                subtitle = "You have no active SIPs yet. Start a daily or monthly SIP to invest a fixed amount automatically.",
+                buttonText = "Explore Mutual Funds",
+                onActionClick = onBrowseClick
+            )
+        }
         return
     }
 
@@ -435,7 +437,7 @@ fun ActiveSipPortfolio(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No active ${subTabs[if (showSubTabs) selectedSubTab else 0]} found",
+                            text = if (showSubTabs && selectedSubTab == 1) "No active daily SIPs" else "No active monthly SIPs",
                             style = subHeading,
                             color = titleColor
                         )
@@ -447,6 +449,28 @@ fun ActiveSipPortfolio(
                 }
             }
             item { Spacer(modifier = Modifier.height(20.dp)) }
+        }
+    }
+}
+
+/**
+ * An empty tab that still answers pull-to-refresh. [PullToRefreshBox] only reacts to a scrollable
+ * child, so the empty state sits in a one-item list sized to the viewport — still centred, and a
+ * pull on it re-reads the portfolio like a pull on a filled tab does.
+ */
+@Composable
+private fun RefreshableEmptyState(
+    reload: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    PullToRefreshBox(
+        isRefreshing = false,
+        onRefresh = reload
+    ) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item {
+                Box(modifier = Modifier.fillParentMaxSize()) { content() }
+            }
         }
     }
 }
@@ -716,12 +740,14 @@ fun MutualFundPortfolio(
     onCancelPendingOrder: (PendingOrderDomain) -> Unit
 ) {
     if (mutualFund.isEmpty() && pendingOrders.isEmpty()) {
-        EmptyFundScreen(
-            title = "Your investment journey starts here",
-            subtitle = "Grow your wealth with Mutual Funds through SIPs for steady investing or Lumpsum for one-time opportunities.",
-            buttonText = "Explore Mutual Funds",
-            onActionClick = onEmptyButtonClick
-        )
+        RefreshableEmptyState(reload = reload) {
+            EmptyFundScreen(
+                title = "Your investment journey starts here",
+                subtitle = "You don't hold any mutual funds yet. Invest through a SIP for steady growth, or a lump sum to put money to work at once.",
+                buttonText = "Explore Mutual Funds",
+                onActionClick = onEmptyButtonClick
+            )
+        }
     } else {
         PullToRefreshBox(
             isRefreshing = false,
@@ -902,12 +928,14 @@ fun FixedDepositPortfolio(
     reload: () -> Unit
 ) {
     if (fixedDeposits.isEmpty()) {
-        EmptyFundScreen(
-            title = "Grow your savings safely",
-            subtitle = "Lock in your savings with Fixed Deposits and earn stable, guaranteed returns over time.",
-            buttonText = "Book Fixed Deposit",
-            onActionClick = onEmptyButtonClick
-        )
+        RefreshableEmptyState(reload = reload) {
+            EmptyFundScreen(
+                title = "Grow your savings safely",
+                subtitle = "You don't have any fixed deposits yet. Book one to earn a fixed rate of interest for the tenure you choose.",
+                buttonText = "Explore Fixed Deposits",
+                onActionClick = onEmptyButtonClick
+            )
+        }
     } else {
         PullToRefreshBox(
             isRefreshing = false,
