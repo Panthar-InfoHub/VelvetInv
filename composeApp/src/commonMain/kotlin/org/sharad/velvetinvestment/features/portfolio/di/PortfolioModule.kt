@@ -56,7 +56,7 @@ val portfolioFeatureModule = module {
     factory { ExportPortfolioReportUseCase(get(), get()) }
 
     viewModel { (holding: RedeemHolding) -> RedeemViewModel(holding, get(), get(), get()) }
-    viewModel { (redemptionId: String) -> RedeemOtpViewModel(redemptionId, get(), get(), get(), get()) }
+    viewModel { (redemptionId: String) -> RedeemOtpViewModel(redemptionId, get(), get(), get(), get(), get()) }
     viewModel { PortfolioScreenViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { (title: String, folios: List<HoldingFolioDomain>) ->
         FundFoliosViewModel(title, folios, get())

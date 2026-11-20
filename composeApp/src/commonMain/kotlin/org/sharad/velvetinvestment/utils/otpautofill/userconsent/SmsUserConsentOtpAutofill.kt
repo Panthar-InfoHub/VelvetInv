@@ -11,7 +11,7 @@ class SmsUserConsentOtpAutofill(
     private val otpParser: OtpParser
 ) : OtpAutofill {
 
-    override fun observeOtp(): Flow<String> =
+    override fun observeOtp(otpLength: Int): Flow<String> =
         smsUserConsent.startListening()
             .transformWhile { event ->
                 when (event) {
@@ -25,5 +25,5 @@ class SmsUserConsentOtpAutofill(
                     SmsUserConsentEvent.Timeout -> false
                 }
             }
-            .mapNotNull { message -> otpParser.extractOtp(message) }
+            .mapNotNull { message -> otpParser.extractOtp(message, otpLength) }
 }

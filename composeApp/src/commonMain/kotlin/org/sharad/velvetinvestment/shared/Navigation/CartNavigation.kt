@@ -13,6 +13,7 @@ import org.sharad.velvetinvestment.features.cart.presentation.compose.CartScreen
 import org.sharad.velvetinvestment.features.cart.presentation.viewmodel.CartCheckoutOtpEffect
 import org.sharad.velvetinvestment.features.cart.presentation.viewmodel.CartEffect
 import org.sharad.velvetinvestment.features.cart.presentation.viewmodel.CartEvent
+import org.sharad.velvetinvestment.utils.AppBackHandler
 import org.sharad.velvetinvestment.features.cart.presentation.viewmodel.CartViewModel
 
 /** Set on the cart's entry when a web view opened with completion key "cart" closes. */
@@ -119,6 +120,10 @@ fun NavGraphBuilder.cartDestinations(
                 }
             }
         }
+
+        // The cart's ViewModel outlives this screen, so system back goes through the same
+        // event as the back button and stops the SMS autofill listener with it.
+        AppBackHandler(enabled = true) { vm.handleEvent(CartEvent.OnOtpBackClicked) }
 
         CartCheckoutOtpScreen(
             otpState = otpState,

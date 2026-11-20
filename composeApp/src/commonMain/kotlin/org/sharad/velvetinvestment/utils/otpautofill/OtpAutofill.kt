@@ -9,5 +9,6 @@ import kotlinx.coroutines.flow.Flow
  * (API unavailable, e.g. on iOS). Callers should catch and let the user type the code.
  */
 interface OtpAutofill {
-    fun observeOtp(): Flow<String>
+    /** @param otpLength how many digits the code has, so the right number is picked from the SMS. */
+    fun observeOtp(otpLength: Int): Flow<String>
 }

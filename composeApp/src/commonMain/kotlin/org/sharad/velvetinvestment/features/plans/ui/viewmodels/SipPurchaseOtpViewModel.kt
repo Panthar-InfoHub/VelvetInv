@@ -16,6 +16,7 @@ import org.sharad.velvetinvestment.features.plans.ui.viewmodels.OTP_RESEND_SECON
 import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.otpautofill.OtpAutofill
 
 sealed interface SipPurchaseOtpEffect {
     /** The SIP is registered; what the success screen shows comes from the gateway's echo. */
@@ -52,7 +53,8 @@ class SipPurchaseOtpViewModel(
     private val mode: PurchaseMode,
     private val installmentDay: Int,
     private val requestPurchasePlanOtp: RequestPurchasePlanOtpUseCase,
-    private val verifyPurchasePlanOtp: VerifyPurchasePlanOtpUseCase
+    private val verifyPurchasePlanOtp: VerifyPurchasePlanOtpUseCase,
+    private val otpAutofill: OtpAutofill
 ) : ViewModel() {
 
     /** The OTP was sent by the screen before this one, so the cooldown starts already running. */
@@ -67,6 +69,11 @@ class SipPurchaseOtpViewModel(
 
     private val _effect = Channel<SipPurchaseOtpEffect>()
     val effect = _effect.receiveAsFlow()
+
+    init {
+        // The OTP was requested on the previous screen; start listening before it arrives.
+        startOtpAutofill()
+    }
 
     fun onOtpChange(value: String) = otp.onOtpChange(value)
 
@@ -137,6 +144,8 @@ class SipPurchaseOtpViewModel(
 
     fun onResendClick() {
         if (!otp.state.value.canResend) return
+        // Listening is one-shot, so re-arm it before the new SMS is sent.
+        startOtpAutofill()
 
         viewModelScope.launch {
             when (val result = otp.withLoading { requestPurchasePlanOtp(planId) }) {
@@ -148,6 +157,11 @@ class SipPurchaseOtpViewModel(
                 }
             }
         }
+    }
+
+    /** Fills the field from the SMS and submits it; the user can still type the code if this fails. */
+    private fun startOtpAutofill() {
+        otp.startSmsAutofill(otpAutofill, onOtpFilled = ::onVerifyClick)
     }
 }
 

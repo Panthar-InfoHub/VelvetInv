@@ -60,12 +60,13 @@ val plansFeatureModule = module {
             getMfPurchase = get(),
             requestMfPurchaseOtp = get(),
             verifyMfPurchaseOtp = get(),
-            getUserData = get()
+            getUserData = get(),
+            otpAutofill = get()
         )
     }
     viewModel { (handoff: SipMandateHandoff) -> SipSetupViewModel(handoff, get(), get(), get(), get()) }
     viewModel { (planId: String, schemeName: String, amount: Int, mode: PurchaseMode, installmentDay: Int) ->
-        SipPurchaseOtpViewModel(planId, schemeName, amount, mode, installmentDay, get(), get())
+        SipPurchaseOtpViewModel(planId, schemeName, amount, mode, installmentDay, get(), get(), get())
     }
     viewModel { (handoff: SipFirstPaymentHandoff) ->
         SipFirstPaymentViewModel(handoff = handoff, getMfPurchase = get())

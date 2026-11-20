@@ -192,7 +192,7 @@ class LoginScreenViewModel(
     private fun startOtpAutofill() {
         otpAutofillJob?.cancel()
         otpAutofillJob = viewModelScope.launch {
-            otpAutofill.observeOtp()
+            otpAutofill.observeOtp(OTP_LENGTH)
                 .catch { /* best effort; manual entry still works */ }
                 .collect { otp ->
                     onOtpChange(otp)

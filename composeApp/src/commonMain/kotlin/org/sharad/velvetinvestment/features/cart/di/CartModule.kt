@@ -42,5 +42,5 @@ val cartFeatureModule = module {
     factory { PurchaseSipFundUseCase(get()) }
     factory { VerifyCartSipCheckoutOtpUseCase(get()) }
 
-    viewModel { CartViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { CartViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }

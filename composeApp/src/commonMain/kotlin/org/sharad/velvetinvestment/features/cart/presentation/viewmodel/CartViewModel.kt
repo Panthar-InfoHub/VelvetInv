@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.otpautofill.OtpAutofill
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.WebURLConstants
@@ -160,6 +161,7 @@ class CartViewModel(
     private val confirmCartLumpsumCheckoutUseCase: ConfirmCartLumpsumCheckoutUseCase,
     private val getCartPaymentStatusUseCase: GetCartPaymentStatusUseCase,
     private val getUserDataUseCase: GetUserDataUseCase,
+    private val otpAutofill: OtpAutofill,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -238,15 +240,13 @@ class CartViewModel(
 
             is CartEvent.OnOtpChanged -> otp.onOtpChange(event.otp)
 
-            CartEvent.OnOtpSubmitClicked -> when (_uiState.value.checkout?.type) {
-                CartType.SIP -> verifySipOtp()
-                CartType.LUMPSUM -> confirmLumpsumOtp()
-                null -> Unit
-            }
+            CartEvent.OnOtpSubmitClicked -> submitOtp()
 
             CartEvent.OnOtpResendClicked -> resendOtp()
 
             CartEvent.OnOtpBackClicked -> {
+                // This ViewModel outlives the OTP screen, so a late SMS must not submit the code.
+                otp.stopSmsAutofill()
                 otp.clearOtp()
                 viewModelScope.launch { _checkoutOtpEffect.send(CartCheckoutOtpEffect.Close) }
             }
@@ -459,6 +459,22 @@ class CartViewModel(
     }
 
     /** The OTP screen stays put on a bad code so the user can correct it without starting over. */
+    private fun submitOtp() {
+        when (_uiState.value.checkout?.type) {
+            CartType.SIP -> verifySipOtp()
+            CartType.LUMPSUM -> confirmLumpsumOtp()
+            null -> Unit
+        }
+    }
+
+    /**
+     * Fills the field from the SMS and submits it; the user can still type the code if this fails.
+     * Stopped whenever the OTP screen is left, since this ViewModel lives on with the cart.
+     */
+    private fun startOtpAutofill() {
+        otp.startSmsAutofill(otpAutofill, onOtpFilled = ::submitOtp)
+    }
+
     private fun verifySipOtp() {
         val otpState = otp.state.value
         if (!otpState.isSubmitEnabled) return
@@ -477,6 +493,7 @@ class CartViewModel(
 
                 is NetworkResponse.Success -> {
                     checkoutMandateId = null
+                    otp.stopSmsAutofill()
                     otp.clearOtp()
                     _uiState.update { it.copy(checkout = null) }
                     _checkoutOtpEffect.send(CartCheckoutOtpEffect.OpenOrders)
@@ -502,6 +519,8 @@ class CartViewModel(
 
                 CartType.LUMPSUM -> suspend { checkoutCartLumpsumUseCase() }
             }
+        // Listening is one-shot, so re-arm it before the new SMS is sent.
+        startOtpAutofill()
 
         viewModelScope.launch {
             val result = otp.withLoading { checkoutAgain() }
@@ -534,6 +553,7 @@ class CartViewModel(
         _uiState.update { it.copy(isProcessing = false, checkout = checkout) }
         otp.clearOtp()
         otp.startResendTimer()
+        startOtpAutofill()
         _effect.send(CartEffect.NavigateToCheckoutOtp)
     }
 
@@ -563,6 +583,7 @@ class CartViewModel(
 
                 is NetworkResponse.Success -> {
                     val payment = result.data
+                    otp.stopSmsAutofill()
                     otp.clearOtp()
                     _uiState.update { it.copy(checkout = null) }
                     onWebViewReturn = { awaitPayment(payment.paymentId) }

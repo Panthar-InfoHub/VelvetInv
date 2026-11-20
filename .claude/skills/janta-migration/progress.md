@@ -677,3 +677,12 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
   (`SipSetupStage.CONFIRMING_PAYMENT`). Koin in `PlansModule`. Same commit: `OtpVerificationScreen` shows the
   keyboard on open; `OtpInputField` text field has `ContentType.SmsOtpCode`. Bundles 3-year note + debug logging
   were already in `5b7f194`. Android + iOS compile. Not checked on device.
+- 2026-11-20: Ported JN SMS-autofill-on-every-OTP-screen (uncommitted on JN `sms_autofill`). `OtpParser.extractOtp`
+  and `OtpAutofill.observeOtp` now take `otpLength` (login 4, purchases/redemption 6). New
+  `OtpController.startSmsAutofill(otpAutofill, onOtpFilled)` / `stopSmsAutofill()`; SIP purchase OTP, redeem OTP and
+  cart checkout OTP fill + auto-submit via User Consent. Cart VM outlives its OTP screen, so autofill stops on
+  back/success and `CartNavigation` routes system back to `OnOtpBackClicked`. Email OTP intentionally has none.
+  Android compiles. Not checked on device.
+- 2026-11-20: Ported JN purchase-OTP-sheet autofill. `FundPurchaseViewModel` takes `OtpAutofill`; listening starts when
+  `PurchaseOtpSheet` opens (and again before a resend), fills `otp` and calls `onConfirmOtpClick()`; stops on sheet
+  dismiss, verify success and `resetForNextPurchase()`, and ignores a late SMS once the sheet is closed. Android compiles.

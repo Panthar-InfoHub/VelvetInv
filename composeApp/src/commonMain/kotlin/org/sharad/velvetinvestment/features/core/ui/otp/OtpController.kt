@@ -6,8 +6,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.sharad.velvetinvestment.utils.otpautofill.OtpAutofill
 
 class OtpController(
     private val scope: CoroutineScope,
@@ -19,6 +21,8 @@ class OtpController(
     val state: StateFlow<OtpUiState> = _state.asStateFlow()
 
     private var timerJob: Job? = null
+
+    private var autofillJob: Job? = null
 
     init {
         if (startTimerImmediately) startResendTimer()
@@ -45,6 +49,31 @@ class OtpController(
                 if (second > 0) delay(1000)
             }
         }
+    }
+
+    /**
+     * Fills the field from the OTP SMS and then calls [onOtpFilled], which every flow uses to submit
+     * the code. Listening is one-shot, so call this again *before* each resend request; any earlier
+     * listener is replaced. Autofill is best effort: if it fails the user simply types the code.
+     *
+     * Listening ends with [scope]. A ViewModel that outlives its OTP screen must also call
+     * [stopSmsAutofill] when the user leaves, or a late SMS would submit a code nobody is waiting on.
+     */
+    fun startSmsAutofill(otpAutofill: OtpAutofill, onOtpFilled: () -> Unit) {
+        autofillJob?.cancel()
+        autofillJob = scope.launch {
+            otpAutofill.observeOtp(_state.value.otpLength)
+                .catch { /* Autofill is best effort; manual entry still works. */ }
+                .collect { code ->
+                    onOtpChange(code)
+                    onOtpFilled()
+                }
+        }
+    }
+
+    fun stopSmsAutofill() {
+        autofillJob?.cancel()
+        autofillJob = null
     }
 
     suspend fun <T> withLoading(block: suspend () -> T): T {

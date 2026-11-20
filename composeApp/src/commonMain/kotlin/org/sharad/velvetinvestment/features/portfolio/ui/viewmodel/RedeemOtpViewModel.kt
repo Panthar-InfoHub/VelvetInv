@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.otpautofill.OtpAutofill
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.SnackBarController
@@ -54,7 +55,8 @@ class RedeemOtpViewModel(
     private val requestOtp: RequestMfRedemptionOtpUseCase,
     private val verifyOtp: VerifyMfRedemptionOtpUseCase,
     private val awaitRedemption: AwaitMfRedemptionUseCase,
-    authPrefs: AuthPrefs
+    authPrefs: AuthPrefs,
+    private val otpAutofill: OtpAutofill
 ) : ViewModel() {
 
     // The redemption gateway sends a six-digit code; the login and email flows are still four.
@@ -70,6 +72,11 @@ class RedeemOtpViewModel(
 
     private val _effect = Channel<RedeemOtpEffect>()
     val effect = _effect.receiveAsFlow()
+
+    init {
+        // The OTP was requested on the redeem screen; start listening before it arrives.
+        startOtpAutofill()
+    }
 
     fun handleEvent(event: RedeemOtpEvent) {
         when (event) {
@@ -111,6 +118,8 @@ class RedeemOtpViewModel(
 
     private fun resend() {
         if (!otp.state.value.canResend) return
+        // Listening is one-shot, so re-arm it before the new SMS is sent.
+        startOtpAutofill()
 
         viewModelScope.launch {
             otp.withLoading { requestOtp(redemptionId) }
@@ -121,6 +130,11 @@ class RedeemOtpViewModel(
                 }
                 .onError { SnackBarController.showError(it.message) }
         }
+    }
+
+    /** Fills the field from the SMS and submits it; the user can still type the code if this fails. */
+    private fun startOtpAutofill() {
+        otp.startSmsAutofill(otpAutofill, onOtpFilled = ::verify)
     }
 
     private companion object {
