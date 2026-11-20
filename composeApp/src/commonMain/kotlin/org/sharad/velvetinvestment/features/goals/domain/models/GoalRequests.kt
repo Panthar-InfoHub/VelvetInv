@@ -42,15 +42,23 @@ data class GoalCalculationRequest(
     val targetAmount: Double? = null,
     val currentSavings: Double = 0.0,
     val inflationRate: Double? = null,
-    val expectedReturnRate: Double? = null
-)
+    val expectedReturnRate: Double? = null,
+    /** Retirement only — sent in retirement's own calculate body. */
+    val retirementAge: Int? = null,
+    val planUntilAge: Int? = null,
+    val monthlyLifestyleCost: Long? = null
+) {
+    val isRetirement: Boolean get() = retirementAge != null
+}
 
-/**
- * Null for retirement: `/user-goal/calculate` has no retirement inputs yet, so there is nothing
- * to preview until that calculation is specified.
- */
 fun CreateGoalRequest.toCalculationRequest(): GoalCalculationRequest? =
-    if (goalType.isRetirement) null else GoalCalculationRequest(
+    if (goalType.isRetirement) GoalCalculationRequest(
+        goalTypeId = goalType.id,
+        yearsRemaining = 0,
+        retirementAge = retirementAge ?: return null,
+        planUntilAge = planUntilAge ?: return null,
+        monthlyLifestyleCost = monthlyLifestyleCost ?: return null
+    ) else GoalCalculationRequest(
     goalTypeId = goalType.id,
     yearsRemaining = yearsRemaining,
     currentCost = currentCost,

@@ -39,6 +39,7 @@ import org.sharad.velvetinvestment.features.portfolio.domain.models.PendingOrder
 import org.sharad.velvetinvestment.features.portfolio.domain.models.PortfolioDomain
 import org.sharad.velvetinvestment.features.portfolio.domain.repository.PortfolioRepo
 import org.sharad.velvetinvestment.features.portfolio.ui.models.InvestMoreDto
+import org.sharad.velvetinvestment.utils.networking.getFDUrl
 
 class PortfolioRepoImpl(
     private val client: HttpClient
@@ -63,7 +64,7 @@ class PortfolioRepoImpl(
 
     override suspend fun getFDPortfolioById(id: String): NetworkResponse<FixedDepositTransactionDomain, ErrorDomain> {
         val response = safeRequest<FDPortFolioById> {
-            client.get(getUrl("/fd/transactions/$id"))
+            client.get(getFDUrl("/fd/transactions/$id"))
         }
 
         return when (response) {
@@ -85,7 +86,7 @@ class PortfolioRepoImpl(
     ): NetworkResponse<String, ErrorDomain> {
         val response = safeRequest<FDRedirectDto> {
             client.post(
-                getUrl("/fd/redirect-url")
+                getFDUrl("/fd/redirect-url")
             ) {
                 setBody(
                     RedirectBody(

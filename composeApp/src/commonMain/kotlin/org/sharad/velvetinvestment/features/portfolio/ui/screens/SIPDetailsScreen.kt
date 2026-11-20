@@ -49,6 +49,8 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
+import org.sharad.velvetinvestment.features.portfolio.domain.models.FolioFundDomain
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.Secondary
 import org.sharad.emify.core.ui.theme.TextGray
@@ -91,12 +93,22 @@ import velvet.composeapp.generated.resources.rupeesign
 fun MFPortfolioDetailsScreen(
     onBackClick: () -> Unit,
     data: Route.SIPPortfolioDetails,
-    /** JN: redeeming is its own screen ([Route.Redeem]), reached with the figures this one has. */
-    onRedeemClick: () -> Unit,
+    /**
+     * JN: redeeming is its own screen ([Route.Redeem]), reached with the figures this one has —
+     * the folio call's when it has loaded, else the route's.
+     */
+    onRedeemClick: (Route.SIPPortfolioDetails) -> Unit,
+    /** After a cancellation: back to the portfolio, which the refresh event reloads. */
+    onOrderCancelled: () -> Unit,
 ) {
 
-    val viewModel: MFPortfolioDetailsViewModel = koinViewModel()
+    val viewModel: MFPortfolioDetailsViewModel = koinViewModel(
+        parameters = { parametersOf(data.actualFolio.ifBlank { data.folio }, data.holdingId) }
+    )
     val screenState by viewModel.loadingState.collectAsStateWithLifecycle()
+    val folioFund by viewModel.folioFund.collectAsStateWithLifecycle()
+    // The route's figures until the folio call answers, then the holding as it reports it.
+    val details = remember(data, folioFund) { folioFund?.let(data::withFolioFund) ?: data }
     val soaDownloading by viewModel.soaDownloading.collectAsStateWithLifecycle()
     val showCancelSheet by viewModel.showCancelSheet.collectAsStateWithLifecycle()
     val selectedCancelReason by viewModel.selectedCancelReason.collectAsStateWithLifecycle()
@@ -110,7 +122,7 @@ fun MFPortfolioDetailsScreen(
                 MFPortfolioSideEffects.OrderCancelled -> {
                     scope.launch {
                         AppEventsController.sendPortfolioRefreshEvent()
-                        onBackClick()
+                        onOrderCancelled()
                     }
                 }
             }
@@ -133,7 +145,7 @@ fun MFPortfolioDetailsScreen(
                     Row(
                         modifier = Modifier.clip(RoundedCornerShape(8.dp))
                         .background(Secondary.copy(alpha = 0.1f))
-                        .clickable { viewModel.downloadSOA(data.folio) }
+                        .clickable { viewModel.downloadSOA(details.folio) }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -163,8 +175,12 @@ fun MFPortfolioDetailsScreen(
                     // the screen has loaded.
                     if (screenState == LoadingState.Success) {
                         OrderActionsMenu(
-                            isSip = data.isSip,
-                            onRedeem = onRedeemClick,
+                            isSip = details.isSip,
+                            // Cancelling is keyed on the plan; without one, or once it is
+                            // cancelled, there is nothing to cancel.
+                            canCancel = details.planId.isNotBlank() &&
+                                !details.status.equals("CANCELLED", ignoreCase = true),
+                            onRedeem = { onRedeemClick(details) },
                             onCancelClick = viewModel::onShowCancelSheet
                         )
                     }
@@ -174,7 +190,10 @@ fun MFPortfolioDetailsScreen(
         Box(modifier = Modifier.weight(1f)) {
             when (screenState) {
                 is LoadingState.Error -> {
-                    ErrorScreen((screenState as LoadingState.Error).error, onRetryClick = onBackClick)
+                    ErrorScreen(
+                        (screenState as LoadingState.Error).error,
+                        onRetryClick = viewModel::loadDetails
+                    )
                 }
 
                 LoadingState.Loading -> {
@@ -182,7 +201,7 @@ fun MFPortfolioDetailsScreen(
                 }
 
                 LoadingState.Success -> {
-                    SIPDetailsLoadedScreen(data = data)
+                    SIPDetailsLoadedScreen(data = details)
                 }
             }
         }
@@ -195,16 +214,45 @@ fun MFPortfolioDetailsScreen(
             selectedReason = selectedCancelReason,
             isSubmitting = isSubmitting,
             onReasonSelected = viewModel::onCancelReasonSelected,
-            onConfirm = { viewModel.cancelSipPlan(data.holdingId) },
+            onConfirm = { viewModel.cancelSipPlan(details.planId) },
             onDismiss = viewModel::onDismissCancelSheet
         )
     }
 }
 
+/**
+ * The route with the folio call's figures in place of the ones it was opened with; anything the
+ * call leaves blank keeps the route's value.
+ */
+private fun Route.SIPPortfolioDetails.withFolioFund(fund: FolioFundDomain) = copy(
+    holdingId = fund.mfHoldingId.ifBlank { holdingId },
+    title = fund.title.ifBlank { title },
+    category = fund.category.ifBlank { category },
+    amount = fund.amount,
+    isSip = fund.isSip,
+    startDate = fund.startDate.ifBlank { startDate },
+    returnPercentage = fund.returnPercentage.ifBlank { returnPercentage },
+    returnAmount = fund.`return`,
+    xirr = fund.xirr.ifBlank { xirr },
+    currentNav = fund.currentNav,
+    avgNav = fund.avgNav,
+    folio = fund.folio.ifBlank { folio },
+    actualFolio = fund.actualFolio.ifBlank { actualFolio },
+    balanceUnits = fund.balanceUnits,
+    img_url = fund.imgUrl.ifBlank { img_url.orEmpty() },
+    orderId = fund.orderId.ifBlank { orderId },
+    currentValue = fund.currentValue,
+    status = fund.state.ifBlank { status },
+    planId = fund.fpId.ifBlank { planId },
+    // The folio call reports no redeemable figure; it can only ever cap the one the route had.
+    redeemableUnits = redeemableUnits.coerceAtMost(fund.balanceUnits)
+)
+
 /** JN's overflow menu: Redeem / Cancel for a SIP, Proceed to Withdraw for a lumpsum. */
 @Composable
 private fun OrderActionsMenu(
     isSip: Boolean,
+    canCancel: Boolean,
     onRedeem: () -> Unit,
     onCancelClick: () -> Unit
 ) {
@@ -238,14 +286,16 @@ private fun OrderActionsMenu(
                         onRedeem()
                     }
                 )
-                OrderActionItem(
-                    text = "Cancel",
-                    color = appRed,
-                    onClick = {
-                        expanded = false
-                        onCancelClick()
-                    }
-                )
+                if (canCancel) {
+                    OrderActionItem(
+                        text = "Cancel",
+                        color = appRed,
+                        onClick = {
+                            expanded = false
+                            onCancelClick()
+                        }
+                    )
+                }
             } else {
                 OrderActionItem(
                     text = "Proceed to Withdraw",
@@ -341,6 +391,13 @@ fun SIPDetailsLoadedScreen(
                             data.balanceUnits.toString()
                         )
                         HorizontalDivider(color = Color.LightGray.copy(0.2f))
+                        // Below the balance while units are locked in; what Redeem offers.
+                        FundDetailItem(
+                            balanceUnitsIcon,
+                            "Redeemable units",
+                            data.redeemableUnits.coerceIn(0.0, data.balanceUnits.coerceAtLeast(0.0)).toString()
+                        )
+                        HorizontalDivider(color = Color.LightGray.copy(0.2f))
                         FundDetailItem(
                             investmentTypeIcon,
                             "Investment type",
@@ -405,6 +462,15 @@ fun FundSummaryCard(
                     Text(
                         text = data.category, style = titlesStyle, color = TextGray
                     )
+                    // Only a cancelled SIP is marked; an active one or a lumpsum shows nothing.
+                    if (data.isSip && data.status.equals("CANCELLED", ignoreCase = true)) {
+                        Text(
+                            text = "SIP Cancelled",
+                            style = titlesStyle,
+                            color = appRed,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
                 }
             }
 

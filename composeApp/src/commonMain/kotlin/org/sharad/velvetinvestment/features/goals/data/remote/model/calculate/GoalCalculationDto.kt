@@ -24,5 +24,18 @@ data class GoalCalculationDto(
     val fv_current_savings: Double = 0.0,
     val net_required_corpus: Double = 0.0,
     val required_monthly_sip: Double = 0.0,
-    val required_lumpsum_today: Double = 0.0
+    val required_lumpsum_today: Double = 0.0,
+    /** Retirement (type 7) only — that type's calculate response has its own fields. */
+    val current_age: Int? = null,
+    val retirement_age: Int? = null,
+    val plan_until_age: Int? = null,
+    val years_to_retirement: Int? = null,
+    val monthly_cost_at_retirement: Double? = null,
+    val target_retirement_corpus: Double? = null,
+    val fv_existing_savings: Double? = null,
+    val remaining_corpus_to_build: Double? = null,
+    val total_monthly_sip: Double? = null,
+    val additional_lumpsum_today: Double? = null,
+    val pre_retirement_return_used: Double? = null,
+    val inflation_before_used: Double? = null
 )

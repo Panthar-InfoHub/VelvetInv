@@ -31,7 +31,6 @@ class PortfolioScreenViewModel(
     private val exportPortfolioReportUseCase: ExportPortfolioReportUseCase,
     private val downloadPdfByUrlUseCase: DownloadPdfByUrlUseCase,
     private val getActiveSipsUseCase: GetActiveSipsUseCase,
-    private val getPendingOrdersUseCase: GetPendingOrdersUseCase,
     private val cancelLumpSumOrderUseCase: CancelLumpSumOrderUseCase,
     private val cancelSipOrderUseCase: CancelSipOrderUseCase
 ) : ViewModel() {
@@ -93,20 +92,7 @@ class PortfolioScreenViewModel(
      */
     fun refresh() {
         loadPortfolio()
-        loadPendingOrders()
         loadActiveSips()
-    }
-
-    /**
-     * Velvet's "Pending Payments" on the Mutual Funds tab. JN declares the flow but never fills
-     * it; Velvet kept the section, so it keeps the read too. Silent on failure, like the SIP read.
-     */
-    fun loadPendingOrders() {
-        viewModelScope.launch {
-            getPendingOrdersUseCase()
-                .onSuccess { _pendingOrders.value = it }
-                .onError { _pendingOrders.value = emptyList() }
-        }
     }
 
     /**

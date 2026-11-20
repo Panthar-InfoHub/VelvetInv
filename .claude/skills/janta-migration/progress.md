@@ -668,3 +668,12 @@ One row per composable touched. Kind: `merged` (same-name, JN function → Velve
   of `user_home_data.net_worth`; new `UserWorthCardDomain.portfolioValue` (default 0). `totalNetWorth`
   is still filled but no longer shown. Formatted with `formatMoneyAfterL` ("₹12.5L") as JN does.
   JN's P&L trend chip (`returnPercent`) not ported.
+- 2026-11-20: Ported JN `c8bbf0a` (SIP first installment now). `verify-otp` for a SIP returns
+  `ConfirmPurchasePlanResponseDto` → `PurchasePlanConfirmation` (plan + `generate_first_installment_now`,
+  first-installment `order`, `payment.payment_url`). If set, `SipPurchaseOtpEffect.StartFirstPayment` →
+  `Route.SipFirstPayment` (pops the OTP screen) → `SipFirstPaymentViewModel` opens the payment web view
+  (`WEBVIEW_COMPLETION_SIP_FIRST_PAYMENT`, handled in `completePlansWebView`) and polls `GET /mf/purchase/{id}`
+  via `awaitPurchasePayment` (`PurchasePaymentPoll.kt`) → PurchaseSuccess. Reuses `SipSetupScreen`
+  (`SipSetupStage.CONFIRMING_PAYMENT`). Koin in `PlansModule`. Same commit: `OtpVerificationScreen` shows the
+  keyboard on open; `OtpInputField` text field has `ContentType.SmsOtpCode`. Bundles 3-year note + debug logging
+  were already in `5b7f194`. Android + iOS compile. Not checked on device.

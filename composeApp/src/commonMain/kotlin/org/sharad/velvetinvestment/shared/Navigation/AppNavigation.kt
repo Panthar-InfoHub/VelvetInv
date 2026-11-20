@@ -246,10 +246,16 @@ fun AppNavigation(
                             launchSingleTop = true
                         }
                     },
-                    // JN: straight to the order details — the portfolio already carries every
-                    // figure that screen shows, so the folio listing in between had nothing to add.
+                    // An active SIP knows its folio, so it goes straight to the order details.
                     navigateToSIPDetailsScreen = { holding ->
                         navController.navigate(holding.toOrderDetailsRoute()) {
+                            launchSingleTop = true
+                        }
+                    },
+                    // A fund row is several folios combined; the user picks one first, unless
+                    // there is only the one.
+                    navigateToFundFolios = { holding ->
+                        navController.navigate(holding.toFundRowRoute()) {
                             launchSingleTop = true
                         }
                     },

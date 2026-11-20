@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.features.portfolio.ui.screens
 
 import org.sharad.emify.core.ui.theme.Primary
+import org.sharad.emify.core.ui.theme.appRed
 import org.sharad.emify.core.ui.theme.titleColor
 import org.sharad.velvetinvestment.shared.theme.VelvetTheme
 import org.sharad.velvetinvestment.shared.theme.tinyLabel
@@ -33,7 +34,17 @@ import org.sharad.velvetinvestment.features.portfolio.domain.models.MutualFundPo
 import org.sharad.velvetinvestment.shared.compose.FundIcon
 
 @Composable
-fun FolioFundCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
+fun FolioFundCard(
+    fundItem: MutualFundPortfolioDomain,
+    onClick: () -> Unit,
+    /**
+     * The SIP / Lumpsum tag. Off on the portfolio, whose rows combine folios that need not share
+     * a type; on for a single folio's card.
+     */
+    showTypeTag: Boolean = true,
+    /** Marks a SIP whose plan has been cancelled; nothing is shown for any other state. */
+    isCancelled: Boolean = false
+) {
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -97,13 +108,29 @@ fun FolioFundCard(fundItem: MutualFundPortfolioDomain, onClick: () -> Unit) {
                         )
                     }
                 }
-                // Same slot as MutualFundsFolioCard: top-aligned at the end of the title row.
-                Text(
-                    text = if (fundItem.isSip) "SIP" else "Lumpsum",
-                    color = titleColor,
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.align(Alignment.Top)
-                )
+                // Top-aligned at the end of the title row.
+                if (showTypeTag || isCancelled) {
+                    Column(
+                        modifier = Modifier.align(Alignment.Top),
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        if (showTypeTag) {
+                            Text(
+                                text = if (fundItem.isSip) "SIP" else "Lumpsum",
+                                color = titleColor,
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
+                        if (isCancelled) {
+                            Text(
+                                text = "Cancelled",
+                                color = appRed,
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
+                    }
+                }
             }
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 20.dp),

@@ -2,16 +2,20 @@ package org.sharad.velvetinvestment.shared.Navigation
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import kotlinx.serialization.json.Json
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import org.sharad.velvetinvestment.features.portfolio.domain.models.HoldingFolioDomain
 import org.sharad.velvetinvestment.features.portfolio.domain.models.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.features.portfolio.ui.screens.FDPortfolioDetailsScreen
-import org.sharad.velvetinvestment.features.portfolio.ui.screens.FolioFundMFScreen
+import org.sharad.velvetinvestment.features.portfolio.ui.screens.FundFoliosScreen
+import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.FundFolioItem
 import org.sharad.velvetinvestment.features.portfolio.ui.screens.MFPortfolioDetailsScreen
 import org.sharad.velvetinvestment.features.portfolio.ui.screens.RedeemOtpScreen
 import org.sharad.velvetinvestment.features.portfolio.ui.screens.RedeemScreen
@@ -26,13 +30,17 @@ import org.sharad.velvetinvestment.utils.trimDoubleTo
 /*
  * Portfolio flows, after JN's MainAppNavigation:
  *
- *   Portfolio row → SIPPortfolioDetails (order details) → Redeem → RedeemOtp → back to the tabs
- *                                                       ↘ cancel SIP (reason sheet on the screen)
+ *   Portfolio row → FundFolios (one card per folio; skipped for a single folio) → SIPPortfolioDetails
+ *                                 → Redeem → RedeemOtp → back to the tabs
+ *                                 ↘ cancel SIP (reason sheet on the screen)
+ *   Active SIP row → SIPPortfolioDetails for the SIP's own folio
  *   FD row → FDPortfolioDetailsScreen (↔ FD web view)
  *
- * The folio listing (FolioFundScreen) is still registered but, as in JN, nothing opens it: a
- * portfolio row goes straight to the order details.
+ * The order details load their figures from `GET /user/portfolio/{folio}`; the route only carries
+ * the folio, the holding id and what to show if that call has nothing.
  */
+
+private val routeJson = Json { ignoreUnknownKeys = true }
 
 private const val FD_DETAILS_WEBVIEW_RESULT = "fd_details_webview_completed"
 private const val WEBVIEW_COMPLETION_FD_DETAILS = "fd_details"
@@ -75,8 +83,117 @@ fun MutualFundPortfolioDomain.toOrderDetailsRoute() = Route.SIPPortfolioDetails(
     orderId = "",
     actualFolio = actualFolio,
     currentValue = currentValue,
-    status = if (isSip) "ACTIVE" else "COMPLETED"
+    status = if (isSip) "ACTIVE" else "COMPLETED",
+    planId = planId,
+    redeemableUnits = redeemableUnits
 )
+
+/** A portfolio fund as its folio listing: the fund's name, icon and type, plus every folio. */
+fun MutualFundPortfolioDomain.toFundFoliosRoute() = Route.FundFolios(
+    baseId = id,
+    title = title,
+    category = category,
+    isSip = isSip,
+    imgUrl = icon,
+    // A row the server sent without its folio breakdown is still one folio: itself.
+    foliosJson = routeJson.encodeToString(
+        folios.ifEmpty {
+            listOf(
+                HoldingFolioDomain(
+                    holdingId = id,
+                    folioNumber = actualFolio.ifBlank { folio },
+                    units = balanceUnits,
+                    redeemableUnits = balanceUnits,
+                    amount = amount,
+                    currentValue = currentValue
+                )
+            )
+        }
+    )
+)
+
+fun Route.FundFolios.folios(): List<HoldingFolioDomain> =
+    runCatching { routeJson.decodeFromString<List<HoldingFolioDomain>>(foliosJson) }
+        .getOrDefault(emptyList())
+
+/**
+ * One folio of a fund as the order-details route. The screen reads the folio itself; these are
+ * only the figures it falls back on if the folio call has none.
+ */
+fun HoldingFolioDomain.toOrderDetailsRoute(fund: Route.FundFolios) = Route.SIPPortfolioDetails(
+    id = 0,
+    holdingId = holdingId,
+    title = fund.title,
+    category = fund.category,
+    amount = amount,
+    isSip = fund.isSip,
+    startDate = "",
+    returnPercentage = "",
+    returnAmount = currentValue - amount,
+    xirr = "",
+    currentNav = 0.0,
+    avgNav = 0.0,
+    folio = folioNumber,
+    balanceUnits = units,
+    img_url = fund.imgUrl,
+    orderId = "",
+    actualFolio = folioNumber,
+    currentValue = currentValue,
+    status = if (fund.isSip) "ACTIVE" else "COMPLETED",
+    redeemableUnits = redeemableUnits
+)
+
+/** A loaded folio as the order-details route; the screen reads the folio again for itself. */
+fun FundFolioItem.toOrderDetailsRoute() = Route.SIPPortfolioDetails(
+    id = 0,
+    holdingId = fund.mfHoldingId,
+    title = fund.title,
+    category = fund.category,
+    amount = fund.amount,
+    isSip = fund.isSip,
+    startDate = fund.startDate,
+    returnPercentage = fund.returnPercentage,
+    returnAmount = fund.`return`,
+    xirr = fund.xirr,
+    currentNav = fund.currentNav,
+    avgNav = fund.avgNav,
+    folio = fund.folio,
+    balanceUnits = fund.balanceUnits,
+    img_url = fund.imgUrl,
+    orderId = fund.orderId,
+    actualFolio = fund.actualFolio,
+    currentValue = fund.currentValue,
+    status = fund.state.ifBlank { if (fund.isSip) "ACTIVE" else "COMPLETED" },
+    planId = fund.fpId,
+    redeemableUnits = redeemableUnits
+)
+
+/**
+ * Where a portfolio fund row leads: its folio listing, or — with only one folio, where a listing
+ * would be a single card — that folio's order details directly.
+ */
+fun MutualFundPortfolioDomain.toFundRowRoute(): Any {
+    val foliosRoute = toFundFoliosRoute()
+    return foliosRoute.folios().singleOrNull()?.toOrderDetailsRoute(foliosRoute) ?: foliosRoute
+}
+
+/**
+ * The redeem screen for what the order details show: only the redeemable units, and the value in
+ * proportion to them, so locked-in units are neither offered nor counted in the amount.
+ */
+private fun Route.SIPPortfolioDetails.toRedeemRoute(): Route.Redeem {
+    val totalValue = currentValue.takeIf { it != 0.0 } ?: (amount + returnAmount)
+    val units = redeemableUnits.coerceIn(0.0, balanceUnits.coerceAtLeast(0.0))
+    val redeemableValue = if (balanceUnits > 0.0) totalValue * (units / balanceUnits) else 0.0
+    return Route.Redeem(
+        holdingId = holdingId,
+        scheme = title,
+        folioNumber = actualFolio.ifBlank { folio },
+        availableUnits = units,
+        currentValue = redeemableValue,
+        isSip = isSip
+    )
+}
 
 fun NavGraphBuilder.portfolioDestinations(navController: NavHostController) {
 
@@ -85,19 +202,11 @@ fun NavGraphBuilder.portfolioDestinations(navController: NavHostController) {
         MFPortfolioDetailsScreen(
             onBackClick = { navController.popBackStack() },
             data = data,
-            onRedeemClick = {
-                navController.navigate(
-                    Route.Redeem(
-                        holdingId = data.holdingId,
-                        scheme = data.title,
-                        folioNumber = data.actualFolio.ifBlank { data.folio },
-                        availableUnits = data.balanceUnits,
-                        currentValue = data.currentValue
-                            .takeIf { value -> value != 0.0 }
-                            ?: (data.amount + data.returnAmount),
-                        isSip = data.isSip
-                    )
-                ) {
+            // The folio listing and these details are both stale now; the portfolio reloads on
+            // the refresh event the screen has already sent.
+            onOrderCancelled = { navController.popBackStack(Route.BottomNav, inclusive = false) },
+            onRedeemClick = { shown ->
+                navController.navigate(shown.toRedeemRoute()) {
                     launchSingleTop = true
                 }
             }
@@ -191,37 +300,18 @@ fun NavGraphBuilder.portfolioDestinations(navController: NavHostController) {
         )
     }
 
-    composable<Route.FolioFundScreen> {
-        val route = it.toRoute<Route.FolioFundScreen>()
-        FolioFundMFScreen(
-            folioId = route.folioId,
-            actualFolio = route.actualFolio,
+    composable<Route.FundFolios> {
+        val route = it.toRoute<Route.FundFolios>()
+        val folios = remember(route) { route.folios() }
+        FundFoliosScreen(
+            title = route.title,
+            folios = folios,
             onBack = { navController.popBackStack() },
-            onFundClick = { fund ->
-                navController.navigate(
-                    Route.SIPPortfolioDetails(
-                        id = fund.schemeId,
-                        title = fund.title,
-                        category = fund.category,
-                        amount = fund.amount.toDouble(),
-                        isSip = fund.isSip,
-                        startDate = fund.startDate,
-                        returnPercentage = fund.returnPercentage,
-                        returnAmount = fund.`return`,
-                        xirr = fund.xirr,
-                        currentNav = fund.currentNav,
-                        avgNav = fund.avgNav,
-                        folio = fund.folio,
-                        balanceUnits = fund.balanceUnits,
-                        img_url = fund.imgUrl,
-                        orderId = fund.orderId,
-                        actualFolio = fund.actualFolio
-                    )
-                ) {
+            onFolioClick = { item ->
+                navController.navigate(item.toOrderDetailsRoute()) {
                     launchSingleTop = true
                 }
-            },
-            // TODO(top-up): onTopUp — JN gives it no destination either.
+            }
         )
     }
 }

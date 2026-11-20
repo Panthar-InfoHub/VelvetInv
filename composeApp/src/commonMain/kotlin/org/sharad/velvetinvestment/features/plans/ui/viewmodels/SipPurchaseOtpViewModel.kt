@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.features.core.ui.otp.OtpController
 import org.sharad.velvetinvestment.features.plans.domain.usecases.RequestPurchasePlanOtpUseCase
+import org.sharad.velvetinvestment.features.plans.domain.model.PurchasePlanConfirmation
 import org.sharad.velvetinvestment.features.plans.domain.usecases.VerifyPurchasePlanOtpUseCase
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.OTP_LENGTH
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.OTP_RESEND_SECONDS
@@ -27,12 +28,21 @@ sealed interface SipPurchaseOtpEffect {
         val startDate: String
     ) : SipPurchaseOtpEffect
 
+    /**
+     * The SIP is registered but takes its first installment now. Paying for it — and every
+     * retry of that — runs on its own screen, so the user never comes back to this one.
+     */
+    data class StartFirstPayment(val handoff: SipFirstPaymentHandoff) : SipPurchaseOtpEffect
+
     data object Cancelled : SipPurchaseOtpEffect
 }
 
 /**
  * Confirms a SIP that is already registered and reviewed. Everything it needs travels on the
  * route, so a resend or a retry runs from here without going back through the purchase form.
+ *
+ * A correct OTP always leaves this screen: straight to success, or — when the gateway takes the
+ * first installment now — on to the screen that pays for it.
  */
 class SipPurchaseOtpViewModel(
     /** The plan's gateway id; both OTP calls are keyed on it. */
@@ -79,27 +89,50 @@ class SipPurchaseOtpViewModel(
                     SnackBarController.showError(result.error.message)
                 }
 
-                is NetworkResponse.Success -> {
-                    val plan = result.data
-
-                    _effect.send(
-                        SipPurchaseOtpEffect.PurchaseConfirmed(
-                            mode = mode,
-                            schemeName = schemeName,
-                            // The gateway echoes the amount back, but not always; the typed
-                            // amount stands in.
-                            amount = plan.amount.takeIf { it.isNotBlank() } ?: amount.toString(),
-                            installmentDay = if (mode.needsInstallmentDay) {
-                                plan.installmentDay ?: installmentDay
-                            } else {
-                                0
-                            },
-                            startDate = plan.startDate.orEmpty()
-                        )
-                    )
-                }
+                is NetworkResponse.Success -> onPlanConfirmed(result.data)
             }
         }
+    }
+
+    /**
+     * Without `generate_first_installment_now` the mandate carries every debit, so the SIP is
+     * done. With it, the first installment's order still has to be paid; that screen is also
+     * where a missing order or payment link is reported.
+     */
+    private suspend fun onPlanConfirmed(confirmation: PurchasePlanConfirmation) {
+        val plan = confirmation.plan
+
+        // The gateway echoes the amount back, but not always; the typed amount stands in.
+        val shownAmount = plan.amount.takeIf { it.isNotBlank() } ?: amount.toString()
+        val shownDay = if (mode.needsInstallmentDay) plan.installmentDay ?: installmentDay else 0
+        val startDate = plan.startDate.orEmpty()
+
+        if (!confirmation.generatesFirstInstallmentNow) {
+            _effect.send(
+                SipPurchaseOtpEffect.PurchaseConfirmed(
+                    mode = mode,
+                    schemeName = schemeName,
+                    amount = shownAmount,
+                    installmentDay = shownDay,
+                    startDate = startDate
+                )
+            )
+            return
+        }
+
+        _effect.send(
+            SipPurchaseOtpEffect.StartFirstPayment(
+                SipFirstPaymentHandoff(
+                    orderId = confirmation.firstInstallment?.id.orEmpty(),
+                    paymentUrl = confirmation.paymentUrl.orEmpty(),
+                    mode = mode,
+                    schemeName = schemeName,
+                    amount = shownAmount,
+                    installmentDay = shownDay,
+                    startDate = startDate
+                )
+            )
+        )
     }
 
     fun onResendClick() {

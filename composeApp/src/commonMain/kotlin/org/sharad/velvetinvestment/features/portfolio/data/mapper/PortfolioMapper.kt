@@ -1,6 +1,7 @@
 package org.sharad.velvetinvestment.features.portfolio.data.mapper
 
 import org.sharad.velvetinvestment.utils.DateTimeUtils
+import org.sharad.velvetinvestment.utils.trimDoubleTo
 import org.sharad.velvetinvestment.features.portfolio.data.model.fdportfoliobyid.FDPortFolioById
 import org.sharad.velvetinvestment.features.portfolio.data.model.pendingorders.PendingOrderDto
 import org.sharad.velvetinvestment.features.portfolio.data.model.portfolio.FolioFundDataDto
@@ -70,22 +71,25 @@ fun PendingOrderDto.toDomain(): PendingOrderDomain {
 fun FolioFundDataDto.toDomain(): FolioFundDomain {
     return FolioFundDomain(
         id = id,
-        title = title,
-        category = category,
-        amount = amount.toLong(),
-        isSip = is_sip,
-        startDate = start_date,
-        returnPercentage = return_percentage,
-        `return` = `return`,
-        xirr = xirr,
-        currentNav = current_nav,
-        avgNav = avg_nav,
-        folio = folio,
-        balanceUnits = balance_units,
-        imgUrl = img_url,
-        schemeId = scheme_id,
-        orderId = order_id?:"",
-        actualFolio=actual_folio?:""
+        mfHoldingId = mf_holding_id.orEmpty(),
+        schemeId = scheme_id.orEmpty(),
+        title = title.orEmpty(),
+        category = category.orEmpty(),
+        amount = amount ?: 0.0,
+        currentValue = current_value ?: ((amount ?: 0.0) + (`return` ?: 0.0)),
+        isSip = is_sip == true,
+        startDate = start_date.orEmpty(),
+        returnPercentage = return_percentage?.let { "${it.trimDoubleTo(2)}%" }.orEmpty(),
+        `return` = `return` ?: 0.0,
+        xirr = xirr?.let { "${it.trimDoubleTo(2)}%" }.orEmpty(),
+        currentNav = current_nav ?: 0.0,
+        avgNav = avg_nav ?: 0.0,
+        folio = folio.orEmpty(),
+        balanceUnits = balance_units ?: 0.0,
+        imgUrl = img_url.orEmpty(),
+        orderId = order_id.orEmpty(),
+        actualFolio = actual_folio?.takeIf { it.isNotBlank() } ?: folio.orEmpty(),
+        fpId = fp_id.orEmpty(),
+        state = state.orEmpty()
     )
 }
-

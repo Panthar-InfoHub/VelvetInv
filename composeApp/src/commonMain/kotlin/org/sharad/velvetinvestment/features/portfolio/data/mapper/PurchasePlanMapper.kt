@@ -37,7 +37,8 @@ fun MfPurchasePlanDto.toDomain(): ActiveSipItemDomain = ActiveSipItemDomain(
     totalInstallments = number_of_installments,
     remainingInstallments = remaining_installments,
     latestNav = mf_product?.latest_nav?.toDoubleOrNull() ?: 0.0,
-    iconUrl = mf_product?.img_url.orEmpty()
+    iconUrl = mf_product?.img_url.orEmpty(),
+    fpId = fp_id.orEmpty()
 )
 
 /** "EQUITY FUND" and "monthly" both arrive from the gateway; the screen wants "Equity Fund". */

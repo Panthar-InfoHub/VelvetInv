@@ -115,7 +115,10 @@ import kotlin.math.abs
 @Composable
 fun PortfolioScreenMain(
     viewModel: PortfolioScreenViewModel,
+    /** A fund row: opens the fund's folio listing. */
     onFolioItemClick: (MutualFundPortfolioDomain) -> Unit,
+    /** An active SIP: opens the order details of the one folio it invests into. */
+    onActiveSipClick: (MutualFundPortfolioDomain) -> Unit,
     onFDClick: (String) -> Unit,
     navigateToCategoryMutualFundScreen: () -> Unit,
     navigateToCategoryFDScreen: () -> Unit,
@@ -175,7 +178,7 @@ fun PortfolioScreenMain(
                         selectedSipSubTab = selectedSipSubTab,
                         onSipSubTabSelected = viewModel::onSipSubTabSelected,
                         onActiveSipClick = { sip ->
-                            onFolioItemClick(sip.resolveHolding(data.mutualFunds))
+                            onActiveSipClick(sip.resolveHolding(data.mutualFunds))
                         },
                         pagerState=pagerState
                     )
@@ -593,14 +596,34 @@ private fun ActiveSipItemDomain.resolveHolding(
         folioKey.isNotBlank() && (
             holding.folio.folioKey() == folioKey ||
                 holding.actualFolio.folioKey() == folioKey ||
-                holding.folios.any { it.folioKey() == folioKey }
+                holding.folios.any { it.folioNumber.folioKey() == folioKey }
             )
     } ?: holdings.firstOrNull { it.title.trim().equals(fundName.trim(), ignoreCase = true) }
+
+    // A fund row is every folio combined; the SIP invests into one of them, so the details open
+    // on that folio's holding rather than the row's headline one.
+    val sipFolio = matched?.folios?.firstOrNull {
+        folioKey.isNotBlank() && it.folioNumber.folioKey() == folioKey
+    }
+    if (matched != null && sipFolio != null) {
+        return matched.copy(
+            id = sipFolio.holdingId.ifBlank { matched.id },
+            folio = sipFolio.folioNumber,
+            actualFolio = sipFolio.folioNumber,
+            amount = sipFolio.amount,
+            currentValue = sipFolio.currentValue,
+            returnAmount = sipFolio.currentValue - sipFolio.amount,
+            balanceUnits = sipFolio.units,
+            redeemableUnits = sipFolio.redeemableUnits,
+            planId = fpId
+        )
+    }
+    if (matched != null) return matched.copy(planId = fpId)
 
     // A SIP whose first installment has not been allotted yet has no holding to match. The
     // details screen still opens, on what the plan itself reports, with the figures it has not
     // earned left at zero rather than invented.
-    return matched ?: MutualFundPortfolioDomain(
+    return MutualFundPortfolioDomain(
         id = id,
         title = fundName,
         category = fundCategory,
@@ -617,7 +640,8 @@ private fun ActiveSipItemDomain.resolveHolding(
         balanceUnits = 0.0,
         isSip = true,
         subCategory = fundType,
-        currentNav = latestNav
+        currentNav = latestNav,
+        planId = fpId
     )
 }
 
@@ -654,7 +678,7 @@ fun DashboardPortfolio(
                     )
                 }
                 itemsIndexed(mutualFunds.take(2), key = { index, item -> "mf_${item.folio}_${item.id}_$index" }) { _, item ->
-                    FolioFundCard(fundItem = item, onClick = { onSIPClick(item) })
+                    FolioFundCard(fundItem = item, onClick = { onSIPClick(item) }, showTypeTag = false)
                 }
             }
 
@@ -729,9 +753,11 @@ fun MutualFundPortfolio(
                 if(mutualFund.isNotEmpty()){
                     item { BarHeader(heading = "Mutual Funds") }
                     itemsIndexed(mutualFund, key = { index, item -> "mf_${item.folio}_${item.id}_$index" }) { _, item ->
-                        FolioFundCard(fundItem = item, onClick = {
-                            onFundClick(item)
-                        })
+                        FolioFundCard(
+                            fundItem = item,
+                            onClick = { onFundClick(item) },
+                            showTypeTag = false
+                        )
                     }
                 }
                 if (pendingOrders.isNotEmpty()) {

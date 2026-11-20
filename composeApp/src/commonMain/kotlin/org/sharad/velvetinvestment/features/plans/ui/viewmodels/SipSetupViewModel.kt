@@ -26,7 +26,10 @@ enum class SipSetupStage(val message: String) {
     CONFIRMING_MANDATE("Confirming your autopay mandate…"),
     CREATING_PLAN("Setting up your SIP…"),
     AWAITING_REVIEW("Verifying with the exchange…"),
-    REQUESTING_OTP("Sending OTP…")
+    REQUESTING_OTP("Sending OTP…"),
+
+    /** Only the first-installment screen reaches this: the user is back from the payment page. */
+    CONFIRMING_PAYMENT("Confirming your first installment's payment…")
 }
 
 data class SipSetupUiState(

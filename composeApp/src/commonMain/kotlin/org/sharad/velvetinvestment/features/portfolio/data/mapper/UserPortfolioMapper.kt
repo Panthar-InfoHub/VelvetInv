@@ -4,6 +4,7 @@ import org.sharad.velvetinvestment.features.portfolio.data.model.userportfolio.P
 import org.sharad.velvetinvestment.features.portfolio.data.model.userportfolio.PortfolioMutualFundDto
 import org.sharad.velvetinvestment.features.portfolio.data.model.userportfolio.UserPortfolioResponseDto
 import org.sharad.velvetinvestment.features.portfolio.domain.models.FixedDepositPortfolioDomain
+import org.sharad.velvetinvestment.features.portfolio.domain.models.HoldingFolioDomain
 import org.sharad.velvetinvestment.features.portfolio.domain.models.InvestedAmountBreakdownDomain
 import org.sharad.velvetinvestment.features.portfolio.domain.models.MutualFundPortfolioDomain
 import org.sharad.velvetinvestment.features.portfolio.domain.models.MutualFundSummaryDomain
@@ -105,11 +106,22 @@ fun PortfolioMutualFundDto.toDomain(): MutualFundPortfolioDomain {
         minLumpSumAmount = 0L,
         schemeId = 0,
         balanceUnits = bal_units ?: 0.0,
+        redeemableUnits = redeemable_units ?: bal_units ?: 0.0,
         isSip = is_sip == true,
         subCategory = sub_category.orEmpty(),
         xirr = xirr ?: 0.0,
         navAsOn = nav_as_on,
-        folios = folios.orEmpty(),
+        folios = folios.orEmpty().mapNotNull { entry ->
+            val number = entry.folio_number?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            HoldingFolioDomain(
+                holdingId = entry.holding_id.orEmpty(),
+                folioNumber = number,
+                units = entry.units ?: 0.0,
+                redeemableUnits = entry.redeemable_units ?: entry.units ?: 0.0,
+                amount = entry.amount ?: 0.0,
+                currentValue = entry.current_value ?: 0.0
+            )
+        },
         currentNav = curr_nav ?: 0.0,
         avgNav = avg_nav ?: 0.0
     )

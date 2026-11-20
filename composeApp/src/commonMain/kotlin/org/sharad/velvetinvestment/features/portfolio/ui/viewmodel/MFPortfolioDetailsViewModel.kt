@@ -18,25 +18,38 @@ import org.sharad.velvetinvestment.utils.networking.onSuccess
 import org.sharad.velvetinvestment.utils.LoadingState
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.features.portfolio.domain.models.SIPDetailsDomain
+import org.sharad.velvetinvestment.features.portfolio.domain.models.FolioFundDomain
+import org.sharad.velvetinvestment.features.portfolio.domain.usecases.GetFolioFundsUseCase
 
 sealed interface MFPortfolioSideEffects{
     data object OrderCancelled : MFPortfolioSideEffects
 }
 
 /**
- * Backs the order-details screen, which renders entirely from its route: all that is left here
- * is the statement download and cancelling the order. Redeeming moved to its own screen and its
- * own view model.
+ * Backs the order-details screen. The route brings the figures the caller already had, so the
+ * screen has something to show; [loadDetails] then reads the folio (`GET /user/portfolio/{folio}`)
+ * and [folioFund] replaces them with the holding the route names. Statement download and
+ * cancelling the order live here too; redeeming has its own screen and view model.
  */
 class MFPortfolioDetailsViewModel(
+    private val folio: String,
+    /** The `mf_holding_id` to pick out of the folio; blank takes the folio's first holding. */
+    private val holdingId: String,
+    private val getFolioFundsUseCase: GetFolioFundsUseCase,
     private val downloadFolioSpecificReportUseCase: DownloadFolioSpecificReportUseCase,
     private val downloadPdfByUrlUseCase: DownloadPdfByUrlUseCase,
     private val cancelLumpSumOrderUseCase: CancelLumpSumOrderUseCase,
     private val cancelPurchasePlanUseCase: CancelPurchasePlanUseCase
 ): ViewModel() {
 
-    private val _loadingState = MutableStateFlow<LoadingState>(LoadingState.Success)
+    private val _loadingState = MutableStateFlow<LoadingState>(
+        if (folio.isBlank()) LoadingState.Success else LoadingState.Loading
+    )
     val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
+
+    /** The holding as the folio call reports it; null until it has loaded. */
+    private val _folioFund = MutableStateFlow<FolioFundDomain?>(null)
+    val folioFund: StateFlow<FolioFundDomain?> = _folioFund.asStateFlow()
 
     private val _sideEffects = MutableSharedFlow<MFPortfolioSideEffects>()
     val sideEffects = _sideEffects.asSharedFlow()
@@ -60,6 +73,33 @@ class MFPortfolioDetailsViewModel(
 
     private val _reportDownloading = MutableStateFlow(false)
     val soaDownloading = _reportDownloading.asStateFlow()
+
+    init {
+        loadDetails()
+    }
+
+    /**
+     * A SIP whose first installment is not allotted has no folio yet; there is nothing to read,
+     * so the screen stays on what its route carried.
+     */
+    fun loadDetails() {
+        if (folio.isBlank()) return
+        viewModelScope.launch {
+            _loadingState.value = LoadingState.Loading
+            getFolioFundsUseCase(folio)
+                .onSuccess { funds ->
+                    val fund = funds.firstOrNull { holdingId.isNotBlank() && it.mfHoldingId == holdingId }
+                        ?: funds.firstOrNull()
+                    if (fund == null) {
+                        _loadingState.value = LoadingState.Error("No holding found in folio $folio")
+                    } else {
+                        _folioFund.value = fund
+                        _loadingState.value = LoadingState.Success
+                    }
+                }
+                .onError { _loadingState.value = LoadingState.Error(it.message) }
+        }
+    }
 
 
     fun downloadSOA(

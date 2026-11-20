@@ -335,6 +335,13 @@ private fun ProjectedImpactSection(
     modifier: Modifier = Modifier
 ) {
     when {
+        projection?.retirement != null -> RetirementProjectionCard(
+            title = "Projected Impact",
+            projection = projection.retirement,
+            projecting = projecting,
+            modifier = modifier
+        )
+
         projection != null -> GoalProjectionCard(
             title = "Projected Impact",
             isFixedCorpus = projection.targetAmount != null,

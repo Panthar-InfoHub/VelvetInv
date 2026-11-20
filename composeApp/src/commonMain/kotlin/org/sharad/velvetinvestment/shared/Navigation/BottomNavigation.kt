@@ -44,6 +44,7 @@ import org.sharad.velvetinvestment.utils.AppEventsController
 @Composable
 fun BottomNavigation(
     navigateToSIPDetailsScreen: (MutualFundPortfolioDomain) -> Unit,
+    navigateToFundFolios: (MutualFundPortfolioDomain) -> Unit,
     navigateToFDDetailsScreen: (String) -> Unit,
     navigateToCategoryMutualFundScreen: () -> Unit,
     navigateToFireReportScreen: () -> Unit,
@@ -294,9 +295,8 @@ fun BottomNavigation(
             composable<Route.PortFolio> {
                 PortfolioScreenMain(
                     viewModel = portfolioViewModel,
-                    onFolioItemClick = {
-                        navigateToSIPDetailsScreen(it)
-                    },
+                    onFolioItemClick = navigateToFundFolios,
+                    onActiveSipClick = navigateToSIPDetailsScreen,
                     onFDClick = navigateToPortfolioFdDetailsScreen,
                     navigateToCategoryMutualFundScreen=navigateToCategoryMutualFundScreen,
                     navigateToCategoryFDScreen=navigateToCategoryFDScreen,

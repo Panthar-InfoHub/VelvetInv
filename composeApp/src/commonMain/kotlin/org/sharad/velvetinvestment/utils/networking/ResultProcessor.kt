@@ -30,30 +30,32 @@ suspend inline fun <reified T> safeRequest(
         return NetworkResponse.Error(e.toRequestFailure())
     }
 
-    return if (response.status.value in 200..299) {
-        // A 2xx can still be a failure envelope; surface it before trying to read it as [T].
-        response.failedEnvelopeOrNull()?.let { return it }
+    if (response.status.value !in 200..299) return parseServerError(response)
 
-        try {
-            NetworkResponse.Success(response.body())
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-            // Ktor wraps kotlinx MissingFieldException etc. in JsonConvertException (not a
-            // SerializationException), so catch broadly — a DTO mismatch must not crash the app.
-            Log("SerializationError", e.message.toString())
-            // A 2xx whose body is not the expected shape may still carry the server's reason.
-            val serverError = response.readServerError()
-            NetworkResponse.Error(
-                ErrorDomain(
-                    code = response.status.value,
-                    message = serverError.message ?: SERIALIZATION_ERROR_MESSAGE,
-                    type = ErrorType.SERIALIZATION
-                )
+    // A 2xx can still be a failure envelope; surface it before trying to read it as [T].
+    // Kept as a plain if/return (not `?.let { return it }`): Kotlin/Native miscompiled that
+    // non-local return inside this reified suspend inline, handing callers a Success's payload
+    // as `Error.error` (ClassCastException ... cannot be cast to ErrorDomain on iOS only).
+    val failedEnvelope: NetworkResponse.Error<ErrorDomain>? = response.failedEnvelopeOrNull()
+    if (failedEnvelope != null) return failedEnvelope
+
+    return try {
+        val body: T = response.body()
+        NetworkResponse.Success(body)
+    } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        // Ktor wraps kotlinx MissingFieldException etc. in JsonConvertException (not a
+        // SerializationException), so catch broadly — a DTO mismatch must not crash the app.
+        Log("SerializationError", e.message.toString())
+        // A 2xx whose body is not the expected shape may still carry the server's reason.
+        val serverError = response.readServerError()
+        NetworkResponse.Error(
+            ErrorDomain(
+                code = response.status.value,
+                message = serverError.message ?: SERIALIZATION_ERROR_MESSAGE,
+                type = ErrorType.SERIALIZATION
             )
-        }
-
-    } else {
-        parseServerError(response)
+        )
     }
 }
 
