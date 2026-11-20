@@ -8,7 +8,7 @@ import org.sharad.velvetinvestment.features.goals.domain.models.GoalOption
  *
  * [targetAmount] is the inflation-adjusted figure the server projected, not the present-day cost,
  * so the progress a card shows is progress towards the amount the goal will actually need.
- * [progressPercent] is the server's own, for the same reason.
+ * [progressPercent] is the server's own, truncated once by `toProgressPercent`.
  */
 data class GoalsSummaryDomain(
     val goalId: String,

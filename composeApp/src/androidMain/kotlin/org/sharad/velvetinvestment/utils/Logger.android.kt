@@ -1,7 +1,10 @@
 package org.sharad.velvetinvestment.utils
 
 import android.util.Log
+import org.sharad.velvetinvestment.GlobalConstants
 
 actual fun Log(tag: String, log: String) {
-//    Log.d(tag,log)
+    if (GlobalConstants.LOGGING){
+        Log.d(tag, log)
+    }
 }

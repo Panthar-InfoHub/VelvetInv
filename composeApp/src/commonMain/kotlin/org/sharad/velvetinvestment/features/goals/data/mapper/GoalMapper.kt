@@ -8,9 +8,11 @@ import org.sharad.velvetinvestment.shared.domain.GoalType
 import org.sharad.velvetinvestment.features.goals.data.remote.model.calculate.GoalCalculationDto
 import org.sharad.velvetinvestment.features.goals.data.remote.model.config.GoalConfigDto
 import org.sharad.velvetinvestment.features.goals.domain.models.GoalCalculationDomain
+import org.sharad.velvetinvestment.features.goals.domain.models.RetirementProjection
 import org.sharad.velvetinvestment.features.goals.domain.models.GoalConfigDomain
 import org.sharad.velvetinvestment.features.goals.domain.models.GoalDomain
 import org.sharad.velvetinvestment.features.goals.domain.models.goalOptionFor
+import org.sharad.velvetinvestment.features.goals.domain.models.toProgressPercent
 
 /**
  * The money and rate fields arrive as JSON strings; a value that will not parse is treated as
@@ -44,10 +46,11 @@ fun UserGoal.toDomain(): GoalDomain = GoalDomain(
     calculationVersion = calculation_version,
     createdAt = createdAt,
     updatedAt = updatedAt,
-    progressPercent = progress_percent?.toInt() ?: 0,
+    progressPercent = (progress_percent ?: 0.0).toProgressPercent(),
     holdings = holdings.map { it.toDomain() },
     totalHoldingsValue = total_holdings_value
-        ?: holdings.sumOf { it.current_value.toAmount() ?: 0.0 }
+        ?: holdings.sumOf { it.current_value.toAmount() ?: 0.0 },
+    totalCurrentValue = total_current_value ?: 0.0
 )
 
 /**
@@ -65,15 +68,15 @@ fun UserGoalHoldingDto.toDomain(): GoalHoldingDomain = GoalHoldingDomain(
 )
 
 /**
- * A goal as a list card. The target is the projected [GoalDomain.futureTargetAmount], falling
- * back to the present-day amount for a goal the server has not sized yet.
+ * A goal as a list card: "current / target", where current is the goal's
+ * [GoalDomain.totalCurrentValue] and target is [GoalDomain.progressTargetAmount].
  */
 fun GoalDomain.toSummary(): GoalsSummaryDomain = GoalsSummaryDomain(
     goalId = id,
     goalTypes = goalOptionFor(goalTypeId, displayName),
     title = displayName,
-    amount = currentSavings.toLong(),
-    targetAmount = futureTargetAmount.takeIf { it > 0.0 }?.toLong() ?: baseAmount.toLong(),
+    amount = totalCurrentValue.toLong(),
+    targetAmount = progressTargetAmount.toLong(),
     progressPercent = progressPercent,
     requiredMonthlySip = requiredMonthlySip,
     yearsRemaining = yearsRemaining
@@ -92,10 +95,12 @@ fun GoalConfigDto.toDomain(): GoalConfigDomain = GoalConfigDomain(
     tenureSuggestions = tenure_suggestions,
     costChips = cost_chips,
     assetSubtypes = asset_subtypes.orEmpty(),
-    configVersion = config_version
+    configVersion = config_version,
+    isVelvet = is_velvet
 )
 
-fun GoalCalculationDto.toDomain(): GoalCalculationDomain = GoalCalculationDomain(
+fun GoalCalculationDto.toDomain(): GoalCalculationDomain =
+    if (years_to_retirement != null) toRetirementDomain() else GoalCalculationDomain(
     goalTypeId = goal_type_id,
     yearsRemaining = years_remaining,
     currentCost = current_cost,
@@ -109,3 +114,37 @@ fun GoalCalculationDto.toDomain(): GoalCalculationDomain = GoalCalculationDomain
     requiredMonthlySip = required_monthly_sip,
     requiredLumpsumToday = required_lumpsum_today
 )
+
+/**
+ * Retirement's projection, fitted to the shared shape: the corpus to retire with is the target
+ * (shown like "Build My Savings"' fixed corpus), dated at the retirement year.
+ */
+private fun GoalCalculationDto.toRetirementDomain(): GoalCalculationDomain {
+    val corpus = target_retirement_corpus ?: 0.0
+    return GoalCalculationDomain(
+        goalTypeId = goal_type_id,
+        yearsRemaining = years_to_retirement ?: 0,
+        currentCost = null,
+        targetAmount = corpus,
+        currentSavings = 0.0,
+        inflationRateUsed = inflation_before_used,
+        expectedReturnRateUsed = pre_retirement_return_used,
+        futureTargetAmount = corpus,
+        fvCurrentSavings = fv_existing_savings ?: 0.0,
+        netRequiredCorpus = remaining_corpus_to_build ?: 0.0,
+        requiredMonthlySip = total_monthly_sip ?: 0.0,
+        requiredLumpsumToday = additional_lumpsum_today ?: 0.0,
+        retirement = RetirementProjection(
+            currentAge = current_age ?: 0,
+            retirementAge = retirement_age ?: 0,
+            planUntilAge = plan_until_age ?: 0,
+            yearsToRetirement = years_to_retirement ?: 0,
+            monthlyCostAtRetirement = monthly_cost_at_retirement ?: 0.0,
+            targetCorpus = corpus,
+            fvExistingSavings = fv_existing_savings ?: 0.0,
+            remainingCorpusToBuild = remaining_corpus_to_build ?: 0.0,
+            totalMonthlySip = total_monthly_sip ?: 0.0,
+            additionalLumpsumToday = additional_lumpsum_today ?: 0.0
+        )
+    )
+}

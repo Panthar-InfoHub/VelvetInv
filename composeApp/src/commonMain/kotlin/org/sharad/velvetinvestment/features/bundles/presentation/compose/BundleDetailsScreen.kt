@@ -185,11 +185,13 @@ private fun BundleDetailsHeader(
                 style = MaterialTheme.typography.displayMedium,
                 color = Color.Black
             )
-            Text(
-                text = bundle.description,
-                style = titlesStyle,
-                color = titleColor
-            )
+            if (bundle.description.isNotBlank()) {
+                Text(
+                    text = bundle.description,
+                    style = titlesStyle,
+                    color = titleColor
+                )
+            }
         }
 
         FlowRow(

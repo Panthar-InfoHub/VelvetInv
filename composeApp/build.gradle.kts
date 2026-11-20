@@ -45,6 +45,8 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.messaging)
             implementation(libs.play.services.location)
+            // SMS User Consent API (login OTP autofill)
+            implementation(libs.play.services.auth.api.phone)
             implementation(libs.androidx.biometric)
         }
         commonMain.dependencies {
@@ -98,8 +100,8 @@ android {
         applicationId = "org.sharad.velvetinvestment"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 22
-        versionName = "2.1"
+        versionCode = 23
+        versionName = "2.2"
     }
     packaging {
         resources {

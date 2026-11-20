@@ -1,5 +1,7 @@
 package org.sharad.velvetinvestment.features.portfolio.domain.models
 
+import kotlinx.serialization.Serializable
+
 data class MutualFundPortfolioDomain(
     val id: String,
     val title: String,
@@ -26,9 +28,27 @@ data class MutualFundPortfolioDomain(
     val xirr: Double = 0.0,
     val navAsOn: String? = null,
     /** Every folio rolled into this row; [folio] is the one shown. */
-    val folios: List<String> = emptyList(),
+    val folios: List<HoldingFolioDomain> = emptyList(),
     val currentNav: Double = 0.0,
-    val avgNav: Double = 0.0
+    val avgNav: Double = 0.0,
+    /** What can be redeemed today; below [balanceUnits] while units are locked in. */
+    val redeemableUnits: Double = 0.0,
+    /** The SIP's purchase plan (`fp_id`, `mfpp_…`) when the row was opened from one; else blank. */
+    val planId: String = ""
+)
+
+/**
+ * One folio inside a portfolio row. [holdingId] is the `mf_holding_id` that both the folio details
+ * call's result and the redemption endpoints are keyed on.
+ */
+@Serializable
+data class HoldingFolioDomain(
+    val holdingId: String,
+    val folioNumber: String,
+    val units: Double,
+    val redeemableUnits: Double,
+    val amount: Double,
+    val currentValue: Double
 )
 
 data class FixedDepositPortfolioDomain(
@@ -121,7 +141,9 @@ data class ActiveSipItemDomain(
     val totalInstallments: Int?,
     val remainingInstallments: Int?,
     val latestNav: Double,
-    val iconUrl: String = ""
+    val iconUrl: String = "",
+    /** The gateway's plan id (`mfpp_…`) — what cancelling the SIP is keyed on. */
+    val fpId: String = ""
 )
 
 /**

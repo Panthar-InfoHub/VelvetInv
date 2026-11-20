@@ -13,6 +13,7 @@ data class CreateGoalRequest(
     val childName: String? = null,
     val childAge: Int? = null,
     val assetSubtype: String? = null,
+    /** Not sent for retirement, which is sized from [retirementAge] and [planUntilAge] instead. */
     val yearsRemaining: Int,
     /** Present-day cost, for types 1, 2, 3, 4 and 6. */
     val currentCost: Double? = null,
@@ -21,7 +22,13 @@ data class CreateGoalRequest(
     val currentSavings: Double = 0.0,
     /** Fractions (0.06 == 6%). Null leaves the type's configured default in place. */
     val inflationRate: Double? = null,
-    val expectedReturnRate: Double? = null
+    val expectedReturnRate: Double? = null,
+    /** Retirement (type 7) only. */
+    val retirementAge: Int? = null,
+    /** Retirement only: the life expectancy the plan has to last until. */
+    val planUntilAge: Int? = null,
+    /** Retirement only: today's monthly cost of the lifestyle to retire into. */
+    val monthlyLifestyleCost: Long? = null
 )
 
 /**
@@ -35,10 +42,23 @@ data class GoalCalculationRequest(
     val targetAmount: Double? = null,
     val currentSavings: Double = 0.0,
     val inflationRate: Double? = null,
-    val expectedReturnRate: Double? = null
-)
+    val expectedReturnRate: Double? = null,
+    /** Retirement only — sent in retirement's own calculate body. */
+    val retirementAge: Int? = null,
+    val planUntilAge: Int? = null,
+    val monthlyLifestyleCost: Long? = null
+) {
+    val isRetirement: Boolean get() = retirementAge != null
+}
 
-fun CreateGoalRequest.toCalculationRequest(): GoalCalculationRequest = GoalCalculationRequest(
+fun CreateGoalRequest.toCalculationRequest(): GoalCalculationRequest? =
+    if (goalType.isRetirement) GoalCalculationRequest(
+        goalTypeId = goalType.id,
+        yearsRemaining = 0,
+        retirementAge = retirementAge ?: return null,
+        planUntilAge = planUntilAge ?: return null,
+        monthlyLifestyleCost = monthlyLifestyleCost ?: return null
+    ) else GoalCalculationRequest(
     goalTypeId = goalType.id,
     yearsRemaining = yearsRemaining,
     currentCost = currentCost,

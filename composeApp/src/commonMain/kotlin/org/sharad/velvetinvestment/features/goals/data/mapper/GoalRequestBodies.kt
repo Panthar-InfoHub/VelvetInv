@@ -21,6 +21,9 @@ import org.sharad.velvetinvestment.features.goals.domain.models.GoalCalculationR
 private fun JsonObjectBuilder.putIfPresent(key: String, value: Double?) {
     if (value != null) put(key, value)
 }
+private fun JsonObjectBuilder.putIfPresent(key: String, value: Long?) {
+    if (value != null) put(key, value)
+}
 
 private fun JsonObjectBuilder.putIfPresent(key: String, value: Int?) {
     if (value != null) put(key, value)
@@ -33,6 +36,15 @@ private fun JsonObjectBuilder.putIfNotBlank(key: String, value: String?) {
 /** `POST /user-goal/` */
 fun CreateGoalRequest.toCreateBody(): JsonObject = buildJsonObject {
     put("goal_type_id", goalType.id)
+
+    // Retirement has its own body: ages and a monthly cost, no tenure, cost or rates.
+    if (goalType.isRetirement) {
+        putIfNotBlank("goal_name", goalName)
+        putIfPresent("retirement_age", retirementAge)
+        putIfPresent("plan_until_age", planUntilAge)
+        putIfPresent("monthly_lifestyle_cost", monthlyLifestyleCost)
+        return@buildJsonObject
+    }
 
     if (goalType.needsChildDetails) {
         putIfNotBlank("child_name", childName)
@@ -61,6 +73,26 @@ fun CreateGoalRequest.toCreateBody(): JsonObject = buildJsonObject {
 /** `POST /user-goal/calculate` */
 fun GoalCalculationRequest.toCalculateBody(): JsonObject = buildJsonObject {
     put("goal_type_id", goalTypeId)
+
+    // Retirement has its own calculate body. Only the ages and lifestyle cost come from the form;
+    // the rest are fixed values the API expects for now.
+    if (isRetirement) {
+        put("current_age", 30)
+        putIfPresent("retirement_age", retirementAge)
+        putIfPresent("plan_until_age", planUntilAge)
+        putIfPresent("monthly_lifestyle_cost", monthlyLifestyleCost)
+        put("existing_retirement_savings", 1000000)
+        put("current_monthly_sip", 0)
+        put("pension_or_regular_income", 0)
+        put("annual_pension_increase", 0)
+        put("pre_retirement_return", 0.10)
+        put("post_retirement_return", 0.06)
+        put("inflation_before_retirement", 0.06)
+        put("inflation_during_retirement", 0.06)
+        put("additional_corpus_buffer", 0.10)
+        return@buildJsonObject
+    }
+
     put("years_remaining", yearsRemaining)
     putIfPresent("current_cost", currentCost)
     putIfPresent("target_amount", targetAmount)

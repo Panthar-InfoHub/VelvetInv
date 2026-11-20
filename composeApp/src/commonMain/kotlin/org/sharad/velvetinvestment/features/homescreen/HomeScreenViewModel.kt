@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.domain.models.home.UserWorthCardDomain
 import org.sharad.velvetinvestment.features.cart.domain.usecases.GetUserCartUseCase
 import org.sharad.velvetinvestment.features.notifications.domain.usecase.GetUnreadStatusUseCase
+import org.sharad.velvetinvestment.features.onboarding.domain.usecases.GetPennyDropStatusUseCase
 import org.sharad.velvetinvestment.features.fireonboarding.domain.models.FireStage
 import org.sharad.velvetinvestment.features.fireonboarding.domain.models.isPending
 import org.sharad.velvetinvestment.utils.SnackBarController
@@ -25,7 +26,8 @@ class HomeScreenViewModel(
     private val getUserDataUseCase: GetUserDataUseCase,
     private val loadCartUseCase: GetUserCartUseCase,
     private val getUnreadStatusUseCase: GetUnreadStatusUseCase,
-    private val authPrefs: AuthPrefs
+    private val authPrefs: AuthPrefs,
+    private val getPennyDropStatus: GetPennyDropStatusUseCase
 ) : ViewModel() {
 
     private val _homeState =
@@ -95,6 +97,40 @@ class HomeScreenViewModel(
         }
     }
 
+    /**
+     * The bank-in-review card's refresh. Verified: reloads the user, whose `penny_drop_status` has
+     * moved on, so the card gives way to whichever prompt comes next. Still in review: says so.
+     * Anything else: the server's reason.
+     */
+    fun checkBankStatus() {
+        val current = (_homeState.value as? UiState.Success)?.data ?: return
+        if (current.isBankStatusChecking || current.isKycRefreshing) return
+        _homeState.value = UiState.Success(current.copy(isBankStatusChecking = true))
+        viewModelScope.launch {
+            getPennyDropStatus()
+                .onSuccess { status ->
+                    when {
+                        status.isVerified -> {
+                            status.message?.let { SnackBarController.showSuccess(it) }
+                            silentRefresh()
+                        }
+                        status.isInProgress -> SnackBarController.showInfo(status.pendingMessage)
+                        else -> {
+                            SnackBarController.showError(status.failureMessage)
+                            // A rejection moves the stage back, so the card should follow it.
+                            silentRefresh()
+                        }
+                    }
+                }
+                .onError { SnackBarController.showError(it.message) }
+            // silentRefresh() has already set isKycRefreshing, so the spinner stays until it ends.
+            _homeState.update { state ->
+                if (state is UiState.Success) UiState.Success(state.data.copy(isBankStatusChecking = false))
+                else state
+            }
+        }
+    }
+
     fun loadUnreadStatus() {
         viewModelScope.launch {
             getUnreadStatusUseCase()
@@ -151,6 +187,7 @@ private fun UserDataDomain.toHomeScreenUiData(): HomeScreenUiData = HomeScreenUi
         absGrowth = 0L,
         CARGGrowth = 0.0,
         investingRate = 0.0,
+        portfolioValue = dashboard.portfolioValue.toLong(),
         mutualFunds = dashboard.mutualFunds.toLong(),
         fixedDeposits = dashboard.fixedDeposits.toLong()
     ),

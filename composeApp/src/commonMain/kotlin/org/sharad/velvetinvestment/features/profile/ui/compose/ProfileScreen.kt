@@ -368,16 +368,18 @@ fun KYCCard(onboardingPrompt: OnboardingPrompt, onKYCClick: () -> Unit) {
             RowItem(
                 icon = Res.drawable.kyc_icon,
                 title = "KYC Status",
-                subtitle = when (onboardingPrompt) {
+                trailingText = when (onboardingPrompt) {
                     OnboardingPrompt.NONE -> "Complete"
-                    OnboardingPrompt.KYC_IN_PROGRESS -> "Under Review"
+                    OnboardingPrompt.KYC_IN_PROGRESS,
+                    OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS -> "Under Review"
                     OnboardingPrompt.KYC_FAILED -> "Failed"
                     OnboardingPrompt.COMPLETE_KYC,
                     OnboardingPrompt.COMPLETE_REMAINING -> "Pending"
                 },
-                subtitleColor = when (onboardingPrompt) {
+                trailingTextColor = when (onboardingPrompt) {
                     OnboardingPrompt.NONE -> appGreen
-                    OnboardingPrompt.KYC_IN_PROGRESS -> Orange
+                    OnboardingPrompt.KYC_IN_PROGRESS,
+                    OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS -> Orange
                     OnboardingPrompt.KYC_FAILED,
                     OnboardingPrompt.COMPLETE_KYC,
                     OnboardingPrompt.COMPLETE_REMAINING -> appRed
@@ -422,7 +424,7 @@ fun LegalCard(
             RowItem(
                 icon = Res.drawable.termcondition,
                 title = "Terms & Conditions",
-                onCLick = onTermsAndConditionsClick
+                onCLick = { openBrowser("https://www.velvetinvesting.com/terms-and-conditions") }
             )
 
             HorizontalDivider(color = Color.LightGray)
@@ -430,7 +432,7 @@ fun LegalCard(
             RowItem(
                 icon = Res.drawable.security,
                 title = "Privacy Policy",
-                onCLick = onPrivacyPolicyClick
+                onCLick = { openBrowser("https://www.velvetinvesting.com/privacy-policy") }
             )
 
             HorizontalDivider(color = Color.LightGray)
@@ -474,6 +476,9 @@ fun RowItem(
     title: String,
     subtitle: String? = null,
     subtitleColor: Color = titleColor,
+    /** JN `RowItemText`: a status shown at the end of the row, in place of the arrow. */
+    trailingText: String? = null,
+    trailingTextColor: Color = titleColor,
     onCLick: () -> Unit = {}
 ) {
     Row(
@@ -527,11 +532,21 @@ fun RowItem(
                     )
                 }
             }
-            Icon(
-                painter = painterResource(Res.drawable.back_icon),
-                contentDescription = "Forward Icon",
-                tint = Color(0xFFD2B077)
-            )
+            if (trailingText != null) {
+                Text(
+                    text = trailingText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = Poppins,
+                    color = trailingTextColor
+                )
+            } else {
+                Icon(
+                    painter = painterResource(Res.drawable.back_icon),
+                    contentDescription = "Forward Icon",
+                    tint = Color(0xFFD2B077)
+                )
+            }
         }
     }
 }

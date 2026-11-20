@@ -26,5 +26,7 @@ data class GoalConfigDto(
     val cost_chips: List<Long> = emptyList(),
     /** Non-null only where the type has variants to pick from (the vehicle goal). */
     val asset_subtypes: List<String>? = null,
-    val config_version: String = ""
+    val config_version: String = "",
+    /** Config is always requested with `is_velvet=true`; echoed back on every row. */
+    val is_velvet: Boolean = false
 )

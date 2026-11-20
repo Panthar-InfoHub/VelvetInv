@@ -26,8 +26,23 @@ data class PortfolioMutualFundDto(
     val curr_nav: Double? = null,
     val avg_nav: Double? = null,
     val folio: String? = null,
-    val folios: List<String>? = null,
+    val folios: List<PortfolioFolioDto>? = null,
     val bal_units: Double? = null,
+    val redeemable_units: Double? = null,
     val img_url: String? = null,
     val is_sip: Boolean? = null
+)
+
+/**
+ * One folio rolled into a [PortfolioMutualFundDto]. [holding_id] is the `mf_holding_id` the
+ * redemption endpoints key on; [redeemable_units] can sit below [units] while units are locked in.
+ */
+@Serializable
+data class PortfolioFolioDto(
+    val holding_id: String? = null,
+    val folio_number: String? = null,
+    val units: Double? = null,
+    val redeemable_units: Double? = null,
+    val amount: Double? = null,
+    val current_value: Double? = null
 )

@@ -4,6 +4,7 @@ import org.sharad.velvetinvestment.features.plans.domain.model.MandateOption
 import org.sharad.velvetinvestment.features.plans.domain.model.MfPurchase
 import org.sharad.velvetinvestment.features.plans.domain.model.MfPurchaseConfirmation
 import org.sharad.velvetinvestment.features.plans.domain.model.PurchasePlan
+import org.sharad.velvetinvestment.features.plans.domain.model.PurchasePlanConfirmation
 import org.sharad.velvetinvestment.features.plans.domain.model.SchemePlan
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
@@ -52,7 +53,7 @@ interface PlansRepo {
     suspend fun verifyPurchasePlanOtp(
         planId: String,
         otp: String
-    ): NetworkResponse<PurchasePlan, ErrorDomain>
+    ): NetworkResponse<PurchasePlanConfirmation, ErrorDomain>
 
     // ── One-time (lumpsum) purchase ──────────────────────────────────────────────────────────
     // Same create → read-back → OTP sequence as a SIP, on its own set of endpoints.

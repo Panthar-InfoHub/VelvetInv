@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sharad.velvetinvestment.utils.networking.onError
 import org.sharad.velvetinvestment.utils.networking.onSuccess
+import org.sharad.velvetinvestment.utils.AppEventsController
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.features.fd.domain.model.CustomerType
 import org.sharad.velvetinvestment.features.fd.domain.model.FDDetailsDomain
@@ -90,6 +91,11 @@ sealed interface FdDetailsEvent {
     data class OnTenureSelected(val tenureId: String) : FdDetailsEvent
     data object OnInvestNowClicked : FdDetailsEvent
     data object OnCloseSheet : FdDetailsEvent
+    /**
+     * The purchase's payment web view has closed and the user is back on this screen. The deposit
+     * may now exist, so the details are read again and the portfolio is told to reload.
+     */
+    data object OnWebViewReturned : FdDetailsEvent
 }
 
 sealed interface FdDetailsEffect {
@@ -160,6 +166,11 @@ class FdDetailsViewModel(
             }
 
             FdDetailsEvent.LoadData -> loadFdDetails()
+
+            FdDetailsEvent.OnWebViewReturned -> {
+                loadFdDetails()
+                viewModelScope.launch { AppEventsController.sendPortfolioRefreshEvent() }
+            }
         }
     }
 

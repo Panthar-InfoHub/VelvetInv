@@ -140,6 +140,7 @@ fun CartScreen(
             KYCPopup(
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                 isKycInProgress = state.isKycInProgress,
+                isBankVerificationInProgress = state.isBankVerificationInProgress,
                 onDismiss = { onEvent(CartEvent.OnKycPopupDismissed) },
                 onClick = { onEvent(CartEvent.OnCompleteKycClicked) }
             )

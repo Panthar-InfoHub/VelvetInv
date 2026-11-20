@@ -14,5 +14,5 @@ val loginModule = module {
     factory { LoginWithNumberUseCase(get()) }
     factory { VerifyOTPUseCase(get()) }
 
-    viewModel { LoginScreenViewModel(get(), get()) }
+    viewModel { LoginScreenViewModel(get(), get(), get()) }
 }

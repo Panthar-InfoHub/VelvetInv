@@ -184,11 +184,11 @@ class FireGoalsViewModel(
         }
 
         projectionJob?.cancel()
-        if (request == null) return
+        val calculation = request?.toCalculationRequest() ?: return
         projectionJob = viewModelScope.launch {
             delay(PROJECTION_DEBOUNCE_MS)
             setForm { UiState.Success((formData() ?: return@launch).copy(projecting = true)) }
-            when (val response = goalsRepository.calculateGoal(request.toCalculationRequest())) {
+            when (val response = goalsRepository.calculateGoal(calculation)) {
                 is NetworkResponse.Success -> setForm {
                     UiState.Success(
                         (formData() ?: return@launch).copy(

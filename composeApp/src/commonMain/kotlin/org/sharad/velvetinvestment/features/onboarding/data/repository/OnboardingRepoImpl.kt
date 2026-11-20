@@ -13,12 +13,14 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
-import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.coroutines.CancellationException
 import org.sharad.velvetinvestment.features.core.domain.models.OnboardingStage
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
 import org.sharad.velvetinvestment.utils.networking.ErrorType
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
-import org.sharad.velvetinvestment.data.remote.model.ServerError.ServerError
+import org.sharad.velvetinvestment.utils.networking.UNKNOWN_ERROR_MESSAGE
+import org.sharad.velvetinvestment.utils.networking.readServerError
+import org.sharad.velvetinvestment.utils.networking.toRequestFailure
 import org.sharad.velvetinvestment.utils.networking.getUrl
 import org.sharad.velvetinvestment.utils.networking.safeRequest
 import org.sharad.velvetinvestment.utils.networking.safeUnitRequest
@@ -140,19 +142,12 @@ class OnboardingRepoImpl(
     override suspend fun getPANVerificationStatus(): NetworkResponse<Unit, PANVerificationError> {
         val response = try {
             client.get(getUrl("/onboarding/pan-verification/status"))
-        } catch (e: UnresolvedAddressException) {
-            return NetworkResponse.Error(
-                PANVerificationError(
-                    code = -1,
-                    message = "No internet connection",
-                    type = PANVerificationError.UNKNOWN
-                )
-            )
         } catch (e: Exception) {
+            val failure = e.toRequestFailure()
             return NetworkResponse.Error(
                 PANVerificationError(
-                    code = -1,
-                    message = "Unknown network error",
+                    code = failure.code,
+                    message = failure.message,
                     type = PANVerificationError.UNKNOWN
                 )
             )
@@ -186,19 +181,12 @@ class OnboardingRepoImpl(
             client.get(
                 getUrl("/onboarding/kyc-form/status")
             )
-        } catch (e: UnresolvedAddressException) {
-            return NetworkResponse.Error(
-                KYCError(
-                    code = -1,
-                    message = "No internet connection",
-                    type = KYCError.UNKNOWN
-                )
-            )
         } catch (e: Exception) {
+            val failure = e.toRequestFailure()
             return NetworkResponse.Error(
                 KYCError(
-                    code = -1,
-                    message = "Unknown network error",
+                    code = failure.code,
+                    message = failure.message,
                     type = KYCError.UNKNOWN
                 )
             )
@@ -214,11 +202,14 @@ class OnboardingRepoImpl(
                     responseDto.toDomain()
                 )
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                // A 2xx whose body is not a status may still carry the server's reason.
+                val serverError = response.readServerError()
                 NetworkResponse.Error(
                     KYCError(
-                        code = -1,
-                        message = "Failed to parse KYC status",
-                        type = KYCError.UNKNOWN
+                        code = response.status.value,
+                        message = serverError.message ?: "Failed to parse KYC status",
+                        type = serverError.type ?: KYCError.UNKNOWN
                     )
                 )
             }
@@ -263,8 +254,8 @@ class OnboardingRepoImpl(
 
     override suspend fun submitPennyDrop(
         bankAccount: BankAccount
-    ): NetworkResponse<Unit, ErrorDomain> {
-        val response = safeUnitRequest {
+    ): NetworkResponse<PennyDropStatus, ErrorDomain> {
+        val response = safeRequest<PennyDropStatusResponseDto> {
             client.post(getUrl("/onboarding/penny-drop")) {
                 setBody(
                     PennyDropBody(
@@ -280,18 +271,18 @@ class OnboardingRepoImpl(
         if (response is NetworkResponse.Success) {
             persistStage(OnboardingStage.EmailVerification)
         }
-        return response
+        return when (response) {
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
+            is NetworkResponse.Error -> NetworkResponse.Error(response.error)
+        }
     }
 
-    override suspend fun getPennyDropStatus(
-        accountNumber: String
-    ): NetworkResponse<PennyDropStatus, ErrorDomain> {
+    override suspend fun getPennyDropStatus(): NetworkResponse<PennyDropStatus, ErrorDomain> {
         val response = safeRequest<PennyDropStatusResponseDto> {
-            client.get(getUrl("/onboarding/pan-verification/status"))
+            client.get(getUrl("/onboarding/penny-drop/status"))
         }
         return when (response) {
-            is NetworkResponse.Success ->
-                NetworkResponse.Success(response.data.toDomain(accountNumber))
+            is NetworkResponse.Success -> NetworkResponse.Success(response.data.toDomain())
 
             is NetworkResponse.Error -> NetworkResponse.Error(response.error)
         }
@@ -552,38 +543,21 @@ class OnboardingRepoImpl(
     )
 
     private suspend fun HttpResponse.toPANVerificationError(): PANVerificationError {
-        return try {
-            val serverError = body<ServerError>()
-            PANVerificationError(
-                code = status.value,
-                message = serverError.error.message,
-                type = serverError.error.type
-            )
-        } catch (e: Exception) {
-            PANVerificationError(
-                code = status.value,
-                message = "Unknown error",
-                type = PANVerificationError.UNKNOWN
-            )
-        }
+        val serverError = readServerError()
+        return PANVerificationError(
+            code = status.value,
+            message = serverError.message ?: UNKNOWN_ERROR_MESSAGE,
+            type = serverError.type ?: PANVerificationError.UNKNOWN
+        )
     }
 
     private suspend fun HttpResponse.toKYCError(): KYCError {
-        return try {
-            val serverError = body<ServerError>()
-
-            KYCError(
-                code = status.value,
-                message = serverError.error.message,
-                type = serverError.error.type
-            )
-        } catch (e: Exception) {
-            KYCError(
-                code = status.value,
-                message = "Unknown error",
-                type = KYCError.UNKNOWN
-            )
-        }
+        val serverError = readServerError()
+        return KYCError(
+            code = status.value,
+            message = serverError.message ?: UNKNOWN_ERROR_MESSAGE,
+            type = serverError.type ?: KYCError.UNKNOWN
+        )
     }
 
     private companion object {

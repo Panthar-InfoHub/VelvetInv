@@ -80,7 +80,14 @@ object Route {
         val dayReturn: Double = 0.0,
         val dayReturnPercent: Double = 0.0,
         /** The badge on the header card. */
-        val status: String = "ACTIVE"
+        val status: String = "ACTIVE",
+        /** The SIP's purchase plan (`fp_id`, `mfpp_…`) — what cancelling is keyed on. */
+        val planId: String = "",
+        /**
+         * What can be redeemed now; can sit below [balanceUnits] while units are locked in.
+         * Redeem offers only these, and the value in proportion to them.
+         */
+        val redeemableUnits: Double = 0.0
     )
 
     /**
@@ -200,8 +207,21 @@ object Route {
     @Serializable
     data object CartCheckoutOtp
 
+    /**
+     * A portfolio fund's folios, one card each. The list rides on the route (as JSON, since a
+     * list of objects has no built-in NavType) because the portfolio already has it; see
+     * `MutualFundPortfolioDomain.toFundFoliosRoute()` / `FundFolios.folios()`.
+     */
     @Serializable
-    data class FolioFundScreen(val folioId: String, val actualFolio: String)
+    data class FundFolios(
+        /** The portfolio row's id. */
+        val baseId: String,
+        val title: String,
+        val category: String,
+        val isSip: Boolean,
+        val imgUrl: String,
+        val foliosJson: String
+    )
 
     // TODO(top-up): the top-up screens' routes; their screens are parked in composeApp/later/.
     // @Serializable
@@ -353,6 +373,22 @@ object Route {
         val amount: Int,
         val mode: String,
         val installmentDay: Int
+    )
+
+    /**
+     * Pays for a confirmed SIP's first installment, when the gateway takes it immediately.
+     * [orderId] is the installment order's gateway id (`mfp_…`); blank only in the fallback where
+     * the server sent no order, which the screen reports as an error.
+     */
+    @Serializable
+    data class SipFirstPayment(
+        val orderId: String,
+        val paymentUrl: String,
+        val mode: String,
+        val schemeName: String,
+        val amount: String,
+        val installmentDay: Int,
+        val startDate: String
     )
 
     // Bundles (ported from Janta Nivesh)

@@ -43,7 +43,8 @@ data class MfPurchasePayment(
  *
  * The lifecycle the app drives is `PENDING → CONFIRMED → SUBMITTED`: created and awaiting the
  * OTP, then authorised and awaiting payment, then paid. The SIP equivalent is [PurchasePlan],
- * which stops at confirmation because a mandate carries the debit instead.
+ * which stops at confirmation because a mandate carries the debit instead — unless the SIP takes
+ * its first installment immediately, in which case that installment is one of these.
  */
 data class MfPurchase(
     /** Gateway id (`mfp_…`) — every follow-up call is keyed on this, not on the database id. */

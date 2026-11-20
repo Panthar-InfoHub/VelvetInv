@@ -19,6 +19,7 @@ import org.sharad.velvetinvestment.features.goals.domain.models.GoalOption
 import org.sharad.velvetinvestment.features.goals.domain.models.toCalculationRequest
 import org.sharad.velvetinvestment.features.goals.domain.models.toOption
 import org.sharad.velvetinvestment.features.goals.domain.repository.GoalsRepository
+import org.sharad.velvetinvestment.shared.domain.GoalType
 
 data class AddGoalUiState(
     /** The goal types on offer, from `GET /user-goal/config`. */
@@ -47,7 +48,11 @@ data class GoalFormState(
     val currentSavings: String = "",
     /** Held as percents for display; sent as fractions. Blank means "use the type's default". */
     val inflation: String = "",
-    val expectedReturn: String = ""
+    val expectedReturn: String = "",
+    /** Retirement only. */
+    val retirementAge: String = "",
+    val lifeExpectancy: String = "",
+    val monthlyLifestyleCost: String = ""
 )
 
 sealed interface AddGoalEvent {
@@ -151,13 +156,13 @@ class AddGoalViewModel(
         )
 
         projectionJob?.cancel()
-        if (request == null) return
+        val calculation = request?.toCalculationRequest() ?: return
         projectionJob = viewModelScope.launch {
             delay(PROJECTION_DEBOUNCE_MS)
             _state.value = UiState.Success(
                 (currentData() ?: return@launch).copy(projecting = true)
             )
-            when (val response = goalsRepository.calculateGoal(request.toCalculationRequest())) {
+            when (val response = goalsRepository.calculateGoal(calculation)) {
                 is NetworkResponse.Success -> _state.value = UiState.Success(
                     (currentData() ?: return@launch).copy(
                         projection = response.data,
@@ -214,6 +219,8 @@ fun GoalFormState.toRequest(): CreateGoalRequest? {
     val option = selectedOption ?: return null
     val type = option.type ?: return null
 
+    if (type.isRetirement) return toRetirementRequest(type)
+
     val years = years.toIntOrNull() ?: return null
     if (years < option.minYears || years > option.maxYears) return null
 
@@ -247,6 +254,32 @@ fun GoalFormState.toRequest(): CreateGoalRequest? {
         expectedReturnRate = expectedReturn.toRateOverride(option.expectedReturnRate)
     )
 }
+
+/**
+ * Retirement's own request: a name, the age to retire at, the age the plan must last until, and
+ * today's monthly lifestyle cost. No tenure, corpus or rates — the server derives those.
+ */
+private fun GoalFormState.toRetirementRequest(type: GoalType): CreateGoalRequest? {
+    if (goalName.isBlank()) return null
+    val retireAt = retirementAge.toIntOrNull() ?: return null
+    val until = lifeExpectancy.toIntOrNull() ?: return null
+    if (retireAt !in RETIREMENT_AGE_RANGE || until !in LIFE_EXPECTANCY_RANGE) return null
+    if (until <= retireAt) return null
+    val monthlyCost = monthlyLifestyleCost.toAmountOrNull() ?: return null
+    if (monthlyCost <= 0.0) return null
+
+    return CreateGoalRequest(
+        goalType = type,
+        goalName = goalName.trim(),
+        yearsRemaining = 0,
+        retirementAge = retireAt,
+        planUntilAge = until,
+        monthlyLifestyleCost = monthlyCost.toLong()
+    )
+}
+
+val RETIREMENT_AGE_RANGE = 18..100
+val LIFE_EXPECTANCY_RANGE = 19..120
 
 /** Amount fields are typed with grouping separators; the server wants the bare number. */
 private fun String.toAmountOrNull(): Double? =

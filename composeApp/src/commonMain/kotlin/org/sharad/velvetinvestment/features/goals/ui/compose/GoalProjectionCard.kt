@@ -121,7 +121,7 @@ fun GoalProjectionCard(
 }
 
 @Composable
-private fun ProjectionCell(
+internal fun ProjectionCell(
     label: String,
     value: String,
     valueColor: Color,

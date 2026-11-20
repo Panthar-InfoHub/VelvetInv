@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -45,6 +46,25 @@ fun OtpScreen(
     val resendTime by viewModel.timer.collectAsStateWithLifecycle()
     val loading by viewModel.loadingOtp.collectAsStateWithLifecycle()
     val scope= rememberCoroutineScope()
+
+    val verifyOtp = {
+        viewModel.onVerifyOtpClickClick(
+            onFailure = {}
+        ){
+            // The server's call (`onboarding.can_navigate_home`); the onboarding
+            // graph loads the stage to resume at itself.
+            if (it.canEnterMainApp){
+                navigateToMainApp()
+            }else{
+                navigateToOnboarding()
+            }
+        }
+    }
+
+    // OTP filled in from the SMS (Android consent dialog): submit it like a tap on Verify.
+    LaunchedEffect(viewModel) {
+        viewModel.otpAutofilled.collect { verifyOtp() }
+    }
 
 
     Column(
@@ -90,7 +110,8 @@ fun OtpScreen(
                     modifier = Modifier,
                     otpLength = 4,
                     otp = otp,
-                    onOtpChange = viewModel::onOtpChange
+                    onOtpChange = viewModel::onOtpChange,
+                    isOneTimeCode = true
                 )
             }
 
@@ -130,19 +151,7 @@ fun OtpScreen(
                 AppButton(
                     modifier= Modifier.fillMaxWidth(),
                     text = "Verify OTP",
-                    onClick = {
-                        viewModel.onVerifyOtpClickClick(
-                            onFailure = {}
-                        ){
-                            // The server's call (`onboarding.can_navigate_home`); the onboarding
-                            // graph loads the stage to resume at itself.
-                            if (it.canEnterMainApp){
-                                navigateToMainApp()
-                            }else{
-                                navigateToOnboarding()
-                            }
-                        }
-                    },
+                    onClick = verifyOtp,
                     enabled = otp.length==otpSize,
                     loading = loading
                 )

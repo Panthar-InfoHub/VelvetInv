@@ -12,7 +12,15 @@ enum class GoalType(val id: Int, val displayName: String) {
     BuyHome(3, "Buy a Home"),
     BuyVehicle(4, "Buy a Vehicle"),
     BuildSavings(5, "Build My Savings"),
-    OtherGoal(6, "Other Goal");
+    OtherGoal(6, "Other Goal"),
+    Retirement(7, "Retirement");
+
+    /**
+     * Retirement is sized from ages and a monthly lifestyle cost rather than from a tenure and a
+     * present-day cost, so it collects — and sends — a field set of its own.
+     */
+    val isRetirement: Boolean
+        get() = this == Retirement
 
     /** Types 1 and 2 are titled from the child rather than from a name the user types. */
     val needsChildDetails: Boolean

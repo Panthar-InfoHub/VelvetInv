@@ -25,6 +25,9 @@ import org.sharad.velvetinvestment.features.plans.ui.compose.SipPurchaseOtpScree
 import org.sharad.velvetinvestment.features.plans.ui.compose.SipSetupScreen
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.FundPurchaseEffect
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.FundPurchaseViewModel
+import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipFirstPaymentEffect
+import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipFirstPaymentHandoff
+import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipFirstPaymentViewModel
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipMandateHandoff
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipPurchaseOtpEffect
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipPurchaseOtpViewModel
@@ -40,6 +43,8 @@ import org.sharad.velvetinvestment.utils.WebURLConstants
  *     → CategoryMutualFund (+ search overlay) → MutualFundSearchResult
  *     → MutualFundDetails(id, isin) → "Purchase Fund"
  *     → FundPurchase (opens on the picked mode) → SipSetup → SipPurchaseOtp → PurchaseSuccess
+ *                                               (first installment now: SipPurchaseOtp → SipFirstPayment
+ *                                                → payment web view → PurchaseSuccess)
  *                                               ↘ lumpsum payment web view → PurchaseSuccess
  *
  * Velvet differences from JN: fund taps open the details screen rather than the buy screen.
@@ -53,6 +58,9 @@ private const val PURCHASE_PAYMENT_RESULT = "purchase_payment_returned"
 private const val WEBVIEW_COMPLETION_PURCHASE_PAYMENT = "mf_purchase_payment"
 private const val SIP_MANDATE_RESULT = "sip_mandate_returned"
 private const val WEBVIEW_COMPLETION_SIP_MANDATE = "sip_mandate"
+/** Set on the SIP first-payment screen when the user returns from the payment page. */
+private const val SIP_FIRST_PAYMENT_RESULT = "sip_first_payment_returned"
+private const val WEBVIEW_COMPLETION_SIP_FIRST_PAYMENT = "sip_first_payment"
 
 /** The mode picked on the investment-method screen, as the purchase route carries it. */
 private fun selectedPurchaseMode(): PurchaseMode = FundTypeSelector.purchaseMode
@@ -72,6 +80,7 @@ fun NavHostController.completePlansWebView(completionRouteKey: String?): Boolean
     val resultKey = when (completionRouteKey) {
         WEBVIEW_COMPLETION_PURCHASE_PAYMENT -> PURCHASE_PAYMENT_RESULT
         WEBVIEW_COMPLETION_SIP_MANDATE -> SIP_MANDATE_RESULT
+        WEBVIEW_COMPLETION_SIP_FIRST_PAYMENT -> SIP_FIRST_PAYMENT_RESULT
         WEBVIEW_COMPLETION_ADD_MANDATE -> ADD_MANDATE_WEBVIEW_RESULT
         else -> return false
     }
@@ -458,6 +467,25 @@ fun NavGraphBuilder.mutualFundDestinations(
         LaunchedEffect(vm.effect) {
             vm.effect.collect { effect ->
                 when (effect) {
+                    is SipPurchaseOtpEffect.StartFirstPayment -> {
+                        val handoff = effect.handoff
+                        navController.navigate(
+                            Route.SipFirstPayment(
+                                orderId = handoff.orderId,
+                                paymentUrl = handoff.paymentUrl,
+                                mode = handoff.mode.name,
+                                schemeName = handoff.schemeName,
+                                amount = handoff.amount,
+                                installmentDay = handoff.installmentDay,
+                                startDate = handoff.startDate
+                            )
+                        ) {
+                            // The OTP is spent once the plan is confirmed; every retry from
+                            // here on belongs to the payment screen.
+                            popUpTo<Route.SipPurchaseOtp> { inclusive = true }
+                        }
+                    }
+
                     is SipPurchaseOtpEffect.PurchaseConfirmed -> {
                         navController.navigate(
                             Route.PurchaseSuccess(
@@ -488,6 +516,79 @@ fun NavGraphBuilder.mutualFundDestinations(
             onVerifyClick = vm::onVerifyClick,
             onResendClick = vm::onResendClick,
             onBackClick = vm::onBackClick
+        )
+    }
+
+    composable<Route.SipFirstPayment> { entry ->
+        val route = entry.toRoute<Route.SipFirstPayment>()
+        val vm: SipFirstPaymentViewModel = koinViewModel {
+            parametersOf(
+                SipFirstPaymentHandoff(
+                    orderId = route.orderId,
+                    paymentUrl = route.paymentUrl,
+                    mode = PurchaseMode.fromName(route.mode),
+                    schemeName = route.schemeName,
+                    amount = route.amount,
+                    installmentDay = route.installmentDay,
+                    startDate = route.startDate
+                )
+            )
+        }
+
+        val paymentReturned by entry.savedStateHandle
+            .getStateFlow(SIP_FIRST_PAYMENT_RESULT, false)
+            .collectAsStateWithLifecycle()
+
+        LaunchedEffect(paymentReturned) {
+            if (paymentReturned) {
+                entry.savedStateHandle[SIP_FIRST_PAYMENT_RESULT] = false
+                // Whether the first installment was actually paid is only knowable from the
+                // server.
+                vm.onPaymentReturned()
+            }
+        }
+
+        LaunchedEffect(vm.effect) {
+            vm.effect.collect { effect ->
+                when (effect) {
+                    is SipFirstPaymentEffect.OpenPayment -> {
+                        navController.navigate(
+                            Route.WebViewScreen(
+                                url = effect.url,
+                                exitUrlPatterns = listOf(WebURLConstants.mandateExitUrl),
+                                title = "Complete Payment",
+                                completionRouteKey = WEBVIEW_COMPLETION_SIP_FIRST_PAYMENT
+                            )
+                        )
+                    }
+
+                    is SipFirstPaymentEffect.PurchaseConfirmed -> {
+                        navController.navigate(
+                            Route.PurchaseSuccess(
+                                mode = effect.mode.name,
+                                schemeName = effect.schemeName,
+                                amount = effect.amount,
+                                installmentDay = effect.installmentDay,
+                                startDate = effect.startDate
+                            )
+                        ) {
+                            // The SIP is placed — going back to the form would only invite a
+                            // duplicate.
+                            popUpTo<Route.FundPurchase> { inclusive = true }
+                        }
+                    }
+
+                    SipFirstPaymentEffect.Cancelled -> navController.popBackStack()
+                }
+            }
+        }
+
+        val state by vm.uiState.collectAsStateWithLifecycle()
+        SipSetupScreen(
+            state = state,
+            schemeName = route.schemeName,
+            onCheckStatusClick = vm::onCheckStatusClick,
+            onGoBackClick = vm::onGoBackClick
         )
     }
 

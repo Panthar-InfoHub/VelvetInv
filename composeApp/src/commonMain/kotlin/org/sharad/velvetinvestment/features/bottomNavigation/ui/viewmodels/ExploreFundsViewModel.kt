@@ -130,12 +130,14 @@ class ExploreFundsViewModel(
                 getMutualFundTopPicksUseCase()
             }
 
-            val fdDeferred = async {
-                getFixedDepositTopPicksUseCase()
-            }
+            // FD-HIDDEN: FD top picks not requested while FD is "coming soon". See docs/FD_HIDE_RESTORE.md.
+//            val fdDeferred = async {
+//                getFixedDepositTopPicksUseCase()
+//            }
 
             val mutualResponse = mutualDeferred.await()
-            val fdResponse = fdDeferred.await()
+            // FD-HIDDEN: See docs/FD_HIDE_RESTORE.md.
+//            val fdResponse = fdDeferred.await()
 
             var mutualFunds: List<MutualFundTopPicksUiModel> = emptyList()
             var fixedDeposits: List<FixedTopPicksUiModel> = emptyList()
@@ -177,25 +179,26 @@ class ExploreFundsViewModel(
                     errorMessage = it.message
                 }
 
-            fdResponse
-                .onSuccess { data ->
+            // FD-HIDDEN: See docs/FD_HIDE_RESTORE.md.
+//            fdResponse
+//                .onSuccess { data ->
 
-                    hasAnySuccess = true
+//                    hasAnySuccess = true
 
-                    fixedDeposits = data.map { fd ->
-                        FixedTopPicksUiModel(
-                            id = fd.id,
-                            icon = fd.bankLogoUrl,
-                            name = fd.bankName,
-                            metadata = fd.riskLevel.label,
-                            percentage = fd.baseInterest
-                        )
-                    }
-                }
-                .onError {
-//                    SnackBarController.showError(it.message)
-                    errorMessage = it.message
-                }
+//                    fixedDeposits = data.map { fd ->
+//                        FixedTopPicksUiModel(
+//                            id = fd.id,
+//                            icon = fd.bankLogoUrl,
+//                            name = fd.bankName,
+//                            metadata = fd.riskLevel.label,
+//                            percentage = fd.baseInterest
+//                        )
+//                    }
+//                }
+//                .onError {
+////                    SnackBarController.showError(it.message)
+//                    errorMessage = it.message
+//                }
 
             if (hasAnySuccess) {
 

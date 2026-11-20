@@ -2,10 +2,12 @@ package org.sharad.velvetinvestment.features.plans.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -31,6 +33,7 @@ import org.sharad.velvetinvestment.utils.DateTimeUtils
 import org.sharad.velvetinvestment.utils.SnackBarController
 import org.sharad.velvetinvestment.utils.WebURLConstants
 import org.sharad.velvetinvestment.utils.networking.NetworkResponse
+import org.sharad.velvetinvestment.utils.otpautofill.OtpAutofill
 import org.sharad.velvetinvestment.shared.domain.usecase.GetUserDataUseCase
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
@@ -90,6 +93,8 @@ data class FundPurchaseUiState(
     val showKycPopup: Boolean = false,
     /** The popup only says the KYC is still being verified; it leads nowhere. */
     val isKycInProgress: Boolean = false,
+    /** The popup only says the bank account is still being verified, with no button. */
+    val isBankVerificationInProgress: Boolean = false,
 
     /** Gateway id of the plan or purchase awaiting confirmation; both OTP calls key on it. */
     val pendingPurchaseId: String? = null,
@@ -351,8 +356,12 @@ class FundPurchaseViewModel(
     private val getMfPurchase: GetMfPurchaseUseCase,
     private val requestMfPurchaseOtp: RequestMfPurchaseOtpUseCase,
     private val verifyMfPurchaseOtp: VerifyMfPurchaseOtpUseCase,
-    private val getUserData: GetUserDataUseCase
+    private val getUserData: GetUserDataUseCase,
+    private val otpAutofill: OtpAutofill
 ) : ViewModel() {
+
+    /** Fills the OTP sheet from the SMS; see [startOtpAutofill]. */
+    private var otpAutofillJob: Job? = null
 
     private val initialAmountType = AmountTypeLabel.getType(fundAmountType)
 
@@ -448,8 +457,10 @@ class FundPurchaseViewModel(
 
             FundPurchaseEvent.OnResendOtpClick -> onResendOtpClick()
 
-            FundPurchaseEvent.OnOtpSheetDismiss ->
+            FundPurchaseEvent.OnOtpSheetDismiss -> {
+                stopOtpAutofill()
                 _uiState.update { it.copy(showOtpSheet = false, otp = "") }
+            }
 
             FundPurchaseEvent.OnKycPopupDismiss ->
                 _uiState.update { it.copy(showKycPopup = false) }
@@ -608,6 +619,7 @@ class FundPurchaseViewModel(
                         )
                     }
                     startResendCountdown()
+                    startOtpAutofill()
                 }
             }
         }
@@ -751,6 +763,7 @@ class FundPurchaseViewModel(
             is NetworkResponse.Error -> failVerification(result.error.message)
 
             is NetworkResponse.Success -> {
+                stopOtpAutofill()
                 val confirmation = result.data
                 val paymentUrl = confirmation.paymentUrl
 
@@ -882,6 +895,8 @@ class FundPurchaseViewModel(
         if (state.resendSecondsLeft > 0) return
 
         val purchaseId = state.pendingPurchaseId ?: return
+        // Listening is one-shot, so re-arm it before the new SMS is sent.
+        startOtpAutofill()
 
         viewModelScope.launch {
             when (val result = requestMfPurchaseOtp(purchaseId)) {
@@ -889,6 +904,29 @@ class FundPurchaseViewModel(
                 is NetworkResponse.Success -> startResendCountdown()
             }
         }
+    }
+
+    /**
+     * Fills the sheet from the OTP SMS and confirms it; the user can still type the code if this
+     * fails (iOS, consent denied, timeout). This ViewModel outlives the sheet, so listening is
+     * stopped whenever the sheet closes, and a late SMS is ignored if it is already gone.
+     */
+    private fun startOtpAutofill() {
+        otpAutofillJob?.cancel()
+        otpAutofillJob = viewModelScope.launch {
+            otpAutofill.observeOtp(OTP_LENGTH)
+                .catch { /* Autofill is best effort; manual entry still works. */ }
+                .collect { code ->
+                    if (!_uiState.value.showOtpSheet) return@collect
+                    _uiState.update { it.copy(otp = code.take(OTP_LENGTH)) }
+                    onConfirmOtpClick()
+                }
+        }
+    }
+
+    private fun stopOtpAutofill() {
+        otpAutofillJob?.cancel()
+        otpAutofillJob = null
     }
 
     private fun startResendCountdown() {
@@ -925,7 +963,9 @@ class FundPurchaseViewModel(
                             submissionStage = null,
                             showKycPopup = true,
                             isKycInProgress =
-                                user.onboardingPrompt == OnboardingPrompt.KYC_IN_PROGRESS
+                                user.onboardingPrompt == OnboardingPrompt.KYC_IN_PROGRESS,
+                            isBankVerificationInProgress =
+                                user.onboardingPrompt == OnboardingPrompt.BANK_VERIFICATION_IN_PROGRESS
                         )
                     }
                 }
@@ -954,6 +994,7 @@ class FundPurchaseViewModel(
      * clean instead of re-showing a stale sheet or a spent purchase id.
      */
     private fun resetForNextPurchase() {
+        stopOtpAutofill()
         _uiState.update { state ->
             state.copy(
                 amount = "",

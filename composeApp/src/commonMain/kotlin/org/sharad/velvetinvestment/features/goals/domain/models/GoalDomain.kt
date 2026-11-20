@@ -38,13 +38,28 @@ data class GoalDomain(
     val calculationVersion: String?,
     val createdAt: String?,
     val updatedAt: String?,
-    /** As reported by the server, so the app and the backend agree on a goal's progress. */
+    /**
+     * The server's `progress_percent`, put through [toProgressPercent] once in the mapper, so
+     * home, the goals list and the projection all show (and fill the bar with) the same number.
+     */
     val progressPercent: Int,
     /** The holdings mapped to this goal; carried by `GET /user-goal/{id}` only. */
     val holdings: List<GoalHoldingDomain> = emptyList(),
     /** What those mapped holdings are worth today, as the server totals them. */
-    val totalHoldingsValue: Double = 0.0
+    val totalHoldingsValue: Double = 0.0,
+    /**
+     * What the goal is worth today (`total_current_value`): the first figure of a goal's
+     * "current / target" line. 0 when the server sends none.
+     */
+    val totalCurrentValue: Double = 0.0
 ) {
+    /**
+     * The second figure of a goal's "current / target" line: the projected
+     * [futureTargetAmount], falling back to [baseAmount] for a goal the server has not sized yet.
+     */
+    val progressTargetAmount: Double
+        get() = futureTargetAmount.takeIf { it > 0.0 } ?: baseAmount
+
     /** The present-day amount the goal was sized from, whichever field carries it. */
     val baseAmount: Double
         get() = currentCost ?: targetAmount ?: 0.0
@@ -67,6 +82,18 @@ data class GoalDomain(
         const val ACTIVE = "ACTIVE"
     }
 }
+
+/**
+ * The one rounding rule for a goal's progress, matching Janta Nivesh: a raw percent is truncated
+ * towards zero (the server's `0.6` is 0%, `1.9` is 1%) and clamped to 0..100. Every goal screen's
+ * label and bar go through this, so no two screens can round the same figure differently.
+ */
+fun Double.toProgressPercent(): Int =
+    if (isNaN()) 0 else toInt().coerceIn(0, 100)
+
+/** [toProgressPercent] for an amount saved against a target, e.g. the goals list total. */
+fun goalProgressPercent(saved: Double, target: Double): Int =
+    if (target <= 0.0) 0 else (saved / target * 100).toProgressPercent()
 
 /**
  * One holding mapped to a goal. [holdingId] is what `/user-goal/map` and `/user-goal/remove`

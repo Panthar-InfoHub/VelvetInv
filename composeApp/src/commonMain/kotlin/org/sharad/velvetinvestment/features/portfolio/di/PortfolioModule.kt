@@ -23,8 +23,9 @@ import org.sharad.velvetinvestment.features.portfolio.domain.usecases.InvestMore
 import org.sharad.velvetinvestment.features.portfolio.domain.usecases.RequestMfRedemptionOtpUseCase
 import org.sharad.velvetinvestment.features.portfolio.domain.usecases.VerifyMfRedemptionOtpUseCase
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.FDPortFolioDetailsViewModel
-import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.FolioFundsMFViewModel
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.MFPortfolioDetailsViewModel
+import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.FundFoliosViewModel
+import org.sharad.velvetinvestment.features.portfolio.domain.models.HoldingFolioDomain
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.PortfolioScreenViewModel
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.RedeemHolding
 import org.sharad.velvetinvestment.features.portfolio.ui.viewmodel.RedeemOtpViewModel
@@ -55,9 +56,13 @@ val portfolioFeatureModule = module {
     factory { ExportPortfolioReportUseCase(get(), get()) }
 
     viewModel { (holding: RedeemHolding) -> RedeemViewModel(holding, get(), get(), get()) }
-    viewModel { (redemptionId: String) -> RedeemOtpViewModel(redemptionId, get(), get(), get(), get()) }
-    viewModel { (folioId: String) -> FolioFundsMFViewModel(folioId, get()) }
-    viewModel { PortfolioScreenViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { MFPortfolioDetailsViewModel(get(), get(), get(), get()) }
+    viewModel { (redemptionId: String) -> RedeemOtpViewModel(redemptionId, get(), get(), get(), get(), get()) }
+    viewModel { PortfolioScreenViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { (title: String, folios: List<HoldingFolioDomain>) ->
+        FundFoliosViewModel(title, folios, get())
+    }
+    viewModel { (folio: String, holdingId: String) ->
+        MFPortfolioDetailsViewModel(folio, holdingId, get(), get(), get(), get(), get())
+    }
     viewModel { (fdId: String) -> FDPortFolioDetailsViewModel(get(), get(), fdId) }
 }

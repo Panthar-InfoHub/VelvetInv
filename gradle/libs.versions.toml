@@ -1,5 +1,6 @@
 [versions]
 playServicesLocation = "21.4.0"
+playServicesAuthApiPhone = "18.3.1"
 adaptive = "1.2.0"
 agp = "8.13.2"
 android-compileSdk = "36"
@@ -42,6 +43,7 @@ firebaseMessagingKtx = "24.1.2"
 
 [libraries]
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-auth-api-phone = { module = "com.google.android.gms:play-services-auth-api-phone", version.ref = "playServicesAuthApiPhone" }
 adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }

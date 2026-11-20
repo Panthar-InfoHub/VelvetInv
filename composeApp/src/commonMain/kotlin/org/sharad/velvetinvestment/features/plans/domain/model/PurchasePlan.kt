@@ -46,3 +46,16 @@ data class PurchasePlan(
         const val CONFIRMED = "confirmed"
     }
 }
+
+/**
+ * What `confirm/verify-otp` hands back for a SIP. The plan is registered either way; when
+ * [generatesFirstInstallmentNow] is set, the first installment is also placed as a one-time
+ * [firstInstallment] order that the user pays for on [paymentUrl] — exactly like a lumpsum — and
+ * the SIP is not finished until that order reads back as paid.
+ */
+data class PurchasePlanConfirmation(
+    val plan: PurchasePlan,
+    val generatesFirstInstallmentNow: Boolean,
+    val firstInstallment: MfPurchase?,
+    val paymentUrl: String?
+)

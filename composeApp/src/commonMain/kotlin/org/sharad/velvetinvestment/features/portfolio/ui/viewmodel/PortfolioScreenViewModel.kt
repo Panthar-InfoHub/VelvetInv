@@ -31,7 +31,6 @@ class PortfolioScreenViewModel(
     private val exportPortfolioReportUseCase: ExportPortfolioReportUseCase,
     private val downloadPdfByUrlUseCase: DownloadPdfByUrlUseCase,
     private val getActiveSipsUseCase: GetActiveSipsUseCase,
-    private val getPendingOrdersUseCase: GetPendingOrdersUseCase,
     private val cancelLumpSumOrderUseCase: CancelLumpSumOrderUseCase,
     private val cancelSipOrderUseCase: CancelSipOrderUseCase
 ) : ViewModel() {
@@ -69,6 +68,17 @@ class PortfolioScreenViewModel(
     private val _isLoadingActiveSips = MutableStateFlow(true)
     val isLoadingActiveSips = _isLoadingActiveSips.asStateFlow()
 
+    /**
+     * Monthly (0) / Daily (1) sub-tab on the Active SIP tab. Held here so it survives navigating
+     * to a SIP's details and back.
+     */
+    private val _selectedSipSubTab = MutableStateFlow(0)
+    val selectedSipSubTab = _selectedSipSubTab.asStateFlow()
+
+    fun onSipSubTabSelected(index: Int) {
+        _selectedSipSubTab.value = index
+    }
+
     init {
         refresh()
     }
@@ -82,20 +92,7 @@ class PortfolioScreenViewModel(
      */
     fun refresh() {
         loadPortfolio()
-        loadPendingOrders()
         loadActiveSips()
-    }
-
-    /**
-     * Velvet's "Pending Payments" on the Mutual Funds tab. JN declares the flow but never fills
-     * it; Velvet kept the section, so it keeps the read too. Silent on failure, like the SIP read.
-     */
-    fun loadPendingOrders() {
-        viewModelScope.launch {
-            getPendingOrdersUseCase()
-                .onSuccess { _pendingOrders.value = it }
-                .onError { _pendingOrders.value = emptyList() }
-        }
     }
 
     /**

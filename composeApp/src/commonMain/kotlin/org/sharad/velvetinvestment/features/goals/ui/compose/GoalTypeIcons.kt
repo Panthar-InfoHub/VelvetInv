@@ -7,6 +7,7 @@ import velvet.composeapp.generated.resources.education_icon
 import velvet.composeapp.generated.resources.ic_home
 import velvet.composeapp.generated.resources.ic_piggy_bank
 import velvet.composeapp.generated.resources.ins_car_insurance
+import velvet.composeapp.generated.resources.retirement
 import velvet.composeapp.generated.resources.ring_icon
 import velvet.composeapp.generated.resources.ruppee_circle
 
@@ -21,5 +22,6 @@ fun goalIconFor(type: GoalType?): DrawableResource = when (type) {
     GoalType.BuyHome -> Res.drawable.ic_home
     GoalType.BuyVehicle -> Res.drawable.ins_car_insurance
     GoalType.BuildSavings -> Res.drawable.ic_piggy_bank
+    GoalType.Retirement -> Res.drawable.retirement
     GoalType.OtherGoal, null -> Res.drawable.ruppee_circle
 }

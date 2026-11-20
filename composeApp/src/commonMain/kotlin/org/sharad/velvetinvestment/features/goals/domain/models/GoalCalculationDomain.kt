@@ -18,5 +18,24 @@ data class GoalCalculationDomain(
     val fvCurrentSavings: Double,
     val netRequiredCorpus: Double,
     val requiredMonthlySip: Double,
-    val requiredLumpsumToday: Double
+    val requiredLumpsumToday: Double,
+    /** Set only for a retirement goal, whose projection the shared fields above cannot describe. */
+    val retirement: RetirementProjection? = null
+)
+
+/** `POST /user-goal/calculate` for retirement (type 7). */
+data class RetirementProjection(
+    val currentAge: Int,
+    val retirementAge: Int,
+    val planUntilAge: Int,
+    val yearsToRetirement: Int,
+    /** Today's monthly lifestyle cost, inflated to the retirement date. */
+    val monthlyCostAtRetirement: Double,
+    /** The corpus to retire with, buffer included. */
+    val targetCorpus: Double,
+    /** What existing savings grow to by retirement. */
+    val fvExistingSavings: Double,
+    val remainingCorpusToBuild: Double,
+    val totalMonthlySip: Double,
+    val additionalLumpsumToday: Double
 )

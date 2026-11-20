@@ -118,7 +118,8 @@ fun BaseNavigation(windowSize: WindowSize, pv: PaddingValues) {
             val route = it.toRoute<Route.OnboardingGraph>()
             OnboardingNavigation(
                 // Reached from the nominees, from the investor profile on the KYC branch, from
-                // skipping PAN, and when the server already reports onboarding as completed.
+                // skipping PAN, from bank details left under review, and when the server already
+                // reports onboarding as completed.
                 onCompleted = {
                     prefs.setLoggedIn(true)
                     prefs.setOnboardingCompleted(true)

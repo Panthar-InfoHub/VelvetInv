@@ -20,7 +20,8 @@ data class GoalConfigDomain(
     val tenureSuggestions: List<Int>,
     val costChips: List<Long>,
     val assetSubtypes: List<String>,
-    val configVersion: String
+    val configVersion: String,
+    val isVelvet: Boolean = false
 ) {
     val type: GoalType? = GoalType.fromId(goalTypeId)
 }

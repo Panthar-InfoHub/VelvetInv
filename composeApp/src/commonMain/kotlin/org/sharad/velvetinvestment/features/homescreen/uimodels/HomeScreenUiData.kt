@@ -18,6 +18,8 @@ data class HomeScreenUiData(
     val kycFailureReason: String = "",
     /** A reload that keeps the screen up; only the KYC-in-progress card's refresh icon shows it. */
     val isKycRefreshing: Boolean = false,
+    /** The bank-in-review card is re-reading the penny drop status. */
+    val isBankStatusChecking: Boolean = false,
     /** FIRE steps verified or skipped so far, for the journey card. */
     val fireStepsDone: Int = 0,
     val fireStepsTotal: Int = 5

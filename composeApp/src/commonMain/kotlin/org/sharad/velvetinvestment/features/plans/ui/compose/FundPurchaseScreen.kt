@@ -123,6 +123,7 @@ fun FundPurchaseScreen(
         KYCPopup(
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             isKycInProgress = state.isKycInProgress,
+            isBankVerificationInProgress = state.isBankVerificationInProgress,
             onDismiss = { handleEvent(FundPurchaseEvent.OnKycPopupDismiss) },
             onClick = { handleEvent(FundPurchaseEvent.OnCompleteKycClick) }
         )

@@ -4,6 +4,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sharad.velvetinvestment.features.core.domain.models.PurchaseMode
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.FundPurchaseViewModel
+import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipFirstPaymentHandoff
+import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipFirstPaymentViewModel
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipMandateHandoff
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipPurchaseOtpViewModel
 import org.sharad.velvetinvestment.features.plans.ui.viewmodels.SipSetupViewModel
@@ -58,11 +60,15 @@ val plansFeatureModule = module {
             getMfPurchase = get(),
             requestMfPurchaseOtp = get(),
             verifyMfPurchaseOtp = get(),
-            getUserData = get()
+            getUserData = get(),
+            otpAutofill = get()
         )
     }
     viewModel { (handoff: SipMandateHandoff) -> SipSetupViewModel(handoff, get(), get(), get(), get()) }
     viewModel { (planId: String, schemeName: String, amount: Int, mode: PurchaseMode, installmentDay: Int) ->
-        SipPurchaseOtpViewModel(planId, schemeName, amount, mode, installmentDay, get(), get())
+        SipPurchaseOtpViewModel(planId, schemeName, amount, mode, installmentDay, get(), get(), get())
+    }
+    viewModel { (handoff: SipFirstPaymentHandoff) ->
+        SipFirstPaymentViewModel(handoff = handoff, getMfPurchase = get())
     }
 }

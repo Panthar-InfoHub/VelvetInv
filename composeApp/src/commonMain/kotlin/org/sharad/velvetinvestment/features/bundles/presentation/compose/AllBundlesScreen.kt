@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -22,6 +24,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,7 +41,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.sharad.emify.core.ui.theme.Primary
 import org.sharad.emify.core.ui.theme.appGreen
 import org.sharad.emify.core.ui.theme.titleColor
@@ -65,6 +75,24 @@ fun AllBundlesScreen(
     onEvent: (AllBundlesEvent) -> Unit,
     showBack: Boolean = true
 ) {
+    val pagerState = rememberPagerState(
+        initialPage = purchaseModeSelectorOrder.indexOf(state.purchaseMode).coerceAtLeast(0),
+        pageCount = { purchaseModeSelectorOrder.size }
+    )
+    val scope = rememberCoroutineScope()
+    val currentOnEvent by rememberUpdatedState(onEvent)
+
+    // The pager owns the visible mode; the view model hears about it once a swipe or tap settles.
+    // Nothing feeds the view model's mode back into the pager, so a tap that animates across a
+    // middle page cannot loop.
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }
+            .distinctUntilChanged()
+            .collect { page ->
+                currentOnEvent(AllBundlesEvent.OnPurchaseModeSelected(purchaseModeSelectorOrder[page]))
+            }
+    }
+
     Scaffold(
         topBar = {
             BackHeader(
@@ -87,37 +115,57 @@ fun AllBundlesScreen(
                 .padding(top = innerPadding.calculateTopPadding())
         ) {
             Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                PurchaseModeSwitch(
-                    selected = state.purchaseMode,
-                    onSelected = { onEvent(AllBundlesEvent.OnPurchaseModeSelected(it)) }
+                MultiWaySwitch(
+                    count = purchaseModeSelectorOrder.size,
+                    position = { pagerState.currentPage + pagerState.currentPageOffsetFraction },
+                    label = { purchaseModeSelectorOrder[it].switchLabel() },
+                    onSelected = { page -> scope.launch { pagerState.animateScrollToPage(page) } }
                 )
             }
 
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                when {
-                    state.isLoading && state.bundles.isEmpty() -> LoaderScreen()
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            ) { page ->
+                // Each page shows its own mode, so a page being dragged in has the right amounts.
+                val mode = purchaseModeSelectorOrder[page]
+                // Loading/error render inside each page, so the tabs still work while bundles load.
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when {
+                        state.isLoading && state.bundles.isEmpty() -> LoaderScreen()
 
-                    state.error != null && state.bundles.isEmpty() -> ErrorScreen(
-                        errorMessage = state.error,
-                        onRetryClick = { onEvent(AllBundlesEvent.Retry) }
-                    )
+                        state.error != null && state.bundles.isEmpty() -> ErrorScreen(
+                            errorMessage = state.error,
+                            onRetryClick = { onEvent(AllBundlesEvent.Retry) }
+                        )
 
-                    else -> LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(16.dp)
-                    ) {
-                        itemsIndexed(state.bundles, key = { _, bundle -> bundle.id }) { _, bundle ->
-                            BundleCardAll(
-                                bundle = bundle,
-                                purchaseMode = state.purchaseMode,
-                                onClick = { onEvent(AllBundlesEvent.OnBundleClicked(bundle.id)) },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        item {
-                            // Clears the floating cart button.
-                            Spacer(modifier = Modifier.height(72.dp + innerPadding.calculateBottomPadding()))
+                        else -> LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(16.dp)
+                        ) {
+                            itemsIndexed(state.bundles, key = { _, bundle -> bundle.id }) { _, bundle ->
+                                BundleCardAll(
+                                    bundle = bundle,
+                                    purchaseMode = mode,
+                                    onClick = {
+                                        // A tap can land before the swipe settles.
+                                        onEvent(AllBundlesEvent.OnPurchaseModeSelected(mode))
+                                        onEvent(AllBundlesEvent.OnBundleClicked(bundle.id))
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
+                            item {
+                                InfoBox(
+                                    "Returns shown are based on the past three years."
+                                )
+                            }
+                            item {
+                                // Clears the floating cart button.
+                                Spacer(modifier = Modifier.height(72.dp + innerPadding.calculateBottomPadding()))
+                            }
                         }
                     }
                 }

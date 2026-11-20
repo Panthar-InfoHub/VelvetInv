@@ -282,9 +282,10 @@ private fun ProjectedImpactCard(
             targetText = data.targetYear?.toString() ?: "${data.yearsRemaining} yrs",
             monthlySip = data.monthlySip,
             footer = {
+                // Same "current / target" pair as the goal cards on Home and Your Goals.
                 GoalProgress(
-                    saved = data.currentSavings,
-                    target = data.futureValue,
+                    saved = data.currentValue,
+                    target = data.progressTargetAmount,
                     progressPercent = data.progressPercent
                 )
             }
@@ -292,7 +293,10 @@ private fun ProjectedImpactCard(
     }
 }
 
-/** Saved so far against the projected target; the bar is the server's `progress_percent`. */
+/**
+ * What the goal is worth today (`total_current_value`) against its target; label and bar are the server's `progress_percent`,
+ * truncated by `toProgressPercent` exactly as home and the goals list do.
+ */
 @Composable
 private fun GoalProgress(saved: Double, target: Double, progressPercent: Int) {
     val progress = (progressPercent / 100f).coerceIn(0f, 1f)
@@ -352,6 +356,8 @@ private fun ProjectedImpactScreenPreview() {
                     yearsRemaining = 5,
                     targetYear = 2031,
                     progressPercent = 8,
+                    currentValue = 115_000.0,
+                    progressTargetAmount = 1_276_281.56,
                     feasibilityScore = 0.13f,
                     increasedBy = 276_281.56,
                     isFixedCorpus = false,

@@ -12,7 +12,7 @@ import org.sharad.velvetinvestment.features.onboarding.domain.repository.Onboard
 class SubmitPennyDropUseCase(
     private val onboardingRepo: OnboardingRepo
 ) {
-    suspend operator fun invoke(bankAccount: BankAccount): NetworkResponse<Unit, ErrorDomain> {
+    suspend operator fun invoke(bankAccount: BankAccount): NetworkResponse<PennyDropStatus, ErrorDomain> {
         return onboardingRepo.submitPennyDrop(bankAccount)
     }
 }
@@ -20,10 +20,8 @@ class SubmitPennyDropUseCase(
 class GetPennyDropStatusUseCase(
     private val onboardingRepo: OnboardingRepo
 ) {
-    suspend operator fun invoke(
-        accountNumber: String
-    ): NetworkResponse<PennyDropStatus, ErrorDomain> {
-        return onboardingRepo.getPennyDropStatus(accountNumber)
+    suspend operator fun invoke(): NetworkResponse<PennyDropStatus, ErrorDomain> {
+        return onboardingRepo.getPennyDropStatus()
     }
 }
 

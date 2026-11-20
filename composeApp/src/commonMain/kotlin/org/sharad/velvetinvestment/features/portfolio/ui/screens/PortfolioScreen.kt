@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -114,7 +115,10 @@ import kotlin.math.abs
 @Composable
 fun PortfolioScreenMain(
     viewModel: PortfolioScreenViewModel,
+    /** A fund row: opens the fund's folio listing. */
     onFolioItemClick: (MutualFundPortfolioDomain) -> Unit,
+    /** An active SIP: opens the order details of the one folio it invests into. */
+    onActiveSipClick: (MutualFundPortfolioDomain) -> Unit,
     onFDClick: (String) -> Unit,
     navigateToCategoryMutualFundScreen: () -> Unit,
     navigateToCategoryFDScreen: () -> Unit,
@@ -131,6 +135,7 @@ fun PortfolioScreenMain(
     val pendingOrders by viewModel.pendingOrders.collectAsStateWithLifecycle()
     val activeSips by viewModel.activeSips.collectAsStateWithLifecycle()
     val isLoadingActiveSips by viewModel.isLoadingActiveSips.collectAsStateWithLifecycle()
+    val selectedSipSubTab by viewModel.selectedSipSubTab.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState(pageCount = { SelectedPortfolio.tabs.size })
 
     Box(
@@ -170,8 +175,10 @@ fun PortfolioScreenMain(
                         pendingOrders = pendingOrders,
                         activeSips = activeSips,
                         isLoadingActiveSips = isLoadingActiveSips,
+                        selectedSipSubTab = selectedSipSubTab,
+                        onSipSubTabSelected = viewModel::onSipSubTabSelected,
                         onActiveSipClick = { sip ->
-                            onFolioItemClick(sip.resolveHolding(data.mutualFunds))
+                            onActiveSipClick(sip.resolveHolding(data.mutualFunds))
                         },
                         pagerState=pagerState
                     )
@@ -231,7 +238,9 @@ fun PortfolioScreen(
     isLoadingActiveSips: Boolean,
     onActiveSipClick: (ActiveSipItemDomain) -> Unit,
     pagerState: PagerState,
-    onCancelPendingOrder: (PendingOrderDomain) -> Unit
+    onCancelPendingOrder: (PendingOrderDomain) -> Unit,
+    selectedSipSubTab: Int = 0,
+    onSipSubTabSelected: (Int) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
 
@@ -320,6 +329,8 @@ fun PortfolioScreen(
                     ActiveSipPortfolio(
                         activeSip = activeSips,
                         isLoading = isLoadingActiveSips,
+                        selectedSubTab = selectedSipSubTab,
+                        onSubTabSelected = onSipSubTabSelected,
                         reload = reload,
                         onSipClick = onActiveSipClick,
                         onBrowseClick = navigateToCategoryMutualFundScreen
@@ -355,9 +366,10 @@ fun ActiveSipPortfolio(
     isLoading: Boolean,
     reload: () -> Unit,
     onSipClick: (ActiveSipItemDomain) -> Unit,
-    onBrowseClick: () -> Unit
+    onBrowseClick: () -> Unit,
+    selectedSubTab: Int = 0,
+    onSubTabSelected: (Int) -> Unit = {}
 ) {
-    var selectedSubTab by remember { mutableStateOf(0) }
     val subTabs = listOf("Monthly SIP", "Daily SIP")
     val showSubTabs = true
 
@@ -369,12 +381,14 @@ fun ActiveSipPortfolio(
     }
 
     if (activeSip.isEmpty) {
-        EmptyFundScreen(
-            title = "Start your first SIP",
-            subtitle = "You have no running SIPs. Start one to invest a fixed amount automatically, every month.",
-            buttonText = "Explore SIP Funds",
-            onActionClick = onBrowseClick
-        )
+        RefreshableEmptyState(reload = reload) {
+            EmptyFundScreen(
+                title = "Start your first SIP",
+                subtitle = "You have no active SIPs yet. Start a daily or monthly SIP to invest a fixed amount automatically.",
+                buttonText = "Explore Mutual Funds",
+                onActionClick = onBrowseClick
+            )
+        }
         return
     }
 
@@ -399,7 +413,7 @@ fun ActiveSipPortfolio(
                     GenericTabSwitcher(
                         tabs = subTabs,
                         selectedTab = subTabs[selectedSubTab],
-                        onTabSelected = { selectedSubTab = subTabs.indexOf(it) },
+                        onTabSelected = { onSubTabSelected(subTabs.indexOf(it)) },
                         modifier = Modifier.padding(vertical = 4.dp)
                     ) { tab, selected ->
                         Text(
@@ -423,18 +437,40 @@ fun ActiveSipPortfolio(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No active ${subTabs[if (showSubTabs) selectedSubTab else 0]} found",
+                            text = if (showSubTabs && selectedSubTab == 1) "No active daily SIPs" else "No active monthly SIPs",
                             style = subHeading,
                             color = titleColor
                         )
                     }
                 }
             } else {
-                items(currentSips, key = { it.id }) { item ->
+                itemsIndexed(currentSips, key = { index, item -> "sip_${selectedSubTab}_${item.id}_$index" }) { _, item ->
                     ActiveSipCard(item = item, onClick = { onSipClick(item) })
                 }
             }
             item { Spacer(modifier = Modifier.height(20.dp)) }
+        }
+    }
+}
+
+/**
+ * An empty tab that still answers pull-to-refresh. [PullToRefreshBox] only reacts to a scrollable
+ * child, so the empty state sits in a one-item list sized to the viewport — still centred, and a
+ * pull on it re-reads the portfolio like a pull on a filled tab does.
+ */
+@Composable
+private fun RefreshableEmptyState(
+    reload: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    PullToRefreshBox(
+        isRefreshing = false,
+        onRefresh = reload
+    ) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item {
+                Box(modifier = Modifier.fillParentMaxSize()) { content() }
+            }
         }
     }
 }
@@ -584,14 +620,34 @@ private fun ActiveSipItemDomain.resolveHolding(
         folioKey.isNotBlank() && (
             holding.folio.folioKey() == folioKey ||
                 holding.actualFolio.folioKey() == folioKey ||
-                holding.folios.any { it.folioKey() == folioKey }
+                holding.folios.any { it.folioNumber.folioKey() == folioKey }
             )
     } ?: holdings.firstOrNull { it.title.trim().equals(fundName.trim(), ignoreCase = true) }
+
+    // A fund row is every folio combined; the SIP invests into one of them, so the details open
+    // on that folio's holding rather than the row's headline one.
+    val sipFolio = matched?.folios?.firstOrNull {
+        folioKey.isNotBlank() && it.folioNumber.folioKey() == folioKey
+    }
+    if (matched != null && sipFolio != null) {
+        return matched.copy(
+            id = sipFolio.holdingId.ifBlank { matched.id },
+            folio = sipFolio.folioNumber,
+            actualFolio = sipFolio.folioNumber,
+            amount = sipFolio.amount,
+            currentValue = sipFolio.currentValue,
+            returnAmount = sipFolio.currentValue - sipFolio.amount,
+            balanceUnits = sipFolio.units,
+            redeemableUnits = sipFolio.redeemableUnits,
+            planId = fpId
+        )
+    }
+    if (matched != null) return matched.copy(planId = fpId)
 
     // A SIP whose first installment has not been allotted yet has no holding to match. The
     // details screen still opens, on what the plan itself reports, with the figures it has not
     // earned left at zero rather than invented.
-    return matched ?: MutualFundPortfolioDomain(
+    return MutualFundPortfolioDomain(
         id = id,
         title = fundName,
         category = fundCategory,
@@ -608,7 +664,8 @@ private fun ActiveSipItemDomain.resolveHolding(
         balanceUnits = 0.0,
         isSip = true,
         subCategory = fundType,
-        currentNav = latestNav
+        currentNav = latestNav,
+        planId = fpId
     )
 }
 
@@ -644,23 +701,25 @@ fun DashboardPortfolio(
                         onArrowClick = onSeeAllMF
                     )
                 }
-                items(mutualFunds.take(2), key = { "mf_${it.folio}_${it}" }) { item ->
-                    FolioFundCard(fundItem = item, onClick = { onSIPClick(item) })
+                itemsIndexed(mutualFunds.take(2), key = { index, item -> "mf_${item.folio}_${item.id}_$index" }) { _, item ->
+                    FolioFundCard(fundItem = item, onClick = { onSIPClick(item) }, showTypeTag = false)
                 }
             }
 
-            if (fixedDeposits.isNotEmpty()) {
-                item {
-                    BarHeader(
-                        heading = "Fixed Deposits",
-                        showArrow = true,
-                        onArrowClick = onSeeAllFD
-                    )
-                }
-                items(fixedDeposits.take(2), key = { "fd_${it.id}" }) { fd ->
-                    FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
-                }
-            }
+            // FD-HIDDEN: Dashboard FD listing hidden while FD is "coming soon" (the FD tab its
+            // arrow opens is also off). See docs/FD_HIDE_RESTORE.md.
+//            if (fixedDeposits.isNotEmpty()) {
+//                item {
+//                    BarHeader(
+//                        heading = "Fixed Deposits",
+//                        showArrow = true,
+//                        onArrowClick = onSeeAllFD
+//                    )
+//                }
+//                itemsIndexed(fixedDeposits.take(2), key = { index, fd -> "fd_${fd.id}_$index" }) { _, fd ->
+//                    FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
+//                }
+//            }
             item { Spacer(modifier = Modifier.height(20.dp)) }
         }
     }
@@ -683,12 +742,14 @@ fun MutualFundPortfolio(
     onCancelPendingOrder: (PendingOrderDomain) -> Unit
 ) {
     if (mutualFund.isEmpty() && pendingOrders.isEmpty()) {
-        EmptyFundScreen(
-            title = "Your investment journey starts here",
-            subtitle = "Grow your wealth with Mutual Funds through SIPs for steady investing or Lumpsum for one-time opportunities.",
-            buttonText = "Explore Mutual Funds",
-            onActionClick = onEmptyButtonClick
-        )
+        RefreshableEmptyState(reload = reload) {
+            EmptyFundScreen(
+                title = "Your investment journey starts here",
+                subtitle = "You don't hold any mutual funds yet. Invest through a SIP for steady growth, or a lump sum to put money to work at once.",
+                buttonText = "Explore Mutual Funds",
+                onActionClick = onEmptyButtonClick
+            )
+        }
     } else {
         PullToRefreshBox(
             isRefreshing = false,
@@ -719,15 +780,17 @@ fun MutualFundPortfolio(
 
                 if(mutualFund.isNotEmpty()){
                     item { BarHeader(heading = "Mutual Funds") }
-                    items(mutualFund, key = { it.folio }) { item ->
-                        FolioFundCard(fundItem = item, onClick = {
-                            onFundClick(item)
-                        })
+                    itemsIndexed(mutualFund, key = { index, item -> "mf_${item.folio}_${item.id}_$index" }) { _, item ->
+                        FolioFundCard(
+                            fundItem = item,
+                            onClick = { onFundClick(item) },
+                            showTypeTag = false
+                        )
                     }
                 }
                 if (pendingOrders.isNotEmpty()) {
                     item { BarHeader(heading = "Pending Payments") }
-                    items(pendingOrders, key = { it.id+ it.startDate }) { item ->
+                    itemsIndexed(pendingOrders, key = { index, item -> "pending_${item.id}_${item.startDate}_$index" }) { _, item ->
                         PendingPaymentsCard(item, onCancel = {
                             onCancelPendingOrder(item)
                         }
@@ -867,12 +930,14 @@ fun FixedDepositPortfolio(
     reload: () -> Unit
 ) {
     if (fixedDeposits.isEmpty()) {
-        EmptyFundScreen(
-            title = "Grow your savings safely",
-            subtitle = "Lock in your savings with Fixed Deposits and earn stable, guaranteed returns over time.",
-            buttonText = "Book Fixed Deposit",
-            onActionClick = onEmptyButtonClick
-        )
+        RefreshableEmptyState(reload = reload) {
+            EmptyFundScreen(
+                title = "Grow your savings safely",
+                subtitle = "You don't have any fixed deposits yet. Book one to earn a fixed rate of interest for the tenure you choose.",
+                buttonText = "Explore Fixed Deposits",
+                onActionClick = onEmptyButtonClick
+            )
+        }
     } else {
         PullToRefreshBox(
             isRefreshing = false,
@@ -884,7 +949,7 @@ fun FixedDepositPortfolio(
             ) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
                 item { BarHeader(heading = "Fixed Deposits") }
-                items(fixedDeposits, key = { it.id }) { fd ->
+                itemsIndexed(fixedDeposits, key = { index, fd -> "fd_${fd.id}_$index" }) { _, fd ->
                     FixedDepositCard(fdData = fd, onClick = { onFDClick(fd.id) })
                 }
                 item {

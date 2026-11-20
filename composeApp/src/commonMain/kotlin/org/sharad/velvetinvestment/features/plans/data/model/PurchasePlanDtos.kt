@@ -2,6 +2,7 @@ package org.sharad.velvetinvestment.features.plans.data.model
 
 import kotlinx.serialization.Serializable
 import org.sharad.velvetinvestment.features.plans.domain.model.PurchasePlan
+import org.sharad.velvetinvestment.features.plans.domain.model.PurchasePlanConfirmation
 import org.sharad.velvetinvestment.utils.WebURLConstants
 
 @Serializable
@@ -131,6 +132,78 @@ data class PurchasePlanDataDto(
     val start_date: String? = null,
     val systematic: Boolean = false
 )
+
+/**
+ * `POST /mf/purchase-plan/{id}/confirm/verify-otp`.
+ *
+ * The confirmed plan record, plus two blocks that are only filled in when the gateway takes the
+ * first installment straight away (`generate_first_installment_now`): the one-time [order] that
+ * installment runs as, and the [payment] page that pays for it. Kept apart from
+ * [PurchasePlanDataDto] so the plan read-backs are not tied to this response's extra shapes.
+ */
+@Serializable
+data class ConfirmPurchasePlanResponseDto(
+    val success: Boolean = false,
+    val message: String? = null,
+    val data: ConfirmPurchasePlanDataDto? = null
+)
+
+@Serializable
+data class ConfirmPurchasePlanDataDto(
+    /** The app's own database key. */
+    val id: String? = null,
+    /** Gateway id (`mfpp_…`), which is what the plan endpoints accept. */
+    val fp_id: String? = null,
+    val state: String? = null,
+    val scheme: String? = null,
+    val folio_number: String? = null,
+    val amount: String? = null,
+    val frequency: String? = null,
+    val installment_day: Int? = null,
+    val number_of_installments: Int? = null,
+    val remaining_installments: Int? = null,
+    val start_date: String? = null,
+    val generate_first_installment_now: Boolean = false,
+    /** Same shape as a lumpsum purchase, and read back on `GET /mf/purchase/{fp_id}` like one. */
+    val order: MfPurchaseDataDto? = null,
+    val payment: PurchasePlanPaymentDto? = null
+)
+
+@Serializable
+data class PurchasePlanPaymentDto(
+    val id: String? = null,
+    val status: String? = null,
+    val payment_url: String? = null
+)
+
+fun ConfirmPurchasePlanResponseDto.toDomain(): PurchasePlanConfirmation? {
+    val data = this.data ?: return null
+
+    val plan = PurchasePlanDataDto(
+        id = data.id,
+        fp_plan_id = data.fp_id,
+        state = data.state,
+        scheme = data.scheme,
+        folio_number = data.folio_number,
+        amount = data.amount,
+        frequency = data.frequency,
+        installment_day = data.installment_day,
+        number_of_installments = data.number_of_installments,
+        remaining_installments = data.remaining_installments,
+        start_date = data.start_date
+    ).toDomain() ?: return null
+
+    return PurchasePlanConfirmation(
+        plan = plan,
+        generatesFirstInstallmentNow = data.generate_first_installment_now,
+        // Only the gateway id (`mfp_…`) can be polled; an order without it is treated as absent
+        // rather than falling back to the database id, which the read-back would not recognise.
+        firstInstallment = data.order
+            ?.takeIf { !it.fp_id.isNullOrBlank() }
+            ?.toDomain(),
+        paymentUrl = data.payment?.payment_url?.takeIf { it.isNotBlank() }
+    )
+}
 
 /** `GET /mf-purchase-plan/` — the list form, which nests the array one level deeper. */
 @Serializable

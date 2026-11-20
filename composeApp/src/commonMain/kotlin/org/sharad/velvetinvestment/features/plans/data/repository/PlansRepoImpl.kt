@@ -10,6 +10,7 @@ import org.sharad.velvetinvestment.features.plans.data.model.CreateDailySipPlanB
 import org.sharad.velvetinvestment.features.plans.data.model.CreateMfPurchaseBody
 import org.sharad.velvetinvestment.features.plans.data.model.CreateMfPurchaseResponseDto
 import org.sharad.velvetinvestment.features.plans.data.model.CreateMonthlySipPlanBody
+import org.sharad.velvetinvestment.features.plans.data.model.ConfirmPurchasePlanResponseDto
 import org.sharad.velvetinvestment.features.plans.data.model.CreatePurchasePlanResponseDto
 import org.sharad.velvetinvestment.features.plans.data.model.MandateListResponseDto
 import org.sharad.velvetinvestment.features.plans.data.model.MfPurchaseResponseDto
@@ -22,6 +23,7 @@ import org.sharad.velvetinvestment.features.plans.domain.model.MandateOption
 import org.sharad.velvetinvestment.features.plans.domain.model.MfPurchase
 import org.sharad.velvetinvestment.features.plans.domain.model.MfPurchaseConfirmation
 import org.sharad.velvetinvestment.features.plans.domain.model.PurchasePlan
+import org.sharad.velvetinvestment.features.plans.domain.model.PurchasePlanConfirmation
 import org.sharad.velvetinvestment.features.plans.domain.model.SchemePlan
 import org.sharad.velvetinvestment.features.plans.domain.repository.PlansRepo
 import org.sharad.velvetinvestment.utils.networking.ErrorDomain
@@ -107,8 +109,8 @@ class PlansRepoImpl(
     override suspend fun verifyPurchasePlanOtp(
         planId: String,
         otp: String
-    ): NetworkResponse<PurchasePlan, ErrorDomain> {
-        val response = safeRequest<PurchasePlanResponseDto> {
+    ): NetworkResponse<PurchasePlanConfirmation, ErrorDomain> {
+        val response = safeRequest<ConfirmPurchasePlanResponseDto> {
             client.post(getUrl("/mf/purchase-plan/$planId/confirm/verify-otp")) {
                 setBody(VerifyOtpBody(otp = otp))
             }

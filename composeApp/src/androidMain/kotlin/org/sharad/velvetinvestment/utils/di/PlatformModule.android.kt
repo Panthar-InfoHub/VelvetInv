@@ -21,6 +21,8 @@ import org.sharad.velvetinvestment.utils.deviceinfoprovider.DeviceInfoRetriever
 import org.sharad.velvetinvestment.utils.pdfutils.PdfViewer
 import org.sharad.velvetinvestment.utils.pdfutils.PdfViewerAndroid
 import org.sharad.velvetinvestment.utils.storage.SharedPreference
+import org.sharad.velvetinvestment.utils.otpautofill.userconsent.AndroidSmsUserConsent
+import org.sharad.velvetinvestment.utils.otpautofill.userconsent.SmsUserConsent
 
 actual val platformModule: Module
     get() = module {
@@ -33,5 +35,8 @@ actual val platformModule: Module
         single<PdfViewer> { PdfViewerAndroid(get()) }
         single<VelvetDatabase> { createAndroidDatabase(get()) }
         single<LocationProvider> { AndroidLocationProvider(get()) }
+        // One instance: MainActivity attaches to it, and the shared code listens through it.
+        single { AndroidSmsUserConsent(context = get()) }
+        single<SmsUserConsent> { get<AndroidSmsUserConsent>() }
 
     }

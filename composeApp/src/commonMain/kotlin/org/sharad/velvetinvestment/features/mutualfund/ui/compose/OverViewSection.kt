@@ -26,13 +26,7 @@ fun OverviewSection(
     data: MutualFundDetailsDomain?
 ) {
 
-    val expenseRatio = data?.metrics?.nav_change_pct?.let {
-        "${it}%"
-    } ?: "N/A"
-
     val amc = data?.amc_name ?: "N/A"
-
-    val inceptionDate = data?.createdAt?.toReadableDate() ?: "N/A"
 
     val schemeType = data?.scheme_type ?: "N/A"
 
@@ -51,15 +45,9 @@ fun OverviewSection(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                OverviewItem("Expense Ratio", expenseRatio, Modifier.weight(1f))
                 OverviewItem("AMC", amc, Modifier.weight(1f))
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                OverviewItem("Inception Date", inceptionDate, Modifier.weight(1f))
                 OverviewItem("Scheme Type", schemeType, Modifier.weight(1f))
+
             }
         }
     }
